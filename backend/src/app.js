@@ -12,10 +12,15 @@ const profileRoutes = require("./routes/profileRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const app = express();
+const allowedClientOrigins = new Set([
+  ...clientOrigins,
+  "https://assesspro-1-d865.onrender.com",
+  "https://assesspro-1-i07n.onrender.com",
+].map((origin) => origin.trim().replace(/\/$/, "")).filter(Boolean));
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || clientOrigins.includes(origin))
+      if (!origin || allowedClientOrigins.has(origin.replace(/\/$/, "")))
         return callback(null, true);
       return callback(null, false);
     },
