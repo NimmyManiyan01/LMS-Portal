@@ -60,6 +60,8 @@ router.post("/:id/start", authenticate, async (req, res) => {
     (exam.closesAt && new Date(exam.closesAt) <= new Date())
   )
     return res.status(409).json({ error: "This examination is closed" });
+  if (exam.status === "SCHEDULED" && exam.scheduledAt && new Date(exam.scheduledAt) > new Date())
+    return res.status(409).json({ error: "This examination is not available yet." });
   let active = await Attempt.findOne({
     examId: exam._id,
     studentId: req.student.id,

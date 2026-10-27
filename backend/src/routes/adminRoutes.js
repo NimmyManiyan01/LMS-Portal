@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const Student = require("../models/Student");
 const Exam = require("../models/Exam");
 const Attempt = require("../models/Attempt");
@@ -18,8 +19,8 @@ const adminOnly = (req, res, next) =>
 const reserveExamCode = async () => { const year = new Date().getFullYear(); for (;;) { const counter = await Counter.findOneAndUpdate({ _id: `examCode:${year}` }, { $inc: { sequence: 1 } }, { upsert: true, new: true }); const code = `EXAM-${year}-${String(counter.sequence).padStart(4, "0")}`; if (!(await Exam.exists({ code }))) return code; } };
 
 router.get("/exams", authenticate, adminOnly, async (_req, res) => {
-  const exams = await Exam.find({ status: { $ne: "CLOSED" } }).select("_id code title status scheduledAt totalMarks totalQuestions").sort({ createdAt: -1 }).lean();
-  res.json({ exams: exams.map((exam) => ({ id: String(exam._id), code: exam.code, title: exam.title, status: exam.status, scheduledAt: exam.scheduledAt, totalMarks: exam.totalMarks, totalQuestions: exam.totalQuestions })) });
+  const exams = await Exam.find({ status: { $ne: "CLOSED" } }).select("_id code title status scheduledAt closesAt totalMarks totalQuestions durationMinutes").sort({ createdAt: -1 }).lean();
+  res.json({ exams: exams.map((exam) => ({ id: String(exam._id), code: exam.code, title: exam.title, status: exam.status, scheduledAt: exam.scheduledAt, closesAt: exam.closesAt, totalMarks: exam.totalMarks, totalQuestions: exam.totalQuestions, durationMinutes: exam.durationMinutes })) });
 });
 router.get("/exams/next-code", authenticate, adminOnly, async (_req, res) => { const year = new Date().getFullYear(); const counter = await Counter.findOne({ _id: `examCode:${year}` }).lean(); res.json({ code: `EXAM-${year}-${String((counter?.sequence || 0) + 1).padStart(4, "0")}` }); });
 router.post("/exams", authenticate, adminOnly, async (req, res) => {
@@ -34,7 +35,45 @@ router.post("/exams", authenticate, adminOnly, async (req, res) => {
   try { const exam = await Exam.create({ title, name: title, code, description: String(req.body.description || ""), examinationType: String(req.body.examinationType || "MCQ"), scheduledAt: start, closesAt: end, durationMinutes: duration, maxAttempts: attempts, instructions: Array.isArray(req.body.instructions) ? req.body.instructions : String(req.body.instructions || "").split(/\r?\n/).map((v) => v.trim()).filter(Boolean), status: "DRAFT", createdBy: req.admin?._id }); res.status(201).json({ exam }); } catch (error) { if (error?.code === 11000) return res.status(409).json({ error: "Examination code already exists." }); throw error; }
 });
 router.get("/exams/:id", authenticate, adminOnly, async (req, res) => { const exam = await Exam.findById(req.params.id).lean(); if (!exam) return res.status(404).json({ error: "Examination not found" }); res.json({ exam }); });
-router.patch("/exams/:id", authenticate, adminOnly, async (req, res) => { const exam = await Exam.findById(req.params.id); if (!exam) return res.status(404).json({ error: "Examination not found" }); if (["ACTIVE", "COMPLETED", "CLOSED"].includes(exam.status) && req.body.status && req.body.status !== exam.status) return res.status(409).json({ error: "This examination lifecycle state cannot be changed that way." }); const fields = { name: "title", title: "title", description: "description", examinationType: "examinationType", startAt: "scheduledAt", scheduledAt: "scheduledAt", endAt: "closesAt", closesAt: "closesAt", durationMinutes: "durationMinutes", maxAttempts: "maxAttempts", status: "status" }; for (const [from, to] of Object.entries(fields)) if (req.body[from] !== undefined) exam[to] = ["scheduledAt", "closesAt"].includes(to) ? new Date(req.body[from]) : req.body[from]; if (exam.status === "SCHEDULED" && (!exam.scheduledAt || !exam.closesAt || exam.closesAt <= exam.scheduledAt)) return res.status(400).json({ error: "Scheduled examinations require a valid date range." }); await exam.save(); res.json({ exam }); });
+router.patch("/exams/:id", authenticate, adminOnly, async (req, res) => {
+  const exam = await Exam.findById(req.params.id);
+  if (!exam) return res.status(404).json({ error: "Examination not found" });
+  if (["ACTIVE", "COMPLETED", "CLOSED"].includes(exam.status) && req.body.status && req.body.status !== exam.status) return res.status(409).json({ error: "This examination lifecycle state cannot be changed that way." });
+  const fields = { name: "title", title: "title", description: "description", examinationType: "examinationType", startAt: "scheduledAt", scheduledAt: "scheduledAt", endAt: "closesAt", closesAt: "closesAt", durationMinutes: "durationMinutes", maxAttempts: "maxAttempts", status: "status" };
+  for (const [from, to] of Object.entries(fields)) if (req.body[from] !== undefined) exam[to] = ["scheduledAt", "closesAt"].includes(to) ? new Date(req.body[from]) : req.body[from];
+  if (exam.status === "SCHEDULED") {
+    const durationWindow = (exam.closesAt - exam.scheduledAt) / 60000;
+    if (!exam.scheduledAt || !exam.closesAt || exam.closesAt <= exam.scheduledAt || !Number.isFinite(durationWindow) || durationWindow < Number(exam.durationMinutes)) return res.status(400).json({ error: "Scheduled examinations require a valid date range and duration." });
+    const publishedSet = await PaperSet.findOne({ examId: exam._id, status: "PUBLISHED", active: true }).select("_id durationMinutes").lean();
+    if (!publishedSet) return res.status(409).json({ error: "At least one published paper set is required before scheduling." });
+    if (Number(publishedSet.durationMinutes) !== Number(exam.durationMinutes)) return res.status(409).json({ error: "The published paper set duration must match the examination duration." });
+  }
+  await exam.save(); res.json({ exam });
+});
+router.get("/exams/:id/assignments", authenticate, adminOnly, async (req, res) => {
+  const exam = await Exam.findById(req.params.id).lean();
+  if (!exam) return res.status(404).json({ error: "Examination not found" });
+  const assignedIds = (exam.eligibility?.studentIds || []).map(String);
+  const students = await Student.find({ accountStatus: "ACTIVE" }).select("studentId fullName email accountStatus createdAt").sort({ fullName: 1 }).lean();
+  const assignmentAudit = await AuditLog.findOne({ action: "EXAM_STUDENTS_ASSIGNED", entityType: "Exam", entityId: exam._id }).sort({ createdAt: -1 }).select("createdAt").lean();
+  res.json({ exam: { id: String(exam._id), title: exam.title, code: exam.code, scheduledAt: exam.scheduledAt, closesAt: exam.closesAt, durationMinutes: exam.durationMinutes, maxAttempts: exam.maxAttempts }, assignedStudentIds: assignedIds, assignedAt: assignmentAudit?.createdAt || null, students: students.map(studentView) });
+});
+router.put("/exams/:id/assignments", authenticate, adminOnly, async (req, res) => {
+  const exam = await Exam.findById(req.params.id);
+  if (!exam) return res.status(404).json({ error: "Examination not found" });
+  if (exam.status !== "SCHEDULED") return res.status(409).json({ error: "Students can only be assigned to scheduled examinations." });
+  const publishedSet = await PaperSet.findOne({ examId: exam._id, status: "PUBLISHED", active: true }).select("_id").lean();
+  if (!publishedSet) return res.status(409).json({ error: "A published paper set is required before assigning students." });
+  const ids = Array.isArray(req.body.studentIds) ? [...new Set(req.body.studentIds.map(String))] : [];
+  if (!ids.length) return res.status(400).json({ error: "Select at least one active student." });
+  if (ids.some((id) => !mongoose.isValidObjectId(id))) return res.status(400).json({ error: "Assignment contains an invalid student." });
+  const activeCount = await Student.countDocuments({ _id: { $in: ids }, accountStatus: "ACTIVE" });
+  if (activeCount !== ids.length) return res.status(400).json({ error: "Only active students can be assigned." });
+  exam.eligibility = { ...(exam.eligibility?.toObject?.() || exam.eligibility || {}), studentIds: ids };
+  await exam.save();
+  await AuditLog.create({ actorId: req.admin?._id, actorRole: "ADMIN", action: "EXAM_STUDENTS_ASSIGNED", entityType: "Exam", entityId: exam._id, metadata: { studentIds: ids } });
+  res.json({ assignedStudentIds: ids, assignedStudentCount: ids.length });
+});
 
 const emailPattern = /^[\w.!#$%&'*+/=?^`{|}~-]+@[\w-]+(?:\.[\w-]+)+$/;
 const studentView = (student) => ({
@@ -166,22 +205,39 @@ router.get("/paper-sets/questions/eligible", authenticate, adminOnly, async (req
 });
 router.post("/paper-sets", authenticate, adminOnly, async (req, res) => {
   const { name, examId, description = "", durationMinutes, totalMarks, passingMarks, instructions = [], questionIds = [] } = req.body;
-  if (!name?.trim() || !mongoose.isValidObjectId(examId) || Number(durationMinutes) <= 0 || Number(totalMarks) <= 0 || Number(passingMarks) < 0 || Number(passingMarks) > Number(totalMarks)) return res.status(400).json({ error: "Provide valid paper set configuration." });
-  const duplicate = await PaperSet.findOne({ examId, $or: [{ name: name.trim() }, { code: name.trim() }] });
+  if (!name?.trim() || !mongoose.isValidObjectId(examId) || Number(durationMinutes) <= 0 || Number(totalMarks) <= 0 || Number(passingMarks) <= 0 || Number(passingMarks) > Number(totalMarks)) return res.status(400).json({ error: "Passing marks must be greater than zero and cannot exceed total marks." });
+  const exam = await Exam.findById(examId).select("durationMinutes").lean();
+  if (!exam) return res.status(400).json({ error: "The selected examination does not exist." });
+  if (Number(durationMinutes) !== Number(exam.durationMinutes)) return res.status(400).json({ error: "Duration must match the selected examination duration." });
+  const duplicate = await PaperSet.findOne({ examId, $or: [{ name: { $regex: `^${escapeRegex(name.trim())}$`, $options: "i" } }, { code: name.trim() }] });
   if (duplicate) return res.status(409).json({ error: "A paper set with this name already exists for the examination." });
   const code = `SET-${Date.now().toString(36).toUpperCase()}`;
   const questions = await Question.find({ _id: { $in: questionIds }, status: "ACTIVE" }).select("_id marks").lean();
-  const set = await PaperSet.create({ examId, code, name: name.trim(), description, durationMinutes: Number(durationMinutes), totalMarks: Number(totalMarks), passingMarks: Number(passingMarks), instructions: Array.isArray(instructions) ? instructions : [], questionIds: questions.map((q) => q._id), blueprint: { totalQuestions: questions.length, maximumMarks: Number(totalMarks) }, status: "DRAFT", active: false });
+  if (questions.length !== new Set(questionIds.map(String)).size) return res.status(400).json({ error: "One or more selected questions are unavailable or inactive." });
+  const calculatedMarks = questions.reduce((sum, question) => sum + Number(question.marks || 0), 0);
+  if (Number(totalMarks) !== calculatedMarks) return res.status(400).json({ error: "Total marks must equal the sum of selected question marks." });
+  const set = await PaperSet.create({ examId, code, name: name.trim(), description, durationMinutes: Number(durationMinutes), totalMarks: calculatedMarks, passingMarks: Number(passingMarks), instructions: Array.isArray(instructions) ? instructions : [], questionIds: questions.map((q) => q._id), blueprint: { totalQuestions: questions.length, maximumMarks: calculatedMarks }, status: "DRAFT", active: false });
   res.status(201).json({ paperSet: { ...set.toObject(), id: String(set._id) } });
 });
 router.patch("/paper-sets/:id", authenticate, adminOnly, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: "Invalid paper set ID" });
   const set = await PaperSet.findById(req.params.id); if (!set) return res.status(404).json({ error: "Paper set not found" }); if (set.status === "PUBLISHED") return res.status(409).json({ error: "Published paper sets cannot be modified." });
   const allowed = ["name", "description", "durationMinutes", "totalMarks", "passingMarks", "instructions", "questionIds"];
   for (const key of allowed) if (req.body[key] !== undefined) set[key] = req.body[key];
-  const questions = await Question.find({ _id: { $in: set.questionIds }, status: "ACTIVE" }).select("_id").lean(); set.questionIds = questions.map((q) => q._id); set.blueprint = { ...(set.blueprint || {}), totalQuestions: set.questionIds.length, maximumMarks: Number(set.totalMarks) }; await set.save(); res.json({ paperSet: { ...set.toObject(), id: String(set._id) } });
+  const exam = await Exam.findById(set.examId).select("durationMinutes").lean();
+  if (!exam) return res.status(400).json({ error: "The selected examination does not exist." });
+  if (Number(set.durationMinutes) !== Number(exam.durationMinutes)) return res.status(400).json({ error: "Duration must match the selected examination duration." });
+  const duplicate = await PaperSet.findOne({ _id: { $ne: set._id }, examId: set.examId, name: { $regex: `^${escapeRegex(set.name || "")}$`, $options: "i" } });
+  if (duplicate) return res.status(409).json({ error: "A paper set with this name already exists for the examination." });
+  const questions = await Question.find({ _id: { $in: set.questionIds }, status: "ACTIVE" }).select("_id marks").lean();
+  if (questions.length !== new Set((set.questionIds || []).map(String)).size) return res.status(400).json({ error: "One or more selected questions are unavailable or inactive." });
+  const calculatedMarks = questions.reduce((sum, question) => sum + Number(question.marks || 0), 0);
+  if (Number(set.totalMarks) !== calculatedMarks) return res.status(400).json({ error: "Total marks must equal the sum of selected question marks." });
+  if (Number(set.durationMinutes) <= 0 || Number(set.passingMarks) <= 0 || Number(set.passingMarks) > calculatedMarks) return res.status(400).json({ error: "Passing marks must be greater than zero and cannot exceed total marks." });
+  set.totalMarks = calculatedMarks; set.questionIds = questions.map((q) => q._id); set.blueprint = { ...(set.blueprint || {}), totalQuestions: set.questionIds.length, maximumMarks: calculatedMarks }; await set.save(); res.json({ paperSet: { ...set.toObject(), id: String(set._id) } });
 });
 router.post("/paper-sets/:id/validate", authenticate, adminOnly, async (req, res) => {
-  const set = await PaperSet.findById(req.params.id).lean(); if (!set) return res.status(404).json({ error: "Paper set not found" }); const errors = []; const questions = await Question.find({ _id: { $in: set.questionIds } }).lean(); if (!set.questionIds?.length) errors.push("At least one question is required."); if (questions.length !== set.questionIds.length) errors.push("One or more selected questions do not exist."); if (questions.some((q) => q.status !== "ACTIVE")) errors.push("All selected questions must be active."); if (Number(set.passingMarks) > Number(set.totalMarks)) errors.push("Passing marks cannot exceed total marks."); if (questions.some((q) => q.questionType === "MCQ" && (q.options?.length !== 4 || !q.correctOptionId || !q.options.some((o) => o.id === q.correctOptionId)))) errors.push("Every MCQ must have four options and one valid correct answer."); res.json({ valid: errors.length === 0, errors, questionCount: questions.length });
+  const set = await PaperSet.findById(req.params.id).lean(); if (!set) return res.status(404).json({ error: "Paper set not found" }); const errors = []; const questions = await Question.find({ _id: { $in: set.questionIds } }).lean(); if (!set.questionIds?.length) errors.push("At least one question is required."); if (questions.length !== set.questionIds.length) errors.push("One or more selected questions do not exist."); if (questions.some((q) => q.status !== "ACTIVE")) errors.push("All selected questions must be active."); if (Number(set.passingMarks) <= 0) errors.push("Passing marks must be greater than zero."); if (Number(set.passingMarks) > Number(set.totalMarks)) errors.push("Passing marks cannot exceed total marks."); if (questions.some((q) => q.questionType === "MCQ" && (q.options?.length !== 4 || !q.correctOptionId || !q.options.some((o) => o.id === q.correctOptionId)))) errors.push("Every MCQ must have four options and one valid correct answer."); res.json({ valid: errors.length === 0, errors, questionCount: questions.length });
 });
 router.post("/paper-sets/:id/publish", authenticate, adminOnly, async (req, res) => {
   const set = await PaperSet.findById(req.params.id); if (!set) return res.status(404).json({ error: "Paper set not found" }); if (set.status === "PUBLISHED") return res.json({ published: true, paperSet: set }); const questions = await Question.find({ _id: { $in: set.questionIds }, status: "ACTIVE" }).lean(); if (!questions.length || questions.length !== set.questionIds.length || questions.some((q) => q.questionType === "MCQ" && (q.options?.length !== 4 || !q.correctOptionId))) return res.status(409).json({ error: "Paper set validation failed." }); set.status = "PUBLISHED"; set.active = true; set.publishedAt = new Date(); set.publishedBy = req.admin?._id; set.blueprint = { ...(set.blueprint || {}), totalQuestions: questions.length, maximumMarks: Number(set.totalMarks) }; await set.save(); res.json({ published: true, paperSet: set });

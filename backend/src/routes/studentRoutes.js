@@ -25,7 +25,7 @@ function isEligible(exam, student) {
 async function dashboard(req, res) {
   const now = new Date();
   const exams = await Exam.find({
-    status: { $in: ["PUBLISHED", "LIVE", "CLOSED"] },
+    status: { $in: ["SCHEDULED", "PUBLISHED", "LIVE", "CLOSED"] },
   }).lean();
   const attempts = await Attempt.find({ studentId: req.student.id })
     .sort({ createdAt: -1 })
@@ -38,16 +38,19 @@ async function dashboard(req, res) {
           const sets = await PaperSet.find({
             examId: exam._id,
             active: true,
+            status: "PUBLISHED",
           }).lean();
           const expected =
             exam.totalQuestions || sets[0]?.blueprint?.totalQuestions || 0;
+          const maximumMarks =
+            exam.totalMarks || sets[0]?.blueprint?.maximumMarks || sets[0]?.totalMarks || 0;
           const valid =
             sets.length > 0 &&
             sets.every(
               (set) =>
                 set.questionIds?.length === expected &&
                 set.blueprint?.totalQuestions === expected &&
-                set.blueprint?.maximumMarks === exam.totalMarks,
+                (!exam.totalMarks || set.blueprint?.maximumMarks === exam.totalMarks),
             );
           if (!valid) return null;
           const mine = attempts.filter(
@@ -88,6 +91,7 @@ async function dashboard(req, res) {
             ...exam,
             id: exam._id,
             totalQuestions: expected,
+            totalMarks: maximumMarks,
             status,
             nextAction,
             attemptsUsed: mine.length,
