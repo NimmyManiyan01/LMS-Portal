@@ -403,11 +403,10 @@ router.put(
           version: current?.version,
         });
     }
-    }
     res.json({
       saved: true,
-      version: saved.value.version,
-      savedAt: saved.value.savedAt,
+      version: doc.version,
+      savedAt: doc.savedAt,
     });
   }),
 );
