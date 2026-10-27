@@ -43,11 +43,14 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
     .sort({ submittedAt: -1, finalizedAt: -1 })
     .lean();
   const exams = await Exam.find({ status: { $ne: "CLOSED" } }).select("_id title code status totalMarks resultReleasePolicy resultsPublishedAt eligibility").sort({ createdAt: -1 }).lean();
+  const examIds = [...new Set(results.map((result) => String(result.examId?._id || result.examId)).filter(Boolean))];
+  const publishedSets = await PaperSet.find({ examId: { $in: examIds }, status: "PUBLISHED", active: true }).select("examId totalMarks").lean();
+  const paperMarks = new Map(); publishedSets.forEach((set) => { const key = String(set.examId); paperMarks.set(key, Math.max(Number(paperMarks.get(key) || 0), Number(set.totalMarks || 0))); });
   const allRows = results.map((result) => ({
     id: String(result._id), attemptId: String(result.attemptId),
     student: result.studentId ? { id: String(result.studentId._id), studentId: result.studentId.studentId, fullName: result.studentId.fullName, email: result.studentId.email, college: result.studentId.college || "College Not Specified" } : null,
-    exam: result.examId ? { id: String(result.examId._id), title: result.examId.title, code: result.examId.code, totalMarks: result.examId.totalMarks } : null,
-    marksScored: result.marksScored, maximumMarks: result.maximumMarks ?? result.examId?.totalMarks ?? null, submittedAt: result.submittedAt || result.finalizedAt,
+    exam: result.examId ? { id: String(result.examId._id), title: result.examId.title, code: result.examId.code, totalMarks: result.examId.totalMarks ?? paperMarks.get(String(result.examId._id)) ?? null } : null,
+    marksScored: result.marksScored, maximumMarks: result.maximumMarks ?? result.maxMarks ?? result.examId?.totalMarks ?? paperMarks.get(String(result.examId?._id)) ?? null, submittedAt: result.submittedAt || result.finalizedAt,
     evaluationStatus: "FINALIZED", releaseStatus: result.releaseStatus || "PENDING", attemptNumber: result.attemptNumber || null,
   }));
   const filteredRows = allRows.filter((row) => (!college || row.student?.college === college) && (!search || `${row.student?.studentId || ""} ${row.student?.fullName || ""} ${row.student?.email || ""} ${row.exam?.title || ""} ${row.exam?.code || ""}`.toLowerCase().includes(search)));
