@@ -40,7 +40,7 @@ export function LandingPage({ onStudentLogin, onRegister, onAdminLogin }: Landin
           <span className="landing-kicker">
             <span className="kicker-spark">✨</span> SECURE ONLINE EXAMINATION PLATFORM
           </span>
-          <h1>Welcome to KGS Exam Portal</h1>
+          <h1>Welcome to <span className="gradient-text">KGS Exam Portal</span></h1>
           <p>
             An enterprise-grade, proctored examination platform designed for seamless registration, real-time response recovery, and tamper-proof evaluation.
           </p>
