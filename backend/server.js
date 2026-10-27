@@ -1,0 +1,19 @@
+const app = require("./src/app");
+const { connectDatabase } = require("./src/config/database");
+const { port } = require("./src/config/env");
+const { startExpirationWorker } = require("./src/jobs/expirationWorker");
+const {
+  ensureAdminAccount,
+} = require("./src/services/admin/ensureAdminAccount");
+const server = app.listen(port, () =>
+  console.log(`KGS API listening on ${port}`),
+);
+connectDatabase()
+  .then(async () => {
+    console.log("MongoDB connected");
+    await ensureAdminAccount();
+    startExpirationWorker();
+  })
+  .catch((error) => {
+    console.error("MongoDB connection failed:", error.message);
+  });
