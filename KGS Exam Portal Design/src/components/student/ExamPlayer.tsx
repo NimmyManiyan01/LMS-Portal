@@ -305,6 +305,9 @@ export function ExamPlayer({ exam, questions, candidateName = 'Student', onSubmi
             <div className="options-group">
               {currentQ.options.map((opt) => {
                 const isSelected = currentAns.selectedOptionId === opt.id;
+                const optKey = (opt.id || '').includes('-')
+                  ? (opt.id.split('-').pop() || opt.id).toUpperCase()
+                  : String(opt.id || '').toUpperCase();
                 return (
                   <label
                     key={opt.id}
@@ -317,7 +320,7 @@ export function ExamPlayer({ exam, questions, candidateName = 'Student', onSubmi
                       checked={isSelected}
                       onChange={() => selectOption(opt.id)}
                     />
-                    <span className="opt-key">{opt.id.split('-')[1].toUpperCase()}</span>
+                    <span className="opt-key">{optKey}</span>
                     <span className="opt-text">{opt.text}</span>
                   </label>
                 );
