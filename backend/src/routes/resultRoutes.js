@@ -6,24 +6,25 @@ const { authenticate } = require("../middleware/auth");
 function publicResult(result, exam) {
   return {
     attemptId: result.attemptId,
-    examName: exam.title,
-    marksScored: result.marksScored,
-    maximumMarks: result.maximumMarks,
+    examName: exam?.title || "Examination",
+    examCode: exam?.code || null,
+    marksScored: result.releaseStatus === "RELEASED" ? result.marksScored : null,
+    maximumMarks: result.releaseStatus === "RELEASED" ? result.maximumMarks : null,
     submittedAt: result.submittedAt,
     finalizedAt: result.finalizedAt,
-    released: true,
+    releaseStatus: result.releaseStatus || "PENDING",
+    released: result.releaseStatus === "RELEASED",
   };
 }
 
 router.get("/", authenticate, async (req, res) => {
   const results = await FinalResult.find({ studentId: req.student.id }).lean();
   const exams = await Exam.find({ _id: { $in: results.map((r) => r.examId) } })
-    .select("title")
+    .select("title code")
     .lean();
   const examMap = new Map(exams.map((exam) => [String(exam._id), exam]));
   res.json(
     results
-      .filter((result) => result.releaseStatus === "RELEASED")
       .map((result) =>
         publicResult(result, examMap.get(String(result.examId))),
       ),

@@ -370,9 +370,6 @@ export default function App() {
   if (viewState === 'RESULTS' && selectedExam) {
     return (
       <ResultsView
-        exam={selectedExam}
-        questions={examQuestions}
-        answers={lastAnswers}
         onBackToDashboard={() => setViewState('DASHBOARD')}
       />
     );
@@ -436,6 +433,8 @@ export default function App() {
         <main>
           {active === 'My examinations' && viewState === 'DASHBOARD' ? (
             <StudentExaminations onStartExam={handleStartExam} onViewMarks={(exam) => { setSelectedExam(exam); setViewState('RESULTS'); }} />
+          ) : !admin && active === 'Results' && viewState === 'DASHBOARD' ? (
+            <ResultsView onBackToDashboard={() => setActive('Overview')} />
           ) : admin && active === 'Students' && viewState === 'DASHBOARD' ? (
             <AdminStudents />
           ) : admin && active === 'Examinations' && viewState === 'DASHBOARD' ? (
