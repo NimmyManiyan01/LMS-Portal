@@ -11,6 +11,7 @@ const ExcelJS = require("exceljs");
 const mongoose = require("mongoose");
 const Question = require("../models/Question");
 const PaperSet = require("../models/PaperSet");
+const FinalResult = require("../models/FinalResult");
 const { authenticate } = require("../middleware/auth");
 const adminOnly = (req, res, next) =>
   req.auth?.role === "ADMIN"
@@ -30,6 +31,27 @@ router.get("/exams", authenticate, adminOnly, async (_req, res) => {
   const exams = await Exam.find({ status: { $ne: "CLOSED" } }).select("_id code title status scheduledAt closesAt totalMarks totalQuestions durationMinutes").sort({ createdAt: -1 }).lean();
   res.set("Cache-Control", "no-store");
   res.json({ exams: exams.map((exam) => ({ id: String(exam._id), code: exam.code, title: exam.title, status: effectiveExamStatus(exam), storedStatus: exam.status, scheduledAt: exam.scheduledAt, closesAt: exam.closesAt, totalMarks: exam.totalMarks, totalQuestions: exam.totalQuestions, durationMinutes: exam.durationMinutes })) });
+});
+router.get("/results", authenticate, adminOnly, async (req, res) => {
+  const examId = req.query.examId && mongoose.isValidObjectId(req.query.examId) ? req.query.examId : null;
+  const query = examId ? { examId } : {};
+  const results = await FinalResult.find(query)
+    .populate("examId", "title code totalMarks durationMinutes resultReleasePolicy resultsPublishedAt")
+    .populate("studentId", "studentId fullName email college")
+    .sort({ submittedAt: -1, finalizedAt: -1 })
+    .lean();
+  const exams = await Exam.find({ status: { $ne: "CLOSED" } }).select("_id title code status totalMarks resultReleasePolicy resultsPublishedAt eligibility").sort({ createdAt: -1 }).lean();
+  const rows = results.map((result) => ({
+    id: String(result._id), attemptId: String(result.attemptId),
+    student: result.studentId ? { id: String(result.studentId._id), studentId: result.studentId.studentId, fullName: result.studentId.fullName, email: result.studentId.email, college: result.studentId.college || "College Not Specified" } : null,
+    exam: result.examId ? { id: String(result.examId._id), title: result.examId.title, code: result.examId.code, totalMarks: result.examId.totalMarks } : null,
+    marksScored: result.marksScored, maximumMarks: result.maximumMarks ?? result.examId?.totalMarks ?? null, submittedAt: result.submittedAt || result.finalizedAt,
+    evaluationStatus: "FINALIZED", releaseStatus: result.releaseStatus || "PENDING",
+  }));
+  const selectedExam = examId ? exams.find((exam) => String(exam._id) === String(examId)) : null;
+  const counts = { assignedStudents: selectedExam ? (selectedExam.eligibility?.studentIds?.length || 0) : exams.reduce((sum, exam) => sum + (exam.eligibility?.studentIds?.length || 0), 0), submittedAttempts: results.length, pendingEvaluations: 0, awaitingRelease: results.filter((result) => result.releaseStatus !== "RELEASED").length, released: results.filter((result) => result.releaseStatus === "RELEASED").length };
+  const colleges = [...new Set(rows.map((row) => row.student?.college).filter(Boolean))].sort();
+  res.set("Cache-Control", "no-store").json({ rows, exams: exams.map((exam) => ({ id: String(exam._id), title: exam.title, code: exam.code, status: effectiveExamStatus(exam), totalMarks: exam.totalMarks, resultsPublishedAt: exam.resultsPublishedAt })), colleges, counts });
 });
 router.get("/monitoring/attempts", authenticate, adminOnly, async (req, res) => {
   const page = Math.max(1, Number(req.query.page) || 1); const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 25));

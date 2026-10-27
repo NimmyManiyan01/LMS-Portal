@@ -16,6 +16,7 @@ import { QuestionBankPage } from './components/admin/QuestionBankPage';
 import { PaperSetsPage } from './components/admin/PaperSetsPage';
 import { ExaminationsPage } from './components/admin/ExaminationsPage';
 import { LiveMonitoringPage } from './components/admin/LiveMonitoringPage';
+import { ResultsPage } from './components/admin/ResultsPage';
 
 type IconName =
   | 'grid' | 'book' | 'result' | 'shield' | 'help' | 'bell' | 'chevron'
@@ -445,6 +446,8 @@ export default function App() {
             <PaperSetsPage Icon={Icon} PageHead={PageHead} />
           ) : admin && active === 'Live monitoring' && viewState === 'DASHBOARD' ? (
             <LiveMonitoringPage PageHead={PageHead} />
+          ) : admin && active === 'Results' && viewState === 'DASHBOARD' ? (
+            <ResultsPage PageHead={PageHead} />
           ) : active === 'Overview' && viewState === 'DASHBOARD' ? (
             admin ? (
               <AdminDashboard />
