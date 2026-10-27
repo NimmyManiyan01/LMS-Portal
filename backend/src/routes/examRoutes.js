@@ -363,46 +363,40 @@ router.put(
       return res
         .status(400)
         .json({ error: "A valid answer version is required" });
-    const update = {
-      selectedOptionId: req.body.selectedOptionId,
-      isMarkedForReview: Boolean(req.body.isMarkedForReview),
-      visited: Boolean(req.body.visited),
-      timeSpentSeconds: Math.max(0, Number(req.body.timeSpentSeconds || 0)),
-      version: requestedVersion,
-      savedAt: new Date(),
-    };
+
+    const existing = await Answer.findOne({
+      attemptId: attempt._id,
+      questionId: req.params.questionId,
+    }).lean();
+
+    if (existing && Number(existing.version || 0) > requestedVersion) {
+      return res.status(409).json({
+        saved: false,
+        error: "A newer answer version already exists",
+        version: existing.version,
+      });
+    }
+
+    const nextVersion = existing
+      ? Math.max(Number(existing.version || 0) + 1, requestedVersion)
+      : Math.max(1, requestedVersion);
+
     const saved = await Answer.findOneAndUpdate(
+      { attemptId: attempt._id, questionId: req.params.questionId },
       {
-        attemptId: attempt._id,
-        questionId: req.params.questionId,
-        $or: [
-          { version: { $lt: requestedVersion } },
-          { version: { $exists: false } },
-        ],
-      },
-      {
-        $set: update,
-        $setOnInsert: {
-          attemptId: attempt._id,
-          questionId: req.params.questionId,
+        $set: {
+          selectedOptionId: req.body.selectedOptionId,
+          isMarkedForReview: Boolean(req.body.isMarkedForReview),
+          visited: Boolean(req.body.visited),
+          timeSpentSeconds: Math.max(0, Number(req.body.timeSpentSeconds || 0)),
+          version: nextVersion,
+          savedAt: new Date(),
         },
       },
       { upsert: true, new: true },
     );
+
     const doc = saved?.value || saved;
-    if (!doc) {
-      const current = await Answer.findOne({
-        attemptId: attempt._id,
-        questionId: req.params.questionId,
-      }).lean();
-      return res
-        .status(409)
-        .json({
-          saved: false,
-          error: "A newer answer version already exists",
-          version: current?.version,
-        });
-    }
     res.json({
       saved: true,
       version: doc.version,

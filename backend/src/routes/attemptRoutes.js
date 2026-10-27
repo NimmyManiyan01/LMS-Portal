@@ -136,33 +136,40 @@ router.put(
       return res
         .status(400)
         .json({ error: "A valid answer version is required" });
+
+    const existing = await Answer.findOne({
+      attemptId: attempt._id,
+      questionId: req.params.questionId,
+    }).lean();
+
+    if (existing && Number(existing.version || 0) > version) {
+      return res.status(409).json({
+        saved: false,
+        error: "A newer answer version already exists",
+        version: existing.version,
+      });
+    }
+
+    const nextVersion = existing
+      ? Math.max(Number(existing.version || 0) + 1, version)
+      : Math.max(1, version);
+
     const saved = await Answer.findOneAndUpdate(
-      {
-        attemptId: attempt._id,
-        questionId: req.params.questionId,
-        $or: [{ version: { $lt: version } }, { version: { $exists: false } }],
-      },
+      { attemptId: attempt._id, questionId: req.params.questionId },
       {
         $set: {
           selectedOptionId: req.body.selectedOptionId,
           isMarkedForReview: Boolean(req.body.isMarkedForReview),
           visited: Boolean(req.body.visited),
-          timeSpentSeconds: Number(req.body.timeSpentSeconds || 0),
-          version,
+          timeSpentSeconds: Math.max(0, Number(req.body.timeSpentSeconds || 0)),
+          version: nextVersion,
           savedAt: new Date(),
-        },
-        $setOnInsert: {
-          attemptId: attempt._id,
-          questionId: req.params.questionId,
         },
       },
       { upsert: true, new: true },
     );
+
     const doc = saved?.value || saved;
-    if (!doc)
-      return res
-        .status(409)
-        .json({ saved: false, error: "A newer answer version already exists" });
     res.json({
       saved: true,
       version: doc.version,
