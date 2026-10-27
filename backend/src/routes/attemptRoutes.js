@@ -7,7 +7,10 @@ const { finalizeAttempt } = require("../services/finalizeAttempt");
 
 function studentMatch(student) {
   if (!student) return null;
-  const ids = [student._id, student.id, student.studentId].filter(Boolean);
+  const ids = [student._id, student.id, student.studentId]
+    .filter(Boolean)
+    .filter((id) => mongoose.isValidObjectId(id));
+  if (!ids.length) return null;
   return ids.length === 1 ? ids[0] : { $in: ids };
 }
 
