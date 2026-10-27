@@ -494,7 +494,9 @@ function StudentDashboard({
   const status = serverExam.status || 'UPCOMING';
   const secondsRemaining = Math.max(0, serverExam.activeAttempt?.deadline ? Math.ceil((new Date(serverExam.activeAttempt.deadline).getTime() - now) / 1000) : 0);
   const requirements = serverExam.readinessRequirements || {};
-  const readiness = { browser: typeof window !== 'undefined', network: typeof navigator !== 'undefined' && navigator.onLine, camera: !requirements.camera, microphone: !requirements.microphone, fullscreen: !requirements.fullscreen };
+  // Dashboard capabilities are not readiness results. The authoritative checks
+  // run in SystemCheckModal and are intentionally not marked passed here.
+  const readiness = { browser: false, network: false, camera: !requirements.camera, microphone: !requirements.microphone, fullscreen: !requirements.fullscreen };
   // The dashboard has no persisted readiness result yet; never claim 100%
   // before the selected exam's readiness flow confirms every requirement.
   const readinessScore = 0;
@@ -573,8 +575,8 @@ function StudentDashboard({
             <div className="score-ring">{readinessScore}%</div>
           </div>
           <div className={student ? 'check-item done' : 'check-item pending'}><span>{student ? <Icon name="check"/> : '!'}</span><div><b>Profile verified</b><small>{student ? 'Identity details confirmed' : 'Profile unavailable'}</small></div></div>
-          <div className={readiness.browser ? 'check-item done' : 'check-item pending'}><span>{readiness.browser ? <Icon name="check"/> : '!'}</span><div><b>Browser compatible</b><small>{readiness.browser ? 'Browser check available' : 'Browser check required'}</small></div></div>
-          <div className={readiness.network ? 'check-item done' : 'check-item pending'}><span>{readiness.network ? <Icon name="check"/> : '!'}</span><div><b>Network stable</b><small>{readiness.network ? 'Connection available' : 'Network unavailable'}</small></div></div>
+          <div className={readiness.browser ? 'check-item done' : 'check-item pending'}><span>{readiness.browser ? <Icon name="check"/> : '!'}</span><div><b>Browser compatible</b><small>Run system check before examination</small></div></div>
+          <div className={readiness.network ? 'check-item done' : 'check-item pending'}><span>{readiness.network ? <Icon name="check"/> : '!'}</span><div><b>Network stable</b><small>Run system check before examination</small></div></div>
           <div className={readiness.camera ? 'check-item done' : 'check-item pending'}><span>{readiness.camera ? <Icon name="check"/> : '!'}</span><div><b>{requirements.camera ? 'Camera permission required' : 'Camera not required'}</b><small>{requirements.camera ? 'Complete during system check' : 'Not configured for this exam'}</small></div></div>
           <button className="secondary full" onClick={() => onStartExam(heroExam)}>Run system check</button>
         </aside>
