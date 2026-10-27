@@ -136,6 +136,7 @@ async function dashboard(req, res) {
     resultsPending: visible.filter((e) => e.status === "RESULTS_PENDING")
       .length,
   };
+  res.set("Cache-Control", "no-store");
   res.json({
     student: {
       fullName: req.student.fullName,

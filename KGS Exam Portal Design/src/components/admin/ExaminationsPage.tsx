@@ -2,6 +2,17 @@ import { useEffect, useMemo, useState } from "react"
 import { DateTimePicker } from "./DateTimePicker"
 import { API_BASE_URL, authFetch } from "../../api"
 const API = API_BASE_URL
+const formatLocalDateTime = (value: string | Date) => {
+  const date = value instanceof Date ? value : new Date(value)
+  if (!Number.isFinite(date.getTime())) return ""
+  const pad = (part: number) => String(part).padStart(2, "0")
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+const localDateTimeToISOString = (value: string) => {
+  if (!value) return value
+  const date = new Date(value)
+  return Number.isFinite(date.getTime()) ? date.toISOString() : value
+}
 const durationBetween = (start: string, end: string) => {
   if (!start || !end) return null
   const minutes = (new Date(end).getTime() - new Date(start).getTime()) / 60000
@@ -123,8 +134,10 @@ export function ExaminationsPage({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ...form,
+            startAt: localDateTimeToISOString(form.startAt),
+            endAt: localDateTimeToISOString(form.endAt),
             durationMinutes: calculated,
-            status: "DRAFT",
+            ...(editing ? {} : { status: "DRAFT" }),
           }),
         },
         true,
@@ -143,11 +156,9 @@ export function ExaminationsPage({
       code: e.code || "",
       description: e.description || "",
       examinationType: e.examinationType || "MCQ",
-      startAt: e.scheduledAt
-        ? new Date(e.scheduledAt).toISOString().slice(0, 16)
-        : "",
-      endAt: e.closesAt ? new Date(e.closesAt).toISOString().slice(0, 16) : "",
-      durationMinutes: "",
+      startAt: e.scheduledAt ? formatLocalDateTime(e.scheduledAt) : "",
+      endAt: e.closesAt ? formatLocalDateTime(e.closesAt) : "",
+      durationMinutes: e.durationMinutes || "",
       maxAttempts: e.maxAttempts || 1,
       instructions: Array.isArray(e.instructions)
         ? e.instructions.join("\n")

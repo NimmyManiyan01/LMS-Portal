@@ -226,8 +226,8 @@ export default function App() {
       try {
         const api = API_BASE_URL;
         const [meResponse, dashboardResponse] = await Promise.all([
-          authFetch(`${api}/api/auth/me`),
-          authFetch(`${api}/api/student/dashboard`)
+          authFetch(`${api}/api/auth/me`, { cache: 'no-store' }),
+          authFetch(`${api}/api/student/dashboard`, { cache: 'no-store' })
         ]);
         if (meResponse.status === 401 || dashboardResponse.status === 401) {
           clearAuthToken();
@@ -258,7 +258,7 @@ export default function App() {
 
   const handleLogout = async () => {
     try { await authFetch(`${API_BASE_URL}${admin ? '/api/auth/admin/logout' : '/api/auth/logout'}`, { method: 'POST' }, admin); } finally {
-      clearAuthToken(); setStudent(null); setAdmin(false); setAdminUser(null); setViewState('DASHBOARD'); navigateEntry(admin ? '/admin' : '/login');
+      clearAuthToken(); setStudent(null); setAdmin(false); setAdminUser(null); setViewState('DASHBOARD'); navigateEntry('/');
     }
   };
 
@@ -521,7 +521,7 @@ function StudentDashboard({
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, []);
   const heroExam = exams[0];
   if (!heroExam) return <div className="empty-dashboard panel"><h2>No eligible examinations</h2><p>There are no examinations available for your account right now.</p></div>;
-  const serverExam = heroExam as Exam & { scheduledAt?: string; status?: string; activeAttempt?: { deadline?: string } | null };
+  const serverExam = heroExam as Exam & { scheduledAt?: string; closesAt?: string; status?: string; activeAttempt?: { deadline?: string } | null };
   const secondsToStart = Math.max(0, serverExam.scheduledAt ? Math.ceil((new Date(serverExam.scheduledAt).getTime() - now) / 1000) : 0);
   const status = serverExam.status || 'UPCOMING';
   const secondsRemaining = Math.max(0, serverExam.activeAttempt?.deadline ? Math.ceil((new Date(serverExam.activeAttempt.deadline).getTime() - now) / 1000) : 0);
@@ -557,7 +557,7 @@ function StudentDashboard({
   return (
     <>
       <PageHead admin={false} student={student} />
-      {examActionError && <div className="exam-action-error" role="alert"><strong>Examination unavailable</strong><span>{examActionError}</span><button className="secondary" onClick={() => onStartExam(heroExam)}>Retry</button></div>}
+      {examActionError && <div className="exam-action-error" role="alert"><strong>{status === 'EXPIRED' || status === 'CLOSED' ? 'Examination ended' : 'Examination unavailable'}</strong><span>{examActionError}</span>{status !== 'EXPIRED' && status !== 'CLOSED' && <button className="secondary" onClick={() => onStartExam(heroExam)}>Retry</button>}</div>}
       <section className="hero-card">
         <div className="hero-main">
           <div className="row">
@@ -575,11 +575,15 @@ function StudentDashboard({
         </div>
         <div className="hero-action">
           <div className="starts">
-            <small>{status === 'IN_PROGRESS' ? 'TIME REMAINING' : status === 'AVAILABLE' ? 'EXAMINATION STATUS' : 'STARTS IN'}</small>
+            <small>{status === 'IN_PROGRESS' ? 'TIME REMAINING' : status === 'AVAILABLE' ? 'EXAMINATION STATUS' : status === 'EXPIRED' || status === 'CLOSED' ? 'EXAMINATION STATUS' : 'STARTS IN'}</small>
             {status === 'IN_PROGRESS' ? (
               <div className="available-now">{String(Math.floor(secondsRemaining / 3600)).padStart(2, '0')}:{String(Math.floor((secondsRemaining % 3600) / 60)).padStart(2, '0')}:{String(secondsRemaining % 60).padStart(2, '0')}</div>
             ) : status === 'AVAILABLE' ? (
               <div className="available-now">Available Now</div>
+            ) : status === 'EXPIRED' ? (
+              <div className="exam-ended-message" role="status">This examination has ended.</div>
+            ) : status === 'CLOSED' ? (
+              <div className="available-now">This examination has ended.</div>
             ) : (
               <>
                 <div>
@@ -591,10 +595,12 @@ function StudentDashboard({
               </>
             )}
           </div>
-          <button className="primary wide" onClick={() => onStartExam(heroExam)}>
-            {status === 'IN_PROGRESS' ? 'Resume Examination' : 'Launch Exam Check'} <Icon name="arrow"/>
-          </button>
-          {status !== 'AVAILABLE' && status !== 'IN_PROGRESS' && <small>Available 15 minutes before start</small>}
+          {status !== 'EXPIRED' && (
+            <button className="primary wide" disabled={status === 'CLOSED' || status === 'SUBMITTED' || status === 'RESULTS_PENDING' || status === 'RESULTS_RELEASED'} onClick={() => onStartExam(heroExam)}>
+              {status === 'IN_PROGRESS' ? 'Resume Examination' : status === 'CLOSED' ? 'This examination has ended.' : status === 'SUBMITTED' || status === 'RESULTS_PENDING' || status === 'RESULTS_RELEASED' ? 'Examination completed' : 'Launch Exam Check'} {['CLOSED', 'SUBMITTED', 'RESULTS_PENDING', 'RESULTS_RELEASED'].includes(status) ? null : <Icon name="arrow"/>}
+            </button>
+          )}
+          {status === 'UPCOMING' && <small>Available 15 minutes before start</small>}
         </div>
       </section>
 

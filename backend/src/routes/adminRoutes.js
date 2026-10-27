@@ -16,11 +16,20 @@ const adminOnly = (req, res, next) =>
   req.auth?.role === "ADMIN"
     ? next()
     : res.status(403).json({ error: "Administrator access required" });
+const effectiveExamStatus = (exam, now = new Date()) => {
+  if (exam.status === "DRAFT") return "DRAFT";
+  if (exam.status === "COMPLETED" || exam.status === "CLOSED") return exam.status;
+  if (exam.closesAt && new Date(exam.closesAt) <= now) return "EXPIRED";
+  if (exam.scheduledAt && new Date(exam.scheduledAt) > now) return "SCHEDULED";
+  if (["SCHEDULED", "ACTIVE", "LIVE", "PUBLISHED"].includes(exam.status)) return "ACTIVE";
+  return exam.status;
+};
 const reserveExamCode = async () => { const year = new Date().getFullYear(); for (;;) { const counter = await Counter.findOneAndUpdate({ _id: `examCode:${year}` }, { $inc: { sequence: 1 } }, { upsert: true, new: true }); const code = `EXAM-${year}-${String(counter.sequence).padStart(4, "0")}`; if (!(await Exam.exists({ code }))) return code; } };
 
 router.get("/exams", authenticate, adminOnly, async (_req, res) => {
   const exams = await Exam.find({ status: { $ne: "CLOSED" } }).select("_id code title status scheduledAt closesAt totalMarks totalQuestions durationMinutes").sort({ createdAt: -1 }).lean();
-  res.json({ exams: exams.map((exam) => ({ id: String(exam._id), code: exam.code, title: exam.title, status: exam.status, scheduledAt: exam.scheduledAt, closesAt: exam.closesAt, totalMarks: exam.totalMarks, totalQuestions: exam.totalQuestions, durationMinutes: exam.durationMinutes })) });
+  res.set("Cache-Control", "no-store");
+  res.json({ exams: exams.map((exam) => ({ id: String(exam._id), code: exam.code, title: exam.title, status: effectiveExamStatus(exam), storedStatus: exam.status, scheduledAt: exam.scheduledAt, closesAt: exam.closesAt, totalMarks: exam.totalMarks, totalQuestions: exam.totalQuestions, durationMinutes: exam.durationMinutes })) });
 });
 router.get("/exams/next-code", authenticate, adminOnly, async (_req, res) => { const year = new Date().getFullYear(); const counter = await Counter.findOne({ _id: `examCode:${year}` }).lean(); res.json({ code: `EXAM-${year}-${String((counter?.sequence || 0) + 1).padStart(4, "0")}` }); });
 router.post("/exams", authenticate, adminOnly, async (req, res) => {
@@ -41,9 +50,12 @@ router.patch("/exams/:id", authenticate, adminOnly, async (req, res) => {
   if (["ACTIVE", "COMPLETED", "CLOSED"].includes(exam.status) && req.body.status && req.body.status !== exam.status) return res.status(409).json({ error: "This examination lifecycle state cannot be changed that way." });
   const fields = { name: "title", title: "title", description: "description", examinationType: "examinationType", startAt: "scheduledAt", scheduledAt: "scheduledAt", endAt: "closesAt", closesAt: "closesAt", durationMinutes: "durationMinutes", maxAttempts: "maxAttempts", status: "status" };
   for (const [from, to] of Object.entries(fields)) if (req.body[from] !== undefined) exam[to] = ["scheduledAt", "closesAt"].includes(to) ? new Date(req.body[from]) : req.body[from];
-  if (exam.status === "SCHEDULED") {
+  if (exam.scheduledAt || exam.closesAt || req.body.startAt !== undefined || req.body.endAt !== undefined) {
+    if (!exam.scheduledAt || !exam.closesAt || !Number.isFinite(exam.scheduledAt.getTime()) || !Number.isFinite(exam.closesAt.getTime()) || exam.closesAt <= exam.scheduledAt) return res.status(400).json({ error: "End date and time must be later than start date and time." });
     const durationWindow = (exam.closesAt - exam.scheduledAt) / 60000;
-    if (!exam.scheduledAt || !exam.closesAt || exam.closesAt <= exam.scheduledAt || !Number.isFinite(durationWindow) || durationWindow < Number(exam.durationMinutes)) return res.status(400).json({ error: "Scheduled examinations require a valid date range and duration." });
+    if (!Number.isFinite(Number(exam.durationMinutes)) || Number(exam.durationMinutes) <= 0 || durationWindow < Number(exam.durationMinutes)) return res.status(400).json({ error: "The examination duration must fit within the scheduled window." });
+  }
+  if (exam.status === "SCHEDULED") {
     const publishedSet = await PaperSet.findOne({ examId: exam._id, status: "PUBLISHED", active: true }).select("_id durationMinutes").lean();
     if (!publishedSet) return res.status(409).json({ error: "At least one published paper set is required before scheduling." });
     if (Number(publishedSet.durationMinutes) !== Number(exam.durationMinutes)) return res.status(409).json({ error: "The published paper set duration must match the examination duration." });
