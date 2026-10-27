@@ -70,7 +70,7 @@ function Sidebar({ admin, active, onNav }: { admin: boolean; active: string; onN
     let cancelled = false;
     const load = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/admin/dashboard?range=month`, { credentials: 'include' });
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-4lwf.onrender.com'}/api/admin/dashboard?range=month`, { credentials: 'include' });
         if (!response.ok) return;
         const payload = await response.json();
         if (!cancelled) setActiveAttempts(Number(payload?.stats?.activeAttempts || 0));
@@ -196,14 +196,14 @@ export default function App() {
 
   useEffect(() => {
     if (entryRoute === '/admin/dashboard' && !admin) {
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/admin/me`, { credentials: 'include' }).then(async (response) => { if (!response.ok) throw new Error(); const data = await response.json(); setAdminUser(data.user); setAdmin(true); }).catch(() => navigateEntry('/admin'));
+      fetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-4lwf.onrender.com'}/api/auth/admin/me`, { credentials: 'include' }).then(async (response) => { if (!response.ok) throw new Error(); const data = await response.json(); setAdminUser(data.user); setAdmin(true); }).catch(() => navigateEntry('/admin'));
       return;
     }
     if (entryRoute !== '/dashboard') return;
     const loadDashboard = async () => {
       setDashboardLoading(true); setDashboardError('');
       try {
-        const api = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+        const api = import.meta.env.VITE_API_URL || 'https://assesspro-4lwf.onrender.com';
         const [meResponse, dashboardResponse] = await Promise.all([fetch(`${api}/api/auth/me`, { credentials: 'include' }), fetch(`${api}/api/student/dashboard`, { credentials: 'include' })]);
         if (!meResponse.ok || !dashboardResponse.ok) throw new Error('Unable to load your dashboard.');
         const me = await meResponse.json(); const dashboard = await dashboardResponse.json();
@@ -228,7 +228,7 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-      try { await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}${admin ? '/api/auth/admin/logout' : '/api/auth/logout'}`, { method: 'POST', credentials: 'include' }); } finally {
+      try { await fetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-4lwf.onrender.com'}${admin ? '/api/auth/admin/logout' : '/api/auth/logout'}`, { method: 'POST', credentials: 'include' }); } finally {
       setStudent(null); setAdmin(false); setAdminUser(null); setViewState('DASHBOARD'); navigateEntry(admin ? '/admin' : '/login');
     }
   };
@@ -257,7 +257,7 @@ export default function App() {
     const exam = examOverride || selectedExam;
     if (!exam) return;
     setExamActionError('');
-    const base = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+    const base = import.meta.env.VITE_API_URL || 'https://assesspro-4lwf.onrender.com';
     const activeAttempt = (exam as Exam & { activeAttempt?: { attemptId?: string } }).activeAttempt;
     let attemptId = activeAttempt?.attemptId;
     try {
