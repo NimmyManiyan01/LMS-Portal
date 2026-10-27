@@ -12,15 +12,17 @@ module.exports = {
     process.env.JWT_SECRET ||
     "dev-only-change-me",
   brevoApiKey: process.env.BREVO_API_KEY || "",
-  brevoSenderEmail: process.env.BREVO_SENDER_EMAIL || "",
-  brevoSenderName: process.env.BREVO_SENDER_NAME || "KGS Exam Portal",
-  sessionSecret:
-    process.env.SESSION_SECRET ||
-    process.env.JWT_SECRET ||
-    "dev-only-change-me",
-  brevoApiKey: process.env.BREVO_API_KEY || "",
-  brevoSenderEmail: process.env.BREVO_SENDER_EMAIL || "",
-  brevoSenderName: process.env.BREVO_SENDER_NAME || "KGS Exam Portal",
+  // Support both the current names and the legacy Brevo names already used
+  // by deployed environments. Secrets remain server-side only.
+  brevoSenderEmail:
+    process.env.BREVO_SENDER_EMAIL ||
+    process.env.BREVO_FROM_EMAIL ||
+    process.env.BREVO_USER ||
+    "",
+  brevoSenderName:
+    process.env.BREVO_SENDER_NAME ||
+    process.env.EMAIL_FROM_NAME ||
+    "KGS Exam Portal",
   clientOrigins: (process.env.CLIENT_ORIGIN || "http://localhost:8443,https://assesspro-1-d865.onrender.com,https://assesspro-1-i07n.onrender.com")
     .split(",")
     .map((origin) => origin.trim())
