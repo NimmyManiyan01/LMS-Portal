@@ -13,9 +13,9 @@ services:
 
   - type: static
     name: assesspro-frontend
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    publishDir: dist
+    rootDir: KGS Exam Portal Design
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build
+    publishDir: build
     routes:
       - type: rewrite
         source: /*
