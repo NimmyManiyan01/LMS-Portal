@@ -461,41 +461,33 @@ td > small { color: #788698; font-size: 7px; }.incident { display: inline-block;
   z-index: 1;
   overflow: hidden;
 }
-  padding: 70px 28px 50px;
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 70px;
-  align-items: center;
-  position: relative;
-  z-index: 1;
-}
 
 .landing-kicker {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
+  padding: 5px 12px;
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   border-radius: 20px;
   color: #1d4ed8;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.1em;
   box-shadow: 0 2px 10px rgba(37, 99, 235, 0.08);
 }
 
 .kicker-spark {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .landing-copy h1 {
   max-width: 650px;
-  margin-top: 22px;
+  margin-top: 16px;
   color: #0f172a;
-  font-size: clamp(38px, 5.2vw, 66px);
+  font-size: clamp(32px, 4vw, 54px);
   font-weight: 800;
-  line-height: 1.05;
+  line-height: 1.08;
   letter-spacing: -0.04em;
 }
 
@@ -506,23 +498,23 @@ td > small { color: #788698; font-size: 7px; }.incident { display: inline-block;
 }
 
 .landing-copy > p {
-  max-width: 520px;
-  margin-top: 22px;
+  max-width: 500px;
+  margin-top: 16px;
   color: #475569;
-  font-size: 17px;
-  line-height: 1.7;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .landing-actions {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-top: 36px;
+  margin-top: 26px;
 }
 
 .landing-actions .primary {
-  padding: 14px 26px;
-  font-size: 14px;
+  padding: 12px 24px;
+  font-size: 13px;
   font-weight: 600;
   border-radius: 10px;
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
@@ -539,8 +531,8 @@ td > small { color: #788698; font-size: 7px; }.incident { display: inline-block;
 }
 
 .landing-actions .secondary {
-  padding: 14px 24px;
-  font-size: 14px;
+  padding: 12px 22px;
+  font-size: 13px;
   font-weight: 600;
   border-radius: 10px;
   background: #ffffff;
@@ -559,7 +551,7 @@ td > small { color: #788698; font-size: 7px; }.incident { display: inline-block;
 }
 
 .landing-admin {
-  margin-top: 24px;
+  margin-top: 18px;
   padding-left: 0;
   color: #64748b;
   font-size: 13px;
@@ -576,23 +568,23 @@ td > small { color: #788698; font-size: 7px; }.incident { display: inline-block;
 
 /* Light Surface Hero Panel */
 .landing-panel {
-  padding: 36px;
-  border-radius: 24px;
+  padding: 28px;
+  border-radius: 20px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 20px 50px -15px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.8);
   position: relative;
   overflow: hidden;
 }
 
 .landing-panel-top {
   color: #475569;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
+  gap: 8px;
+  padding: 6px 12px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 20px;
@@ -600,8 +592,8 @@ td > small { color: #788698; font-size: 7px; }.incident { display: inline-block;
 }
 
 .landing-panel-top .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
 }
 
@@ -626,128 +618,116 @@ td > small { color: #788698; font-size: 7px; }.incident { display: inline-block;
 }
 
 .landing-shield {
-  width: 88px;
-  height: 88px;
-  margin: 40px auto 24px;
-  border-radius: 28px;
+  width: 72px;
+  height: 72px;
+  margin: 24px auto 18px;
+  border-radius: 22px;
   display: grid;
   place-items: center;
   background: linear-gradient(135deg, #f0fdf4, #dcfce7);
   border: 1px solid #bbf7d0;
   color: #10b981;
-  font-size: 40px;
+  font-size: 34px;
   box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.2);
   animation: floatShield 6s ease-in-out infinite;
 }
 
 @keyframes floatShield {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-6px); }
 }
 
 .landing-panel h2 {
   color: #0f172a;
   text-align: center;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
 .landing-panel > p {
-  margin: 12px auto 0;
-  max-width: 320px;
+  margin: 10px auto 0;
+  max-width: 300px;
   color: #64748b;
   text-align: center;
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .landing-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 36px;
-  padding-top: 24px;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 18px;
   border-top: 1px solid #f1f5f9;
   text-align: center;
 }
 
 .landing-stats b {
   color: #2563eb;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   display: block;
 }
 
 .landing-stats small {
-  margin-top: 4px;
+  margin-top: 3px;
   color: #64748b;
-  font-size: 11px;
+  font-size: 10px;
   display: block;
 }
 
-/* Light Feature Cards Grid */
-.landing-features {
-  max-width: 1240px;
-  margin: 20px auto 70px;
-  padding: 0 28px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  position: relative;
-  z-index: 1;
-}
-
-.feature-card {
-  padding: 28px;
-  border-radius: 18px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.05);
-  transition: all 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-4px);
-  border-color: #3b82f6;
-  box-shadow: 0 20px 40px -10px rgba(37, 99, 235, 0.15);
-}
-
-.feature-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #2563eb;
-  display: grid;
-  place-items: center;
-  font-size: 22px;
-  margin-bottom: 18px;
-}
-
-.feature-card h3 {
-  color: #0f172a;
-  font-size: 17px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.feature-card p {
-  color: #64748b;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
 .landing-footer {
-  padding: 28px 20px;
+  flex: 0 0 auto;
+  padding: 12px 20px;
   color: #64748b;
-  font-size: 12px;
+  font-size: 11px;
   text-align: center;
   border-top: 1px solid #e2e8f0;
   background: #ffffff;
   position: relative;
   z-index: 1;
+}
+
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  .meta-row { gap: 18px; }
+  .content-grid, .admin-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 780px) {
+  .landing-header { height: 70px; }.landing-header .brand small { display: none; }.landing-nav .secondary { display: none; }
+  .landing-main { min-height: auto; padding: 75px 22px 45px; grid-template-columns: 1fr; gap: 55px; }.landing-copy h1 { font-size: 42px; }.landing-copy > p { font-size: 14px; }
+  .landing-panel { padding: 24px; }.landing-shield { margin-top: 35px; }
+  .instruction-facts { grid-template-columns: repeat(2, 1fr); }
+  .registration-header { height: 70px; }.registration-header .brand small { display: none; }.registration-main { grid-template-columns: 1fr; gap: 25px; padding: 38px 18px 45px; }.registration-intro { padding-top: 0; }.registration-intro h1 { font-size: 36px; }.registration-note { margin-top: 22px; }.registration-card { padding: 22px 18px; }.registration-grid { grid-template-columns: 1fr; gap: 13px; }
+  .sidebar-shell { width: 0; flex-basis: 0; }
+  .sidebar-shell .sidebar { transform: translateX(-100%); transition: transform .2s ease; }
+  .sidebar-shell.open .sidebar { transform: translateX(0); }
+  .scrim { display: block; position: fixed; z-index: 25; inset: 0; border: 0; background: rgba(7,20,37,.45); }
+  .mobile-menu { display: grid; }
+  .environment { display: none; }
+  .topbar { padding: 0 16px; }
+  main { padding: 24px 17px 35px; }
+  .hero-card { grid-template-columns: 1fr; }
+  .hero-action { border-left: 0; border-top: 1px solid rgba(255,255,255,.08); }
+  .meta-row { display: grid; grid-template-columns: 1fr 1fr; }
+  .exam-row { grid-template-columns: 44px 1fr auto; }
+  .exam-row .secondary { grid-column: 2/4; width: 100%; }
+}
+@media (max-width: 520px) {
+  .profile > div:not(.avatar), .profile > svg, .portal-switch { display: none; }
+  .page-head { align-items: flex-start; gap: 15px; }
+  .student-id { min-width: auto; }
+  .student-id span { display: none; }
+  h1 { font-size: 21px; }
+  .page-head .primary { padding: 9px; white-space: nowrap; }
+  .hero-main { padding: 23px 20px; }
+  .hero-main h2 { font-size: 18px; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-toolbar { align-items: flex-end; }
+  .alert-inline small { display: none; }
+}
 }
 
 @media (max-width: 1100px) {
