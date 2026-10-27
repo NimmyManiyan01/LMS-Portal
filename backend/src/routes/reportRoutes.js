@@ -25,11 +25,17 @@ function addRows(sheet, columns, rows) {
   sheet.getRow(1).font = { bold: true };
   sheet.views = [{ state: "frozen", ySplit: 1 }];
 }
-async function buildWorkbook(examId) {
-  const [students, exams, results, attempts, sets] = await Promise.all([
-    Student.find({}).lean(),
+async function buildWorkbook(filters = {}) {
+  const { examId, college, releaseStatus } = filters;
+  const studentFilter = college ? { college } : {};
+  const resultFilter = { ...(examId ? { examId } : {}), ...(releaseStatus ? { releaseStatus } : {}) };
+  const students = await Student.find(studentFilter).lean();
+  const scopedResultFilter = college
+    ? { ...resultFilter, studentId: { $in: students.map((student) => student._id) } }
+    : resultFilter;
+  const [exams, results, attempts, sets] = await Promise.all([
     Exam.find(examId ? { _id: examId } : {}).lean(),
-    FinalResult.find(examId ? { examId } : {}).lean(),
+    FinalResult.find(scopedResultFilter).lean(),
     Attempt.find(examId ? { examId } : {}).lean(),
     PaperSet.find(examId ? { examId } : {}).lean(),
   ]);
@@ -67,30 +73,31 @@ async function buildWorkbook(examId) {
     workbook.addWorksheet("Examination Results"),
     [
       "Student ID",
-      "Exam ID",
+      "Student Name",
+      "Email",
+      "College",
       "Exam Name",
+      "Exam Code",
+      "Attempt ID",
+      "Submission Date",
       "Marks Scored",
       "Maximum Marks",
-      "Attempt Status",
-      "Submission Reason",
-      "Submitted At",
-      "Finalized At",
-      "Paper Set ID",
+      "Evaluation Status",
+      "Release Status",
     ],
     results.map((r) => ({
       "Student ID": studentMap.get(String(r.studentId))?.studentId,
-      "Exam ID": examMap.get(String(r.examId))?.code || String(r.examId),
+      "Student Name": studentMap.get(String(r.studentId))?.fullName,
+      Email: studentMap.get(String(r.studentId))?.email,
+      College: studentMap.get(String(r.studentId))?.college,
       "Exam Name": examMap.get(String(r.examId))?.title,
+      "Exam Code": examMap.get(String(r.examId))?.code || String(r.examId),
+      "Attempt ID": r.attemptId,
+      "Submission Date": r.submittedAt || r.finalizedAt,
       "Marks Scored": r.marksScored,
       "Maximum Marks": r.maximumMarks,
-      "Attempt Status": attempts.find(
-        (a) => String(a._id) === String(r.attemptId),
-      )?.status,
-      "Submission Reason": r.reason,
-      "Submitted At": r.submittedAt,
-      "Finalized At": r.finalizedAt,
-      "Paper Set ID":
-        setMap.get(String(r.assignedSetId))?.code || String(r.assignedSetId),
+      "Evaluation Status": "FINALIZED",
+      "Release Status": r.releaseStatus || "PENDING",
     })),
   );
   const summary = sets.map((set) => {
@@ -132,7 +139,7 @@ router.post(
       filters: req.body,
     });
     try {
-      await buildWorkbook(req.body.examId);
+      await buildWorkbook(req.body);
       record.status = "READY";
       record.completedAt = new Date();
       record.fileName = `kgs-exam-report-${record.id}.xlsx`;
@@ -176,7 +183,7 @@ router.get(
     });
     if (!record)
       return res.status(404).json({ error: "Ready export not found" });
-    const workbook = await buildWorkbook(record.examId);
+    const workbook = await buildWorkbook(record.filters || { examId: record.examId });
     res.attachment(record.fileName);
     await workbook.xlsx.write(res);
     res.end();
