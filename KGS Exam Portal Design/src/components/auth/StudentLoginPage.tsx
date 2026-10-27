@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { StudentProfile } from '../../types';
-import { setAuthToken } from '../../api';
+import { API_BASE_URL, setAuthToken } from '../../api';
 
 interface Props { initialEmail?: string; onBackToLanding: () => void; onRegister: () => void; onAuthenticated: (student: StudentProfile) => void; }
 
 export function StudentLoginPage({ initialEmail = '', onBackToLanding, onRegister, onAuthenticated }: Props) {
   const [email, setEmail] = useState(initialEmail); const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [step, setStep] = useState<'EMAIL' | 'OTP'>('EMAIL'); const [loading, setLoading] = useState(false); const [message, setMessage] = useState(''); const [error, setError] = useState(''); const [expiresAt, setExpiresAt] = useState<string | null>(null); const [resendAvailableAt, setResendAvailableAt] = useState<string | null>(null); const [now, setNow] = useState(Date.now());
-  const api = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+  const api = API_BASE_URL;
   useEffect(() => { if (step !== 'OTP') return; const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, [step]);
   const secondsLeft = expiresAt ? Math.max(0, Math.ceil((new Date(expiresAt).getTime() - now) / 1000)) : 0; const resendSeconds = resendAvailableAt ? Math.max(0, Math.ceil((new Date(resendAvailableAt).getTime() - now) / 1000)) : 0;
   const requestOtp = async (event?: { preventDefault: () => void }, endpoint = 'request-otp') => {

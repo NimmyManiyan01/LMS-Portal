@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { setAuthToken } from '../../api';
+import { API_BASE_URL, setAuthToken } from '../../api';
 
 export function AdminLoginPage({ onBackToLanding, onAuthenticated }: { onBackToLanding: () => void; onAuthenticated: (user: { email: string; role: string }) => void }) {
   const [email, setEmail] = useState('');
@@ -10,7 +10,7 @@ export function AdminLoginPage({ onBackToLanding, onAuthenticated }: { onBackToL
   const submit = async (event: React.FormEvent) => {
     event.preventDefault(); setLoading(true); setError('');
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/admin/login`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+      const response = await fetch(`${API_BASE_URL}/api/auth/admin/login`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
       if (!response.ok) throw new Error((await response.json().catch(() => null))?.error || 'Administrator authentication failed.');
       const data = await response.json();
       if (data.token) setAuthToken(data.token, true);

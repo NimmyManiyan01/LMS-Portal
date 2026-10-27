@@ -15,7 +15,14 @@ function eligible(exam, student) {
   return (
     student.accountStatus === "ACTIVE" &&
     (!rules.studentIds?.length ||
-      rules.studentIds.some((id) => String(id) === String(student.id))) &&
+      rules.studentIds.some((id) => {
+        const sId = String(id);
+        return (
+          sId === String(student._id) ||
+          sId === String(student.id) ||
+          sId === String(student.studentId)
+        );
+      })) &&
     (!rules.colleges?.length || rules.colleges.includes(student.college)) &&
     (!rules.branches?.length || rules.branches.includes(student.branch)) &&
     (!rules.passOutYears?.length ||

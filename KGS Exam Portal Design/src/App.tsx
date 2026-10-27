@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Exam, AnswerState, StudentProfile } from './types';
-import { authFetch, clearAuthToken } from './api';
+import { API_BASE_URL, authFetch, clearAuthToken } from './api';
 import { SystemCheckModal } from './components/student/SystemCheckModal';
 import { ExamInstructionsModal } from './components/student/ExamInstructionsModal';
 import { ExamPlayer } from './components/student/ExamPlayer';
@@ -84,7 +84,7 @@ function Sidebar({ admin, active, onNav }: { admin: boolean; active: string; onN
     let cancelled = false;
     const load = async () => {
       try {
-        const response = await authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/admin/dashboard?range=month`, {}, true);
+        const response = await authFetch(`${API_BASE_URL}/api/admin/dashboard?range=month`, {}, true);
         if (!response.ok) return;
         const payload = await response.json();
         if (!cancelled) setActiveAttempts(Number(payload?.stats?.activeAttempts || 0));
@@ -210,7 +210,7 @@ export default function App() {
 
   useEffect(() => {
     if (entryRoute === '/admin/dashboard' && !admin) {
-      authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/auth/admin/me`, {}, true)
+      authFetch(`${API_BASE_URL}/api/auth/admin/me`, {}, true)
         .then(async (response) => {
           if (!response.ok) throw new Error();
           const data = await response.json();
@@ -224,7 +224,7 @@ export default function App() {
     const loadDashboard = async () => {
       setDashboardLoading(true); setDashboardError('');
       try {
-        const api = import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com';
+        const api = API_BASE_URL;
         const [meResponse, dashboardResponse] = await Promise.all([
           authFetch(`${api}/api/auth/me`),
           authFetch(`${api}/api/student/dashboard`)
@@ -257,7 +257,7 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    try { await authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}${admin ? '/api/auth/admin/logout' : '/api/auth/logout'}`, { method: 'POST' }, admin); } finally {
+    try { await authFetch(`${API_BASE_URL}${admin ? '/api/auth/admin/logout' : '/api/auth/logout'}`, { method: 'POST' }, admin); } finally {
       clearAuthToken(); setStudent(null); setAdmin(false); setAdminUser(null); setViewState('DASHBOARD'); navigateEntry(admin ? '/admin' : '/login');
     }
   };
@@ -286,7 +286,7 @@ export default function App() {
     const exam = examOverride || selectedExam;
     if (!exam) return;
     setExamActionError('');
-    const base = import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com';
+    const base = API_BASE_URL;
     const activeAttempt = (exam as Exam & { activeAttempt?: { attemptId?: string } }).activeAttempt;
     let attemptId = activeAttempt?.attemptId;
     try {
@@ -443,7 +443,7 @@ export default function App() {
 
 function AdminStudents() {
   const importPreviewDuplicates = useRef({ count: 0, invalid: 0 });
-  const api = import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com';
+  const api = API_BASE_URL;
   const [students, setStudents] = useState<any[]>([]); const [pagination, setPagination] = useState<any>({ page: 1, pages: 1, total: 0 });
   const [search, setSearch] = useState(''); const [status, setStatus] = useState(''); const [page, setPage] = useState(1); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
   const [modal, setModal] = useState<'add' | 'edit' | 'import' | null>(null); const [selected, setSelected] = useState<any>(null); const [form, setForm] = useState({ fullName: '', email: '', phone: '' }); const [message, setMessage] = useState(''); const [importRows, setImportRows] = useState<any[]>([]); const [importInvalid, setImportInvalid] = useState<any[]>([]); const [importFileName, setImportFileName] = useState('');
@@ -488,7 +488,7 @@ function AdminStudents() {
 }
 
 function AdminQuestionBank() {
-  const api = import.meta.env.VITE_API_URL || 'http://localhost:4000'; const [questions, setQuestions] = useState<any[]>([]); const [stats, setStats] = useState<any>({ total: 0, active: 0, draft: 0, byType: [] }); const [pagination, setPagination] = useState<any>({ page: 1, pages: 1, total: 0 }); const [search, setSearch] = useState(''); const [type, setType] = useState(''); const [category, setCategory] = useState(''); const [status, setStatus] = useState(''); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [showAdd, setShowAdd] = useState(false); const [form, setForm] = useState({ questionText: '', category: '', marks: '1', negativeMarks: '0', correctOptionId: 'A', options: [{ id: 'A', text: '' }, { id: 'B', text: '' }] });
+  const api = API_BASE_URL; const [questions, setQuestions] = useState<any[]>([]); const [stats, setStats] = useState<any>({ total: 0, active: 0, draft: 0, byType: [] }); const [pagination, setPagination] = useState<any>({ page: 1, pages: 1, total: 0 }); const [search, setSearch] = useState(''); const [type, setType] = useState(''); const [category, setCategory] = useState(''); const [status, setStatus] = useState(''); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [showAdd, setShowAdd] = useState(false); const [form, setForm] = useState({ questionText: '', category: '', marks: '1', negativeMarks: '0', correctOptionId: 'A', options: [{ id: 'A', text: '' }, { id: 'B', text: '' }] });
   const load = async (targetPage = pagination.page) => { setLoading(true); setError(''); try { const query = new URLSearchParams({ page: String(targetPage), search, type, category, status }); const response = await fetch(`${api}/api/admin/questions?${query}`, { credentials: 'include' }); if (!response.ok) throw new Error('Unable to load question bank.'); const data = await response.json(); setQuestions(data.questions || []); setStats(data.stats || {}); setPagination(data.pagination || {}); } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to load question bank.'); } finally { setLoading(false); } };
   useEffect(() => { void load(1); }, [type, category, status]);
   const submit = async (event: any) => { event.preventDefault(); const response = await fetch(`${api}/api/admin/questions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ ...form, marks: Number(form.marks), negativeMarks: Number(form.negativeMarks) }) }); const data = await response.json().catch(() => ({})); if (!response.ok) return setError(data.error || 'Unable to create question.'); setShowAdd(false); setForm({ questionText: '', category: '', marks: '1', negativeMarks: '0', correctOptionId: 'A', options: [{ id: 'A', text: '' }, { id: 'B', text: '' }] }); void load(1); };
@@ -631,7 +631,7 @@ function AdminDashboard() {
   const load = async () => {
     setLoading(true); setError('');
     try {
-      const response = await authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/admin/dashboard?range=${range}`, {}, true);
+      const response = await authFetch(`${API_BASE_URL}/api/admin/dashboard?range=${range}`, {}, true);
       if (!response.ok) throw new Error('Unable to load administrator dashboard.');
       setDashboard(await readApiJson(response));
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.'); }
@@ -674,7 +674,7 @@ function AdminDashboardLegacy() {
   const [range, setRange] = useState('Last 30 days');
   const [dashboard, setDashboard] = useState<any>(null);
   const [error, setError] = useState('');
-  useEffect(() => { authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/admin/dashboard`, {}, true).then(async (response) => { if (!response.ok) throw new Error('Unable to load administrator dashboard.'); setDashboard(await readApiJson(response)); }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.')); }, []);
+  useEffect(() => { authFetch(`${API_BASE_URL}/api/admin/dashboard`, {}, true).then(async (response) => { if (!response.ok) throw new Error('Unable to load administrator dashboard.'); setDashboard(await readApiJson(response)); }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.')); }, []);
   if (error) return <div className="dashboard-state"><h2>Unable to load administrator dashboard</h2><p>{error}</p></div>;
   if (!dashboard) return <div className="dashboard-state"><h2>Loading administrator dashboard...</h2></div>;
   const stats = dashboard.stats;

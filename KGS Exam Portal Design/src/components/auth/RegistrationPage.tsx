@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE_URL } from '../../api';
 
 interface Props { onBackToLogin: () => void; onRegistered: (email: string) => void; }
 type Form = { fullName: string; email: string; phone: string; college: string; branch: string; passOutYear: string; privacyAccepted: boolean; monitoringAccepted: boolean };
@@ -23,7 +24,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
   const submit = async (event: React.FormEvent) => {
     event.preventDefault(); setServerError(''); if (!validate() || submitting) return; setSubmitting(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, passOutYear: Number(form.passOutYear) }) });
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, passOutYear: Number(form.passOutYear) }) });
       const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Registration could not be completed.');
       onRegistered(form.email.trim().toLowerCase());
     } catch (error) { setServerError(error instanceof Error ? error.message : 'Registration could not be completed.'); } finally { setSubmitting(false); }

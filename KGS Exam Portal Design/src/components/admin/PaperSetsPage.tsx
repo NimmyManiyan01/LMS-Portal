@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
-import { authFetch } from "../../api"
+import { API_BASE_URL, authFetch } from "../../api"
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:4000"
+const API = API_BASE_URL
 type Notice = { type: "success" | "error" | "warning"; text: string }
 const emptyForm = {
   name: "",

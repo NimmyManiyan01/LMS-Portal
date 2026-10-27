@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../../api';
 
 interface LandingPageProps {
   onStudentLogin: () => void;
@@ -12,7 +13,7 @@ export function LandingPage({ onStudentLogin, onRegister, onAdminLogin }: Landin
   useEffect(() => {
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 5000);
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/health`, { signal: controller.signal, headers: { Accept: 'application/json' } })
+    fetch(`${API_BASE_URL}/api/health`, { signal: controller.signal, headers: { Accept: 'application/json' } })
       .then((response) => { if (!response.ok) throw new Error('Health check failed'); return response.json(); })
       .then((data) => setHealth(data?.ok === true ? 'operational' : 'unavailable'))
       .catch(() => setHealth('unavailable'))

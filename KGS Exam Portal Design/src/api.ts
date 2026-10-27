@@ -1,3 +1,13 @@
+export function getApiBaseUrl(): string {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl || envUrl === '.' || envUrl === './') {
+    return 'https://assesspro-backend-ny01.onrender.com';
+  }
+  return envUrl.replace(/\/$/, '');
+}
+
+export const API_BASE_URL = getApiBaseUrl();
+
 export function getAuthToken(isAdmin = false): string | null {
   if (isAdmin) {
     return localStorage.getItem('kgs_admin_token') || localStorage.getItem('kgs_token');

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { DateTimePicker } from "./DateTimePicker"
-import { authFetch } from "../../api"
-const API = import.meta.env.VITE_API_URL || "http://localhost:4000"
+import { API_BASE_URL, authFetch } from "../../api"
+const API = API_BASE_URL
 const durationBetween = (start: string, end: string) => {
   if (!start || !end) return null
   const minutes = (new Date(end).getTime() - new Date(start).getTime()) / 60000

@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { API_BASE_URL } from '../../api';
 
 interface Props { onClose: () => void; onProceedToExam: () => void; examTitle: string; requirements?: { camera?: boolean; microphone?: boolean; fullscreen?: boolean }; }
 type State = 'PENDING' | 'CHECKING' | 'PASSED' | 'FAILED' | 'NOT_REQUIRED';
 type Key = 'browser' | 'network' | 'camera' | 'microphone' | 'fullscreen';
-const api = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const api = API_BASE_URL;
 const name = () => /Edg\//.test(navigator.userAgent) ? 'Microsoft Edge' : /Chrome\//.test(navigator.userAgent) ? 'Google Chrome' : /Firefox\//.test(navigator.userAgent) ? 'Mozilla Firefox' : /Safari\//.test(navigator.userAgent) ? 'Safari' : 'Unknown browser';
 
 export function SystemCheckModal({ onClose, onProceedToExam, examTitle, requirements = {} }: Props) {

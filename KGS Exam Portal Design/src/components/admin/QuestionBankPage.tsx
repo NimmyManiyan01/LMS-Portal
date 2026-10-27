@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { authFetch } from '../../api';
+import { API_BASE_URL, authFetch } from '../../api';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API = API_BASE_URL;
 
 export function QuestionBankPage({ Icon, PageHead }: { Icon: any; PageHead: any }) {
   const [rows,setRows]=useState<any[]>([]),[stats,setStats]=useState<any>({}),[page,setPage]=useState<any>({page:1,pages:1,total:0}),[filters,setFilters]=useState({search:'',type:'',category:'',status:''}),[loading,setLoading]=useState(true),[error,setError]=useState(''),[selected,setSelected]=useState<any>(null),[confirmAction,setConfirmAction]=useState<'ACTIVE'|'INACTIVE'|null>(null),[saving,setSaving]=useState(false),[message,setMessage]=useState(''),[importOpen,setImportOpen]=useState(false),[file,setFile]=useState<any>(null),[preview,setPreview]=useState<any>(null),[processing,setProcessing]=useState(false);
