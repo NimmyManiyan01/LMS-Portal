@@ -6,9 +6,11 @@ interface SubmissionModalProps {
   questions: Question[];
   answers: Record<string, AnswerState>;
   examTitle: string;
+  submitting?: boolean;
+  error?: string;
 }
 
-export function SubmissionModal({ onClose, onConfirmSubmit, questions, answers, examTitle }: SubmissionModalProps) {
+export function SubmissionModal({ onClose, onConfirmSubmit, questions, answers, examTitle, submitting = false, error = '' }: SubmissionModalProps) {
   let answeredCount = 0;
   let markedCount = 0;
   let unvisitedCount = 0;
@@ -42,6 +44,7 @@ export function SubmissionModal({ onClose, onConfirmSubmit, questions, answers, 
 
         <div className="modal-body">
           <p>Are you sure you want to finalize your exam attempt? Once submitted, you cannot modify your responses.</p>
+          {error && <div className="error-alert" role="alert">{error}</div>}
 
           <div className="summary-table">
             <div className="summary-row">
@@ -70,8 +73,9 @@ export function SubmissionModal({ onClose, onConfirmSubmit, questions, answers, 
         </div>
 
         <div className="modal-footer">
+          {submitting && <span className="muted">Submitting your examination...</span>}
           <button className="secondary" onClick={onClose}>Return to Test</button>
-          <button className="primary submit-final" onClick={onConfirmSubmit}>
+          <button className="primary submit-final" disabled={submitting} onClick={onConfirmSubmit}>
             Yes, Finalize & Submit →
           </button>
         </div>

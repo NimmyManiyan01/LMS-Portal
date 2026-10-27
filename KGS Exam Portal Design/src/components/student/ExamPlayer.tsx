@@ -7,7 +7,8 @@ interface ExamPlayerProps {
   questions: Question[];
   attemptId: string;
   candidateName?: string;
-  onSubmitExam: (answers: Record<string, AnswerState>, tabSwitches: number) => void;
+  onSubmitExam: (answers: Record<string, AnswerState>, tabSwitches: number, automatic?: boolean) => void;
+  onIntegrityAutoSubmit?: () => void;
 }
 
 interface PersistedAttempt {
@@ -17,7 +18,7 @@ interface PersistedAttempt {
   expiresAt: number;
 }
 
-export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Student', onSubmitExam }: ExamPlayerProps) {
+export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Student', onSubmitExam, onIntegrityAutoSubmit }: ExamPlayerProps) {
   const storageKey = `kgs-exam-attempt:${exam.id}`;
   const [currentIdx, setCurrentIdx] = useState(() => {
     try {
@@ -43,33 +44,45 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
       return saved?.tabSwitches ?? 0;
     } catch { return 0; }
   });
+  const [fullscreenIncidents, setFullscreenIncidents] = useState(0);
+  const [fullscreenThreshold, setFullscreenThreshold] = useState<number | null>(null);
+  const [lastIntegrityType, setLastIntegrityType] = useState<'TAB_HIDDEN' | 'FULLSCREEN_EXIT'>('TAB_HIDDEN');
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(true);
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'failed' | 'retrying'>('saved');
   const [answerVersions, setAnswerVersions] = useState<Record<string, number>>({});
   const [connectionOnline, setConnectionOnline] = useState(() => navigator.onLine);
   const [cameraStatus, setCameraStatus] = useState<'not-required' | 'starting' | 'active' | 'interrupted' | 'denied'>('not-required');
+  const [fullscreenActive, setFullscreenActive] = useState(() => !exam.readinessRequirements?.fullscreen || !!document.fullscreenElement);
+  const [fullscreenNotice, setFullscreenNotice] = useState(false);
   const cameraVideoRef = useRef<HTMLVideoElement>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const lastVisibilityIncident = useRef(0);
   const pendingIntegrityEvents = useRef(new Map<string, number>());
+  const finalizingRef = useRef(false);
 
-  const recordIntegrityEvent = async (eventId: string, attempt = 0): Promise<void> => {
+  const recordIntegrityEvent = async (eventId: string, eventType: 'TAB_HIDDEN' | 'FULLSCREEN_EXIT', attempt = 0): Promise<void> => {
     try {
       const response = await authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/integrity-events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId, eventType: 'TAB_HIDDEN', clientTimestamp: new Date().toISOString() }),
+        body: JSON.stringify({ eventId, eventType, clientTimestamp: new Date().toISOString() }),
       });
       if (!response.ok) throw new Error('integrity event rejected');
       const result = await response.json();
       pendingIntegrityEvents.current.delete(eventId);
-      if (typeof result.confirmedCount === 'number') setTabSwitches(result.confirmedCount);
-      if (result.action === 'WARNING' || result.action === 'AUTO_SUBMIT') setShowWarningModal(true);
+      setLastIntegrityType(eventType);
+      if (eventType === 'FULLSCREEN_EXIT') {
+        if (typeof result.confirmedCount === 'number') setFullscreenIncidents(result.confirmedCount);
+        if (typeof result.count === 'number') setFullscreenIncidents(result.count);
+        if (typeof result.threshold === 'number') setFullscreenThreshold(result.threshold);
+      } else if (typeof result.confirmedCount === 'number') setTabSwitches(result.confirmedCount);
+      if (result.action === 'WARNING') setShowWarningModal(true);
+      if (result.action === 'AUTO_SUBMIT') { finalizingRef.current = true; onIntegrityAutoSubmit?.(); }
     } catch {
       if (attempt < 2 && navigator.onLine) {
         pendingIntegrityEvents.current.set(eventId, window.setTimeout(() => {
-          void recordIntegrityEvent(eventId, attempt + 1);
+          void recordIntegrityEvent(eventId, eventType, attempt + 1);
         }, 1000 * (attempt + 1)));
       } else {
         pendingIntegrityEvents.current.delete(eventId);
@@ -83,6 +96,20 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
     cameraStreamRef.current?.getTracks().forEach((track) => { track.onended = null; track.stop(); });
     cameraStreamRef.current = null;
     if (cameraVideoRef.current) cameraVideoRef.current.srcObject = null;
+  };
+
+  const requestExamFullscreen = async () => {
+    if (!exam.readinessRequirements?.fullscreen || document.fullscreenElement) return true;
+    try {
+      await document.documentElement.requestFullscreen();
+      setFullscreenActive(true);
+      setFullscreenNotice(false);
+      return true;
+    } catch {
+      setFullscreenActive(false);
+      setFullscreenNotice(true);
+      return false;
+    }
   };
 
   const startCamera = async () => {
@@ -103,6 +130,11 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
       if (cameraVideoRef.current) {
         cameraVideoRef.current.srcObject = stream;
         await cameraVideoRef.current.play();
+        if (cameraVideoRef.current.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || !cameraVideoRef.current.videoWidth || !cameraVideoRef.current.videoHeight) {
+          stopCamera();
+          setCameraStatus('interrupted');
+          return;
+        }
       }
       setCameraStatus('active');
     } catch {
@@ -115,6 +147,48 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
     void startCamera();
     return stopCamera;
   }, [exam.readinessRequirements?.camera]);
+
+  useEffect(() => {
+    if (!exam.readinessRequirements?.camera) return;
+    const timer = window.setInterval(() => {
+      const video = cameraVideoRef.current;
+      const track = cameraStreamRef.current?.getVideoTracks()[0];
+      const healthy = !!video && video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0 && video.videoHeight > 0 && track?.readyState === 'live';
+      if (cameraStatus === 'active' && !healthy) setCameraStatus('interrupted');
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [cameraStatus, exam.readinessRequirements?.camera]);
+
+  useEffect(() => {
+    if (!exam.readinessRequirements?.fullscreen) return;
+    const handleFullscreenChange = () => {
+      const active = !!document.fullscreenElement;
+      setFullscreenActive(active);
+      if (active) {
+        setFullscreenNotice(false);
+        return;
+      }
+      if (finalizingRef.current) return;
+      setFullscreenNotice(true);
+      const eventId = `fullscreen-${attemptId}-${Date.now()}-${crypto.randomUUID()}`;
+      setShowWarningModal(true);
+      void recordIntegrityEvent(eventId, 'FULLSCREEN_EXIT');
+    };
+    void requestExamFullscreen();
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, [attemptId, exam.readinessRequirements?.fullscreen]);
+
+  useEffect(() => {
+    void authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/integrity-status`)
+      .then((response) => response.ok ? response.json() : null)
+      .then((result) => {
+        if (typeof result?.counts?.tabSwitch === 'number') setTabSwitches(result.counts.tabSwitch);
+        if (typeof result?.counts?.fullscreenExit === 'number') setFullscreenIncidents(result.counts.fullscreenExit);
+        if (typeof result?.rules?.fullscreenExitThreshold === 'number') setFullscreenThreshold(result.rules.fullscreenExitThreshold);
+      })
+      .catch(() => undefined);
+  }, [attemptId]);
 
   useEffect(() => {
     const online = () => setConnectionOnline(true);
@@ -157,7 +231,8 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          onSubmitExam(answers, tabSwitches);
+          finalizingRef.current = true;
+          onSubmitExam(answers, tabSwitches, true);
           localStorage.removeItem(storageKey);
           return 0;
         }
@@ -177,7 +252,7 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
         const eventId = `visibility-${attemptId}-${now}-${crypto.randomUUID()}`;
         setShowWarningModal(true);
         pendingIntegrityEvents.current.set(eventId, 0);
-        void recordIntegrityEvent(eventId);
+        void recordIntegrityEvent(eventId, 'TAB_HIDDEN');
       }
     };
 
@@ -296,6 +371,12 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
           <button className="secondary" onClick={() => { setConnectionOnline(navigator.onLine); window.dispatchEvent(new Event('online')); }}>Retry Connection</button>
         </div>
       )}
+      {exam.readinessRequirements?.fullscreen && fullscreenNotice && (
+        <div className="fullscreen-banner" role="alert">
+          <span>Fullscreen has been exited. Return to fullscreen to continue the examination.</span>
+          <button className="secondary" onClick={() => { void requestExamFullscreen(); }}>Return to Fullscreen</button>
+        </div>
+      )}
       {/* Proctoring Warning Modal */}
       {showWarningModal && (
         <div className="modal-scrim warning-scrim">
@@ -303,7 +384,7 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
             <div className="warning-icon">⚠️</div>
             <h3>Proctoring Security Warning</h3>
             <p>
-              A tab-switch or window-visibility incident has been recorded. <strong>Recorded incidents: {tabSwitches}</strong>.
+              A {lastIntegrityType === 'FULLSCREEN_EXIT' ? 'fullscreen exit' : 'tab-switch or window-visibility'} incident has been recorded. <strong>Recorded incidents: {lastIntegrityType === 'FULLSCREEN_EXIT' ? fullscreenIncidents : tabSwitches}</strong>{lastIntegrityType === 'FULLSCREEN_EXIT' && fullscreenThreshold ? ` of ${fullscreenThreshold}` : ''}.
               Review the examination monitoring policy before continuing. The backend evaluates incidents according to the configured rules.
             </p>
             <button className="primary" onClick={() => setShowWarningModal(false)}>
@@ -320,7 +401,7 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
             {cameraStatus !== 'active' && <span>{cameraStatus === 'starting' ? 'Starting camera…' : cameraStatus === 'denied' ? 'Camera permission required' : 'Camera interrupted'}</span>}
           </div>
           <div className="camera-monitor-status">
-            <strong><span className="camera-status-dot" /> {cameraStatus === 'active' ? 'Camera Active' : cameraStatus === 'starting' ? 'Connecting…' : 'Camera Unavailable'}</strong>
+            <strong><span className="camera-status-dot" /> {cameraStatus === 'active' ? 'Camera Active' : cameraStatus === 'starting' ? 'Camera Reconnecting…' : 'Camera Unavailable'}</strong>
             {cameraStatus !== 'active' && <button className="text-button" onClick={() => void startCamera()}>Retry camera</button>}
           </div>
         </div>
@@ -331,6 +412,7 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
         <div className="exam-title-group">
           <h2>{exam.title}</h2>
           <span className="exam-code">{exam.examCode}</span>
+          {exam.readinessRequirements?.fullscreen && <span className={`fullscreen-status ${fullscreenActive ? 'active' : 'inactive'}`}>{fullscreenActive ? 'Fullscreen active' : 'Fullscreen required'}</span>}
         </div>
 
         <div className="header-actions">
@@ -347,7 +429,7 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
             {paletteOpen ? 'Hide Palette' : 'Question Palette'}
           </button>
 
-          <button className="primary submit-btn" onClick={() => onSubmitExam(answers, tabSwitches)}>
+          <button className="primary submit-btn" onClick={() => { finalizingRef.current = true; onSubmitExam(answers, tabSwitches); }}>
             Submit Exam
           </button>
         </div>

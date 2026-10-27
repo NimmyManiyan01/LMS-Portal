@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Exam, AnswerState, StudentProfile } from './types';
 import { API_BASE_URL, authFetch, clearAuthToken } from './api';
 import { SystemCheckModal } from './components/student/SystemCheckModal';
@@ -6,7 +6,7 @@ import { ExamInstructionsModal } from './components/student/ExamInstructionsModa
 import { ExamPlayer } from './components/student/ExamPlayer';
 import { SubmissionModal } from './components/student/SubmissionModal';
 import { ResultsView } from './components/student/ResultsView';
-import { SubmissionConfirmation } from './components/student/SubmissionConfirmation';
+const SubmissionConfirmation = lazy(() => import('./components/student/SubmissionConfirmation').then((module) => ({ default: module.SubmissionConfirmation })));
 import { LandingPage } from './components/public/LandingPage';
 import { RegistrationPage } from './components/auth/RegistrationPage';
 import { StudentLoginPage } from './components/auth/StudentLoginPage';
@@ -96,7 +96,7 @@ function Sidebar({ admin, active, onNav }: { admin: boolean; active: string; onN
     return () => { cancelled = true; window.clearInterval(timer); };
   }, [admin]);
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${admin ? 'admin-sidebar' : 'student-sidebar'}`}>
       <Brand />
       <div className="portal-label">{admin ? 'ADMIN PORTAL' : 'STUDENT PORTAL'}</div>
       <nav>
@@ -159,6 +159,12 @@ function Topbar({
   );
 }
 
+function StudentExportAction() {
+  const [loading, setLoading] = useState(false); const [error, setError] = useState('');
+  const exportRegister = async () => { if (loading) return; setLoading(true); setError(''); try { const created = await authFetch(`${API_BASE_URL}/api/admin/reports/exports`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) }, true); const data = await created.json().catch(() => ({})); if (!created.ok || !data.exportId) throw new Error(data.error || 'Unable to generate student register.'); const download = await authFetch(`${API_BASE_URL}/api/admin/reports/exports/${data.exportId}/download`, {}, true); if (!download.ok) throw new Error('Unable to download the generated workbook.'); const blob = await download.blob(); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = data.fileName || 'kgs-student-register.xlsx'; link.click(); URL.revokeObjectURL(url); } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to export student register.'); } finally { setLoading(false); } };
+  return <div className="student-export-action"><button className="secondary" disabled={loading} onClick={() => void exportRegister()}>{loading ? 'Exporting...' : 'Export Student Register'}</button>{error && <small className="field-error">{error}</small>}</div>;
+}
+
 function PageHead({ admin, student, title, description, showCreateAction = true }: { admin: boolean; student: StudentProfile | null; title?: string; description?: string; showCreateAction?: boolean }) {
   const current = new Date(); const greeting = current.getHours() < 12 ? 'Good morning' : current.getHours() < 18 ? 'Good afternoon' : 'Good evening';
   const localDate = new Intl.DateTimeFormat(undefined, { weekday: 'long', day: 'numeric', month: 'long' }).format(current).toUpperCase();
@@ -169,7 +175,7 @@ function PageHead({ admin, student, title, description, showCreateAction = true 
         <h1>{title || (admin ? 'Examination overview' : `${greeting}, ${student?.fullName || 'Student'}`)}</h1>
         <p>{admin ? 'Monitor operations and manage the examination lifecycle.' : 'Here’s what’s happening with your examinations.'}</p>
       </div>
-      {admin && showCreateAction ? (
+      {admin && title === 'Student Management' ? <StudentExportAction /> : admin && showCreateAction ? (
         <button className="primary"><Icon name="plus"/>Create examination</button>
       ) : admin ? null : (
         <div className="student-id">
@@ -209,6 +215,9 @@ export default function App() {
   const initialStatusTabApplied = useRef(false);
   const [lastAnswers, setLastAnswers] = useState<Record<string, AnswerState>>({});
   const [examQuestions, setExamQuestions] = useState<import('./types').Question[]>([]);
+  const [submissionLoading, setSubmissionLoading] = useState(false);
+  const [submissionError, setSubmissionError] = useState('');
+  const [submittedResult, setSubmittedResult] = useState<{ marksScored?: number; maximumMarks?: number; released?: boolean } | null>(null);
 
   useEffect(() => {
     if (entryRoute === '/admin/dashboard' && !admin) {
@@ -320,13 +329,28 @@ export default function App() {
     }
   };
 
-  const handleSubmitExamClick = (answers: Record<string, AnswerState>) => {
-    setLastAnswers(answers);
-    setViewState('SUBMISSION_CONFIRM');
+  const submitAttempt = async (answers: Record<string, AnswerState>) => {
+    if (submissionLoading || !activeAttemptId) return;
+    setSubmissionLoading(true); setSubmissionError('');
+    try {
+      const payloadAnswers = Object.fromEntries(Object.entries(answers).map(([questionId, answer]) => [questionId, answer.selectedOptionId || null]));
+      const response = await authFetch(`${API_BASE_URL}/api/attempts/${activeAttemptId}/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: payloadAnswers }) });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok && response.status !== 409) throw new Error(payload.error || 'Unable to submit the examination.');
+      const resultResponse = await authFetch(`${API_BASE_URL}/api/student/results/${activeAttemptId}`, { cache: 'no-store' });
+      const result = await resultResponse.json().catch(() => ({}));
+      setSubmittedResult(resultResponse.ok ? result : payload); setViewState('SUBMISSION_SUCCESS');
+    } catch (error) { setSubmissionError(error instanceof Error ? error.message : 'Unable to submit the examination.'); }
+    finally { setSubmissionLoading(false); }
   };
 
-  const handleConfirmFinalSubmit = () => {
-    setViewState('SUBMISSION_SUCCESS');
+  const handleSubmitExamClick = (answers: Record<string, AnswerState>, _tabSwitches: number, automatic = false) => {
+    setLastAnswers(answers);
+    if (automatic) void submitAttempt(answers); else setViewState('SUBMISSION_CONFIRM');
+  };
+
+  const handleConfirmFinalSubmit = async () => {
+    await submitAttempt(lastAnswers);
   };
 
   if (viewState === 'EXAM_PLAYER' && selectedExam) {
@@ -337,6 +361,7 @@ export default function App() {
         attemptId={activeAttemptId}
         candidateName={student?.fullName}
         onSubmitExam={handleSubmitExamClick}
+        onIntegrityAutoSubmit={() => void submitAttempt(lastAnswers)}
       />
     );
   }
@@ -353,7 +378,7 @@ export default function App() {
   }
 
   if (viewState === 'SUBMISSION_SUCCESS' && selectedExam) {
-    return <SubmissionConfirmation examTitle={selectedExam.title} submittedAt={new Date()} onBackToDashboard={() => setViewState('DASHBOARD')} />;
+    return <Suspense fallback={<div className="dashboard-state"><h2>Loading submission confirmation...</h2></div>}><SubmissionConfirmation examTitle={selectedExam.title} submittedAt={new Date()} marksScored={submittedResult?.released ? submittedResult.marksScored : undefined} maximumMarks={submittedResult?.released ? submittedResult.maximumMarks : undefined} resultsReleased={Boolean(submittedResult?.released)} onBackToDashboard={() => setViewState('DASHBOARD')} /></Suspense>;
   }
 
   return (
@@ -385,6 +410,8 @@ export default function App() {
           answers={lastAnswers}
           onClose={() => setViewState('EXAM_PLAYER')}
           onConfirmSubmit={handleConfirmFinalSubmit}
+          submitting={submissionLoading}
+          error={submissionError}
         />
       )}
 
@@ -558,7 +585,7 @@ function StudentDashboard({
   const mins = Math.floor((secondsToStart % 3600) / 60);
   const secs = secondsToStart % 60;
 
-  const statusForTab: Record<string, string[]> = { Eligible: ['AVAILABLE'], Upcoming: ['UPCOMING'], 'In Progress': ['IN_PROGRESS'], Completed: ['SUBMITTED', 'RESULTS_RELEASED'], 'Results pending': ['RESULTS_PENDING'] };
+  const statusForTab: Record<string, string[]> = { Eligible: ['AVAILABLE'], Upcoming: ['UPCOMING'], 'In Progress': ['IN_PROGRESS'], Completed: ['SUBMITTED', 'COMPLETED'], 'Results pending': ['RESULTS_PENDING'] };
   const visibleExams = exams.filter((exam) => (statusForTab[activeTab] || []).includes(String(exam.status)));
 
   return (
@@ -587,8 +614,10 @@ function StudentDashboard({
               <div className="available-now">{String(Math.floor(secondsRemaining / 3600)).padStart(2, '0')}:{String(Math.floor((secondsRemaining % 3600) / 60)).padStart(2, '0')}:{String(secondsRemaining % 60).padStart(2, '0')}</div>
             ) : status === 'AVAILABLE' ? (
               <div className="available-now">Available Now</div>
-            ) : status === 'EXPIRED' ? (
-              <div className="exam-ended-message" role="status">This examination has ended.</div>
+            ) : status === 'RESULTS_PENDING' ? (
+              <div className="exam-ended-message" role="status">Results Awaiting Release</div>
+            ) : ['SUBMITTED', 'COMPLETED', 'RESULTS_RELEASED', 'EXPIRED', 'CLOSED'].includes(status) ? (
+              <div className="exam-ended-message" role="status">Examination Completed</div>
             ) : status === 'CLOSED' ? (
               <div className="available-now">This examination has ended.</div>
             ) : (
@@ -603,8 +632,8 @@ function StudentDashboard({
             )}
           </div>
           {status !== 'EXPIRED' && (
-            <button className="primary wide" disabled={status === 'CLOSED' || status === 'SUBMITTED' || status === 'RESULTS_PENDING' || status === 'RESULTS_RELEASED'} onClick={() => onStartExam(heroExam)}>
-              {status === 'IN_PROGRESS' ? 'Resume Examination' : status === 'CLOSED' ? 'This examination has ended.' : status === 'SUBMITTED' || status === 'RESULTS_PENDING' || status === 'RESULTS_RELEASED' ? 'Examination completed' : 'Launch Exam Check'} {['CLOSED', 'SUBMITTED', 'RESULTS_PENDING', 'RESULTS_RELEASED'].includes(status) ? null : <Icon name="arrow"/>}
+            <button className="primary wide" disabled={status === 'CLOSED' || status === 'SUBMITTED' || status === 'RESULTS_PENDING'} onClick={() => status === 'RESULTS_RELEASED' ? onViewResults() : onStartExam(heroExam)}>
+              {status === 'IN_PROGRESS' ? 'Resume Examination' : status === 'RESULTS_RELEASED' ? 'View Marks' : status === 'CLOSED' ? 'This examination has ended.' : status === 'SUBMITTED' || status === 'RESULTS_PENDING' ? 'Results Awaiting Release' : 'Launch Exam Check'} {['CLOSED', 'SUBMITTED', 'RESULTS_PENDING'].includes(status) ? null : <Icon name="arrow"/>}
             </button>
           )}
           {status === 'UPCOMING' && <small>{readinessWindowOpen ? 'System check available now' : 'Available 15 minutes before start'}</small>}
@@ -628,7 +657,7 @@ function StudentDashboard({
             ))}
           </div>
           <div className="exam-list">
-            {visibleExams.length === 0 ? <div className="empty-dashboard panel"><h3>No {activeTab.toLowerCase()} examinations</h3><p>Examinations in this category will appear here when available.</p></div> : visibleExams.map((ex) => (
+            {visibleExams.length === 0 ? <div className="exam-list-empty"><h3>No {activeTab.toLowerCase()} examinations</h3><p>Examinations in this category will appear here when available.</p></div> : visibleExams.map((ex) => (
               <div className="exam-row" key={ex.id}>
                 <div className="date-tile"><b>{ex.scheduledAt ? new Date(ex.scheduledAt).toLocaleDateString(undefined, { day: '2-digit' }) : '—'}</b><span>{ex.scheduledAt ? new Date(ex.scheduledAt).toLocaleDateString(undefined, { month: 'short' }).toUpperCase() : 'TBD'}</span></div>
                 <div className="exam-info">

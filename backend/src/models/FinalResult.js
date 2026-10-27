@@ -31,6 +31,7 @@ const schema = new mongoose.Schema(
       enum: ["MANUAL", "TIMER_EXPIRY", "INTEGRITY", "ADMINISTRATIVE"],
       required: true,
     },
+    reasonDetail: String,
     scoringVersion: { type: Number, required: true },
     releaseStatus: {
       type: String,

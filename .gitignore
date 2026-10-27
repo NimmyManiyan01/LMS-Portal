@@ -3,6 +3,7 @@ dist/
 build/
 .env
 .env.*
+!.env.qa.example
 !.env.example
 *.log
 .vite/

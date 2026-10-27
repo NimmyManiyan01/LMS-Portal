@@ -18,6 +18,7 @@ const attemptSchema = new mongoose.Schema(
     startedAt: Date,
     expiresAt: Date,
     submittedAt: Date,
+    submissionReason: String,
     assignedQuestionIds: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
     ],
@@ -25,6 +26,8 @@ const attemptSchema = new mongoose.Schema(
       tabSwitch: { type: Number, default: 0 },
       copyPaste: { type: Number, default: 0 },
       fullscreenExit: { type: Number, default: 0 },
+      multiplePerson: { type: Number, default: 0 },
+      cameraInterrupted: { type: Number, default: 0 },
     },
     status: {
       type: String,

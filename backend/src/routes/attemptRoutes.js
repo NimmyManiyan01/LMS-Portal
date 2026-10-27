@@ -5,6 +5,12 @@ const Answer = require("../models/Answer");
 const { authenticate } = require("../middleware/auth");
 const { finalizeAttempt } = require("../services/finalizeAttempt");
 
+function studentMatch(student) {
+  if (!student) return null;
+  const ids = [student._id, student.id, student.studentId].filter(Boolean);
+  return ids.length === 1 ? ids[0] : { $in: ids };
+}
+
 async function findOwnedAttempt(req, res) {
   if (!mongoose.isValidObjectId(req.params.attemptId)) {
     res.status(400).json({ error: "Invalid attempt ID" });
@@ -12,7 +18,7 @@ async function findOwnedAttempt(req, res) {
   }
   const attempt = await Attempt.findOne({
     _id: req.params.attemptId,
-    studentId: req.student.id,
+    studentId: studentMatch(req.student),
   })
     .select("-paperSetId -__v")
     .lean();
@@ -116,7 +122,7 @@ router.put(
   async (req, res) => {
     const attempt = await Attempt.findOne({
       _id: req.params.attemptId,
-      studentId: req.student.id,
+      studentId: studentMatch(req.student),
       status: "IN_PROGRESS",
     }).lean();
     if (!attempt)
@@ -150,16 +156,17 @@ router.put(
           questionId: req.params.questionId,
         },
       },
-      { upsert: true, new: true, rawResult: true },
+      { upsert: true, new: true },
     );
-    if (!saved.value)
+    const doc = saved?.value || saved;
+    if (!doc)
       return res
         .status(409)
         .json({ saved: false, error: "A newer answer version already exists" });
     res.json({
       saved: true,
-      version: saved.value.version,
-      savedAt: saved.value.savedAt,
+      version: doc.version,
+      savedAt: doc.savedAt,
     });
   },
 );

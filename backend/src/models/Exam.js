@@ -30,6 +30,7 @@ const examSchema = new mongoose.Schema(
     },
     integrityRules: {
       tabSwitchThreshold: { type: Number, default: 2 },
+      fullscreenExitThreshold: { type: Number, default: 2 },
       copyPasteThreshold: { type: Number, default: 3 },
       gracePeriodSeconds: { type: Number, default: 3 },
     },

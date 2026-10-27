@@ -7,6 +7,8 @@ const { finalizeAttempt } = require("../services/finalizeAttempt");
 
 router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
   const { eventId, eventType, clientTimestamp } = req.body;
+  if (!eventId || typeof eventId !== "string" || eventId.length > 160)
+    return res.status(400).json({ error: "A valid event ID is required" });
   const attempt = await Attempt.findOne({
     _id: req.params.attemptId,
     studentId: req.student.id,
@@ -27,6 +29,8 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
       duplicate: true,
       action: existing.action,
       count: existing.newCount,
+      confirmedCount: existing.newCount,
+      threshold: existing.threshold,
     });
   const isCamera = eventType === "CAMERA_INTERRUPTED";
   const isTab = eventType === "TAB_HIDDEN" || eventType === "FULLSCREEN_EXIT";
@@ -44,38 +48,61 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
     return res.json({ recorded: false, action: "RECORDED", count: 0 });
   const field = isCopyPaste
     ? "integrityCounts.copyPaste"
-    : isTab
+    : eventType === "FULLSCREEN_EXIT"
+      ? "integrityCounts.fullscreenExit"
+      : isTab
       ? "integrityCounts.tabSwitch"
       : null;
   if (!field)
     return res
       .status(400)
       .json({ error: "Unsupported integrity event for this examination" });
-  const previous = Number(
-    attempt.integrityCounts?.[isCopyPaste ? "copyPaste" : "tabSwitch"] || 0,
-  );
+  const counterName = isCopyPaste ? "copyPaste" : eventType === "FULLSCREEN_EXIT" ? "fullscreenExit" : "tabSwitch";
   const threshold = isCopyPaste
     ? exam.integrityRules?.copyPasteThreshold || 3
+    : eventType === "FULLSCREEN_EXIT"
+      ? exam.integrityRules?.fullscreenExitThreshold || 2
     : exam.integrityRules?.tabSwitchThreshold || 2;
-  const next = previous + 1;
+  let event;
+  try {
+    event = await IntegrityEvent.create({
+      eventId,
+      studentId: req.student.id,
+      attemptId: attempt.id,
+      eventType,
+      action: "RECORDED",
+      clientTimestamp,
+    });
+  } catch (error) {
+    if (error?.code === 11000) {
+      const duplicate = await IntegrityEvent.findOne({ attemptId: attempt.id, eventId });
+      return res.json({ duplicate: true, action: duplicate?.action || "RECORDED", count: duplicate?.newCount || 0, confirmedCount: duplicate?.newCount || 0, threshold: duplicate?.threshold });
+    }
+    throw error;
+  }
+  const updatedAttempt = await Attempt.findOneAndUpdate(
+    { _id: attempt.id, studentId: req.student.id, status: "IN_PROGRESS" },
+    { $inc: { [field]: 1 } },
+    { new: true },
+  );
+  if (!updatedAttempt) {
+    await IntegrityEvent.deleteOne({ _id: event._id });
+    return res.status(409).json({ error: "Attempt is no longer active" });
+  }
+  const next = Number(updatedAttempt.integrityCounts?.[counterName] || 0);
+  const previous = next - 1;
   const action = next >= threshold ? "AUTO_SUBMIT" : "WARNING";
-  const event = await IntegrityEvent.create({
-    eventId,
-    studentId: req.student.id,
-    attemptId: attempt.id,
-    eventType,
-    previousCount: previous,
-    newCount: next,
-    threshold,
-    action,
-    clientTimestamp,
-  });
-  await Attempt.updateOne({ _id: attempt.id }, { $inc: { [field]: 1 } });
+  event.previousCount = previous;
+  event.newCount = next;
+  event.threshold = threshold;
+  event.action = action;
+  await event.save();
   if (action === "AUTO_SUBMIT")
     await finalizeAttempt({
       attemptId: attempt.id,
       studentId: req.student.id,
       reason: "INTEGRITY",
+      reasonDetail: eventType === "TAB_HIDDEN" ? "TAB_SWITCH_THRESHOLD" : eventType === "FULLSCREEN_EXIT" ? "FULLSCREEN_EXIT_THRESHOLD" : "INTEGRITY_THRESHOLD",
     });
   res
     .status(201)

@@ -53,6 +53,7 @@ export function ExaminationsPage({
       readinessRequirements: { camera: false, microphone: false, fullscreen: false },
       integrityProfile: "BASIC",
       integrityRules: { tabSwitchThreshold: 2 },
+      resultReleasePolicy: "ADMIN_CONTROLLED",
     })
   const load = async () => {
     const r = await authFetch(`${API}/api/admin/exams`, {}, true),
@@ -92,6 +93,7 @@ export function ExaminationsPage({
       readinessRequirements: { camera: false, microphone: false, fullscreen: false },
       integrityProfile: "BASIC",
       integrityRules: { tabSwitchThreshold: 2 },
+      resultReleasePolicy: "ADMIN_CONTROLLED",
     })
     setOpen(true)
   }
@@ -178,6 +180,7 @@ export function ExaminationsPage({
       },
       integrityProfile: e.integrityProfile || "BASIC",
       integrityRules: { tabSwitchThreshold: e.integrityRules?.tabSwitchThreshold ?? 2 },
+      resultReleasePolicy: e.resultReleasePolicy || "ADMIN_CONTROLLED",
     })
     setOpen(true)
   }
@@ -398,6 +401,7 @@ export function ExaminationsPage({
                 </div>
                 <small>Tab-switch monitoring follows the selected backend integrity profile.</small>
               </section>
+              <label className="checkbox-field"><input type="checkbox" checked={form.resultReleasePolicy === "IMMEDIATE"} disabled={Boolean(editing)} onChange={(e) => setForm({ ...form, resultReleasePolicy: e.target.checked ? "IMMEDIATE" : "ADMIN_CONTROLLED" })} /><span>Show Marks Immediately After Submission{editing && <small> Existing examination policy is preserved.</small>}</span></label>
               <label>
                 Instructions
                 <textarea

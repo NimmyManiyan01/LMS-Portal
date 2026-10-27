@@ -10,6 +10,7 @@ async function finalizeAttempt({
   attemptId,
   studentId,
   reason = "MANUAL",
+  reasonDetail,
   answers,
 }) {
   const session = await mongoose.startSession();
@@ -88,6 +89,7 @@ async function finalizeAttempt({
           ? "SUBMITTED"
           : "AUTO_SUBMITTED";
       attempt.submittedAt = finalizedAt;
+      attempt.submissionReason = reasonDetail || reason;
       attempt.score = score;
       await attempt.save({ session });
       const result = await FinalResult.create(
@@ -105,6 +107,7 @@ async function finalizeAttempt({
             incorrectCount,
             unansweredCount,
             reason,
+            reasonDetail,
             scoringVersion: Number(scheme.scoringVersion || 1),
             releaseStatus:
               exam?.resultReleasePolicy === "IMMEDIATE"

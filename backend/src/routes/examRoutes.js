@@ -251,13 +251,21 @@ router.post(
   }),
 );
 
+function studentMatch(student) {
+  if (!student) return null;
+  const ids = [student._id, student.id, student.studentId].filter(Boolean);
+  return ids.length === 1 ? ids[0] : { $in: ids };
+}
+
+// Attempt recovery deliberately returns only the student's saved state and
+// question IDs. Correct answers and scoring data never cross this boundary.
 router.get(
   "/attempts/:attemptId",
   authenticate,
   asyncHandler(async (req, res) => {
     const attempt = await Attempt.findOne({
       _id: req.params.attemptId,
-      studentId: req.student.id,
+      studentId: studentMatch(req.student),
     })
       .select("-__v -paperSetId")
       .lean();
@@ -291,7 +299,7 @@ router.patch(
   asyncHandler(async (req, res) => {
     const attempt = await Attempt.findOne({
       _id: req.params.attemptId,
-      studentId: req.student.id,
+      studentId: studentMatch(req.student),
       status: "IN_PROGRESS",
     });
     if (!attempt)
@@ -333,7 +341,7 @@ router.put(
   asyncHandler(async (req, res) => {
     const attempt = await Attempt.findOne({
       _id: req.params.attemptId,
-      studentId: req.student.id,
+      studentId: studentMatch(req.student),
       status: "IN_PROGRESS",
     }).lean();
     if (!attempt)
@@ -379,9 +387,10 @@ router.put(
           questionId: req.params.questionId,
         },
       },
-      { upsert: true, new: true, rawResult: true },
+      { upsert: true, new: true },
     );
-    if (!saved.value) {
+    const doc = saved?.value || saved;
+    if (!doc) {
       const current = await Answer.findOne({
         attemptId: attempt._id,
         questionId: req.params.questionId,
@@ -393,6 +402,7 @@ router.put(
           error: "A newer answer version already exists",
           version: current?.version,
         });
+    }
     }
     res.json({
       saved: true,

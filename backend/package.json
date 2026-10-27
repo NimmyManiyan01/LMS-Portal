@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js",
-    "seed:dev": "node scripts/seed-dev.js"
+    "test": "node --test test/*.test.js",
+    "seed:dev": "node scripts/seed-dev.js",
+    "qa:verify": "node scripts/verify-qa-env.js"
   },
   "keywords": [],
   "author": "",
