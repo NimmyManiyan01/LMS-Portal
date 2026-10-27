@@ -18,6 +18,7 @@ const allowedClientOrigins = new Set([
   "http://localhost:5173",
   "https://assesspro-1-d865.onrender.com",
   "https://assesspro-1-i07n.onrender.com",
+  "https://assesspro-2j7q.onrender.com",
 ].map((origin) => origin.trim().replace(/\/$/, "")).filter(Boolean));
 app.use(
   cors({
