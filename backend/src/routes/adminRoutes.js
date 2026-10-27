@@ -86,9 +86,13 @@ router.get("/exams/:id/assignments", authenticate, adminOnly, async (req, res) =
   const exam = await Exam.findById(req.params.id).lean();
   if (!exam) return res.status(404).json({ error: "Examination not found" });
   const assignedIds = (exam.eligibility?.studentIds || []).map(String);
-  const students = await Student.find({ accountStatus: "ACTIVE" }).select("studentId fullName email accountStatus createdAt").sort({ fullName: 1 }).lean();
+  const college = String(req.query.college || "").trim();
+  const studentFilter = { accountStatus: "ACTIVE" };
+  if (college) studentFilter.college = { $regex: `^${escapeRegex(college)}$`, $options: "i" };
+  const students = await Student.find(studentFilter).select("studentId fullName email college branch passOutYear accountStatus createdAt").sort({ fullName: 1 }).lean();
+  const colleges = await Student.aggregate([{ $match: { accountStatus: "ACTIVE", college: { $exists: true, $nin: [null, ""] } } }, { $group: { _id: { $toLower: "$college" }, name: { $first: "$college" }, count: { $sum: 1 } } }, { $sort: { name: 1 } }]);
   const assignmentAudit = await AuditLog.findOne({ action: "EXAM_STUDENTS_ASSIGNED", entityType: "Exam", entityId: exam._id }).sort({ createdAt: -1 }).select("createdAt").lean();
-  res.json({ exam: { id: String(exam._id), title: exam.title, code: exam.code, scheduledAt: exam.scheduledAt, closesAt: exam.closesAt, durationMinutes: exam.durationMinutes, maxAttempts: exam.maxAttempts }, assignedStudentIds: assignedIds, assignedAt: assignmentAudit?.createdAt || null, students: students.map(studentView) });
+  res.json({ exam: { id: String(exam._id), title: exam.title, code: exam.code, scheduledAt: exam.scheduledAt, closesAt: exam.closesAt, durationMinutes: exam.durationMinutes, maxAttempts: exam.maxAttempts }, colleges: colleges.map((item) => ({ name: item.name, count: item.count })), assignedStudentIds: assignedIds, assignedAt: assignmentAudit?.createdAt || null, students: students.map(studentView) });
 });
 router.put("/exams/:id/assignments", authenticate, adminOnly, async (req, res) => {
   const exam = await Exam.findById(req.params.id);
@@ -280,25 +284,28 @@ router.get("/students", authenticate, adminOnly, async (req, res) => {
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
   const search = String(req.query.search || "").trim();
   const status = String(req.query.status || "").toUpperCase();
+  const college = String(req.query.college || "").trim();
   const filter = {};
   if (search) filter.$or = [
     { studentId: { $regex: search, $options: "i" } }, { fullName: { $regex: search, $options: "i" } }, { email: { $regex: search, $options: "i" } },
   ];
   if (["ACTIVE", "SUSPENDED"].includes(status)) filter.accountStatus = status;
+  if (college) filter.college = { $regex: `^${escapeRegex(college)}$`, $options: "i" };
   const [students, total] = await Promise.all([
     Student.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(), Student.countDocuments(filter),
   ]);
-  res.json({ students: students.map(studentView), pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
+  const colleges = await Student.aggregate([{ $match: { college: { $exists: true, $nin: [null, ""] } } }, { $group: { _id: { $toLower: "$college" }, name: { $first: "$college" }, count: { $sum: 1 } } }, { $sort: { name: 1 } }]);
+  res.json({ students: students.map(studentView), colleges: colleges.map((item) => ({ name: item.name, count: item.count })), pagination: { page, limit, total, pages: Math.max(1, Math.ceil(total / limit)) } });
 });
 
 router.get("/students/import-template", authenticate, adminOnly, async (req, res) => {
   if (String(req.query.format || "csv").toLowerCase() === "xlsx") {
     const workbook = new ExcelJS.Workbook(); const sheet = workbook.addWorksheet("Students");
-    sheet.addRow(["Full Name", "Email Address", "Phone"]);
+    sheet.addRow(["Full Name", "Email Address", "Phone", "College Name", "Branch", "Pass-out Year"]);
     const header = sheet.getRow(1); header.font = { bold: true, color: { argb: "FF173E6A" } }; header.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFE6F1FB" } }; header.alignment = { vertical: "middle" }; header.height = 22;
-    sheet.columns = [{ width: 28 }, { width: 36 }, { width: 18 }]; sheet.views = [{ state: "frozen", ySplit: 1 }];
+    sheet.columns = [{ width: 28 }, { width: 36 }, { width: 18 }, { width: 32 }, { width: 24 }, { width: 16 }]; sheet.views = [{ state: "frozen", ySplit: 1 }];
     const buffer = await workbook.xlsx.writeBuffer(); res.setHeader("Content-Disposition", "attachment; filename=\"kgs-student-import-template.xlsx\""); res.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet").send(Buffer.from(buffer));
-  } else res.type("text/csv").send("Full Name,Email Address,Phone\n");
+  } else res.type("text/csv").send("Full Name,Email Address,Phone,College Name,Branch,Pass-out Year\n");
 });
 
 router.get("/students/:id", authenticate, adminOnly, async (req, res) => {
@@ -311,9 +318,11 @@ router.post("/students", authenticate, adminOnly, async (req, res) => {
   const fullName = String(req.body.fullName || "").trim();
   const email = String(req.body.email || "").toLowerCase().trim();
   const phone = String(req.body.phone || "").trim();
-  if (fullName.length < 2 || fullName.length > 100 || !emailPattern.test(email) || (phone && !/^[6-9]\d{9}$/.test(phone))) return res.status(400).json({ error: "Provide a valid name, email, and optional Indian phone number." });
+  const college = String(req.body.college || "").trim(); const branch = String(req.body.branch || "").trim(); const passOutYear = Number(req.body.passOutYear);
+  const current = new Date().getFullYear();
+  if (fullName.length < 2 || fullName.length > 100 || !emailPattern.test(email) || (phone && !/^[6-9]\d{9}$/.test(phone)) || college.length < 2 || college.length > 150 || !branch || !Number.isInteger(passOutYear) || passOutYear < current - 10 || passOutYear > current + 10) return res.status(400).json({ error: "Provide valid name, email, phone, college, branch, and pass-out year." });
   try {
-    const student = await Student.create({ studentId: await nextStudentId(), fullName, email, phone, emailVerified: false });
+    const student = await Student.create({ studentId: await nextStudentId(), fullName, email, phone, college, branch, passOutYear, emailVerified: false });
     await AuditLog.create({ actorId: req.admin?._id, actorRole: "ADMIN", action: "STUDENT_CREATED", entityType: "Student", entityId: student._id });
     res.status(201).json({ student: studentView(student) });
   } catch (error) { if (error?.code === 11000) return res.status(409).json({ error: "A student with this email already exists." }); throw error; }
@@ -324,10 +333,16 @@ router.patch("/students/:id", authenticate, adminOnly, async (req, res) => {
   if (req.body.fullName !== undefined) updates.fullName = String(req.body.fullName).trim();
   if (req.body.phone !== undefined) updates.phone = String(req.body.phone || "").trim();
   if (req.body.email !== undefined) updates.email = String(req.body.email).toLowerCase().trim();
+  if (req.body.college !== undefined) updates.college = String(req.body.college || "").trim();
+  if (req.body.branch !== undefined) updates.branch = String(req.body.branch || "").trim();
+  if (req.body.passOutYear !== undefined) updates.passOutYear = Number(req.body.passOutYear);
   if (req.body.accountStatus !== undefined) updates.accountStatus = req.body.accountStatus;
   if (updates.fullName !== undefined && (updates.fullName.length < 2 || updates.fullName.length > 100)) return res.status(400).json({ error: "Full name must contain 2–100 characters." });
   if (updates.email !== undefined && !emailPattern.test(updates.email)) return res.status(400).json({ error: "Valid email is required." });
   if (updates.phone !== undefined && updates.phone && !/^[6-9]\d{9}$/.test(updates.phone)) return res.status(400).json({ error: "Phone number is invalid." });
+  if (updates.college !== undefined && (updates.college.length < 2 || updates.college.length > 150)) return res.status(400).json({ error: "College name must contain 2–150 characters." });
+  if (updates.branch !== undefined && !updates.branch) return res.status(400).json({ error: "Branch is required." });
+  if (updates.passOutYear !== undefined && (!Number.isInteger(updates.passOutYear) || updates.passOutYear < new Date().getFullYear() - 10 || updates.passOutYear > new Date().getFullYear() + 10)) return res.status(400).json({ error: "Pass-out year is invalid." });
   if (updates.accountStatus !== undefined && !["ACTIVE", "SUSPENDED"].includes(updates.accountStatus)) return res.status(400).json({ error: "Invalid student status." });
   try {
     const student = await Student.findByIdAndUpdate(req.params.id, { $set: updates }, { new: true, runValidators: true }).lean();
@@ -343,9 +358,10 @@ router.post("/students/import", authenticate, adminOnly, async (req, res) => {
   const seen = new Set(); const valid = []; const invalid = [];
   for (const [index, row] of rows.entries()) {
     const rowNumber = row.rowNumber || row.row || index + 2;
-    const fullName = String(row.fullName || row.name || "").trim(); const email = String(row.email || "").toLowerCase().trim(); const phone = String(row.phone || "").trim();
-    if (fullName.length < 2 || !emailPattern.test(email) || (phone && !/^[6-9]\d{9}$/.test(phone)) || seen.has(email)) { invalid.push({ row: rowNumber, fullName, email, type: seen.has(email) ? "DUPLICATE" : "INVALID", reason: seen.has(email) ? "Duplicate — Email already included in this file" : "Invalid name, email, or phone" }); continue; }
-    seen.add(email); valid.push({ fullName, email, phone, rowNumber });
+    const fullName = String(row.fullName || row.name || "").trim(); const email = String(row.email || "").toLowerCase().trim(); const phone = String(row.phone || "").trim(); const college = String(row.college || row.collegeName || "").trim(); const branch = String(row.branch || "").trim(); const passOutYear = Number(row.passOutYear);
+    const yearValid = Number.isInteger(passOutYear) && passOutYear >= new Date().getFullYear() - 10 && passOutYear <= new Date().getFullYear() + 10;
+    if (fullName.length < 2 || !emailPattern.test(email) || (phone && !/^[6-9]\d{9}$/.test(phone)) || college.length < 2 || !branch || !yearValid || seen.has(email)) { invalid.push({ row: rowNumber, fullName, email, type: seen.has(email) ? "DUPLICATE" : "INVALID", reason: seen.has(email) ? "Duplicate — Email already included in this file" : "Invalid name, email, phone, college, branch, or pass-out year" }); continue; }
+    seen.add(email); valid.push({ fullName, email, phone, college, branch, passOutYear, rowNumber });
   }
   const existing = new Set((await Student.find({ email: { $in: valid.map((row) => row.email) } }).select("email").lean()).map((row) => row.email));
   for (let index = valid.length - 1; index >= 0; index -= 1) {
@@ -368,18 +384,18 @@ router.post("/students/import-file", authenticate, adminOnly, async (req, res) =
       const header = (lines.shift() || "").split(",").map((value) => value.trim().replace(/^"|"$/g, "").toLowerCase().replace(/[^a-z]/g, ""));
       const fullNameIndex = header.findIndex((value) => ["fullname", "name"].includes(value));
       const emailIndex = header.findIndex((value) => ["email", "emailaddress"].includes(value));
-      const phoneIndex = header.indexOf("phone");
+      const phoneIndex = header.indexOf("phone"); const collegeIndex = header.findIndex((value) => ["college", "collegename"].includes(value)); const branchIndex = header.indexOf("branch"); const yearIndex = header.findIndex((value) => ["passoutyear", "graduationyear"].includes(value));
       if (fullNameIndex < 0 || emailIndex < 0) return res.status(400).json({ error: "CSV must contain Full Name and Email Address headers." });
       rows = lines.map((line, index) => {
         const values = line.split(",").map((value) => value.trim().replace(/^"|"$/g, ""));
-        return { rowNumber: index + 2, fullName: values[fullNameIndex] || "", email: values[emailIndex] || "", phone: phoneIndex >= 0 ? values[phoneIndex] || "" : "" };
+        return { rowNumber: index + 2, fullName: values[fullNameIndex] || "", email: values[emailIndex] || "", phone: phoneIndex >= 0 ? values[phoneIndex] || "" : "", college: collegeIndex >= 0 ? values[collegeIndex] || "" : "", branch: branchIndex >= 0 ? values[branchIndex] || "" : "", passOutYear: yearIndex >= 0 ? values[yearIndex] || "" : "" };
       });
     } else {
       const workbook = new ExcelJS.Workbook(); await workbook.xlsx.load(buffer);
       const sheet = workbook.worksheets[0]; const headers = (sheet.getRow(1).values || []).slice(1).map((value) => excelCellText(value).toLowerCase().trim().replace(/[^a-z]/g, ""));
-      const fullNameIndex = headers.findIndex((value) => ["fullname", "name"].includes(value)); const emailIndex = headers.findIndex((value) => ["email", "emailaddress"].includes(value)); const phoneIndex = headers.indexOf("phone");
+      const fullNameIndex = headers.findIndex((value) => ["fullname", "name"].includes(value)); const emailIndex = headers.findIndex((value) => ["email", "emailaddress"].includes(value)); const phoneIndex = headers.indexOf("phone"); const collegeIndex = headers.findIndex((value) => ["college", "collegename"].includes(value)); const branchIndex = headers.indexOf("branch"); const yearIndex = headers.findIndex((value) => ["passoutyear", "graduationyear"].includes(value));
       if (fullNameIndex < 0 || emailIndex < 0) return res.status(400).json({ error: "XLSX must contain Full Name and Email Address headers." });
-      sheet.eachRow((row, index) => { const values = row.values.slice(1); if (index > 1 && values.some((value) => excelCellText(value).trim())) rows.push({ rowNumber: index, fullName: excelCellText(values[fullNameIndex]).trim(), email: excelCellText(values[emailIndex]).trim(), phone: phoneIndex >= 0 ? excelCellText(values[phoneIndex]).trim() : "" }); });
+      sheet.eachRow((row, index) => { const values = row.values.slice(1); if (index > 1 && values.some((value) => excelCellText(value).trim())) rows.push({ rowNumber: index, fullName: excelCellText(values[fullNameIndex]).trim(), email: excelCellText(values[emailIndex]).trim(), phone: phoneIndex >= 0 ? excelCellText(values[phoneIndex]).trim() : "", college: collegeIndex >= 0 ? excelCellText(values[collegeIndex]).trim() : "", branch: branchIndex >= 0 ? excelCellText(values[branchIndex]).trim() : "", passOutYear: yearIndex >= 0 ? excelCellText(values[yearIndex]).trim() : "" }); });
     }
     req.body.rows = rows; req.body.confirm = false;
     const page = rows;

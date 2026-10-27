@@ -35,7 +35,9 @@ export function ExaminationsPage({
     [scheduleSet, setScheduleSet] = useState<any>(null),
     [assignmentTarget, setAssignmentTarget] = useState<any>(null),
     [assignmentStudents, setAssignmentStudents] = useState<any[]>([]),
+    [assignmentColleges, setAssignmentColleges] = useState<any[]>([]),
     [assignedIds, setAssignedIds] = useState<string[]>([]),
+    [assignmentCollege, setAssignmentCollege] = useState(""),
     [assignmentSearch, setAssignmentSearch] = useState(""),
     [assignmentSaving, setAssignmentSaving] = useState(false),
     [successMessage, setSuccessMessage] = useState(""),
@@ -211,8 +213,16 @@ export function ExaminationsPage({
     try {
       const response = await authFetch(`${API}/api/admin/exams/${exam.id}/assignments`, {}, true); const data = await response.json()
       if (!response.ok) throw new Error(data.error || "Unable to load assignment data.")
-      setAssignmentTarget({ ...exam, assignmentExam: data.exam, assignmentAt: data.assignedAt }); setAssignmentStudents(data.students || []); setAssignedIds(data.assignedStudentIds || [])
+      setAssignmentTarget({ ...exam, assignmentExam: data.exam, assignmentAt: data.assignedAt }); setAssignmentStudents(data.students || []); setAssignmentColleges(data.colleges || []); setAssignmentCollege(""); setAssignedIds(data.assignedStudentIds || [])
     } catch (cause) { setMessage(cause instanceof Error ? cause.message : "Unable to load assignment data.") }
+  }
+  const filterAssignmentCollege = async (college: string) => {
+    if (!assignmentTarget) return
+    setAssignmentCollege(college)
+    const response = await authFetch(`${API}/api/admin/exams/${assignmentTarget.id}/assignments?college=${encodeURIComponent(college)}`, {}, true)
+    const data = await response.json()
+    if (response.ok) setAssignmentStudents(data.students || [])
+    else setMessage(data.error || "Unable to filter students by college.")
   }
   const saveAssignments = async () => {
     if (!assignmentTarget || assignmentSaving || !assignedIds.length) return
