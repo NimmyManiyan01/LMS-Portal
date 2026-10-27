@@ -430,7 +430,7 @@ export default function App() {
 
 function AdminStudents() {
   const importPreviewDuplicates = useRef({ count: 0, invalid: 0 });
-  const api = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+  const api = import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com';
   const [students, setStudents] = useState<any[]>([]); const [pagination, setPagination] = useState<any>({ page: 1, pages: 1, total: 0 });
   const [search, setSearch] = useState(''); const [status, setStatus] = useState(''); const [page, setPage] = useState(1); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
   const [modal, setModal] = useState<'add' | 'edit' | 'import' | null>(null); const [selected, setSelected] = useState<any>(null); const [form, setForm] = useState({ fullName: '', email: '', phone: '' }); const [message, setMessage] = useState(''); const [importRows, setImportRows] = useState<any[]>([]); const [importInvalid, setImportInvalid] = useState<any[]>([]); const [importFileName, setImportFileName] = useState('');
@@ -618,7 +618,7 @@ function AdminDashboard() {
   const load = async () => {
     setLoading(true); setError('');
     try {
-      const response = await authFetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/admin/dashboard?range=${range}`, {}, true);
+      const response = await authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/admin/dashboard?range=${range}`, {}, true);
       if (!response.ok) throw new Error('Unable to load administrator dashboard.');
       setDashboard(await response.json());
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.'); }
@@ -661,7 +661,7 @@ function AdminDashboardLegacy() {
   const [range, setRange] = useState('Last 30 days');
   const [dashboard, setDashboard] = useState<any>(null);
   const [error, setError] = useState('');
-  useEffect(() => { authFetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/admin/dashboard`, {}, true).then(async (response) => { if (!response.ok) throw new Error('Unable to load administrator dashboard.'); setDashboard(await response.json()); }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.')); }, []);
+  useEffect(() => { authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/admin/dashboard`, {}, true).then(async (response) => { if (!response.ok) throw new Error('Unable to load administrator dashboard.'); setDashboard(await response.json()); }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.')); }, []);
   if (error) return <div className="dashboard-state"><h2>Unable to load administrator dashboard</h2><p>{error}</p></div>;
   if (!dashboard) return <div className="dashboard-state"><h2>Loading administrator dashboard...</h2></div>;
   const stats = dashboard.stats;
