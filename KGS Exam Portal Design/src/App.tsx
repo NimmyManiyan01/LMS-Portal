@@ -59,6 +59,19 @@ const adminNav = [
   ['result', 'Results'], ['download', 'Reports'], ['shield', 'Security & audit'],
 ] as const;
 
+async function readApiJson(response: Response) {
+  const contentType = response.headers.get('content-type') || '';
+  const body = await response.text();
+  if (!contentType.toLowerCase().includes('application/json')) {
+    throw new Error(`API returned ${response.status} ${response.statusText || 'an invalid response'} instead of JSON.`);
+  }
+  try {
+    return JSON.parse(body);
+  } catch {
+    throw new Error('The administrator API returned malformed JSON.');
+  }
+}
+
 function Brand() {
   return <div className="brand"><div className="brand-mark"><span>K</span></div><div><strong>KGS</strong><small>EXAM PORTAL</small></div></div>;
 }
@@ -620,7 +633,7 @@ function AdminDashboard() {
     try {
       const response = await authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/admin/dashboard?range=${range}`, {}, true);
       if (!response.ok) throw new Error('Unable to load administrator dashboard.');
-      setDashboard(await response.json());
+      setDashboard(await readApiJson(response));
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.'); }
     finally { setLoading(false); }
   };
@@ -661,7 +674,7 @@ function AdminDashboardLegacy() {
   const [range, setRange] = useState('Last 30 days');
   const [dashboard, setDashboard] = useState<any>(null);
   const [error, setError] = useState('');
-  useEffect(() => { authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/admin/dashboard`, {}, true).then(async (response) => { if (!response.ok) throw new Error('Unable to load administrator dashboard.'); setDashboard(await response.json()); }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.')); }, []);
+  useEffect(() => { authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/admin/dashboard`, {}, true).then(async (response) => { if (!response.ok) throw new Error('Unable to load administrator dashboard.'); setDashboard(await readApiJson(response)); }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.')); }, []);
   if (error) return <div className="dashboard-state"><h2>Unable to load administrator dashboard</h2><p>{error}</p></div>;
   if (!dashboard) return <div className="dashboard-state"><h2>Loading administrator dashboard...</h2></div>;
   const stats = dashboard.stats;
