@@ -483,5 +483,19 @@ body:has(.modal-backdrop .paper-set-modal){overflow:hidden}
 .results-kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .results-table td:first-child, .results-table td:nth-child(3) { vertical-align: top; min-width: 170px; line-height: 1.35; }
 .results-table td:first-child small, .results-table td:nth-child(3) small { display: block; margin-top: 4px; overflow-wrap: anywhere; white-space: normal; }
+.results-panel { overflow: hidden; }
+.results-panel .table-scroll { width: 100%; overflow-x: auto; overflow-y: visible; }
+.results-table { min-width: 1380px; table-layout: auto; }
+.results-table th { font-size: 11px; letter-spacing: .04em; white-space: nowrap; }
+.results-table td { padding: 15px 14px; font-size: 13px; vertical-align: middle; }
+.results-table td:first-child { min-width: 220px; }
+.results-table td:nth-child(3) { min-width: 220px; }
+.results-table td:first-child { display: flex; flex-direction: column; gap: 4px; line-height: 1.4; }
+.results-table td:first-child > small:first-of-type { order: -1; margin-top: 0; }
+.results-table td:first-child > small { font-size: 11px; line-height: 1.35; }
+.results-table td:nth-child(3) > small { font-size: 11px; line-height: 1.35; }
+.results-panel .student-management-head { align-items: flex-start; gap: 16px; }
+.results-panel .student-management-head > .secondary { flex: 0 0 auto; min-height: 40px; }
 @media (max-width: 900px) { .results-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } .results-filters { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 600px) { .results-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .results-filters { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .results-table { min-width: 1180px; } .results-table td { padding: 14px 12px; } }
