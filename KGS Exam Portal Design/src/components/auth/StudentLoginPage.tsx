@@ -8,6 +8,17 @@ export function StudentLoginPage({ initialEmail = '', onBackToLanding, onRegiste
   const [email, setEmail] = useState(initialEmail); const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [step, setStep] = useState<'EMAIL' | 'OTP'>('EMAIL'); const [loading, setLoading] = useState(false); const [message, setMessage] = useState(''); const [error, setError] = useState(''); const [expiresAt, setExpiresAt] = useState<string | null>(null); const [resendAvailableAt, setResendAvailableAt] = useState<string | null>(null); const [now, setNow] = useState(Date.now());
   const api = API_BASE_URL;
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${api}/api/auth/me`, { credentials: 'include', headers: { Authorization: `Bearer ${localStorage.getItem('kgs_student_token') || localStorage.getItem('kgs_token') || ''}` } })
+      .then(async (response) => {
+        if (!response.ok || cancelled) return;
+        const data = await response.json();
+        if (data.user?.role === 'STUDENT') onAuthenticated(data.user);
+      })
+      .catch(() => { /* No active session: show the OTP form. */ });
+    return () => { cancelled = true; };
+  }, [api, onAuthenticated]);
   useEffect(() => { if (step !== 'OTP') return; const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, [step]);
   const secondsLeft = expiresAt ? Math.max(0, Math.ceil((new Date(expiresAt).getTime() - now) / 1000)) : 0; const resendSeconds = resendAvailableAt ? Math.max(0, Math.ceil((new Date(resendAvailableAt).getTime() - now) / 1000)) : 0;
   const requestOtp = async (event?: { preventDefault: () => void }, endpoint = 'request-otp') => {

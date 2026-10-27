@@ -523,6 +523,7 @@ function StudentDashboard({
   if (!heroExam) return <div className="empty-dashboard panel"><h2>No eligible examinations</h2><p>There are no examinations available for your account right now.</p></div>;
   const serverExam = heroExam as Exam & { scheduledAt?: string; closesAt?: string; status?: string; activeAttempt?: { deadline?: string } | null };
   const secondsToStart = Math.max(0, serverExam.scheduledAt ? Math.ceil((new Date(serverExam.scheduledAt).getTime() - now) / 1000) : 0);
+  const readinessWindowOpen = !serverExam.scheduledAt || secondsToStart <= 15 * 60;
   const status = serverExam.status || 'UPCOMING';
   const secondsRemaining = Math.max(0, serverExam.activeAttempt?.deadline ? Math.ceil((new Date(serverExam.activeAttempt.deadline).getTime() - now) / 1000) : 0);
   const requirements = serverExam.readinessRequirements || {};
@@ -600,7 +601,7 @@ function StudentDashboard({
               {status === 'IN_PROGRESS' ? 'Resume Examination' : status === 'CLOSED' ? 'This examination has ended.' : status === 'SUBMITTED' || status === 'RESULTS_PENDING' || status === 'RESULTS_RELEASED' ? 'Examination completed' : 'Launch Exam Check'} {['CLOSED', 'SUBMITTED', 'RESULTS_PENDING', 'RESULTS_RELEASED'].includes(status) ? null : <Icon name="arrow"/>}
             </button>
           )}
-          {status === 'UPCOMING' && <small>Available 15 minutes before start</small>}
+          {status === 'UPCOMING' && <small>{readinessWindowOpen ? 'System check available now' : 'Available 15 minutes before start'}</small>}
         </div>
       </section>
 

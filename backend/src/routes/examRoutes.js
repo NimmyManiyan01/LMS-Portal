@@ -100,29 +100,63 @@ router.post("/:id/start", authenticate, async (req, res) => {
   });
   if (attemptCount >= exam.maxAttempts)
     return res.status(409).json({ error: "Maximum attempts reached" });
-  const sets = await PaperSet.find({ examId: exam._id, active: true }).lean();
+  const sets = await PaperSet.find({
+    examId: exam._id,
+    status: "PUBLISHED",
+    active: { $ne: false },
+  }).lean();
   if (!sets.length)
     return res
       .status(503)
       .json({ error: "Question paper is not available yet" });
-  const blueprint = JSON.stringify(sets[0].blueprint || {});
-  const expectedQuestions =
-    exam.totalQuestions || sets[0].blueprint?.totalQuestions || 0;
-  if (
-    !expectedQuestions ||
-    sets.some(
-      (set) =>
-        JSON.stringify(set.blueprint || {}) !== blueprint ||
-        set.questionIds?.length !== expectedQuestions ||
-        set.blueprint?.maximumMarks !== exam.totalMarks,
-    )
-  )
+
+  const isMcqType = (t) =>
+    !t ||
+    ["MCQ", "SINGLE_ANSWER_MCQ", "MCQ_SINGLE", "MULTIPLE_CHOICE", "OBJECTIVE"].includes(
+      String(t).toUpperCase()
+    );
+
+  const setChecks = await Promise.all(
+    sets.map(async (set) => {
+      const qIds = (set.questionIds || []).map(String);
+      const questions = await Question.find({ _id: { $in: qIds } })
+        .select("_id marks questionType sectionName status")
+        .lean();
+
+      const qCount = questions.length > 0 ? questions.length : qIds.length;
+      const questionMarks = questions.reduce(
+        (sum, q) => sum + Number(q.marks ?? 1),
+        0
+      );
+      const setMarks = Number(
+        set.totalMarks ?? set.blueprint?.maximumMarks ?? questionMarks ?? 0
+      );
+
+      const questionTypesMatch =
+        !exam.examinationType ||
+        isMcqType(exam.examinationType) ||
+        questions.every(
+          (q) => String(q.questionType || "MCQ").toUpperCase() === String(exam.examinationType).toUpperCase()
+        );
+
+      const countMatches = !exam.totalQuestions || qCount === exam.totalQuestions;
+      const marksMatches = !exam.totalMarks || setMarks === exam.totalMarks || questionMarks === exam.totalMarks;
+
+      return {
+        set,
+        valid: qCount > 0 && countMatches && marksMatches && questionTypesMatch,
+      };
+    })
+  );
+
+  const validSets = setChecks.filter((check) => check.valid).map((check) => check.set);
+  if (!validSets.length)
     return res
       .status(409)
       .json({
         error: "Question paper sets do not match the examination blueprint",
       });
-  const paperSet = sets.sort(
+  const paperSet = validSets.sort(
     (a, b) => a.allocationCount - b.allocationCount || crypto.randomInt(-1, 2),
   )[0];
   const startedAt = new Date();
