@@ -10,7 +10,7 @@ const passwordHash = (value) =>
     .scryptSync(value, process.env.JWT_SECRET || "local-salt", 64)
     .toString("hex");
 const cookie = (token) =>
-  `kgs_admin_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure" : "Lax"}`;
+  `kgs_admin_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure; Partitioned" : "Lax"}`;
 async function login(req, res) {
   const email = String(req.body.email || "")
     .toLowerCase()
@@ -36,7 +36,7 @@ async function login(req, res) {
 async function logout(req, res) {
   res.setHeader(
     "Set-Cookie",
-    "kgs_admin_session=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax",
+    `kgs_admin_session=; HttpOnly; Path=/; Max-Age=0; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure; Partitioned" : "Lax"}`,
   );
   res.json({ ok: true });
 }

@@ -30,7 +30,7 @@ const generic = {
     "If this email can be used, verification instructions have been sent.",
 };
 const cookie = (token) =>
-  `kgs_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure" : "Lax"}`;
+  `kgs_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure; Partitioned" : "Lax"}`;
 
 async function registerStudent(req, res) {
   const {
@@ -229,7 +229,7 @@ async function logout(req, res) {
   if (req.session) await Session.deleteOne({ _id: req.session.id });
   res.setHeader(
     "Set-Cookie",
-    "kgs_session=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax",
+    `kgs_session=; HttpOnly; Path=/; Max-Age=0; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure; Partitioned" : "Lax"}`,
   );
   res.json({ ok: true });
 }
