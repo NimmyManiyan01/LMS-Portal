@@ -12,6 +12,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const app = express();
+app.set("trust proxy", 1);
 const allowedClientOrigins = new Set([
   ...clientOrigins,
   "http://localhost:8443",

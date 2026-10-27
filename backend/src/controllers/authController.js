@@ -151,16 +151,18 @@ async function issueOtp(req, res) {
     delivery: "ACCEPTED",
   });
 }
+function getClientIp(req) {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (forwarded) return String(forwarded).split(",")[0].trim();
+  return req.ip || "127.0.0.1";
+}
+
 async function requestOtp(req, res) {
+  const ip = getClientIp(req);
+  const email = String(req.body.email || "").toLowerCase().trim();
   if (
-    limited(`ip:${req.ip}`, 10, 900000) ||
-    limited(
-      `email:${String(req.body.email || "")
-        .toLowerCase()
-        .trim()}`,
-      5,
-      900000,
-    )
+    limited(`ip:${ip}`, 50, 900000) ||
+    limited(`email:${email}`, 25, 900000)
   )
     return res
       .status(429)
@@ -168,7 +170,8 @@ async function requestOtp(req, res) {
   return issueOtp(req, res);
 }
 async function resendOtp(req, res) {
-  if (limited(`resend:${req.ip}`, 5, 900000))
+  const ip = getClientIp(req);
+  if (limited(`resend:${ip}`, 25, 900000))
     return res
       .status(429)
       .json({ error: "Too many requests. Please try again later." });
