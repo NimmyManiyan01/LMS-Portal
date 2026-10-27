@@ -9,7 +9,7 @@ function publicResult(result, exam) {
     examName: exam?.title || "Examination",
     examCode: exam?.code || null,
     marksScored: result.releaseStatus === "RELEASED" ? result.marksScored : null,
-    maximumMarks: result.releaseStatus === "RELEASED" ? result.maximumMarks : null,
+    maximumMarks: result.releaseStatus === "RELEASED" ? (result.maximumMarks ?? exam?.totalMarks ?? null) : null,
     submittedAt: result.submittedAt,
     finalizedAt: result.finalizedAt,
     releaseStatus: result.releaseStatus || "PENDING",
@@ -20,7 +20,7 @@ function publicResult(result, exam) {
 router.get("/", authenticate, async (req, res) => {
   const results = await FinalResult.find({ studentId: req.student.id }).lean();
   const exams = await Exam.find({ _id: { $in: results.map((r) => r.examId) } })
-    .select("title code")
+    .select("title code totalMarks")
     .lean();
   const examMap = new Map(exams.map((exam) => [String(exam._id), exam]));
   res.json(
@@ -45,7 +45,7 @@ router.get("/:attemptId", authenticate, async (req, res) => {
         message:
           "Your marks will be available once the examination results are released.",
       });
-  const exam = await Exam.findById(result.examId).select("title").lean();
+  const exam = await Exam.findById(result.examId).select("title code totalMarks").lean();
   res.json(publicResult(result, exam));
 });
 
