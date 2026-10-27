@@ -358,6 +358,8 @@ export default function App() {
         <SystemCheckModal
           examTitle={selectedExam.title}
           examId={selectedExam.id}
+          scheduledAt={(selectedExam as Exam & { scheduledAt?: string }).scheduledAt}
+          closesAt={(selectedExam as Exam & { closesAt?: string }).closesAt}
           requirements={selectedExam.readinessRequirements}
           onClose={() => setViewState('DASHBOARD')}
           onProceedToExam={handleProceedToExam}
@@ -527,7 +529,7 @@ function StudentDashboard({
 
   // Readiness Calculations
   const systemCheckPassed = typeof window !== 'undefined' && Boolean(heroExam.id && localStorage.getItem(`kgs_readiness_${heroExam.id}`) === 'PASSED');
-  const profileDone = Boolean(student && student.accountStatus === 'ACTIVE');
+  const profileDone = Boolean(student?.profileVerified);
   const browserDone = typeof window !== 'undefined' && Boolean(window.fetch && window.localStorage && document.documentElement?.requestFullscreen);
   const networkDone = typeof navigator !== 'undefined' ? navigator.onLine !== false : true;
   const cameraDone = !requirements.camera || systemCheckPassed;

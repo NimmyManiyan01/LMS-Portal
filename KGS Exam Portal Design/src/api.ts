@@ -1,7 +1,7 @@
 export function getApiBaseUrl(): string {
   const envUrl = import.meta.env.VITE_API_URL;
   if (!envUrl || envUrl === '.' || envUrl === './') {
-    return 'https://assesspro-backend-ny01.onrender.com';
+    return envUrl === '.' || envUrl === './' ? '.' : 'https://assesspro-backend-ny01.onrender.com';
   }
   return envUrl.replace(/\/$/, '');
 }

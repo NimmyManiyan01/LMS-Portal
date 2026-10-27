@@ -222,6 +222,8 @@ async function verifyOtp(req, res) {
       email: student.email,
       fullName: student.fullName,
       registrationId: student.studentId,
+      profileVerified: Boolean(student.emailVerified),
+      accountStatus: student.accountStatus,
       role: "STUDENT",
     },
   });
@@ -241,6 +243,8 @@ async function me(req, res) {
       email: req.student.email,
       fullName: req.student.fullName,
       registrationId: req.student.studentId,
+      profileVerified: Boolean(req.student.emailVerified),
+      accountStatus: req.student.accountStatus,
       role: "STUDENT",
     },
   });

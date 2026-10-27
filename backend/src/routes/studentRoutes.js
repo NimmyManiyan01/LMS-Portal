@@ -92,6 +92,9 @@ async function dashboard(req, res) {
           } else if (exam.status === "CLOSED" || exam.status === "COMPLETED") {
             status = "CLOSED";
             nextAction = "CLOSED";
+          } else if (exam.scheduledAt && new Date(exam.scheduledAt) > now) {
+            status = "UPCOMING";
+            nextAction = "VIEW_INSTRUCTIONS";
           } else if (
             exam.status === "ACTIVE" ||
             exam.status === "LIVE" ||
