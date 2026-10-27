@@ -69,24 +69,6 @@ export function LandingPage({ onStudentLogin, onRegister, onAdminLogin }: Landin
         </div>
       </main>
 
-      <section className="landing-features">
-        <div className="feature-card">
-          <div className="feature-icon">🔒</div>
-          <h3>Secure Authentication</h3>
-          <p>Passwordless single-use OTP verification ensures cryptographically verified candidate access.</p>
-        </div>
-        <div className="feature-card">
-          <div className="feature-icon">⚡</div>
-          <h3>Real-time Response Sync</h3>
-          <p>Instantaneous response autosaving prevents data loss during intermittent network disruptions.</p>
-        </div>
-        <div className="feature-card">
-          <div className="feature-icon">📊</div>
-          <h3>Tamper-Proof Evaluation</h3>
-          <p>Automated scoring engine with controlled result publishing policies and verified grade distribution.</p>
-        </div>
-      </section>
-
       <footer className="landing-footer">
         © 2025 KGS Institute · Secure examination and assessment infrastructure
       </footer>
