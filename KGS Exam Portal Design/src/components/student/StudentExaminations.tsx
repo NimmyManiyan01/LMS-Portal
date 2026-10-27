@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Exam } from '../../types';
+import { authFetch } from '../../api';
 type ApiExam = Exam & { id: string; code?: string; scheduledAt?: string; nextAction?: string; maxAttempts?: number; integrityProfile?: string; readinessRequirements?: { camera?: boolean; microphone?: boolean; fullscreen?: boolean }; markingScheme?: { correctMarks?: number; incorrectMarks?: number; unansweredMarks?: number } };
 interface Props { onStartExam: (exam: Exam) => void; onViewMarks: (exam: Exam) => void; }
 const tabs = ['AVAILABLE', 'UPCOMING', 'IN_PROGRESS', 'COMPLETED', 'RESULTS_PENDING'] as const;
 const label = (value: string) => value.replaceAll('_', ' ');
 export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
   const [exams, setExams] = useState<ApiExam[]>([]); const [tab, setTab] = useState<typeof tabs[number]>('AVAILABLE'); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [selected, setSelected] = useState<ApiExam | null>(null);
-  const load = async () => { setLoading(true); setError(''); try { const r = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/student/exams`, { credentials: 'include' }); if (!r.ok) throw new Error('Unable to load your examinations.'); const data = await r.json(); setExams((data.exams || []).map((exam: any) => ({ ...exam, id: String(exam.id || exam._id), examCode: exam.code || exam.examCode || String(exam.id || exam._id), activeAttempt: exam.activeAttempt || null }))); } catch (e) { setError(e instanceof Error ? e.message : 'Unable to load your examinations.'); } finally { setLoading(false); } };
+  const load = async () => { setLoading(true); setError(''); try { const r = await authFetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/student/exams`); if (!r.ok) throw new Error('Unable to load your examinations.'); const data = await r.json(); setExams((data.exams || []).map((exam: any) => ({ ...exam, id: String(exam.id || exam._id), examCode: exam.code || exam.examCode || String(exam.id || exam._id), activeAttempt: exam.activeAttempt || null }))); } catch (e) { setError(e instanceof Error ? e.message : 'Unable to load your examinations.'); } finally { setLoading(false); } };
   useEffect(() => { void load(); }, []);
   const filtered = useMemo(() => exams.filter((exam) => tab === 'COMPLETED' ? ['SUBMITTED', 'RESULTS_RELEASED'].includes(exam.status) : exam.status === tab), [exams, tab]);
   const date = (exam: ApiExam) => exam.scheduledAt ? new Date(exam.scheduledAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : 'To be announced';

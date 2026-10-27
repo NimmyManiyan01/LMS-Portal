@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StudentProfile } from '../../types';
+import { setAuthToken } from '../../api';
 
 interface Props { initialEmail?: string; onBackToLanding: () => void; onRegister: () => void; onAuthenticated: (student: StudentProfile) => void; }
 
@@ -18,7 +19,7 @@ export function StudentLoginPage({ initialEmail = '', onBackToLanding, onRegiste
   };
   const verifyOtp = async (event: React.FormEvent) => {
     event.preventDefault(); setError(''); if (otp.join('').length !== 6) { setError('Enter the six-digit verification code.'); return; } setLoading(true);
-    try { const response = await fetch(`${api}/api/auth/verify-otp`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email: email.trim().toLowerCase(), otp: otp.join('') }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Unable to verify code.'); onAuthenticated(data.user); }
+    try { const response = await fetch(`${api}/api/auth/verify-otp`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email: email.trim().toLowerCase(), otp: otp.join('') }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Unable to verify code.'); if (data.token) setAuthToken(data.token, false); onAuthenticated(data.user); }
     catch (exception) { setError(exception instanceof Error ? exception.message : 'Unable to verify code.'); } finally { setLoading(false); }
   };
   const updateOtp = (index: number, value: string) => { const next = [...otp]; next[index] = value.replace(/\D/g, '').slice(-1); setOtp(next); if (next[index] && index < 5) document.getElementById(`student-login-otp-${index + 1}`)?.focus(); };

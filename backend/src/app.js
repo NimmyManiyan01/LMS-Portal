@@ -20,11 +20,36 @@ const allowedClientOrigins = new Set([
   "https://assesspro-1-i07n.onrender.com",
   "https://assesspro-2j7q.onrender.com",
 ].map((origin) => origin.trim().replace(/\/$/, "")).filter(Boolean));
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  const normalized = origin.trim().replace(/\/$/, "");
+  if (allowedClientOrigins.has(normalized)) return true;
+  if (clientOrigins.includes("*")) return true;
+  try {
+    const url = new URL(normalized);
+    const host = url.hostname;
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host.endsWith(".onrender.com") ||
+      host.endsWith(".vercel.app") ||
+      host.endsWith(".netlify.app")
+    ) {
+      return true;
+    }
+  } catch {
+    /* Ignore invalid origin URL */
+  }
+  return false;
+}
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedClientOrigins.has(origin.replace(/\/$/, "")))
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
+      }
       return callback(null, false);
     },
     credentials: true,

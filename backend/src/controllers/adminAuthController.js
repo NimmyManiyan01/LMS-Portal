@@ -31,7 +31,7 @@ async function login(req, res) {
     expiresAt: new Date(Date.now() + SESSION_TTL),
   });
   res.setHeader("Set-Cookie", cookie(raw));
-  res.json({ user: { id: admin.id, email: admin.email, role: "ADMIN" } });
+  res.json({ token: raw, user: { id: admin.id, email: admin.email, role: "ADMIN" } });
 }
 async function logout(req, res) {
   res.setHeader(

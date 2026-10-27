@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { DateTimePicker } from "./DateTimePicker"
+import { authFetch } from "../../api"
 const API = import.meta.env.VITE_API_URL || "http://localhost:4000"
 const durationBetween = (start: string, end: string) => {
   if (!start || !end) return null
@@ -40,7 +41,7 @@ export function ExaminationsPage({
       instructions: "",
     })
   const load = async () => {
-    const r = await fetch(`${API}/api/admin/exams`, { credentials: "include" }),
+    const r = await authFetch(`${API}/api/admin/exams`, {}, true),
       d = await r.json()
     if (!r.ok) return setMessage(d.error || "Unable to load examinations.")
     const list = d.exams || []
@@ -60,9 +61,7 @@ export function ExaminationsPage({
     void load()
   }, [])
   const openCreate = async () => {
-    const r = await fetch(`${API}/api/admin/exams/next-code`, {
-        credentials: "include",
-      }),
+    const r = await authFetch(`${API}/api/admin/exams/next-code`, {}, true),
       d = await r.json()
     if (!r.ok) return setMessage(d.error || "Unable to generate code.")
     setEditing(null)
@@ -117,18 +116,18 @@ export function ExaminationsPage({
       errors.push("Maximum attempts must be at least 1.")
     if (errors.length) return setMessage(errors.join(" "))
     setSaving(true)
-    const r = await fetch(
+    const r = await authFetch(
         `${API}/api/admin/exams${editing ? `/${editing.id}` : ""}`,
         {
           method: editing ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
           body: JSON.stringify({
             ...form,
             durationMinutes: calculated,
             status: "DRAFT",
           }),
         },
+        true,
       ),
       d = await r.json()
     setSaving(false)
@@ -159,7 +158,7 @@ export function ExaminationsPage({
   const openSchedule = async (exam: any) => {
     setMessage(""); setSuccessMessage("")
     try {
-      const response = await fetch(`${API}/api/admin/paper-sets?examId=${encodeURIComponent(exam.id)}&status=PUBLISHED`, { credentials: "include" })
+      const response = await authFetch(`${API}/api/admin/paper-sets?examId=${encodeURIComponent(exam.id)}&status=PUBLISHED`, {}, true)
       const data = await response.json()
       if (!response.ok) return setMessage(data.error || "Unable to verify published paper sets.")
       const published = data.paperSets?.find((paperSet: any) => paperSet.status === "PUBLISHED")
@@ -171,7 +170,7 @@ export function ExaminationsPage({
     if (!scheduleTarget || scheduling) return
     setScheduling(true)
     try {
-      const response = await fetch(`${API}/api/admin/exams/${scheduleTarget.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ status: "SCHEDULED" }) })
+      const response = await authFetch(`${API}/api/admin/exams/${scheduleTarget.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "SCHEDULED" }) }, true)
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || "Unable to schedule examination.")
       setScheduleTarget(null); setScheduleSet(null); setSuccessMessage("Examination scheduled successfully."); await load()
@@ -181,7 +180,7 @@ export function ExaminationsPage({
   const openAssignment = async (exam: any) => {
     setMessage("")
     try {
-      const response = await fetch(`${API}/api/admin/exams/${exam.id}/assignments`, { credentials: "include" }); const data = await response.json()
+      const response = await authFetch(`${API}/api/admin/exams/${exam.id}/assignments`, {}, true); const data = await response.json()
       if (!response.ok) throw new Error(data.error || "Unable to load assignment data.")
       setAssignmentTarget({ ...exam, assignmentExam: data.exam, assignmentAt: data.assignedAt }); setAssignmentStudents(data.students || []); setAssignedIds(data.assignedStudentIds || [])
     } catch (cause) { setMessage(cause instanceof Error ? cause.message : "Unable to load assignment data.") }
@@ -190,7 +189,7 @@ export function ExaminationsPage({
     if (!assignmentTarget || assignmentSaving || !assignedIds.length) return
     setAssignmentSaving(true)
     try {
-      const response = await fetch(`${API}/api/admin/exams/${assignmentTarget.id}/assignments`, { method: "PUT", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ studentIds: assignedIds }) }); const data = await response.json()
+      const response = await authFetch(`${API}/api/admin/exams/${assignmentTarget.id}/assignments`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ studentIds: assignedIds }) }, true); const data = await response.json()
       if (!response.ok) throw new Error(data.error || "Unable to assign students.")
       setAssignmentTarget(null); setMessage(`${data.assignedStudentCount} student${data.assignedStudentCount === 1 ? "" : "s"} assigned successfully.`); await load()
     } catch (cause) { setMessage(cause instanceof Error ? cause.message : "Unable to assign students.") }

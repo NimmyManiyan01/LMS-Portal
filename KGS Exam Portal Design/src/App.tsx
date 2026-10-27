@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Exam, AnswerState, StudentProfile } from './types';
+import { authFetch, clearAuthToken } from './api';
 import { SystemCheckModal } from './components/student/SystemCheckModal';
 import { ExamInstructionsModal } from './components/student/ExamInstructionsModal';
 import { ExamPlayer } from './components/student/ExamPlayer';
@@ -70,7 +71,7 @@ function Sidebar({ admin, active, onNav }: { admin: boolean; active: string; onN
     let cancelled = false;
     const load = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/admin/dashboard?range=month`, { credentials: 'include' });
+        const response = await authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/admin/dashboard?range=month`, {}, true);
         if (!response.ok) return;
         const payload = await response.json();
         if (!cancelled) setActiveAttempts(Number(payload?.stats?.activeAttempts || 0));
@@ -196,7 +197,14 @@ export default function App() {
 
   useEffect(() => {
     if (entryRoute === '/admin/dashboard' && !admin) {
-      fetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/auth/admin/me`, { credentials: 'include' }).then(async (response) => { if (!response.ok) throw new Error(); const data = await response.json(); setAdminUser(data.user); setAdmin(true); }).catch(() => navigateEntry('/admin'));
+      authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}/api/auth/admin/me`, {}, true)
+        .then(async (response) => {
+          if (!response.ok) throw new Error();
+          const data = await response.json();
+          setAdminUser(data.user);
+          setAdmin(true);
+        })
+        .catch(() => navigateEntry('/admin'));
       return;
     }
     if (entryRoute !== '/dashboard') return;
@@ -204,7 +212,15 @@ export default function App() {
       setDashboardLoading(true); setDashboardError('');
       try {
         const api = import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com';
-        const [meResponse, dashboardResponse] = await Promise.all([fetch(`${api}/api/auth/me`, { credentials: 'include' }), fetch(`${api}/api/student/dashboard`, { credentials: 'include' })]);
+        const [meResponse, dashboardResponse] = await Promise.all([
+          authFetch(`${api}/api/auth/me`),
+          authFetch(`${api}/api/student/dashboard`)
+        ]);
+        if (meResponse.status === 401 || dashboardResponse.status === 401) {
+          clearAuthToken();
+          navigateEntry('/login');
+          return;
+        }
         if (!meResponse.ok || !dashboardResponse.ok) throw new Error('Unable to load your dashboard.');
         const me = await meResponse.json(); const dashboard = await dashboardResponse.json();
         setStudent(me.user); setDashboardSummary(dashboard.summary || { available: 0, upcoming: 0, inProgress: 0, completed: 0, resultsPending: 0 });
@@ -228,8 +244,8 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-      try { await fetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}${admin ? '/api/auth/admin/logout' : '/api/auth/logout'}`, { method: 'POST', credentials: 'include' }); } finally {
-      setStudent(null); setAdmin(false); setAdminUser(null); setViewState('DASHBOARD'); navigateEntry(admin ? '/admin' : '/login');
+    try { await authFetch(`${import.meta.env.VITE_API_URL || 'https://assesspro-backend-ny01.onrender.com'}${admin ? '/api/auth/admin/logout' : '/api/auth/logout'}`, { method: 'POST' }, admin); } finally {
+      clearAuthToken(); setStudent(null); setAdmin(false); setAdminUser(null); setViewState('DASHBOARD'); navigateEntry(admin ? '/admin' : '/login');
     }
   };
 
@@ -263,13 +279,13 @@ export default function App() {
     try {
       if (!attemptId) {
         if (!exam.id) throw new Error('This examination has no valid identifier.');
-        const start = await fetch(`${base}/api/exams/${exam.id}/start`, { method: 'POST', credentials: 'include' });
+        const start = await authFetch(`${base}/api/exams/${exam.id}/start`, { method: 'POST' });
         if (!start.ok) throw new Error((await start.json().catch(() => null))?.error || 'Unable to resume this examination.');
         const attempt = await start.json();
         attemptId = attempt.attemptId;
       }
       if (!attemptId) throw new Error('The active examination attempt could not be identified.');
-      const response = await fetch(`${base}/api/attempts/${attemptId}/questions`, { credentials: 'include' });
+      const response = await authFetch(`${base}/api/attempts/${attemptId}/questions`);
       if (!response.ok) throw new Error((await response.json().catch(() => null))?.error || 'Unable to load the examination questions.');
       const data = await response.json();
     const normalizedQuestions = (data.questions || []).map((question: any, index: number) => ({
@@ -437,7 +453,7 @@ function AdminStudents() {
     if (!card || !fileInput) return;
     const template = document.createElement('button'); template.type = 'button'; template.className = 'text-button'; template.textContent = 'Download CSV Template';
     template.onclick = () => { const blob = new Blob(['Full Name,Email Address,Phone\n'], { type: 'text/csv;charset=utf-8' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'kgs-student-import-template.csv'; link.click(); URL.revokeObjectURL(link.href); };
-    const xlsxTemplate = document.createElement('button'); xlsxTemplate.type = 'button'; xlsxTemplate.className = 'text-button'; xlsxTemplate.textContent = 'Download XLSX Template'; xlsxTemplate.onclick = async () => { try { const response = await fetch(`${api}/api/admin/students/import-template?format=xlsx`, { credentials: 'include' }); if (!response.ok) throw new Error(); const link = document.createElement('a'); link.href = URL.createObjectURL(await response.blob()); link.download = 'kgs-student-import-template.xlsx'; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(link.href), 1000); } catch { setMessage('Unable to download the XLSX template.'); } };
+    const xlsxTemplate = document.createElement('button'); xlsxTemplate.type = 'button'; xlsxTemplate.className = 'text-button'; xlsxTemplate.textContent = 'Download XLSX Template'; xlsxTemplate.onclick = async () => { try { const response = await authFetch(`${api}/api/admin/students/import-template?format=xlsx`, {}, true); if (!response.ok) throw new Error(); const link = document.createElement('a'); link.href = URL.createObjectURL(await response.blob()); link.download = 'kgs-student-import-template.xlsx'; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(link.href), 1000); } catch { setMessage('Unable to download the XLSX template.'); } };
     const templateActions = document.createElement('div'); templateActions.className = 'template-actions'; fileInput.before(templateActions); templateActions.append(template, xlsxTemplate);
     const summary = document.createElement('div'); summary.className = 'import-summary'; const duplicateCount = importInvalid.filter((row) => String(row.reason || '').toLowerCase().includes('duplicate')).length; summary.textContent = `Valid: ${importRows.length} · Invalid: ${importInvalid.length - duplicateCount} · Duplicate: ${duplicateCount}${importFileName ? ` · ${importFileName}` : ''}`; fileInput.after(summary);
     if (importRows.length || importInvalid.length) { const table = document.createElement('table'); table.className = 'student-table import-preview'; table.innerHTML = '<thead><tr><th>Row</th><th>Full Name</th><th>Email</th><th>Result</th></tr></thead>'; const body = document.createElement('tbody'); [...importRows.map((row) => ({ ...row, result: 'Valid' })), ...importInvalid.map((row) => ({ ...row, result: row.reason || 'Invalid' }))].sort((left, right) => Number(left.rowNumber || left.row || 0) - Number(right.rowNumber || right.row || 0)).slice(0, 100).forEach((row) => { const tr = document.createElement('tr'); tr.innerHTML = `<td>${row.rowNumber || row.row || ''}</td><td>${row.fullName || row.name || ''}</td><td>${row.email || ''}</td><td>${row.result}</td>`; body.appendChild(tr); }); table.appendChild(body); card.appendChild(table); const confirmButton = Array.from(card.querySelectorAll('button')).find((button) => button.textContent?.trim() === 'Confirm import'); if (confirmButton) card.appendChild(confirmButton); return () => { templateActions.remove(); summary.remove(); table.remove(); }; }
@@ -446,11 +462,11 @@ function AdminStudents() {
   useEffect(() => { const summary = document.querySelector('.import-summary'); if (!summary || modal !== 'import') return; const duplicateCount = importInvalid.filter((row) => row.type === 'DUPLICATE' || String(row.reason || '').toLowerCase().includes('duplicate')).length; summary.textContent = `Total: ${importRows.length + importInvalid.length} · Valid: ${importRows.length} · Invalid: ${importInvalid.length - duplicateCount} · Duplicate: ${duplicateCount}${importFileName ? ` · ${importFileName}` : ''}`; }, [modal, importRows, importInvalid, importFileName]);
   useEffect(() => { if (modal === 'import') { importPreviewDuplicates.current = { count: importInvalid.filter((row) => row.type === 'DUPLICATE' || String(row.reason || '').toLowerCase().includes('duplicate')).length, invalid: importInvalid.length }; } }, [modal, importInvalid]);
   useEffect(() => { if (!message.includes('duplicates skipped')) return; const match = message.match(/^(\d+ imported .*? )(\d+)( duplicates skipped .*? )(\d+)( invalid records\.)$/); if (!match) return; const duplicateCount = Math.max(Number(match[2]), importPreviewDuplicates.current.count); const invalidCount = Math.max(Number(match[4]), importPreviewDuplicates.current.invalid - importPreviewDuplicates.current.count); const updated = `${match[1]}${duplicateCount}${match[3]}${invalidCount}${match[5]}`; if (updated !== message) setMessage(updated); }, [message]);
-  const load = async () => { setLoading(true); setError(''); try { const response = await fetch(`${api}/api/admin/students?page=${page}&search=${encodeURIComponent(search)}&status=${status}`, { credentials: 'include' }); if (!response.ok) throw new Error('Unable to load students.'); const data = await response.json(); setStudents(data.students || []); setPagination(data.pagination || {}); } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to load students.'); } finally { setLoading(false); } };
+  const load = async () => { setLoading(true); setError(''); try { const response = await authFetch(`${api}/api/admin/students?page=${page}&search=${encodeURIComponent(search)}&status=${status}`, {}, true); if (!response.ok) throw new Error('Unable to load students.'); const data = await response.json(); setStudents(data.students || []); setPagination(data.pagination || {}); } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to load students.'); } finally { setLoading(false); } };
   useEffect(() => { void load(); }, [page, status]);
-  const submit = async (event: any) => { event.preventDefault(); setMessage(''); const endpoint = selected ? `${api}/api/admin/students/${selected.id}` : `${api}/api/admin/students`; const response = await fetch(endpoint, { method: selected ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(selected ? { ...form, accountStatus: selected.accountStatus } : form) }); const data = await response.json().catch(() => ({})); if (!response.ok) return setMessage(data.error || 'Unable to save student.'); setModal(null); setSelected(null); setMessage('Student saved successfully.'); void load(); };
-  const parseFile = async (event: any) => { const file = event.target.files?.[0]; if (!file) return; setImportFileName(file.name); const reader = new FileReader(); reader.onload = async () => { const response = await fetch(`${api}/api/admin/students/import-file`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ fileName: file.name, fileBase64: reader.result }) }); const data = await response.json().catch(() => ({})); if (!response.ok) return setMessage(data.error || 'Unable to read import file.'); const validation = await fetch(`${api}/api/admin/students/import`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ rows: data.rows || [], confirm: false }) }); const checked = await validation.json().catch(() => ({})); setImportRows(checked.rows || []); setImportInvalid([...(checked.invalid || []), ...(checked.duplicates || [])]); }; reader.readAsDataURL(file); };
-  const confirmImport = async () => { const response = await fetch(`${api}/api/admin/students/import`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ rows: importRows, confirm: true }) }); const data = await response.json().catch(() => ({})); setMessage(response.ok ? `${data.imported || 0} imported · ${(data.duplicates || []).length} duplicates skipped · ${(data.invalid || []).length} invalid records.` : (data.error || 'Import failed.')); if (response.ok) { setModal(null); setImportRows([]); setImportInvalid([]); void load(); } };
+  const submit = async (event: any) => { event.preventDefault(); setMessage(''); const endpoint = selected ? `${api}/api/admin/students/${selected.id}` : `${api}/api/admin/students`; const response = await authFetch(endpoint, { method: selected ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(selected ? { ...form, accountStatus: selected.accountStatus } : form) }, true); const data = await response.json().catch(() => ({})); if (!response.ok) return setMessage(data.error || 'Unable to save student.'); setModal(null); setSelected(null); setMessage('Student saved successfully.'); void load(); };
+  const parseFile = async (event: any) => { const file = event.target.files?.[0]; if (!file) return; setImportFileName(file.name); const reader = new FileReader(); reader.onload = async () => { const response = await authFetch(`${api}/api/admin/students/import-file`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fileName: file.name, fileBase64: reader.result }) }, true); const data = await response.json().catch(() => ({})); if (!response.ok) return setMessage(data.error || 'Unable to read import file.'); const validation = await authFetch(`${api}/api/admin/students/import`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rows: data.rows || [], confirm: false }) }, true); const checked = await validation.json().catch(() => ({})); setImportRows(checked.rows || []); setImportInvalid([...(checked.invalid || []), ...(checked.duplicates || [])]); }; reader.readAsDataURL(file); };
+  const confirmImport = async () => { const response = await authFetch(`${api}/api/admin/students/import`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rows: importRows, confirm: true }) }, true); const data = await response.json().catch(() => ({})); setMessage(response.ok ? `${data.imported || 0} imported · ${(data.duplicates || []).length} duplicates skipped · ${(data.invalid || []).length} invalid records.` : (data.error || 'Import failed.')); if (response.ok) { setModal(null); setImportRows([]); setImportInvalid([]); void load(); } };
   return <><PageHead admin student={null} title="Student Management" description="Manage registered students and account activation." showCreateAction={false}/><div className="student-management-head"><div><h2>Student management</h2><p>Manage registered students and account activation.</p></div><div className="student-management-actions"><button className="secondary" onClick={() => { setModal('import'); setMessage(''); }}>Import CSV/XLSX</button><button className="primary" onClick={() => { setSelected(null); setForm({ fullName: '', email: '', phone: '' }); setModal('add'); setMessage(''); }}><Icon name="plus"/>Add student</button></div></div>
     {message && <div className="inline-message">{message}</div>}<div className="student-filters"><input value={search} onChange={(event) => setSearch(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && (setPage(1), void load())} placeholder="Search ID, name, or email"/><select value={status} onChange={(event) => { setStatus(event.target.value); setPage(1); }}><option value="">All statuses</option><option value="ACTIVE">Active</option><option value="SUSPENDED">Inactive</option></select><button className="secondary" onClick={() => { setPage(1); void load(); }}>Search</button></div>
     <div className="panel student-table-panel">{loading ? <div className="dashboard-empty">Loading students...</div> : error ? <div className="dashboard-empty"><p>{error}</p><button className="secondary" onClick={() => void load()}>Retry</button></div> : students.length === 0 ? <div className="dashboard-empty">No students match the selected filters.</div> : <div className="table-scroll"><table className="student-table"><thead><tr><th>Student ID</th><th>Name</th><th>Email</th><th>Status</th><th>Registered</th><th></th></tr></thead><tbody>{students.map((student) => <tr key={student.id}><td>{student.studentId}</td><td>{student.fullName}</td><td>{student.email}</td><td><span className={`status-pill ${student.accountStatus === 'ACTIVE' ? 'active' : 'inactive'}`}>{student.accountStatus === 'ACTIVE' ? 'Active' : 'Inactive'}</span></td><td>{new Date(student.createdAt).toLocaleDateString()}</td><td><button className="text-button" onClick={() => { setSelected(student); setForm({ fullName: student.fullName, email: student.email, phone: student.phone || '' }); setModal('edit'); }}>View / Edit</button></td></tr>)}</tbody></table></div>}<div className="pagination"><span>{pagination.total || 0} students</span><button className="secondary" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button><span>Page {page} of {pagination.pages || 1}</span><button className="secondary" disabled={page >= (pagination.pages || 1)} onClick={() => setPage(page + 1)}>Next</button></div></div>
@@ -602,7 +618,7 @@ function AdminDashboard() {
   const load = async () => {
     setLoading(true); setError('');
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/admin/dashboard?range=${range}`, { credentials: 'include' });
+      const response = await authFetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/admin/dashboard?range=${range}`, {}, true);
       if (!response.ok) throw new Error('Unable to load administrator dashboard.');
       setDashboard(await response.json());
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.'); }
@@ -645,7 +661,7 @@ function AdminDashboardLegacy() {
   const [range, setRange] = useState('Last 30 days');
   const [dashboard, setDashboard] = useState<any>(null);
   const [error, setError] = useState('');
-  useEffect(() => { fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/admin/dashboard`, { credentials: 'include' }).then(async (response) => { if (!response.ok) throw new Error('Unable to load administrator dashboard.'); setDashboard(await response.json()); }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.')); }, []);
+  useEffect(() => { authFetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/admin/dashboard`, {}, true).then(async (response) => { if (!response.ok) throw new Error('Unable to load administrator dashboard.'); setDashboard(await response.json()); }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Unable to load administrator dashboard.')); }, []);
   if (error) return <div className="dashboard-state"><h2>Unable to load administrator dashboard</h2><p>{error}</p></div>;
   if (!dashboard) return <div className="dashboard-state"><h2>Loading administrator dashboard...</h2></div>;
   const stats = dashboard.stats;

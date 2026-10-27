@@ -216,6 +216,7 @@ async function verifyOtp(req, res) {
   });
   res.setHeader("Set-Cookie", cookie(raw));
   res.json({
+    token: raw,
     user: {
       id: student.id,
       email: student.email,

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Exam, Question, AnswerState } from '../../types';
+import { authFetch } from '../../api';
 
 interface ExamPlayerProps {
   exam: Exam;
@@ -126,7 +127,7 @@ export function ExamPlayer({ exam, questions, candidateName = 'Student', onSubmi
     const version = (answerVersions[answer.questionId] || 0) + 1;
     setSaveState(retry ? 'retrying' : 'saving');
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/exams/attempts/${exam.id}/answers/${answer.questionId}`, { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...answer, version }) });
+      const response = await authFetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/exams/attempts/${exam.id}/answers/${answer.questionId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...answer, version }) });
       if (!response.ok) throw new Error('save failed');
       setAnswerVersions((prev) => ({ ...prev, [answer.questionId]: version }));
       setSaveState('saved');

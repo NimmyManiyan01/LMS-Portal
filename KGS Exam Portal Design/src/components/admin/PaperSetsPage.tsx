@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { authFetch } from "../../api"
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:4000"
 type Notice = { type: "success" | "error" | "warning"; text: string }
@@ -44,13 +45,9 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
     setLoading(true)
     try {
       const [p, e, q] = await Promise.all([
-        fetch(`${API}/api/admin/paper-sets?${new URLSearchParams(filters)}`, {
-          credentials: "include",
-        }),
-        fetch(`${API}/api/admin/exams`, { credentials: "include" }),
-        fetch(`${API}/api/admin/paper-sets/questions/eligible`, {
-          credentials: "include",
-        }),
+        authFetch(`${API}/api/admin/paper-sets?${new URLSearchParams(filters)}`, {}, true),
+        authFetch(`${API}/api/admin/exams`, {}, true),
+        authFetch(`${API}/api/admin/paper-sets/questions/eligible`, {}, true),
       ])
       const pd = await p.json(),
         ed = await e.json(),
@@ -125,9 +122,7 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
     setViewError("")
     setViewTarget({ id })
     try {
-      const response = await fetch(`${API}/api/admin/paper-sets/${id}`, {
-        credentials: "include",
-      })
+      const response = await authFetch(`${API}/api/admin/paper-sets/${id}`, {}, true)
       const data = await response.json()
       if (!response.ok)
         throw new Error(data.error || "Unable to load paper set details.")
@@ -142,9 +137,7 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
   }
   const openEdit = async (id: string) => {
     try {
-      const response = await fetch(`${API}/api/admin/paper-sets/${id}`, {
-        credentials: "include",
-      })
+      const response = await authFetch(`${API}/api/admin/paper-sets/${id}`, {}, true)
       const data = await response.json()
       if (!response.ok)
         throw new Error(data.error || "Unable to load paper set.")
@@ -197,12 +190,11 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
     if (Object.keys(next).length) return
     setSaving(true)
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${API}/api/admin/paper-sets${editingId ? `/${editingId}` : ""}`,
         {
           method: editingId ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
           body: JSON.stringify({
             ...form,
             name,
@@ -211,6 +203,7 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
             questionIds: form.questionIds,
           }),
         },
+        true,
       )
       const data = await response.json()
       if (!response.ok)
@@ -235,9 +228,10 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
     if (!publishTarget || publishing) return
     setPublishing(true)
     try {
-      const validation = await fetch(
+      const validation = await authFetch(
         `${API}/api/admin/paper-sets/${publishTarget.id}/validate`,
-        { method: "POST", credentials: "include" },
+        { method: "POST" },
+        true,
       )
       const validationData = await validation.json()
       if (!validation.ok || validationData.valid === false)
@@ -246,9 +240,10 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
             validationData.error ||
             "Paper set validation failed.",
         )
-      const response = await fetch(
+      const response = await authFetch(
         `${API}/api/admin/paper-sets/${publishTarget.id}/publish`,
-        { method: "POST", credentials: "include" },
+        { method: "POST" },
+        true,
       )
       const data = await response.json()
       if (!response.ok)
