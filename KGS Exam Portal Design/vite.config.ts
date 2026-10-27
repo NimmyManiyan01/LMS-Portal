@@ -46,7 +46,7 @@ react(),
       strictPort: true,
       proxy: {
         '/api': {
-          target: 'https://assesspro-4lwf.onrender.com',
+          target: 'https://assesspro-backend-ny01.onrender.com',
           changeOrigin: true,
           secure: true,
         },
