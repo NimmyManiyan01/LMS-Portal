@@ -9,7 +9,7 @@ function publicResult(result, exam) {
     examName: exam?.title || "Examination",
     examCode: exam?.code || null,
     marksScored: result.releaseStatus === "RELEASED" ? result.marksScored : null,
-    maximumMarks: result.releaseStatus === "RELEASED" ? (result.maximumMarks ?? exam?.totalMarks ?? null) : null,
+    maximumMarks: result.releaseStatus === "RELEASED" ? (result.maximumMarks ?? result.maxMarks ?? exam?.totalMarks ?? null) : null,
     submittedAt: result.submittedAt,
     finalizedAt: result.finalizedAt,
     releaseStatus: result.releaseStatus || "PENDING",
