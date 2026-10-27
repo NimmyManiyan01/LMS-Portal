@@ -15,6 +15,7 @@ import { StudentExaminations } from './components/student/StudentExaminations';
 import { QuestionBankPage } from './components/admin/QuestionBankPage';
 import { PaperSetsPage } from './components/admin/PaperSetsPage';
 import { ExaminationsPage } from './components/admin/ExaminationsPage';
+import { LiveMonitoringPage } from './components/admin/LiveMonitoringPage';
 
 type IconName =
   | 'grid' | 'book' | 'result' | 'shield' | 'help' | 'bell' | 'chevron'
@@ -203,6 +204,7 @@ export default function App() {
   // Flow State for Exam Attempt
   const [viewState, setViewState] = useState<'DASHBOARD' | 'INSTRUCTIONS' | 'SYSTEM_CHECK' | 'EXAM_PLAYER' | 'SUBMISSION_CONFIRM' | 'SUBMISSION_SUCCESS' | 'RESULTS'>('DASHBOARD');
   const [selectedExam, setSelectedExam] = useState<Exam | null>(null);
+  const [activeAttemptId, setActiveAttemptId] = useState('');
   const [tab, setTab] = useState('Eligible');
   const initialStatusTabApplied = useRef(false);
   const [lastAnswers, setLastAnswers] = useState<Record<string, AnswerState>>({});
@@ -298,6 +300,7 @@ export default function App() {
         attemptId = attempt.attemptId;
       }
       if (!attemptId) throw new Error('The active examination attempt could not be identified.');
+      setActiveAttemptId(attemptId);
       const response = await authFetch(`${base}/api/attempts/${attemptId}/questions`);
       if (!response.ok) throw new Error((await response.json().catch(() => null))?.error || 'Unable to load the examination questions.');
       const data = await response.json();
@@ -331,6 +334,7 @@ export default function App() {
       <ExamPlayer
         exam={selectedExam}
         questions={examQuestions}
+        attemptId={activeAttemptId}
         candidateName={student?.fullName}
         onSubmitExam={handleSubmitExamClick}
       />
@@ -412,6 +416,8 @@ export default function App() {
             <QuestionBankPage Icon={Icon} PageHead={PageHead} />
           ) : admin && active === 'Paper sets' && viewState === 'DASHBOARD' ? (
             <PaperSetsPage Icon={Icon} PageHead={PageHead} />
+          ) : admin && active === 'Live monitoring' && viewState === 'DASHBOARD' ? (
+            <LiveMonitoringPage PageHead={PageHead} />
           ) : active === 'Overview' && viewState === 'DASHBOARD' ? (
             admin ? (
               <AdminDashboard />

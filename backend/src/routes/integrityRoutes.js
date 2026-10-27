@@ -28,8 +28,13 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
       action: existing.action,
       count: existing.newCount,
     });
+  const isCamera = eventType === "CAMERA_INTERRUPTED";
   const isTab = eventType === "TAB_HIDDEN" || eventType === "FULLSCREEN_EXIT";
   const isCopyPaste = eventType === "COPY" || eventType === "PASTE";
+  if (isCamera) {
+    const event = await IntegrityEvent.create({ eventId, studentId: req.student.id, attemptId: attempt.id, eventType, action: "RECORDED", clientTimestamp });
+    return res.status(201).json({ recorded: true, eventId: event.eventId, confirmedCount: 0, action: "RECORDED" });
+  }
   if (
     (isTab &&
       exam.integrityProfile === "BASIC" &&

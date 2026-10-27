@@ -50,6 +50,9 @@ export function ExaminationsPage({
       durationMinutes: "",
       maxAttempts: 1,
       instructions: "",
+      readinessRequirements: { camera: false, microphone: false, fullscreen: false },
+      integrityProfile: "BASIC",
+      integrityRules: { tabSwitchThreshold: 2 },
     })
   const load = async () => {
     const r = await authFetch(`${API}/api/admin/exams`, {}, true),
@@ -86,6 +89,9 @@ export function ExaminationsPage({
       durationMinutes: "",
       maxAttempts: 1,
       instructions: "",
+      readinessRequirements: { camera: false, microphone: false, fullscreen: false },
+      integrityProfile: "BASIC",
+      integrityRules: { tabSwitchThreshold: 2 },
     })
     setOpen(true)
   }
@@ -125,6 +131,8 @@ export function ExaminationsPage({
       errors.push("Duration must be a positive number of minutes.")
     if (Number(form.maxAttempts) < 1)
       errors.push("Maximum attempts must be at least 1.")
+    if (!Number.isInteger(Number(form.integrityRules?.tabSwitchThreshold)) || Number(form.integrityRules?.tabSwitchThreshold) < 1)
+      errors.push("Tab-switch warning threshold must be a positive whole number.")
     if (errors.length) return setMessage(errors.join(" "))
     setSaving(true)
     const r = await authFetch(
@@ -163,6 +171,13 @@ export function ExaminationsPage({
       instructions: Array.isArray(e.instructions)
         ? e.instructions.join("\n")
         : "",
+      readinessRequirements: {
+        camera: Boolean(e.readinessRequirements?.camera),
+        microphone: Boolean(e.readinessRequirements?.microphone),
+        fullscreen: Boolean(e.readinessRequirements?.fullscreen),
+      },
+      integrityProfile: e.integrityProfile || "BASIC",
+      integrityRules: { tabSwitchThreshold: e.integrityRules?.tabSwitchThreshold ?? 2 },
     })
     setOpen(true)
   }
@@ -359,6 +374,30 @@ export function ExaminationsPage({
                   }
                 />
               </label>
+              <section className="exam-security-section">
+                <h3>Examination Security &amp; Proctoring</h3>
+                <div className="form-grid">
+                  {([['camera', 'Camera Required'], ['microphone', 'Microphone Required'], ['fullscreen', 'Fullscreen Required']] as const).map(([key, label]) => (
+                    <label key={key} className="checkbox-field">
+                      <input type="checkbox" checked={Boolean(form.readinessRequirements?.[key])} onChange={(e) => setForm({ ...form, readinessRequirements: { ...form.readinessRequirements, [key]: e.target.checked } })} />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                  <label>
+                    Integrity Profile
+                    <select value={form.integrityProfile} onChange={(e) => setForm({ ...form, integrityProfile: e.target.value })}>
+                      <option value="BASIC">Basic</option>
+                      <option value="STANDARD">Standard</option>
+                      <option value="STRICT">Strict</option>
+                    </select>
+                  </label>
+                  <label>
+                    Tab-Switch Warning Threshold
+                    <input type="number" min="1" step="1" value={form.integrityRules?.tabSwitchThreshold ?? ""} onChange={(e) => setForm({ ...form, integrityRules: { ...form.integrityRules, tabSwitchThreshold: e.target.value } })} />
+                  </label>
+                </div>
+                <small>Tab-switch monitoring follows the selected backend integrity profile.</small>
+              </section>
               <label>
                 Instructions
                 <textarea

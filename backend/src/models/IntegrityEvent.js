@@ -22,6 +22,7 @@ const schema = new mongoose.Schema(
         "FULLSCREEN_EXIT",
         "CAMERA_DENIED",
         "MICROPHONE_DENIED",
+        "CAMERA_INTERRUPTED",
       ],
       required: true,
     },

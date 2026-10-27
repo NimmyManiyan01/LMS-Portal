@@ -31,6 +31,25 @@ router.get("/exams", authenticate, adminOnly, async (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({ exams: exams.map((exam) => ({ id: String(exam._id), code: exam.code, title: exam.title, status: effectiveExamStatus(exam), storedStatus: exam.status, scheduledAt: exam.scheduledAt, closesAt: exam.closesAt, totalMarks: exam.totalMarks, totalQuestions: exam.totalQuestions, durationMinutes: exam.durationMinutes })) });
 });
+router.get("/monitoring/attempts", authenticate, adminOnly, async (req, res) => {
+  const page = Math.max(1, Number(req.query.page) || 1); const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 25));
+  const filter = req.query.status ? { status: String(req.query.status).toUpperCase() } : { status: "IN_PROGRESS" };
+  const [attempts, total] = await Promise.all([
+    Attempt.find(filter).populate("examId", "title code scheduledAt closesAt readinessRequirements").populate("studentId", "studentId fullName email").sort({ updatedAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+    Attempt.countDocuments(filter),
+  ]);
+  const ids = attempts.map((attempt) => attempt._id);
+  const events = await IntegrityEvent.find({ attemptId: { $in: ids } }).sort({ recordedAt: -1 }).lean();
+  const byAttempt = new Map(); events.forEach((event) => { const key = String(event.attemptId); if (!byAttempt.has(key)) byAttempt.set(key, []); byAttempt.get(key).push(event); });
+  res.set("Cache-Control", "no-store").json({ attempts: attempts.map((attempt) => ({ id: String(attempt._id), attemptId: String(attempt._id), status: attempt.status, startedAt: attempt.startedAt, expiresAt: attempt.expiresAt, submittedAt: attempt.submittedAt, answeredCount: attempt.answers ? Object.keys(attempt.answers).length : 0, integrityCounts: attempt.integrityCounts || {}, exam: attempt.examId, student: attempt.studentId, latestIncident: byAttempt.get(String(attempt._id))?.[0] || null })), pagination: { page, limit, total, pages: Math.max(1, Math.ceil(total / limit)) } });
+});
+router.get("/monitoring/attempts/:attemptId/events", authenticate, adminOnly, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.attemptId)) return res.status(400).json({ error: "Invalid attempt ID" });
+  const attempt = await Attempt.findById(req.params.attemptId).populate("examId", "title code").populate("studentId", "studentId fullName email").lean();
+  if (!attempt) return res.status(404).json({ error: "Attempt not found" });
+  const events = await IntegrityEvent.find({ attemptId: attempt._id }).sort({ recordedAt: -1 }).lean();
+  res.json({ attempt: { attemptId: String(attempt._id), status: attempt.status, exam: attempt.examId, student: attempt.studentId }, events });
+});
 router.get("/exams/next-code", authenticate, adminOnly, async (_req, res) => { const year = new Date().getFullYear(); const counter = await Counter.findOne({ _id: `examCode:${year}` }).lean(); res.json({ code: `EXAM-${year}-${String((counter?.sequence || 0) + 1).padStart(4, "0")}` }); });
 router.post("/exams", authenticate, adminOnly, async (req, res) => {
   const title = String(req.body.name || req.body.title || "").trim();
@@ -41,15 +60,16 @@ router.post("/exams", authenticate, adminOnly, async (req, res) => {
   const windowMinutes = (end - start) / 60000;
   if (!title || !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || start <= new Date() || end <= start || !Number.isFinite(duration) || duration <= 0 || duration > windowMinutes || !Number.isInteger(attempts) || attempts < 1) return res.status(400).json({ error: "Provide valid examination details and date range." });
   code = await reserveExamCode();
-  try { const exam = await Exam.create({ title, name: title, code, description: String(req.body.description || ""), examinationType: String(req.body.examinationType || "MCQ"), scheduledAt: start, closesAt: end, durationMinutes: duration, maxAttempts: attempts, instructions: Array.isArray(req.body.instructions) ? req.body.instructions : String(req.body.instructions || "").split(/\r?\n/).map((v) => v.trim()).filter(Boolean), status: "DRAFT", createdBy: req.admin?._id }); res.status(201).json({ exam }); } catch (error) { if (error?.code === 11000) return res.status(409).json({ error: "Examination code already exists." }); throw error; }
+  try { const exam = await Exam.create({ title, name: title, code, description: String(req.body.description || ""), examinationType: String(req.body.examinationType || "MCQ"), scheduledAt: start, closesAt: end, durationMinutes: duration, maxAttempts: attempts, instructions: Array.isArray(req.body.instructions) ? req.body.instructions : String(req.body.instructions || "").split(/\r?\n/).map((v) => v.trim()).filter(Boolean), readinessRequirements: req.body.readinessRequirements, integrityProfile: req.body.integrityProfile, integrityRules: req.body.integrityRules, status: "DRAFT", createdBy: req.admin?._id }); res.status(201).json({ exam }); } catch (error) { if (error?.code === 11000) return res.status(409).json({ error: "Examination code already exists." }); throw error; }
 });
 router.get("/exams/:id", authenticate, adminOnly, async (req, res) => { const exam = await Exam.findById(req.params.id).lean(); if (!exam) return res.status(404).json({ error: "Examination not found" }); res.json({ exam }); });
 router.patch("/exams/:id", authenticate, adminOnly, async (req, res) => {
   const exam = await Exam.findById(req.params.id);
   if (!exam) return res.status(404).json({ error: "Examination not found" });
   if (["ACTIVE", "COMPLETED", "CLOSED"].includes(exam.status) && req.body.status && req.body.status !== exam.status) return res.status(409).json({ error: "This examination lifecycle state cannot be changed that way." });
-  const fields = { name: "title", title: "title", description: "description", examinationType: "examinationType", startAt: "scheduledAt", scheduledAt: "scheduledAt", endAt: "closesAt", closesAt: "closesAt", durationMinutes: "durationMinutes", maxAttempts: "maxAttempts", status: "status" };
+  const fields = { name: "title", title: "title", description: "description", examinationType: "examinationType", startAt: "scheduledAt", scheduledAt: "scheduledAt", endAt: "closesAt", closesAt: "closesAt", durationMinutes: "durationMinutes", maxAttempts: "maxAttempts", status: "status", readinessRequirements: "readinessRequirements", integrityProfile: "integrityProfile", integrityRules: "integrityRules" };
   for (const [from, to] of Object.entries(fields)) if (req.body[from] !== undefined) exam[to] = ["scheduledAt", "closesAt"].includes(to) ? new Date(req.body[from]) : req.body[from];
+  if (exam.integrityRules?.tabSwitchThreshold !== undefined && (!Number.isInteger(Number(exam.integrityRules.tabSwitchThreshold)) || Number(exam.integrityRules.tabSwitchThreshold) < 1)) return res.status(400).json({ error: "Tab-switch warning threshold must be a positive whole number." });
   if (exam.scheduledAt || exam.closesAt || req.body.startAt !== undefined || req.body.endAt !== undefined) {
     if (!exam.scheduledAt || !exam.closesAt || !Number.isFinite(exam.scheduledAt.getTime()) || !Number.isFinite(exam.closesAt.getTime()) || exam.closesAt <= exam.scheduledAt) return res.status(400).json({ error: "End date and time must be later than start date and time." });
     const durationWindow = (exam.closesAt - exam.scheduledAt) / 60000;

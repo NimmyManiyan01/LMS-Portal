@@ -5,6 +5,7 @@ import { API_BASE_URL, authFetch } from '../../api';
 interface ExamPlayerProps {
   exam: Exam;
   questions: Question[];
+  attemptId: string;
   candidateName?: string;
   onSubmitExam: (answers: Record<string, AnswerState>, tabSwitches: number) => void;
 }
@@ -16,7 +17,7 @@ interface PersistedAttempt {
   expiresAt: number;
 }
 
-export function ExamPlayer({ exam, questions, candidateName = 'Student', onSubmitExam }: ExamPlayerProps) {
+export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Student', onSubmitExam }: ExamPlayerProps) {
   const storageKey = `kgs-exam-attempt:${exam.id}`;
   const [currentIdx, setCurrentIdx] = useState(() => {
     try {
@@ -47,9 +48,73 @@ export function ExamPlayer({ exam, questions, candidateName = 'Student', onSubmi
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'failed' | 'retrying'>('saved');
   const [answerVersions, setAnswerVersions] = useState<Record<string, number>>({});
   const [connectionOnline, setConnectionOnline] = useState(() => navigator.onLine);
+  const [cameraStatus, setCameraStatus] = useState<'not-required' | 'starting' | 'active' | 'interrupted' | 'denied'>('not-required');
+  const cameraVideoRef = useRef<HTMLVideoElement>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
   const lastVisibilityIncident = useRef(0);
+  const pendingIntegrityEvents = useRef(new Map<string, number>());
+
+  const recordIntegrityEvent = async (eventId: string, attempt = 0): Promise<void> => {
+    try {
+      const response = await authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/integrity-events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId, eventType: 'TAB_HIDDEN', clientTimestamp: new Date().toISOString() }),
+      });
+      if (!response.ok) throw new Error('integrity event rejected');
+      const result = await response.json();
+      pendingIntegrityEvents.current.delete(eventId);
+      if (typeof result.confirmedCount === 'number') setTabSwitches(result.confirmedCount);
+      if (result.action === 'WARNING' || result.action === 'AUTO_SUBMIT') setShowWarningModal(true);
+    } catch {
+      if (attempt < 2 && navigator.onLine) {
+        pendingIntegrityEvents.current.set(eventId, window.setTimeout(() => {
+          void recordIntegrityEvent(eventId, attempt + 1);
+        }, 1000 * (attempt + 1)));
+      } else {
+        pendingIntegrityEvents.current.delete(eventId);
+      }
+    }
+  };
 
   const currentQ = questions[currentIdx] || questions[0];
+
+  const stopCamera = () => {
+    cameraStreamRef.current?.getTracks().forEach((track) => { track.onended = null; track.stop(); });
+    cameraStreamRef.current = null;
+    if (cameraVideoRef.current) cameraVideoRef.current.srcObject = null;
+  };
+
+  const startCamera = async () => {
+    if (!exam.readinessRequirements?.camera) return;
+    stopCamera();
+    setCameraStatus('starting');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      cameraStreamRef.current = stream;
+      stream.getVideoTracks().forEach((track) => {
+        track.onended = () => {
+          cameraStreamRef.current = null;
+          setCameraStatus('interrupted');
+          const eventId = `camera-${attemptId}-${Date.now()}-${crypto.randomUUID()}`;
+          void authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/integrity-events`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ eventId, eventType: 'CAMERA_INTERRUPTED', clientTimestamp: new Date().toISOString() }) }).catch(() => undefined);
+        };
+      });
+      if (cameraVideoRef.current) {
+        cameraVideoRef.current.srcObject = stream;
+        await cameraVideoRef.current.play();
+      }
+      setCameraStatus('active');
+    } catch {
+      setCameraStatus('denied');
+    }
+  };
+
+  useEffect(() => {
+    if (!exam.readinessRequirements?.camera) return;
+    void startCamera();
+    return stopCamera;
+  }, [exam.readinessRequirements?.camera]);
 
   useEffect(() => {
     const online = () => setConnectionOnline(true);
@@ -102,26 +167,27 @@ export function ExamPlayer({ exam, questions, candidateName = 'Student', onSubmi
     return () => clearInterval(interval);
   }, [answers, tabSwitches, onSubmitExam]);
 
-  // Tab switch & Window Blur detection (Proctoring)
+  // Browser visibility is an imperfect signal; the backend owns counts and actions.
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
         const now = Date.now();
         if (now - lastVisibilityIncident.current < 1500) return;
         lastVisibilityIncident.current = now;
-        setTabSwitches((prev) => {
-          const count = prev + 1;
-          // The browser only reports the signal. Violation thresholds and any
-          // automatic submission are decided by the backend integrity rules.
-          setShowWarningModal(true);
-          return count;
-        });
+        const eventId = `visibility-${attemptId}-${now}-${crypto.randomUUID()}`;
+        setShowWarningModal(true);
+        pendingIntegrityEvents.current.set(eventId, 0);
+        void recordIntegrityEvent(eventId);
       }
     };
 
     window.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => window.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [answers, onSubmitExam]);
+    return () => {
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      pendingIntegrityEvents.current.forEach((timer) => { if (timer) window.clearTimeout(timer); });
+      pendingIntegrityEvents.current.clear();
+    };
+  }, [attemptId]);
 
   const persistAnswer = async (answer: AnswerState, retry = false) => {
     const version = (answerVersions[answer.questionId] || 0) + 1;
@@ -243,6 +309,19 @@ export function ExamPlayer({ exam, questions, candidateName = 'Student', onSubmi
             <button className="primary" onClick={() => setShowWarningModal(false)}>
               I Understand & Resume Exam
             </button>
+          </div>
+        </div>
+      )}
+
+      {exam.readinessRequirements?.camera && (
+        <div className={`camera-monitor camera-${cameraStatus}`} role="status" aria-live="polite">
+          <div className="camera-monitor-preview">
+            <video ref={cameraVideoRef} muted playsInline aria-label="Live camera preview" />
+            {cameraStatus !== 'active' && <span>{cameraStatus === 'starting' ? 'Starting camera…' : cameraStatus === 'denied' ? 'Camera permission required' : 'Camera interrupted'}</span>}
+          </div>
+          <div className="camera-monitor-status">
+            <strong><span className="camera-status-dot" /> {cameraStatus === 'active' ? 'Camera Active' : cameraStatus === 'starting' ? 'Connecting…' : 'Camera Unavailable'}</strong>
+            {cameraStatus !== 'active' && <button className="text-button" onClick={() => void startCamera()}>Retry camera</button>}
           </div>
         </div>
       )}
