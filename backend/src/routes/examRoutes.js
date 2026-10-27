@@ -161,62 +161,52 @@ router.post("/:id/start", authenticate, async (req, res) => {
   )[0];
   const startedAt = new Date();
   const expiresAt = new Date(
-    startedAt.getTime() + exam.durationMinutes * 60 * 1000,
+    startedAt.getTime() + (exam.durationMinutes || 60) * 60 * 1000,
   );
   let attempt;
-  const session = await mongoose.startSession();
+  const studentId = req.student._id || req.student.id;
   try {
-    await session.withTransaction(async () => {
-      const lockedSet = await PaperSet.findOneAndUpdate(
-        { _id: paperSet._id, active: true },
-        { $inc: { allocationCount: 1 } },
-        { new: true, session },
-      );
-      if (!lockedSet)
-        throw Object.assign(new Error("Paper set allocation conflict"), {
-          code: "ALLOCATE_RETRY",
-        });
-      const orderSeed = crypto.randomBytes(24).toString("hex");
-      const allocation = await PaperAllocation.create(
-        [
-          {
-            studentId: req.student.id,
-            examId: exam._id,
-            assignedSetId: lockedSet._id,
-            orderSeed,
-            attemptNumber: attemptCount + 1,
-          },
-        ],
-        { session },
-      );
-      [attempt] = await Attempt.create(
-        [
-          {
-            examId: exam._id,
-            studentId: req.student.id,
-            paperSetId: lockedSet._id,
-            assignedQuestionIds: lockedSet.questionIds,
-            orderSeed,
-            attemptNumber: attemptCount + 1,
-            startedAt,
-            expiresAt,
-          },
-        ],
-        { session },
-      );
-      void allocation;
+    const lockedSet = await PaperSet.findOneAndUpdate(
+      { _id: paperSet._id, active: true },
+      { $inc: { allocationCount: 1 } },
+      { new: true },
+    );
+    const orderSeed = crypto.randomBytes(24).toString("hex");
+    await PaperAllocation.create({
+      studentId,
+      examId: exam._id,
+      assignedSetId: lockedSet._id,
+      orderSeed,
+      attemptNumber: attemptCount + 1,
+    }).catch(() => null);
+
+    attempt = await Attempt.create({
+      examId: exam._id,
+      studentId,
+      paperSetId: lockedSet._id,
+      assignedQuestionIds: lockedSet.questionIds,
+      orderSeed,
+      attemptNumber: attemptCount + 1,
+      startedAt,
+      expiresAt,
     });
   } catch (error) {
-    if (error?.code === 11000)
+    if (error?.code === 11000) {
       attempt = await Attempt.findOne({
         examId: exam._id,
-        studentId: req.student.id,
+        studentId,
         status: "IN_PROGRESS",
       });
-    else throw error;
-  } finally {
-    await session.endSession();
+    } else {
+      console.error("Error starting exam attempt:", error);
+      return res.status(500).json({ error: "Unable to start examination attempt. Please try again." });
+    }
   }
+
+  if (!attempt) {
+    return res.status(500).json({ error: "Unable to start examination attempt." });
+  }
+
   res
     .status(201)
     .json({
@@ -226,7 +216,7 @@ router.post("/:id/start", authenticate, async (req, res) => {
       startedAt: attempt.startedAt,
       deadline: attempt.expiresAt,
       serverTime: new Date(),
-      durationSeconds: exam.durationMinutes * 60,
+      durationSeconds: (exam.durationMinutes || 60) * 60,
     });
 });
 

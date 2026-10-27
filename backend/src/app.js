@@ -85,4 +85,13 @@ app.use("/api/student/results", resultRoutes);
 app.use("/api/student/profile", profileRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin/reports", reportRoutes);
+
+app.use((err, req, res, next) => {
+  console.error("Unhandled API Error:", err);
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({
+    error: err.message || "An unexpected server error occurred",
+  });
+});
+
 module.exports = app;
