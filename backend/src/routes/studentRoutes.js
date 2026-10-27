@@ -9,7 +9,14 @@ function isEligible(exam, student) {
   const rules = exam.eligibility || {};
   const explicit =
     !rules.studentIds?.length ||
-    rules.studentIds.some((id) => String(id) === String(student.id));
+    rules.studentIds.some((id) => {
+      const sId = String(id);
+      return (
+        sId === String(student._id) ||
+        sId === String(student.id) ||
+        sId === String(student.studentId)
+      );
+    });
   const college =
     !rules.colleges?.length || rules.colleges.includes(student.college);
   const branch =
@@ -25,9 +32,11 @@ function isEligible(exam, student) {
 async function dashboard(req, res) {
   const now = new Date();
   const exams = await Exam.find({
-    status: { $in: ["SCHEDULED", "PUBLISHED", "LIVE", "CLOSED"] },
+    status: { $in: ["SCHEDULED", "PUBLISHED", "LIVE", "ACTIVE", "CLOSED", "COMPLETED"] },
   }).lean();
-  const attempts = await Attempt.find({ studentId: req.student.id })
+  const attempts = await Attempt.find({
+    studentId: req.student._id || req.student.id,
+  })
     .sort({ createdAt: -1 })
     .lean();
   const visible = (
@@ -37,22 +46,22 @@ async function dashboard(req, res) {
         .map(async (exam) => {
           const sets = await PaperSet.find({
             examId: exam._id,
-            active: true,
             status: "PUBLISHED",
+            active: { $ne: false },
           }).lean();
           const expected =
-            exam.totalQuestions || sets[0]?.blueprint?.totalQuestions || 0;
+            exam.totalQuestions || sets[0]?.blueprint?.totalQuestions || sets[0]?.questionIds?.length || 0;
           const maximumMarks =
             exam.totalMarks || sets[0]?.blueprint?.maximumMarks || sets[0]?.totalMarks || 0;
-          const valid =
-            sets.length > 0 &&
-            sets.every(
-              (set) =>
-                set.questionIds?.length === expected &&
-                set.blueprint?.totalQuestions === expected &&
-                (!exam.totalMarks || set.blueprint?.maximumMarks === exam.totalMarks),
-            );
-          if (!valid) return null;
+          const validSets = sets.filter((set) => {
+              const qCount = set.questionIds?.length || set.blueprint?.totalQuestions || 0;
+              const marks = set.totalMarks ?? set.blueprint?.maximumMarks ?? 0;
+              return qCount > 0 &&
+                (!exam.totalQuestions || qCount === exam.totalQuestions) &&
+                (!exam.totalMarks || marks === exam.totalMarks);
+            });
+          if (!validSets.length) return null;
+          const selectedSet = validSets[0];
           const mine = attempts.filter(
             (attempt) => String(attempt.examId) === String(exam._id),
           );
@@ -62,7 +71,7 @@ async function dashboard(req, res) {
           const submitted = mine.find((attempt) =>
             ["SUBMITTED", "AUTO_SUBMITTED"].includes(attempt.status),
           );
-          const attemptsExhausted = mine.length >= exam.maxAttempts;
+          const attemptsExhausted = mine.length >= (exam.maxAttempts || 1);
           let status = "UPCOMING";
           let nextAction = "VIEW_INSTRUCTIONS";
           if (active) {
@@ -77,25 +86,32 @@ async function dashboard(req, res) {
           } else if (attemptsExhausted) {
             status = "SUBMITTED";
             nextAction = "VIEW_SUBMISSION";
-          } else if (exam.closesAt && exam.closesAt <= now) {
+          } else if (exam.closesAt && new Date(exam.closesAt) <= now) {
             status = "EXPIRED";
             nextAction = "CLOSED";
-          } else if (exam.status === "CLOSED") {
+          } else if (exam.status === "CLOSED" || exam.status === "COMPLETED") {
             status = "CLOSED";
             nextAction = "CLOSED";
-          } else if (exam.scheduledAt && exam.scheduledAt <= now) {
+          } else if (
+            exam.status === "ACTIVE" ||
+            exam.status === "LIVE" ||
+            (exam.scheduledAt && new Date(exam.scheduledAt) <= now)
+          ) {
             status = "AVAILABLE";
+            nextAction = "VIEW_INSTRUCTIONS";
+          } else {
+            status = "UPCOMING";
             nextAction = "VIEW_INSTRUCTIONS";
           }
           return {
             ...exam,
             id: exam._id,
-            totalQuestions: expected,
-            totalMarks: maximumMarks,
+            totalQuestions: selectedSet.questionIds?.length || selectedSet.blueprint?.totalQuestions || expected,
+            totalMarks: selectedSet.totalMarks ?? selectedSet.blueprint?.maximumMarks ?? maximumMarks,
             status,
             nextAction,
             attemptsUsed: mine.length,
-            maxAttempts: exam.maxAttempts,
+            maxAttempts: exam.maxAttempts || 1,
             activeAttempt: active
               ? {
                   attemptId: String(active._id),
@@ -112,7 +128,7 @@ async function dashboard(req, res) {
     upcoming: visible.filter((e) => e.status === "UPCOMING").length,
     inProgress: visible.filter((e) => e.status === "IN_PROGRESS").length,
     completed: visible.filter((e) =>
-      ["SUBMITTED", "RESULTS_PENDING", "RESULTS_RELEASED"].includes(e.status),
+      ["SUBMITTED", "RESULTS_PENDING", "RESULTS_RELEASED", "EXPIRED", "CLOSED"].includes(e.status),
     ).length,
     resultsPending: visible.filter((e) => e.status === "RESULTS_PENDING")
       .length,
@@ -135,7 +151,7 @@ router.get("/exams/:examId", authenticate, async (req, res) => {
     return res.status(404).json({ error: "Exam not found" });
   const attempts = await Attempt.find({
     examId: exam._id,
-    studentId: req.student.id,
+    studentId: req.student._id || req.student.id,
   })
     .sort({ createdAt: -1 })
     .lean();
@@ -143,7 +159,7 @@ router.get("/exams/:examId", authenticate, async (req, res) => {
     exam,
     attempts,
     canStart:
-      attempts.length < exam.maxAttempts &&
+      attempts.length < (exam.maxAttempts || 1) &&
       !attempts.some((a) => a.status === "IN_PROGRESS"),
   });
 });
