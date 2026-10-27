@@ -49,13 +49,22 @@ app.use(
   cors({
     origin: (origin, callback) => {
       if (isAllowedOrigin(origin)) {
-        return callback(null, true);
+        return callback(null, origin || true);
       }
       return callback(null, false);
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+    ],
   }),
 );
+app.options("*", cors());
 app.use(express.json({ limit: "1mb" }));
 const health = (_req, res) => {
   const database = isDatabaseReady();
