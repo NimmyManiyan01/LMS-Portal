@@ -59,6 +59,22 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
   const colleges = [...new Set(allRows.map((row) => row.student?.college).filter(Boolean))].sort();
   res.set("Cache-Control", "no-store").json({ rows: filteredRows.slice((page - 1) * limit, page * limit), exams: exams.map((exam) => ({ id: String(exam._id), title: exam.title, code: exam.code, status: effectiveExamStatus(exam), totalMarks: exam.totalMarks, resultsPublishedAt: exam.resultsPublishedAt })), colleges, counts, pagination: { page, limit, total: filteredRows.length, pages: Math.max(1, Math.ceil(filteredRows.length / limit)) } });
 });
+router.get("/results/:resultId", authenticate, adminOnly, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.resultId)) return res.status(400).json({ error: "Invalid result ID" });
+  const result = await FinalResult.findById(req.params.resultId)
+    .populate("examId", "title code totalMarks")
+    .populate("studentId", "studentId fullName email college")
+    .lean();
+  if (!result) return res.status(404).json({ error: "Result not found" });
+  const publishedSet = result.examId?._id ? await PaperSet.findOne({ examId: result.examId._id, status: "PUBLISHED", active: true }).select("totalMarks").sort({ updatedAt: -1 }).lean() : null;
+  res.json({ result: {
+    resultId: String(result._id), attemptId: String(result.attemptId),
+    student: result.studentId ? { name: result.studentId.fullName, studentId: result.studentId.studentId, email: result.studentId.email, college: result.studentId.college || "College Not Specified" } : null,
+    examination: result.examId ? { name: result.examId.title, code: result.examId.code } : null,
+    marksScored: result.marksScored, maximumMarks: result.maximumMarks ?? result.maxMarks ?? result.examId?.totalMarks ?? publishedSet?.totalMarks ?? null,
+    submittedAt: result.submittedAt || result.finalizedAt, evaluationStatus: "FINALIZED", releaseStatus: result.releaseStatus || "PENDING",
+  } });
+});
 router.post("/results/exams/:id/publish", authenticate, adminOnly, async (req, res) => {
   const exam = await Exam.findByIdAndUpdate(req.params.id, { resultsPublishedAt: new Date() }, { new: true }).select("_id resultsPublishedAt");
   if (!exam) return res.status(404).json({ error: "Exam not found" });
