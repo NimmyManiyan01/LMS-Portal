@@ -10,7 +10,7 @@ const passwordHash = (value) =>
     .scryptSync(value, process.env.JWT_SECRET || "local-salt", 64)
     .toString("hex");
 const cookie = (token) =>
-  `kgs_admin_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""}`;
+  `kgs_admin_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure" : "Lax"}`;
 async function login(req, res) {
   const email = String(req.body.email || "")
     .toLowerCase()

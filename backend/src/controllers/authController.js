@@ -30,7 +30,7 @@ const generic = {
     "If this email can be used, verification instructions have been sent.",
 };
 const cookie = (token) =>
-  `kgs_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""}`;
+  `kgs_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure" : "Lax"}`;
 
 async function registerStudent(req, res) {
   const {

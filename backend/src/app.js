@@ -14,6 +14,8 @@ const adminRoutes = require("./routes/adminRoutes");
 const app = express();
 const allowedClientOrigins = new Set([
   ...clientOrigins,
+  "http://localhost:8443",
+  "http://localhost:5173",
   "https://assesspro-1-d865.onrender.com",
   "https://assesspro-1-i07n.onrender.com",
 ].map((origin) => origin.trim().replace(/\/$/, "")).filter(Boolean));
