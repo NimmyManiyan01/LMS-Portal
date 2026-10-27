@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { DateTimePicker } from "./DateTimePicker"
 import { API_BASE_URL, authFetch } from "../../api"
+import { AssignStudentsModal } from "./AssignStudentsModal"
 const API = API_BASE_URL
 const formatLocalDateTime = (value: string | Date) => {
   const date = value instanceof Date ? value : new Date(value)
