@@ -354,9 +354,10 @@ export default function App() {
 
   return (
     <div className="app">
-      {viewState === 'SYSTEM_CHECK' && (
+      {viewState === 'SYSTEM_CHECK' && selectedExam && (
         <SystemCheckModal
           examTitle={selectedExam.title}
+          examId={selectedExam.id}
           requirements={selectedExam.readinessRequirements}
           onClose={() => setViewState('DASHBOARD')}
           onProceedToExam={handleProceedToExam}
@@ -523,12 +524,31 @@ function StudentDashboard({
   const status = serverExam.status || 'UPCOMING';
   const secondsRemaining = Math.max(0, serverExam.activeAttempt?.deadline ? Math.ceil((new Date(serverExam.activeAttempt.deadline).getTime() - now) / 1000) : 0);
   const requirements = serverExam.readinessRequirements || {};
-  // Dashboard capabilities are not readiness results. The authoritative checks
-  // run in SystemCheckModal and are intentionally not marked passed here.
-  const readiness = { browser: false, network: false, camera: !requirements.camera, microphone: !requirements.microphone, fullscreen: !requirements.fullscreen };
-  // The dashboard has no persisted readiness result yet; never claim 100%
-  // before the selected exam's readiness flow confirms every requirement.
-  const readinessScore = 0;
+
+  // Readiness Calculations
+  const systemCheckPassed = typeof window !== 'undefined' && Boolean(heroExam.id && localStorage.getItem(`kgs_readiness_${heroExam.id}`) === 'PASSED');
+  const profileDone = Boolean(student && student.accountStatus === 'ACTIVE');
+  const browserDone = typeof window !== 'undefined' && Boolean(window.fetch && window.localStorage && document.documentElement?.requestFullscreen);
+  const networkDone = typeof navigator !== 'undefined' ? navigator.onLine !== false : true;
+  const cameraDone = !requirements.camera || systemCheckPassed;
+
+  const readiness = {
+    profile: profileDone,
+    browser: browserDone,
+    network: networkDone,
+    camera: cameraDone,
+  };
+
+  const checksList = [profileDone, browserDone, networkDone, cameraDone];
+  const completedCount = checksList.filter(Boolean).length;
+  const readinessScore = Math.round((completedCount / checksList.length) * 100);
+
+  // Time Countdown Display
+  const days = Math.floor(secondsToStart / 86400);
+  const hours = days > 0 ? Math.floor((secondsToStart % 86400) / 3600) : Math.floor(secondsToStart / 3600);
+  const mins = Math.floor((secondsToStart % 3600) / 60);
+  const secs = secondsToStart % 60;
+
   const statusForTab: Record<string, string[]> = { Eligible: ['AVAILABLE'], Upcoming: ['UPCOMING'], 'In Progress': ['IN_PROGRESS'], Completed: ['SUBMITTED', 'RESULTS_RELEASED'], 'Results pending': ['RESULTS_PENDING'] };
   const visibleExams = exams.filter((exam) => (statusForTab[activeTab] || []).includes(String(exam.status)));
 
@@ -554,7 +574,20 @@ function StudentDashboard({
         <div className="hero-action">
           <div className="starts">
             <small>{status === 'IN_PROGRESS' ? 'TIME REMAINING' : status === 'AVAILABLE' ? 'EXAMINATION STATUS' : 'STARTS IN'}</small>
-            {status === 'IN_PROGRESS' ? <div className="available-now">{String(Math.floor(secondsRemaining / 3600)).padStart(2, '0')}:{String(Math.floor((secondsRemaining % 3600) / 60)).padStart(2, '0')}:{String(secondsRemaining % 60).padStart(2, '0')}</div> : status === 'AVAILABLE' ? <div className="available-now">Available Now</div> : <><div><b>{String(Math.floor(secondsToStart / 86400)).padStart(2, '0')}</b><i>:</i><b>{String(Math.floor((secondsToStart % 86400) / 3600)).padStart(2, '0')}</b><i>:</i><b>{String(Math.floor((secondsToStart % 3600) / 60)).padStart(2, '0')}</b></div><span>DAYS &nbsp;&nbsp; HOURS &nbsp;&nbsp; MINS</span></>}
+            {status === 'IN_PROGRESS' ? (
+              <div className="available-now">{String(Math.floor(secondsRemaining / 3600)).padStart(2, '0')}:{String(Math.floor((secondsRemaining % 3600) / 60)).padStart(2, '0')}:{String(secondsRemaining % 60).padStart(2, '0')}</div>
+            ) : status === 'AVAILABLE' ? (
+              <div className="available-now">Available Now</div>
+            ) : (
+              <>
+                <div>
+                  <b>{String(days > 0 ? days : hours).padStart(2, '0')}</b><i>:</i>
+                  <b>{String(days > 0 ? hours : mins).padStart(2, '0')}</b><i>:</i>
+                  <b>{String(days > 0 ? mins : secs).padStart(2, '0')}</b>
+                </div>
+                <span>{days > 0 ? 'DAYS \u00a0\u00a0 HOURS \u00a0\u00a0 MINS' : 'HOURS \u00a0\u00a0 MINS \u00a0\u00a0 SECS'}</span>
+              </>
+            )}
           </div>
           <button className="primary wide" onClick={() => onStartExam(heroExam)}>
             {status === 'IN_PROGRESS' ? 'Resume Examination' : 'Launch Exam Check'} <Icon name="arrow"/>
@@ -603,11 +636,11 @@ function StudentDashboard({
             <div><h3>Exam readiness</h3><p>Complete before exam day</p></div>
             <div className="score-ring">{readinessScore}%</div>
           </div>
-          <div className={student ? 'check-item done' : 'check-item pending'}><span>{student ? <Icon name="check"/> : '!'}</span><div><b>Profile verified</b><small>{student ? 'Identity details confirmed' : 'Profile unavailable'}</small></div></div>
-          <div className={readiness.browser ? 'check-item done' : 'check-item pending'}><span>{readiness.browser ? <Icon name="check"/> : '!'}</span><div><b>Browser compatible</b><small>Run system check before examination</small></div></div>
-          <div className={readiness.network ? 'check-item done' : 'check-item pending'}><span>{readiness.network ? <Icon name="check"/> : '!'}</span><div><b>Network stable</b><small>Run system check before examination</small></div></div>
-          <div className={readiness.camera ? 'check-item done' : 'check-item pending'}><span>{readiness.camera ? <Icon name="check"/> : '!'}</span><div><b>{requirements.camera ? 'Camera permission required' : 'Camera not required'}</b><small>{requirements.camera ? 'Complete during system check' : 'Not configured for this exam'}</small></div></div>
-          <button className="secondary full" onClick={() => onStartExam(heroExam)}>Run system check</button>
+          <div className={readiness.profile ? 'check-item done' : 'check-item pending'}><span>{readiness.profile ? <Icon name="check"/> : '!'}</span><div><b>Profile verified</b><small>{readiness.profile ? 'Identity details confirmed' : 'Profile unavailable'}</small></div></div>
+          <div className={readiness.browser ? 'check-item done' : 'check-item pending'}><span>{readiness.browser ? <Icon name="check"/> : '!'}</span><div><b>Browser compatible</b><small>{readiness.browser ? 'Browser capabilities confirmed' : 'Incompatible browser'}</small></div></div>
+          <div className={readiness.network ? 'check-item done' : 'check-item pending'}><span>{readiness.network ? <Icon name="check"/> : '!'}</span><div><b>Network stable</b><small>{readiness.network ? 'Online connection verified' : 'Network offline'}</small></div></div>
+          <div className={readiness.camera ? 'check-item done' : 'check-item pending'}><span>{readiness.camera ? <Icon name="check"/> : '!'}</span><div><b>{requirements.camera ? 'Camera permission required' : 'Camera not required'}</b><small>{requirements.camera ? (systemCheckPassed ? 'Camera permission confirmed' : 'Complete during system check') : 'Not configured for this exam'}</small></div></div>
+          <button className="secondary full" onClick={() => onStartExam(heroExam)}>{readinessScore === 100 ? 'Re-run system check' : 'Run system check'}</button>
         </aside>
       </section>
 

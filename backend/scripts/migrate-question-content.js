@@ -149,22 +149,20 @@ async function main() {
       const replacement = bankById.get(item.questionId);
       if (!replacement || item.validationErrors.length || !item.missingContent)
         continue;
-      await db
-        .collection("questions")
-        .updateOne(
-          { _id: new mongoose.Types.ObjectId(item.questionId) },
-          {
-            $set: {
-              questionText: replacement.questionText,
-              options: replacement.options,
-              sectionId: replacement.sectionId,
-              sectionName: replacement.sectionName,
-              questionNumber: replacement.questionNumber,
-              marks: replacement.marks,
-              negativeMarks: replacement.negativeMarks,
-            },
+      await db.collection("questions").updateOne(
+        { _id: new mongoose.Types.ObjectId(item.questionId) },
+        {
+          $set: {
+            questionText: replacement.questionText,
+            options: replacement.options,
+            sectionId: replacement.sectionId,
+            sectionName: replacement.sectionName,
+            questionNumber: replacement.questionNumber,
+            marks: replacement.marks,
+            negativeMarks: replacement.negativeMarks,
           },
-        );
+        },
+      );
     }
     console.log(`BACKUP_WRITTEN=${backupPath}`);
   }
