@@ -241,7 +241,7 @@ function CardTitle({ icon, children }: { icon: IconName; children: ReactNode }) 
 
 function ProctorCard() {
   return (
-    <div className="kgs-glass kgs-float pointer-events-auto absolute left-0 top-[6%] z-10 w-[250px] rounded-2xl p-5">
+    <div className="kgs-glass kgs-float pointer-events-auto absolute left-[-4%] top-[14%] z-10 w-[220px] rounded-2xl p-4 xl:left-[-2%] xl:top-[12%] xl:w-[240px] xl:p-5">
       <CardTitle icon="shield">Proctored<br />Environment</CardTitle>
       <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
         {["Camera Monitoring", "Tab Switch Detection", "Fullscreen Enforcement"].map((item) => (
@@ -261,7 +261,7 @@ const barHeights = [14, 22, 34, 46, 30, 20, 36, 48, 40, 26, 16, 30, 44, 52, 42, 
 
 function MonitorCard() {
   return (
-    <div className="kgs-glass kgs-float pointer-events-auto absolute right-0 top-0 z-10 w-[220px] rounded-2xl p-5 [animation-delay:-2s]">
+    <div className="kgs-glass kgs-float pointer-events-auto absolute right-[-2%] top-[2%] z-10 w-[195px] rounded-2xl p-4 xl:right-0 xl:w-[220px] xl:p-5 [animation-delay:-2s]">
       <CardTitle icon="clock">Real-time<br />Monitoring</CardTitle>
       <div className="mt-3 flex h-10 items-end justify-between gap-0.5">
         {barHeights.map((h, i) => (
@@ -274,7 +274,7 @@ function MonitorCard() {
 
 function EvaluationCard() {
   return (
-    <div className="kgs-glass kgs-float pointer-events-auto absolute bottom-[2%] right-0 z-10 w-[250px] rounded-2xl p-5 [animation-delay:-4s]">
+    <div className="kgs-glass kgs-float pointer-events-auto absolute bottom-[4%] right-[-2%] z-10 w-[220px] rounded-2xl p-4 xl:right-0 xl:w-[240px] xl:p-5 [animation-delay:-4s]">
       <CardTitle icon="chart">Secure<br />Evaluation</CardTitle>
       <div className="mb-2 whitespace-nowrap text-[13px] font-medium text-[color:var(--sub)]">
         Automated • Accurate • Auditable
@@ -283,6 +283,16 @@ function EvaluationCard() {
         <path d="M0,45 C30,48 50,22 80,32 C110,42 130,46 160,28 C190,10 215,14 240,6 L240,60 L0,60 Z" fill="url(#chartFillGrad)" />
         <path d="M0,45 C30,48 50,22 80,32 C110,42 130,46 160,28 C190,10 215,14 240,6" fill="none" stroke="url(#chartLineGrad)" strokeWidth="3.2" strokeLinecap="round" />
       </svg>
+    </div>
+  );
+}
+
+function ResponsiveHeroCards() {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:hidden">
+      <div className="relative min-h-[180px]"><ProctorCard /></div>
+      <div className="relative min-h-[150px]"><MonitorCard /></div>
+      <div className="relative min-h-[180px]"><EvaluationCard /></div>
     </div>
   );
 }
@@ -375,7 +385,7 @@ export function LandingPage(props: LandingPageProps) {
 
       <main>
         {/* ---------------- HERO ---------------- */}
-        <section id="home" className="relative isolate min-h-[640px] overflow-hidden pb-28 pt-12">
+        <section id="home" className="relative isolate pb-14 pt-8 sm:pb-16 sm:pt-10 lg:min-h-[600px] lg:pb-20 lg:pt-12">
           {/* Photo layer: bleeds to the viewport's right edge, feathered on left + bottom */}
           <div className="kgs-photo pointer-events-none absolute inset-y-0 right-0 z-0 hidden w-full opacity-30 sm:block lg:w-[58%] lg:opacity-100">
             <img
@@ -393,7 +403,7 @@ export function LandingPage(props: LandingPageProps) {
                 SECURE • FAIR • AI-RESISTANT • ENTERPRISE GRADE
               </div>
 
-              <h1 className="my-6 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl xl:text-[72px]">
+              <h1 className="my-5 max-w-[760px] text-[clamp(2.25rem,5.2vw,4.5rem)] font-extrabold leading-[1.04] tracking-tight sm:my-6">
                 <span className="kgs-grad-text block">Next-Generation</span>
                 <span className="block text-[color:var(--heading)]">Online Examination</span>
                 <span className="block text-[color:var(--heading)]">Platform</span>
@@ -440,9 +450,13 @@ export function LandingPage(props: LandingPageProps) {
             </div>
           </div>
 
+          <div className={`${container} relative z-10 mt-8 md:mt-10 lg:hidden`}>
+            <ResponsiveHeroCards />
+          </div>
+
           {/* Full-width wave, always the same color as the page background */}
           <svg
-            className="pointer-events-none absolute inset-x-0 -bottom-px z-20 block h-16 w-full"
+            className="pointer-events-none absolute inset-x-0 -bottom-px z-20 block h-8 w-full sm:h-10"
             viewBox="0 0 1440 80"
             preserveAspectRatio="none"
             aria-hidden="true"
