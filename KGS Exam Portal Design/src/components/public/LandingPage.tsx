@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../../api";
 
 interface LandingPageProps {
@@ -15,16 +15,6 @@ export function LandingPage({
   const [health, setHealth] = useState<
     "checking" | "operational" | "unavailable"
   >("checking");
-
-  const [spotlightVisible, setSpotlightVisible] = useState(false);
-  const [spotlightPos, setSpotlightPos] = useState({ x: 0, y: 0 });
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const bounds = cardRef.current.getBoundingClientRect();
-    setSpotlightPos({ x: e.clientX - bounds.left, y: e.clientY - bounds.top });
-  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -46,290 +36,321 @@ export function LandingPage({
     };
   }, []);
 
-  const statusText =
-    health === "operational"
-      ? "All systems operational"
-      : health === "checking"
-        ? "Checking service status..."
-        : "Service currently unavailable";
-
   return (
-    <div className="relative min-h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 font-['Poppins',sans-serif] text-slate-800 antialiased">
-      {/* Animated Rotating Rainbow Glow Styles */}
-      <style>{`
-        @keyframes rotateGlow {
-          100% {
-            transform: rotate(1turn);
-          }
-        }
-        .rainbow-glow-wrapper {
-          position: relative;
-          z-index: 0;
-          overflow: hidden;
-        }
-        .rainbow-glow-wrapper::before {
-          content: '';
-          position: absolute;
-          z-index: -2;
-          left: -50%;
-          top: -50%;
-          width: 200%;
-          height: 200%;
-          background-position: 100% 50%;
-          background-repeat: no-repeat;
-          background-size: 50% 50%;
-          filter: blur(6px);
-          background-image: linear-gradient(135deg, #2563eb, #6366f1, #8b5cf6, #3b82f6);
-          animation: rotateGlow 4s linear infinite;
-        }
-      `}</style>
+    <div className="relative min-h-screen flex flex-col justify-between overflow-x-hidden bg-gradient-to-br from-[#f8fafc] via-[#eff6ff]/50 to-[#f1f5f9] font-['Poppins',sans-serif] text-slate-800 antialiased">
+      {/* Background Glow Lighting Accents */}
+      <div className="pointer-events-none absolute -top-40 right-0 size-[700px] rounded-full bg-gradient-to-br from-blue-400/20 via-indigo-300/15 to-purple-300/10 blur-3xl animate-pulse duration-[8000ms]" />
+      <div className="pointer-events-none absolute top-1/3 -left-32 size-[600px] rounded-full bg-gradient-to-tr from-cyan-400/15 via-blue-300/10 to-transparent blur-3xl" />
 
-      {/* Animated Ambient Light Orbs */}
-      <div className="pointer-events-none absolute -top-32 right-0 size-[600px] rounded-full bg-gradient-to-br from-blue-400/20 via-cyan-300/15 to-transparent blur-3xl animate-pulse duration-[8000ms]" />
-      <div className="pointer-events-none absolute -bottom-40 -left-20 size-[550px] rounded-full bg-gradient-to-tr from-emerald-400/15 via-blue-300/10 to-transparent blur-3xl" />
-      <div className="pointer-events-none absolute top-1/2 left-1/3 size-[400px] -translate-y-1/2 rounded-full bg-indigo-300/10 blur-3xl" />
-
-      {/* Floating Glassmorphism Navigation */}
-      <header className="sticky top-0 z-30 flex min-h-20 items-center justify-between border-b border-white/80 bg-white/70 px-6 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.03)] sm:px-10">
+      {/* 1. TOP NAVBAR */}
+      <header className="sticky top-0 z-50 flex min-h-20 items-center justify-between border-b border-slate-200/60 bg-white/80 px-6 backdrop-blur-2xl shadow-sm sm:px-10 lg:px-16">
+        {/* Brand Logo */}
         <button
-          className="flex items-center gap-3 text-left transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="flex items-center gap-3 text-left transition-transform hover:scale-[1.01] active:scale-[0.99]"
           onClick={onStudentLogin}
-          aria-label="KGS Exam Portal"
+          aria-label="KGS Exam Portal Home"
         >
-          <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 font-bold text-white shadow-md shadow-blue-500/25">
+          <div className="grid size-11 place-items-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 font-extrabold text-white text-xl shadow-lg shadow-blue-500/25">
             K
-          </span>
-          <span>
-            <strong className="block font-['Poppins',sans-serif] text-base font-bold tracking-tight text-slate-900">
+          </div>
+          <div>
+            <strong className="block text-slate-900 font-extrabold text-base tracking-tight leading-none">
               KGS
             </strong>
-            <small className="block font-['Poppins',sans-serif] text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-600">
-              Exam Portal
+            <small className="block text-[#3563F6] font-bold text-[10px] uppercase tracking-wider mt-1">
+              EXAM PORTAL
             </small>
-          </span>
+          </div>
         </button>
 
-        <nav className="flex items-center gap-3">
+        {/* Center Nav Links */}
+        <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
+          <button className="font-bold text-blue-600 flex flex-col items-center gap-1">
+            <span>Home</span>
+            <span className="w-5 h-1 bg-blue-600 rounded-full" />
+          </button>
+          <a href="#about" className="hover:text-blue-600 transition-colors">About</a>
+          <a href="#features" className="hover:text-blue-600 transition-colors">Features</a>
+          <a href="#how-it-works" className="hover:text-blue-600 transition-colors">How It Works</a>
+          <a href="#security" className="hover:text-blue-600 transition-colors">Security</a>
+          <a href="#contact" className="hover:text-blue-600 transition-colors">Contact</a>
+        </nav>
+
+        {/* Right Action Buttons */}
+        <div className="flex items-center gap-3">
           <button
-            className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100/80 hover:text-blue-600"
+            className="grid size-10 place-items-center rounded-full bg-slate-100/80 border border-slate-200/80 text-slate-600 hover:bg-slate-200/70 transition"
+            aria-label="Toggle Theme"
+          >
+            ☀️
+          </button>
+
+          <button
+            className="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-300/80 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-400"
             onClick={onStudentLogin}
           >
-            Student Login
+            <span>👤</span>
+            <span>Student Login</span>
           </button>
+
           <button
-            className="rounded-xl border border-slate-300/80 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-800 backdrop-blur-md shadow-sm transition hover:bg-white hover:border-slate-400 hover:shadow-md"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300/80 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-400"
             onClick={onRegister}
           >
-            Register
+            <span>Register</span>
           </button>
+
           <button
-            className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-blue-500/25 transition hover:from-blue-500 hover:to-indigo-500 hover:shadow-lg hover:shadow-blue-500/35 hover:-translate-y-0.5 active:translate-y-0"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 active:translate-y-0"
             onClick={onAdminLogin}
           >
-            Admin Portal
+            <span>🔒</span>
+            <span>Admin Portal</span>
           </button>
-        </nav>
+        </div>
       </header>
 
-      {/* Main Hero Grid */}
-      <main className="relative z-10 mx-auto w-full max-w-7xl items-center gap-12 px-6 py-10 sm:px-10 lg:grid lg:grid-cols-12 lg:gap-16 lg:py-16">
-        <section className="flex flex-col items-start lg:col-span-7">
-          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-4 py-2 text-xs font-semibold tracking-wide text-blue-700 backdrop-blur-md shadow-sm shadow-blue-500/10">
-            <span className="text-sm">✨</span> SECURE ONLINE EXAMINATION PLATFORM
-          </span>
+      {/* 2. HERO SECTION */}
+      <main className="relative z-10 mx-auto w-full max-w-7xl px-6 py-12 sm:px-10 lg:px-12 lg:py-16">
+        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
+          {/* Left Hero Copy Column */}
+          <section className="flex flex-col items-start lg:col-span-6">
+            {/* Kicker Pill Badge */}
+            <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-blue-200/80 bg-blue-50/90 px-4 py-1.5 text-xs font-bold text-blue-700 shadow-sm">
+              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>SECURE · FAIR · AI-RESISTANT · ENTERPRISE GRADE</span>
+            </div>
 
-          <h1 className="font-['Poppins',sans-serif] text-4xl font-extrabold leading-[1.12] tracking-[-0.03em] text-slate-900 sm:text-5xl lg:text-6xl">
-            Welcome to <br />
-            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 bg-clip-text text-transparent">
-              KGS Exam Portal
-            </span>
-          </h1>
+            {/* Main Headline */}
+            <h1 className="text-5xl font-extrabold leading-[1.08] tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Next-Generation
+              </span>{" "}
+              <br />
+              <span className="text-slate-900">Online Examination</span> <br />
+              <span className="text-slate-900">Platform</span>
+            </h1>
 
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 font-normal sm:text-lg">
-            An enterprise-grade, proctored examination platform designed for seamless registration, real-time response recovery, and tamper-proof evaluation.
-          </p>
+            {/* Sub-paragraph */}
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 font-normal sm:text-lg">
+              A secure, proctored, and intelligent examination platform designed for educational institutions and organizations to conduct fair, scalable, and tamper-proof assessments.
+            </p>
 
-          <div className="mt-8 flex w-full max-w-md flex-col gap-3.5 sm:flex-row items-center">
-            {/* Animated Rotating Rainbow CTA Button */}
-            <div className="rainbow-glow-wrapper relative p-[2px] rounded-2xl flex items-center justify-center hover:scale-[1.03] transition-transform duration-300 active:scale-100">
+            {/* CTA Button Row */}
+            <div className="mt-8 flex w-full max-w-md flex-col gap-4 sm:flex-row items-center">
               <button
-                className="flex items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 backdrop-blur-md"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-blue-500/25 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0"
                 onClick={onRegister}
               >
+                <span>👤</span>
                 <span>Register as Student</span>
                 <span className="text-base">→</span>
               </button>
-            </div>
 
-            <button
-              className="rounded-xl border border-slate-300/80 bg-white/80 px-6 py-3.5 text-sm font-semibold text-slate-800 backdrop-blur-md shadow-sm transition-all duration-300 hover:bg-white hover:border-slate-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
-              onClick={onStudentLogin}
-            >
-              Student Login
-            </button>
-          </div>
-
-          <button
-            className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 transition-colors duration-200 hover:text-blue-600"
-            onClick={onAdminLogin}
-          >
-            <span>Administrator Portal</span>
-            <span>→</span>
-          </button>
-        </section>
-
-        {/* Glassmorphic Interactive Hero Card with Mouse Spotlight Glow */}
-        <section className="relative mt-10 lg:mt-0 lg:col-span-5">
-          <div
-            ref={cardRef}
-            onMouseMove={handleMouseMove}
-            onMouseEnter={() => setSpotlightVisible(true)}
-            onMouseLeave={() => setSpotlightVisible(false)}
-            className="group relative overflow-hidden rounded-3xl border border-white/90 bg-white/60 p-8 backdrop-blur-2xl shadow-[0_20px_50px_rgba(15,23,42,0.08)] transition-all duration-500 hover:shadow-[0_30px_70px_rgba(37,99,235,0.12)] cursor-pointer"
-          >
-            {/* Interactive Mouse Tracking Spotlight Glow */}
-            {spotlightVisible && (
-              <div
-                className="pointer-events-none blur-2xl bg-gradient-to-r from-blue-400 via-indigo-500 to-cyan-400 size-64 absolute z-0 transition-opacity duration-300 opacity-50 rounded-full"
-                style={{
-                  top: spotlightPos.y - 128,
-                  left: spotlightPos.x - 128,
-                }}
-              />
-            )}
-
-            {/* Top Shine Accent */}
-            <div className="pointer-events-none absolute -top-20 -right-20 size-60 rounded-full bg-gradient-to-br from-blue-400/15 via-cyan-300/10 to-transparent blur-2xl" />
-
-            {/* Health Status Pill */}
-            <div className="relative z-10 inline-flex items-center gap-2.5 rounded-full border border-slate-200/80 bg-slate-50/80 px-3.5 py-1.5 text-xs font-semibold backdrop-blur-md">
-              <span
-                className={`size-2 rounded-full ${
-                  health === "operational"
-                    ? "bg-emerald-500 shadow-[0_0_10px_#10b981]"
-                    : health === "checking"
-                      ? "animate-pulse bg-amber-500"
-                      : "bg-red-500"
-                }`}
-              />
-              <span
-                className={
-                  health === "operational"
-                    ? "text-emerald-700"
-                    : health === "unavailable"
-                      ? "text-red-700"
-                      : "text-slate-600"
-                }
+              <button
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300/80 bg-white/90 backdrop-blur-md px-8 py-4 text-sm font-bold text-slate-800 shadow-md transition-all duration-300 hover:bg-white hover:border-slate-400 hover:-translate-y-0.5 active:translate-y-0"
+                onClick={onStudentLogin}
               >
-                {statusText}
-              </span>
+                <span>➔]</span>
+                <span>Student Login</span>
+              </button>
             </div>
 
-            {/* Floating Shield Illustration */}
-            <div className="relative z-10 mt-8 text-center">
-              <div className="mx-auto grid size-24 place-items-center rounded-3xl border border-emerald-300/60 bg-gradient-to-br from-emerald-100/90 via-emerald-50/60 to-blue-50/40 text-4xl shadow-lg shadow-emerald-500/15 transition-transform duration-500 group-hover:scale-105">
-                🛡️
+            {/* Admin Secondary Link */}
+            <button
+              className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-blue-600 transition-colors hover:underline"
+              onClick={onAdminLogin}
+            >
+              <span>🛡️</span>
+              <span>Administrator Portal</span>
+              <span>→</span>
+            </button>
+          </section>
+
+          {/* Right Hero Cinematic Graphic & Glass Cards Column */}
+          <section className="relative lg:col-span-6">
+            <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
+              {/* Background Visual Container (Student at Laptop) */}
+              <div className="relative overflow-hidden rounded-3xl border border-white/90 bg-gradient-to-br from-blue-100/60 via-purple-100/40 to-cyan-100/50 p-2 shadow-2xl">
+                <img
+                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1000&auto=format&fit=crop"
+                  alt="Student taking online exam"
+                  className="w-full h-[480px] object-cover rounded-2xl"
+                />
+
+                {/* Neon Glow Arcs Overlay */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent rounded-2xl" />
               </div>
-              <h2 className="mt-6 font-['Poppins',sans-serif] text-2xl font-bold text-slate-900">
-                Protected Exam Environment
-              </h2>
-              <p className="mx-auto mt-2.5 max-w-sm text-sm leading-relaxed text-slate-600 font-normal">
-                Encrypted authentication, autosaved responses, and real-time server timing integrity.
-              </p>
-            </div>
 
-            {/* Inner Glass Stats Grid */}
-            <div className="relative z-10 mt-8 grid grid-cols-3 gap-3">
-              {[
-                ["OTP Auth", "Passwordless"],
-                ["Auto-Sync", "Response Recovery"],
-                ["Proctored", "Policy Audit"],
-              ].map(([title, copy]) => (
-                <div
-                  className="rounded-2xl border border-slate-200/60 bg-white/80 p-3.5 text-center backdrop-blur-md shadow-sm transition-all duration-300 hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5"
-                  key={title}
-                >
-                  <b className="block font-['Poppins',sans-serif] text-sm font-bold text-blue-600">
-                    {title}
-                  </b>
-                  <small className="mt-1 block text-[10px] font-semibold text-slate-500">
-                    {copy}
-                  </small>
+              {/* Glass Card 1 (Top Left): Proctored Environment */}
+              <div className="absolute -top-6 -left-6 z-20 w-64 rounded-2xl border border-white/90 bg-white/90 p-5 backdrop-blur-2xl shadow-2xl">
+                <div className="flex items-center gap-3">
+                  <div className="grid size-10 place-items-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/30">
+                    🛡️
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-sm leading-tight">
+                      Proctored Environment
+                    </h3>
+                  </div>
                 </div>
-              ))}
+
+                <ul className="mt-4 space-y-2.5 text-xs font-semibold text-slate-700">
+                  <li className="flex items-center gap-2">
+                    <span className="grid size-5 place-items-center rounded-full bg-emerald-100 text-emerald-600 text-[10px] font-extrabold">✓</span>
+                    <span>Camera Monitoring</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid size-5 place-items-center rounded-full bg-emerald-100 text-emerald-600 text-[10px] font-extrabold">✓</span>
+                    <span>Tab Switch Detection</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid size-5 place-items-center rounded-full bg-emerald-100 text-emerald-600 text-[10px] font-extrabold">✓</span>
+                    <span>Fullscreen Enforcement</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Glass Card 2 (Top Right): Real-time Monitoring */}
+              <div className="absolute top-4 -right-6 z-20 w-52 rounded-2xl border border-white/90 bg-white/90 p-4 backdrop-blur-2xl shadow-2xl">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid size-8 place-items-center rounded-lg bg-blue-100 text-blue-600 text-sm font-bold">⏱️</span>
+                  <span className="font-bold text-slate-900 text-xs">Real-time Monitoring</span>
+                </div>
+
+                {/* Equalizer Bar Chart Graphic */}
+                <div className="mt-3 flex items-end justify-between gap-1 h-10 px-2">
+                  {[40, 75, 55, 90, 65, 80, 45, 95, 70, 85, 60, 90, 50].map((h, i) => (
+                    <span
+                      key={i}
+                      className="w-1.5 rounded-full bg-gradient-to-t from-blue-600 via-indigo-500 to-purple-500 animate-pulse"
+                      style={{ height: `${h}%`, animationDelay: `${i * 100}ms` }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Glass Card 3 (Middle Right): Secure Evaluation */}
+              <div className="absolute bottom-6 -right-6 z-20 w-56 rounded-2xl border border-white/90 bg-white/90 p-4 backdrop-blur-2xl shadow-2xl">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid size-8 place-items-center rounded-lg bg-purple-100 text-purple-600 text-sm font-bold">📊</span>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-xs">Secure Evaluation</h4>
+                    <small className="text-[9px] text-slate-500 font-semibold block">Automated · Accurate · Auditable</small>
+                  </div>
+                </div>
+
+                {/* Spline Wave Curve */}
+                <div className="mt-3 h-9 w-full">
+                  <svg viewBox="0 0 200 50" fill="none" className="w-full h-full">
+                    <path
+                      d="M0 35 Q 40 10, 80 30 T 160 15 T 200 25"
+                      stroke="url(#splineGradient)"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                    <defs>
+                      <linearGradient id="splineGradient" x1="0" y1="0" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#3563F6" />
+                        <stop offset="0.5" stopColor="#7468F7" />
+                        <stop offset="1" stopColor="#C084FC" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </main>
 
-      {/* PrebuiltUI Tailored "What We Do" Showcase Section */}
-      <section className="relative z-10 mx-auto w-full max-w-7xl px-6 py-12 sm:px-10 flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-16 my-6">
-        <div className="relative shadow-2xl shadow-indigo-600/25 rounded-2xl overflow-hidden shrink-0">
-          <img
-            className="max-w-md w-full h-[380px] object-cover rounded-2xl"
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop"
-            alt="Students using examination portal"
-          />
-          <div className="flex items-center gap-3 max-w-80 absolute bottom-6 left-6 bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-xl border border-slate-100">
-            <div className="flex -space-x-3.5 shrink-0">
-              <img
-                src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200"
-                alt="Student profile"
-                className="size-9 rounded-full border-[3px] border-white hover:-translate-y-1 transition z-[1]"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200"
-                alt="Student profile"
-                className="size-9 rounded-full border-[3px] border-white hover:-translate-y-1 transition z-[2]"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&h=200&auto=format&fit=crop"
-                alt="Student profile"
-                className="size-9 rounded-full border-[3px] border-white hover:-translate-y-1 transition z-[3]"
-              />
-              <div className="flex items-center justify-center text-xs font-bold text-white size-9 rounded-full border-[3px] border-white bg-indigo-600 hover:-translate-y-1 transition z-[4]">
-                500+
-              </div>
-            </div>
-            <p className="text-xs font-semibold text-slate-800 leading-snug">
-              Join 500+ candidates taking exams on KGS Exam Portal
-            </p>
-          </div>
+      {/* 3. BOTTOM FEATURE STRIP & WAVY SECTION */}
+      <section className="relative z-10 w-full mt-12">
+        {/* Wave SVG Separator */}
+        <div className="w-full overflow-hidden leading-none">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-12 text-[#f8fafc] fill-current">
+            <path d="M0,0 C150,90 350,-40 500,45 C650,130 900,10 1200,40 L1200,120 L0,120 Z" />
+          </svg>
         </div>
 
-        <div className="text-sm text-slate-600 max-w-lg">
-          <h2 className="text-xs uppercase font-bold tracking-widest text-indigo-600">What We Do</h2>
-          <h3 className="text-2xl font-bold text-slate-900 mt-1">Transforming Vision Into Secure Examinations</h3>
-          <div className="w-24 h-[3px] rounded-full bg-gradient-to-r from-indigo-600 to-[#DDD9FF] mt-3"></div>
-          <p className="mt-6 leading-relaxed">
-            KGS Exam Portal helps educational institutions and candidates succeed by transforming examination administration into a seamless, fully secure, and automated testing experience.
-          </p>
-          <p className="mt-4 leading-relaxed">
-            Whether you are registering for upcoming competitive assessments, logging in via passwordless OTP, or completing time-sensitive tests, our platform is engineered for zero-latency response recovery and tamper-proof evaluation.
-          </p>
-          <p className="mt-4 leading-relaxed">
-            From real-time question synchronization to automated scorecard distribution, KGS Exam Portal empowers every student to perform with maximum focus and confidence.
-          </p>
+        {/* Feature Cards Grid */}
+        <div className="bg-[#f8fafc] py-10 px-6 sm:px-10 lg:px-12 border-t border-slate-200/60">
+          <div className="mx-auto max-w-7xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            {/* Feature 1 */}
+            <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm transition-all hover:shadow-md hover:border-blue-300">
+              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-blue-50 text-blue-600 text-xl font-bold">
+                🛡️
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm">Secure & Reliable</h4>
+                <p className="text-xs text-slate-500 font-normal mt-0.5 leading-snug">
+                  Enterprise-grade security and data protection.
+                </p>
+              </div>
+            </div>
 
-          <div className="mt-8 rainbow-glow-wrapper relative p-[2px] rounded-full inline-block hover:scale-[1.03] transition-transform duration-300 active:scale-100">
-            <button
-              onClick={onRegister}
-              className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-[#8A7DFF] py-3.5 px-8 rounded-full text-white font-semibold text-sm shadow-lg shadow-indigo-500/25 active:translate-y-0"
-            >
-              <span>Explore Registration</span>
-              <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M12.53 6.53a.75.75 0 0 0 0-1.06L7.757.697a.75.75 0 1 0-1.06 1.06L10.939 6l-4.242 4.243a.75.75 0 0 0 1.06 1.06zM0 6v.75h12v-1.5H0z"
-                  fill="#fff"
-                />
-              </svg>
-            </button>
+            {/* Feature 2 */}
+            <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm transition-all hover:shadow-md hover:border-indigo-300">
+              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 text-xl font-bold">
+                👥
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm">Fair Assessments</h4>
+                <p className="text-xs text-slate-500 font-normal mt-0.5 leading-snug">
+                  AI-resistant proctoring and integrity controls.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm transition-all hover:shadow-md hover:border-cyan-300">
+              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-cyan-50 text-cyan-600 text-xl font-bold">
+                📊
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm">Real-time Insights</h4>
+                <p className="text-xs text-slate-500 font-normal mt-0.5 leading-snug">
+                  Live monitoring and instant analytics.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm transition-all hover:shadow-md hover:border-blue-300">
+              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[#eff6ff] text-blue-600 text-xl font-bold">
+                ⚙️
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm">Easy Management</h4>
+                <p className="text-xs text-slate-500 font-normal mt-0.5 leading-snug">
+                  Simple tools for admins and institutions.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 5 */}
+            <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm transition-all hover:shadow-md hover:border-purple-300">
+              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-purple-50 text-purple-600 text-xl font-bold">
+                🎓
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm">Built for Scale</h4>
+                <p className="text-xs text-slate-500 font-normal mt-0.5 leading-snug">
+                  From hundreds to millions of candidates.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Trust Label */}
+          <div className="mt-10 text-center text-xs font-semibold tracking-wider text-slate-400 uppercase">
+            Trusted by leading educational institutions and organizations
           </div>
         </div>
       </section>
 
-      {/* Glassmorphic Footer */}
-      <footer className="relative z-10 border-t border-slate-200/60 bg-white/50 px-6 py-6 text-center text-xs font-semibold text-slate-500 backdrop-blur-md mt-auto">
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-slate-200/80 bg-white px-6 py-6 text-center text-xs font-semibold text-slate-500">
         © 2025 KGS Institute · Secure examination and assessment infrastructure
       </footer>
     </div>
