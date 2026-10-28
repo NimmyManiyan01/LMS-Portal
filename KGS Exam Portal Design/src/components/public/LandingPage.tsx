@@ -44,7 +44,7 @@ export function LandingPage({
         : "Service currently unavailable";
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 font-sans text-slate-800 antialiased">
+    <div className="relative min-h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 font-sans text-slate-800 antialiased">
       {/* Animated Ambient Light Orbs */}
       <div className="pointer-events-none absolute -top-32 right-0 size-[600px] rounded-full bg-gradient-to-br from-blue-400/20 via-cyan-300/15 to-transparent blur-3xl animate-pulse duration-[8000ms]" />
       <div className="pointer-events-none absolute -bottom-40 -left-20 size-[550px] rounded-full bg-gradient-to-tr from-emerald-400/15 via-blue-300/10 to-transparent blur-3xl" />
@@ -93,7 +93,7 @@ export function LandingPage({
       </header>
 
       {/* Main Hero Grid */}
-      <main className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 py-12 sm:px-10 lg:grid-cols-12 lg:gap-16 lg:py-20">
+      <main className="relative z-10 mx-auto my-auto grid w-full max-w-7xl items-center gap-12 px-6 py-10 sm:px-10 lg:grid-cols-12 lg:gap-16 lg:py-16">
         <section className="flex flex-col items-start lg:col-span-7">
           <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-4 py-2 text-xs font-bold tracking-wide text-blue-700 backdrop-blur-md shadow-sm shadow-blue-500/10">
             <span className="text-sm">✨</span> SECURE ONLINE EXAMINATION PLATFORM
@@ -202,47 +202,8 @@ export function LandingPage({
         </section>
       </main>
 
-      {/* Feature Cards Showcase */}
-      <section className="relative z-10 mx-auto grid w-full max-w-7xl gap-6 px-6 pb-16 sm:px-10 md:grid-cols-3">
-        <div className="group rounded-2xl border border-white/90 bg-white/65 p-7 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-300/80 hover:shadow-[0_20px_40px_rgba(37,99,235,0.12)]">
-          <div className="mb-4 grid size-12 place-items-center rounded-xl border border-blue-200/80 bg-blue-50/80 text-xl text-blue-600 shadow-sm transition-transform duration-300 group-hover:scale-110">
-            🔒
-          </div>
-          <h3 className="font-[Sora] text-lg font-bold text-slate-900">
-            Secure Authentication
-          </h3>
-          <p className="mt-2 text-xs leading-relaxed text-slate-600">
-            Passwordless single-use OTP verification ensures cryptographically verified candidate access.
-          </p>
-        </div>
-
-        <div className="group rounded-2xl border border-white/90 bg-white/65 p-7 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-300/80 hover:shadow-[0_20px_40px_rgba(37,99,235,0.12)]">
-          <div className="mb-4 grid size-12 place-items-center rounded-xl border border-blue-200/80 bg-blue-50/80 text-xl text-blue-600 shadow-sm transition-transform duration-300 group-hover:scale-110">
-            ⚡
-          </div>
-          <h3 className="font-[Sora] text-lg font-bold text-slate-900">
-            Real-Time Response Sync
-          </h3>
-          <p className="mt-2 text-xs leading-relaxed text-slate-600">
-            Instantaneous response autosaving prevents data loss during intermittent network disruptions.
-          </p>
-        </div>
-
-        <div className="group rounded-2xl border border-white/90 bg-white/65 p-7 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-300/80 hover:shadow-[0_20px_40px_rgba(37,99,235,0.12)]">
-          <div className="mb-4 grid size-12 place-items-center rounded-xl border border-blue-200/80 bg-blue-50/80 text-xl text-blue-600 shadow-sm transition-transform duration-300 group-hover:scale-110">
-            📊
-          </div>
-          <h3 className="font-[Sora] text-lg font-bold text-slate-900">
-            Tamper-Proof Evaluation
-          </h3>
-          <p className="mt-2 text-xs leading-relaxed text-slate-600">
-            Automated scoring engine with controlled result publishing policies and verified grade distribution.
-          </p>
-        </div>
-      </section>
-
       {/* Glassmorphic Footer */}
-      <footer className="relative z-10 border-t border-slate-200/60 bg-white/50 px-6 py-6 text-center text-xs font-semibold text-slate-500 backdrop-blur-md">
+      <footer className="relative z-10 border-t border-slate-200/60 bg-white/50 px-6 py-5 text-center text-xs font-semibold text-slate-500 backdrop-blur-md mt-auto">
         © 2025 KGS Institute · Secure examination and assessment infrastructure
       </footer>
     </div>
