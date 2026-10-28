@@ -45,6 +45,35 @@ export function LandingPage({
 
   return (
     <div className="relative min-h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 font-['Poppins',sans-serif] text-slate-800 antialiased">
+      {/* Animated Rotating Rainbow Glow Styles */}
+      <style>{`
+        @keyframes rotateGlow {
+          100% {
+            transform: rotate(1turn);
+          }
+        }
+        .rainbow-glow-wrapper {
+          position: relative;
+          z-index: 0;
+          overflow: hidden;
+        }
+        .rainbow-glow-wrapper::before {
+          content: '';
+          position: absolute;
+          z-index: -2;
+          left: -50%;
+          top: -50%;
+          width: 200%;
+          height: 200%;
+          background-position: 100% 50%;
+          background-repeat: no-repeat;
+          background-size: 50% 50%;
+          filter: blur(6px);
+          background-image: linear-gradient(135deg, #2563eb, #6366f1, #8b5cf6, #3b82f6);
+          animation: rotateGlow 4s linear infinite;
+        }
+      `}</style>
+
       {/* Animated Ambient Light Orbs */}
       <div className="pointer-events-none absolute -top-32 right-0 size-[600px] rounded-full bg-gradient-to-br from-blue-400/20 via-cyan-300/15 to-transparent blur-3xl animate-pulse duration-[8000ms]" />
       <div className="pointer-events-none absolute -bottom-40 -left-20 size-[550px] rounded-full bg-gradient-to-tr from-emerald-400/15 via-blue-300/10 to-transparent blur-3xl" />
@@ -110,14 +139,18 @@ export function LandingPage({
             An enterprise-grade, proctored examination platform designed for seamless registration, real-time response recovery, and tamper-proof evaluation.
           </p>
 
-          <div className="mt-8 flex w-full max-w-md flex-col gap-3.5 sm:flex-row">
-            <button
-              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all duration-300 hover:from-blue-500 hover:to-indigo-500 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0"
-              onClick={onRegister}
-            >
-              <span>Register as Student</span>
-              <span className="text-base">→</span>
-            </button>
+          <div className="mt-8 flex w-full max-w-md flex-col gap-3.5 sm:flex-row items-center">
+            {/* Animated Rotating Rainbow CTA Button */}
+            <div className="rainbow-glow-wrapper relative p-[2px] rounded-2xl flex items-center justify-center hover:scale-[1.03] transition-transform duration-300 active:scale-100">
+              <button
+                className="flex items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 backdrop-blur-md"
+                onClick={onRegister}
+              >
+                <span>Register as Student</span>
+                <span className="text-base">→</span>
+              </button>
+            </div>
+
             <button
               className="rounded-xl border border-slate-300/80 bg-white/80 px-6 py-3.5 text-sm font-semibold text-slate-800 backdrop-blur-md shadow-sm transition-all duration-300 hover:bg-white hover:border-slate-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
               onClick={onStudentLogin}
@@ -250,18 +283,21 @@ export function LandingPage({
           <p className="mt-4 leading-relaxed">
             From real-time question synchronization to automated scorecard distribution, KGS Exam Portal empowers every student to perform with maximum focus and confidence.
           </p>
-          <button
-            onClick={onRegister}
-            className="flex items-center w-max gap-2 mt-8 hover:-translate-y-0.5 transition bg-gradient-to-r from-indigo-600 to-[#8A7DFF] py-3.5 px-8 rounded-full text-white font-semibold text-sm shadow-lg shadow-indigo-500/25 active:translate-y-0"
-          >
-            <span>Explore Registration</span>
-            <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M12.53 6.53a.75.75 0 0 0 0-1.06L7.757.697a.75.75 0 1 0-1.06 1.06L10.939 6l-4.242 4.243a.75.75 0 0 0 1.06 1.06zM0 6v.75h12v-1.5H0z"
-                fill="#fff"
-              />
-            </svg>
-          </button>
+
+          <div className="mt-8 rainbow-glow-wrapper relative p-[2px] rounded-full inline-block hover:scale-[1.03] transition-transform duration-300 active:scale-100">
+            <button
+              onClick={onRegister}
+              className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-[#8A7DFF] py-3.5 px-8 rounded-full text-white font-semibold text-sm shadow-lg shadow-indigo-500/25 active:translate-y-0"
+            >
+              <span>Explore Registration</span>
+              <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12.53 6.53a.75.75 0 0 0 0-1.06L7.757.697a.75.75 0 1 0-1.06 1.06L10.939 6l-4.242 4.243a.75.75 0 0 0 1.06 1.06zM0 6v.75h12v-1.5H0z"
+                  fill="#fff"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </section>
 
