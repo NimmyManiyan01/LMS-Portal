@@ -8,7 +8,7 @@ interface LandingPageProps {
 }
 
 /* Tune the hero photo crop here (x% y%). Higher x = shows more of the RIGHT side of the photo. */
-const HERO_POSITION = "85% 30%";
+const HERO_POSITION = "78% 28%";
 
 /* ------------------------------------------------------------------ */
 /* Theme tokens + keyframes (self-contained, no index.css needed)       */
@@ -53,6 +53,9 @@ const themeCss = `
   mask-image: linear-gradient(to right, transparent 0%, #000 35%), linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
   mask-composite: intersect;
 }
+.kgs-landing * { box-sizing: border-box; }
+.kgs-landing button, .kgs-landing a { -webkit-tap-highlight-color: transparent; }
+.kgs-landing img { max-width: 100%; }
 .kgs-photo img { filter: var(--photo-filter); }
 @keyframes kgs-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 .kgs-float { animation: kgs-float 6s ease-in-out infinite; }
@@ -171,10 +174,10 @@ function Navbar({ onStudentLogin, onRegister, onAdminLogin }: LandingPageProps) 
 
   return (
     <header className="sticky top-0 z-50 min-h-[72px] border-b border-[color:var(--hairline)] bg-[color:var(--nav-bg)] backdrop-blur-xl transition-colors duration-300">
-      <div className={`${container} flex min-h-[72px] items-center justify-between gap-6`}>
+      <div className={`${container} flex min-h-[72px] items-center justify-between gap-4 sm:gap-6`}>
         <Brand />
 
-        <div className="hidden shrink-0 items-center gap-3 lg:flex">
+        <div className="hidden shrink-0 items-center gap-2 xl:gap-3 lg:flex">
           <button className={`${btnSecondary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onStudentLogin}>
             <Icon name="user" size={18} /> Student Login
           </button>
@@ -374,7 +377,7 @@ export function LandingPage(props: LandingPageProps) {
         {/* ---------------- HERO ---------------- */}
         <section id="home" className="relative isolate min-h-[640px] overflow-hidden pb-28 pt-12">
           {/* Photo layer: bleeds to the viewport's right edge, feathered on left + bottom */}
-          <div className="kgs-photo pointer-events-none absolute inset-y-0 right-0 z-0 w-full opacity-30 lg:w-[58%] lg:opacity-100">
+          <div className="kgs-photo pointer-events-none absolute inset-y-0 right-0 z-0 hidden w-full opacity-30 sm:block lg:w-[58%] lg:opacity-100">
             <img
               src={heroStudentImg}
               alt="Student taking an online examination with headphones at a laptop"
@@ -383,7 +386,7 @@ export function LandingPage(props: LandingPageProps) {
             />
           </div>
 
-          <div className={`${container} relative z-10 grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-[1.1fr_0.9fr]`}>
+          <div className={`${container} relative z-10 grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-[1.08fr_0.92fr]`}>
             <div className="flex flex-col items-start">
               <div className="inline-flex items-center gap-2.5 rounded-full border border-[color:var(--glass-border)] bg-[color:var(--glass)] px-[18px] py-2 text-xs font-extrabold uppercase tracking-wider text-[color:var(--heading)] shadow-sm backdrop-blur-md">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(34,197,94,0.2)]" />
@@ -430,7 +433,7 @@ export function LandingPage(props: LandingPageProps) {
               </div>
             </div>
 
-            <div className="pointer-events-none relative hidden min-h-[520px] w-full lg:block">
+            <div className="pointer-events-none relative hidden min-h-[460px] w-full lg:block xl:min-h-[520px]">
               <ProctorCard />
               <MonitorCard />
               <EvaluationCard />
@@ -455,7 +458,7 @@ export function LandingPage(props: LandingPageProps) {
         <InfoSections />
       </main>
 
-      <footer className="border-t border-[color:var(--hairline)] bg-[color:var(--foot-bg)] py-9 backdrop-blur-md">
+      <footer className="border-t border-[color:var(--hairline)] bg-[color:var(--foot-bg)] py-8 backdrop-blur-md sm:py-9">
         <div className={`${container} flex flex-col items-center justify-between gap-6 text-sm text-[color:var(--body)] sm:flex-row`}>
           <Brand />
           <p className="m-0 text-center sm:text-left">
