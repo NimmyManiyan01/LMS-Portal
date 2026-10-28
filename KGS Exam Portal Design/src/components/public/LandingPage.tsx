@@ -93,7 +93,7 @@ export function LandingPage({
       </header>
 
       {/* Main Hero Grid */}
-      <main className="relative z-10 mx-auto my-auto grid w-full max-w-7xl items-center gap-12 px-6 py-10 sm:px-10 lg:grid-cols-12 lg:gap-16 lg:py-16">
+      <main className="relative z-10 mx-auto w-full max-w-7xl items-center gap-12 px-6 py-10 sm:px-10 lg:grid lg:grid-cols-12 lg:gap-16 lg:py-16">
         <section className="flex flex-col items-start lg:col-span-7">
           <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-4 py-2 text-xs font-semibold tracking-wide text-blue-700 backdrop-blur-md shadow-sm shadow-blue-500/10">
             <span className="text-sm">✨</span> SECURE ONLINE EXAMINATION PLATFORM
@@ -136,7 +136,7 @@ export function LandingPage({
         </section>
 
         {/* Glassmorphic Interactive Hero Card */}
-        <section className="relative lg:col-span-5">
+        <section className="relative mt-10 lg:mt-0 lg:col-span-5">
           <div className="group relative overflow-hidden rounded-3xl border border-white/90 bg-white/60 p-8 backdrop-blur-2xl shadow-[0_20px_50px_rgba(15,23,42,0.08)] transition-all duration-500 hover:shadow-[0_30px_70px_rgba(37,99,235,0.12)]">
             {/* Top Shine Accent */}
             <div className="pointer-events-none absolute -top-20 -right-20 size-60 rounded-full bg-gradient-to-br from-blue-400/15 via-cyan-300/10 to-transparent blur-2xl" />
@@ -202,8 +202,71 @@ export function LandingPage({
         </section>
       </main>
 
+      {/* PrebuiltUI Tailored "What We Do" Showcase Section */}
+      <section className="relative z-10 mx-auto w-full max-w-7xl px-6 py-12 sm:px-10 flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-16 my-6">
+        <div className="relative shadow-2xl shadow-indigo-600/25 rounded-2xl overflow-hidden shrink-0">
+          <img
+            className="max-w-md w-full h-[380px] object-cover rounded-2xl"
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop"
+            alt="Students using examination portal"
+          />
+          <div className="flex items-center gap-3 max-w-80 absolute bottom-6 left-6 bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-xl border border-slate-100">
+            <div className="flex -space-x-3.5 shrink-0">
+              <img
+                src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200"
+                alt="Student profile"
+                className="size-9 rounded-full border-[3px] border-white hover:-translate-y-1 transition z-[1]"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200"
+                alt="Student profile"
+                className="size-9 rounded-full border-[3px] border-white hover:-translate-y-1 transition z-[2]"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&h=200&auto=format&fit=crop"
+                alt="Student profile"
+                className="size-9 rounded-full border-[3px] border-white hover:-translate-y-1 transition z-[3]"
+              />
+              <div className="flex items-center justify-center text-xs font-bold text-white size-9 rounded-full border-[3px] border-white bg-indigo-600 hover:-translate-y-1 transition z-[4]">
+                500+
+              </div>
+            </div>
+            <p className="text-xs font-semibold text-slate-800 leading-snug">
+              Join 500+ candidates taking exams on KGS Exam Portal
+            </p>
+          </div>
+        </div>
+
+        <div className="text-sm text-slate-600 max-w-lg">
+          <h2 className="text-xs uppercase font-bold tracking-widest text-indigo-600">What We Do</h2>
+          <h3 className="text-2xl font-bold text-slate-900 mt-1">Transforming Vision Into Secure Examinations</h3>
+          <div className="w-24 h-[3px] rounded-full bg-gradient-to-r from-indigo-600 to-[#DDD9FF] mt-3"></div>
+          <p className="mt-6 leading-relaxed">
+            KGS Exam Portal helps educational institutions and candidates succeed by transforming examination administration into a seamless, fully secure, and automated testing experience.
+          </p>
+          <p className="mt-4 leading-relaxed">
+            Whether you are registering for upcoming competitive assessments, logging in via passwordless OTP, or completing time-sensitive tests, our platform is engineered for zero-latency response recovery and tamper-proof evaluation.
+          </p>
+          <p className="mt-4 leading-relaxed">
+            From real-time question synchronization to automated scorecard distribution, KGS Exam Portal empowers every student to perform with maximum focus and confidence.
+          </p>
+          <button
+            onClick={onRegister}
+            className="flex items-center w-max gap-2 mt-8 hover:-translate-y-0.5 transition bg-gradient-to-r from-indigo-600 to-[#8A7DFF] py-3.5 px-8 rounded-full text-white font-semibold text-sm shadow-lg shadow-indigo-500/25 active:translate-y-0"
+          >
+            <span>Explore Registration</span>
+            <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12.53 6.53a.75.75 0 0 0 0-1.06L7.757.697a.75.75 0 1 0-1.06 1.06L10.939 6l-4.242 4.243a.75.75 0 0 0 1.06 1.06zM0 6v.75h12v-1.5H0z"
+                fill="#fff"
+              />
+            </svg>
+          </button>
+        </div>
+      </section>
+
       {/* Glassmorphic Footer */}
-      <footer className="relative z-10 border-t border-slate-200/60 bg-white/50 px-6 py-5 text-center text-xs font-semibold text-slate-500 backdrop-blur-md mt-auto">
+      <footer className="relative z-10 border-t border-slate-200/60 bg-white/50 px-6 py-6 text-center text-xs font-semibold text-slate-500 backdrop-blur-md mt-auto">
         © 2025 KGS Institute · Secure examination and assessment infrastructure
       </footer>
     </div>
