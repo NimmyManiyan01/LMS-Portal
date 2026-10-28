@@ -310,7 +310,7 @@ const featureItems: [IconName, string, string][] = [
 
 function FeatureStrip() {
   return (
-    <section className="relative z-10 bg-transparent pb-5 pt-6 sm:pb-7 sm:pt-8" id="features">
+    <section className="relative z-10 bg-transparent pb-4 pt-6 sm:pb-6 sm:pt-8" id="features">
       <div className={`${container} grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-5 xl:grid-cols-5`}>
         {featureItems.map(([icon, title, copy]) => (
           <div
@@ -346,8 +346,8 @@ const infoSections: [string, string, string][] = [
 
 function InfoSections() {
   return (
-    <div className="mx-auto mt-6 mb-14 w-[calc(100%-32px)] max-w-[1120px] sm:mt-8 sm:mb-16 sm:w-[calc(100%-40px)] md:w-[calc(100%-64px)]">
-      <div className="mb-6 max-w-[680px] sm:mb-7">
+    <div className="mx-auto mt-4 mb-10 w-[calc(100%-32px)] max-w-[1120px] sm:mt-6 sm:mb-10 sm:w-[calc(100%-40px)] md:w-[calc(100%-64px)]">
+      <div className="mb-8 max-w-[680px]">
         <h2 className="m-0 text-2xl font-extrabold tracking-tight text-[color:var(--heading)] sm:text-3xl">Everything You Need for Confident Assessments</h2>
         <p className="mt-2 mb-0 text-sm leading-relaxed text-[color:var(--body)] sm:text-base">A secure, auditable workflow for every stage of your examination program.</p>
       </div>
