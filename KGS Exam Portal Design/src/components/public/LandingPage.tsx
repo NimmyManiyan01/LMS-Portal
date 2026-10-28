@@ -44,7 +44,7 @@ export function LandingPage({
         : "Service currently unavailable";
 
   return (
-    <div className="relative min-h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 font-sans text-slate-800 antialiased">
+    <div className="relative min-h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 font-['Poppins',sans-serif] text-slate-800 antialiased">
       {/* Animated Ambient Light Orbs */}
       <div className="pointer-events-none absolute -top-32 right-0 size-[600px] rounded-full bg-gradient-to-br from-blue-400/20 via-cyan-300/15 to-transparent blur-3xl animate-pulse duration-[8000ms]" />
       <div className="pointer-events-none absolute -bottom-40 -left-20 size-[550px] rounded-full bg-gradient-to-tr from-emerald-400/15 via-blue-300/10 to-transparent blur-3xl" />
@@ -61,10 +61,10 @@ export function LandingPage({
             K
           </span>
           <span>
-            <strong className="block font-[Sora] text-base font-bold tracking-tight text-slate-900">
+            <strong className="block font-['Poppins',sans-serif] text-base font-bold tracking-tight text-slate-900">
               KGS
             </strong>
-            <small className="block text-[10px] font-bold uppercase tracking-[0.14em] text-blue-600">
+            <small className="block font-['Poppins',sans-serif] text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-600">
               Exam Portal
             </small>
           </span>
@@ -95,18 +95,18 @@ export function LandingPage({
       {/* Main Hero Grid */}
       <main className="relative z-10 mx-auto my-auto grid w-full max-w-7xl items-center gap-12 px-6 py-10 sm:px-10 lg:grid-cols-12 lg:gap-16 lg:py-16">
         <section className="flex flex-col items-start lg:col-span-7">
-          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-4 py-2 text-xs font-bold tracking-wide text-blue-700 backdrop-blur-md shadow-sm shadow-blue-500/10">
+          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-4 py-2 text-xs font-semibold tracking-wide text-blue-700 backdrop-blur-md shadow-sm shadow-blue-500/10">
             <span className="text-sm">✨</span> SECURE ONLINE EXAMINATION PLATFORM
           </span>
 
-          <h1 className="font-[Sora] text-4xl font-extrabold leading-[1.08] tracking-[-0.04em] text-slate-900 sm:text-5xl lg:text-6xl">
+          <h1 className="font-['Poppins',sans-serif] text-4xl font-extrabold leading-[1.12] tracking-[-0.03em] text-slate-900 sm:text-5xl lg:text-6xl">
             Welcome to <br />
             <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 bg-clip-text text-transparent">
               KGS Exam Portal
             </span>
           </h1>
 
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 font-normal sm:text-lg">
             An enterprise-grade, proctored examination platform designed for seamless registration, real-time response recovery, and tamper-proof evaluation.
           </p>
 
@@ -170,10 +170,10 @@ export function LandingPage({
               <div className="mx-auto grid size-24 place-items-center rounded-3xl border border-emerald-300/60 bg-gradient-to-br from-emerald-100/90 via-emerald-50/60 to-blue-50/40 text-4xl shadow-lg shadow-emerald-500/15 transition-transform duration-500 group-hover:scale-105">
                 🛡️
               </div>
-              <h2 className="mt-6 font-[Sora] text-2xl font-bold text-slate-900">
+              <h2 className="mt-6 font-['Poppins',sans-serif] text-2xl font-bold text-slate-900">
                 Protected Exam Environment
               </h2>
-              <p className="mx-auto mt-2.5 max-w-sm text-sm leading-relaxed text-slate-600">
+              <p className="mx-auto mt-2.5 max-w-sm text-sm leading-relaxed text-slate-600 font-normal">
                 Encrypted authentication, autosaved responses, and real-time server timing integrity.
               </p>
             </div>
@@ -189,7 +189,7 @@ export function LandingPage({
                   className="rounded-2xl border border-slate-200/60 bg-white/80 p-3.5 text-center backdrop-blur-md shadow-sm transition-all duration-300 hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5"
                   key={title}
                 >
-                  <b className="block font-[Sora] text-sm font-bold text-blue-600">
+                  <b className="block font-['Poppins',sans-serif] text-sm font-bold text-blue-600">
                     {title}
                   </b>
                   <small className="mt-1 block text-[10px] font-semibold text-slate-500">
