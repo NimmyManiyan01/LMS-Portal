@@ -23,7 +23,10 @@ module.exports = {
     process.env.BREVO_SENDER_NAME ||
     process.env.EMAIL_FROM_NAME ||
     "KGS Exam Portal",
-  clientOrigins: (process.env.CLIENT_ORIGIN || "http://localhost:8443,https://assesspro-1-d865.onrender.com,https://assesspro-1-i07n.onrender.com,https://assesspro-2j7q.onrender.com")
+  clientOrigins: (
+    process.env.CLIENT_ORIGIN ||
+    "http://localhost:8443,https://assesspro-1-d865.onrender.com,https://assesspro-1-i07n.onrender.com,https://assesspro-2j7q.onrender.com"
+  )
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean),

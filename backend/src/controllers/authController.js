@@ -62,12 +62,10 @@ async function registerStudent(req, res) {
     privacyAccepted !== true ||
     monitoringAccepted !== true
   )
-    return res
-      .status(400)
-      .json({
-        error:
-          "Please provide valid registration details and accept both policies",
-      });
+    return res.status(400).json({
+      error:
+        "Please provide valid registration details and accept both policies",
+    });
   try {
     const counter = await Counter.findOneAndUpdate(
       { _id: "studentId" },
@@ -86,13 +84,11 @@ async function registerStudent(req, res) {
       monitoringAcceptedAt: new Date(),
       acknowledgementVersion: "1.0",
     });
-    return res
-      .status(201)
-      .json({
-        studentId: student.studentId,
-        email: student.email,
-        message: generic.message,
-      });
+    return res.status(201).json({
+      studentId: student.studentId,
+      email: student.email,
+      message: generic.message,
+    });
   } catch (error) {
     if (error?.code === 11000) return res.status(202).json(generic);
     throw error;
@@ -112,13 +108,11 @@ async function issueOtp(req, res) {
     consumedAt: null,
   }).sort({ createdAt: -1 });
   if (latest && latest.resendAvailableAt > new Date())
-    return res
-      .status(202)
-      .json({
-        ...generic,
-        expiresAt: latest.expiresAt,
-        resendAvailableAt: latest.resendAvailableAt,
-      });
+    return res.status(202).json({
+      ...generic,
+      expiresAt: latest.expiresAt,
+      resendAvailableAt: latest.resendAvailableAt,
+    });
   const otp = String(crypto.randomInt(100000, 1000000));
   const expiresAt = new Date(Date.now() + OTP_TTL);
   const verification = await EmailVerification.create({
@@ -159,11 +153,10 @@ function getClientIp(req) {
 
 async function requestOtp(req, res) {
   const ip = getClientIp(req);
-  const email = String(req.body.email || "").toLowerCase().trim();
-  if (
-    limited(`ip:${ip}`, 50, 900000) ||
-    limited(`email:${email}`, 25, 900000)
-  )
+  const email = String(req.body.email || "")
+    .toLowerCase()
+    .trim();
+  if (limited(`ip:${ip}`, 50, 900000) || limited(`email:${email}`, 25, 900000))
     return res
       .status(429)
       .json({ error: "Too many requests. Please try again later." });
@@ -186,11 +179,9 @@ async function verifyOtp(req, res) {
     consumedAt: null,
   }).sort({ createdAt: -1 });
   if (!verification || verification.expiresAt < new Date())
-    return res
-      .status(401)
-      .json({
-        error: "Your verification code has expired. Request a new code.",
-      });
+    return res.status(401).json({
+      error: "Your verification code has expired. Request a new code.",
+    });
   if (verification.attemptCount >= 5)
     return res
       .status(429)

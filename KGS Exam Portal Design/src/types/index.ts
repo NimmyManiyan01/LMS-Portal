@@ -1,17 +1,49 @@
-export type ExamStatus = 'ELIGIBLE' | 'UPCOMING' | 'COMPLETED' | 'RESULTS_PENDING';
+export type ExamStatus =
+  | "ELIGIBLE"
+  | "UPCOMING"
+  | "COMPLETED"
+  | "RESULTS_PENDING";
 
-export type AdminRole = 'SUPER_ADMIN' | 'EXAM_ADMIN' | 'REVIEWER' | 'REPORT_VIEWER';
+export type AdminRole =
+  | "SUPER_ADMIN"
+  | "EXAM_ADMIN"
+  | "REVIEWER"
+  | "REPORT_VIEWER";
 
 export type AdminPermission =
-  | 'users:manage' | 'permissions:manage' | 'exams:manage' | 'questions:manage'
-  | 'paper_sets:manage' | 'attempts:monitor' | 'incidents:review'
-  | 'marks:correct' | 'marks:finalize' | 'reports:read';
+  | "users:manage"
+  | "permissions:manage"
+  | "exams:manage"
+  | "questions:manage"
+  | "paper_sets:manage"
+  | "attempts:monitor"
+  | "incidents:review"
+  | "marks:correct"
+  | "marks:finalize"
+  | "reports:read";
 
 export const ADMIN_PERMISSIONS: Record<AdminRole, AdminPermission[]> = {
-  SUPER_ADMIN: ['users:manage', 'permissions:manage', 'exams:manage', 'questions:manage', 'paper_sets:manage', 'attempts:monitor', 'incidents:review', 'marks:correct', 'marks:finalize', 'reports:read'],
-  EXAM_ADMIN: ['exams:manage', 'questions:manage', 'paper_sets:manage', 'attempts:monitor', 'reports:read'],
-  REVIEWER: ['incidents:review', 'marks:correct'],
-  REPORT_VIEWER: ['reports:read'],
+  SUPER_ADMIN: [
+    "users:manage",
+    "permissions:manage",
+    "exams:manage",
+    "questions:manage",
+    "paper_sets:manage",
+    "attempts:monitor",
+    "incidents:review",
+    "marks:correct",
+    "marks:finalize",
+    "reports:read",
+  ],
+  EXAM_ADMIN: [
+    "exams:manage",
+    "questions:manage",
+    "paper_sets:manage",
+    "attempts:monitor",
+    "reports:read",
+  ],
+  REVIEWER: ["incidents:review", "marks:correct"],
+  REPORT_VIEWER: ["reports:read"],
 };
 
 export interface StudentProfile {
@@ -56,7 +88,13 @@ export interface Exam {
   startTimeText: string;
   status: ExamStatus;
   negativeMarking: number;
-  markingScheme?: { correctMarks?: number; incorrectMarks?: number; unansweredMarks?: number; floorNegativeScoreAtZero?: boolean; scoringVersion?: number };
+  markingScheme?: {
+    correctMarks?: number;
+    incorrectMarks?: number;
+    unansweredMarks?: number;
+    floorNegativeScoreAtZero?: boolean;
+    scoringVersion?: number;
+  };
   maxAttempts?: number;
   isProctored: boolean;
   sections: {
@@ -65,9 +103,17 @@ export interface Exam {
     questionCount: number;
   }[];
   instructions: string[];
-  readinessRequirements?: { camera?: boolean; microphone?: boolean; fullscreen?: boolean };
+  readinessRequirements?: {
+    camera?: boolean;
+    microphone?: boolean;
+    fullscreen?: boolean;
+  };
   integrityProfile?: string;
-  integrityRules?: { tabSwitchThreshold?: number; copyPasteThreshold?: number; gracePeriodSeconds?: number };
+  integrityRules?: {
+    tabSwitchThreshold?: number;
+    copyPasteThreshold?: number;
+    gracePeriodSeconds?: number;
+  };
 }
 
 export interface AnswerState {
@@ -84,7 +130,7 @@ export interface ExamAttempt {
   studentId: string;
   startTime: Date;
   endTime?: Date;
-  status: 'IN_PROGRESS' | 'SUBMITTED' | 'AUTO_SUBMITTED' | 'TERMINATED';
+  status: "IN_PROGRESS" | "SUBMITTED" | "AUTO_SUBMITTED" | "TERMINATED";
   answers: Record<string, AnswerState>;
   tabSwitchCount: number;
   submissionToken?: string;

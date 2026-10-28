@@ -1,38 +1,268 @@
-import { useEffect, useState } from 'react';
-import { StudentProfile } from '../../types';
-import { API_BASE_URL, setAuthToken } from '../../api';
+import { useEffect, useState } from "react";
+import { StudentProfile } from "../../types";
+import { API_BASE_URL, setAuthToken } from "../../api";
 
-interface Props { initialEmail?: string; onBackToLanding: () => void; onRegister: () => void; onAuthenticated: (student: StudentProfile) => void; }
+interface Props {
+  initialEmail?: string;
+  onBackToLanding: () => void;
+  onRegister: () => void;
+  onAuthenticated: (student: StudentProfile) => void;
+}
 
-export function StudentLoginPage({ initialEmail = '', onBackToLanding, onRegister, onAuthenticated }: Props) {
-  const [email, setEmail] = useState(initialEmail); const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [step, setStep] = useState<'EMAIL' | 'OTP'>('EMAIL'); const [loading, setLoading] = useState(false); const [message, setMessage] = useState(''); const [error, setError] = useState(''); const [expiresAt, setExpiresAt] = useState<string | null>(null); const [resendAvailableAt, setResendAvailableAt] = useState<string | null>(null); const [now, setNow] = useState(Date.now());
+export function StudentLoginPage({
+  initialEmail = "",
+  onBackToLanding,
+  onRegister,
+  onAuthenticated,
+}: Props) {
+  const [email, setEmail] = useState(initialEmail);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [step, setStep] = useState<"EMAIL" | "OTP">("EMAIL");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [resendAvailableAt, setResendAvailableAt] = useState<string | null>(
+    null,
+  );
+  const [now, setNow] = useState(Date.now());
   const api = API_BASE_URL;
   useEffect(() => {
     let cancelled = false;
-    fetch(`${api}/api/auth/me`, { credentials: 'include', headers: { Authorization: `Bearer ${localStorage.getItem('kgs_student_token') || localStorage.getItem('kgs_token') || ''}` } })
+    fetch(`${api}/api/auth/me`, {
+      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("kgs_student_token") || localStorage.getItem("kgs_token") || ""}`,
+      },
+    })
       .then(async (response) => {
         if (!response.ok || cancelled) return;
         const data = await response.json();
-        if (data.user?.role === 'STUDENT') onAuthenticated(data.user);
+        if (data.user?.role === "STUDENT") onAuthenticated(data.user);
       })
-      .catch(() => { /* No active session: show the OTP form. */ });
-    return () => { cancelled = true; };
+      .catch(() => {
+        /* No active session: show the OTP form. */
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [api, onAuthenticated]);
-  useEffect(() => { if (step !== 'OTP') return; const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, [step]);
-  const secondsLeft = expiresAt ? Math.max(0, Math.ceil((new Date(expiresAt).getTime() - now) / 1000)) : 0; const resendSeconds = resendAvailableAt ? Math.max(0, Math.ceil((new Date(resendAvailableAt).getTime() - now) / 1000)) : 0;
-  const requestOtp = async (event?: { preventDefault: () => void }, endpoint = 'request-otp') => {
-    event?.preventDefault(); setError(''); setMessage('');
-    if (!/^[\w.!#$%&'*+/=?^`{|}~-]+@[\w-]+(?:\.[\w-]+)+$/.test(email.trim())) { setError('Enter a valid email address.'); return; }
+  useEffect(() => {
+    if (step !== "OTP") return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [step]);
+  const secondsLeft = expiresAt
+    ? Math.max(0, Math.ceil((new Date(expiresAt).getTime() - now) / 1000))
+    : 0;
+  const resendSeconds = resendAvailableAt
+    ? Math.max(
+        0,
+        Math.ceil((new Date(resendAvailableAt).getTime() - now) / 1000),
+      )
+    : 0;
+  const requestOtp = async (
+    event?: { preventDefault: () => void },
+    endpoint = "request-otp",
+  ) => {
+    event?.preventDefault();
+    setError("");
+    setMessage("");
+    if (!/^[\w.!#$%&'*+/=?^`{|}~-]+@[\w-]+(?:\.[\w-]+)+$/.test(email.trim())) {
+      setError("Enter a valid email address.");
+      return;
+    }
     setLoading(true);
-    try { const response = await fetch(`${api}/api/auth/${endpoint}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email: email.trim().toLowerCase() }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Unable to send verification code.'); setExpiresAt(data.expiresAt || null); setResendAvailableAt(data.resendAvailableAt || null); setMessage('If this email can be used, verification instructions have been sent.'); setStep('OTP'); }
-    catch (exception) { setError(exception instanceof Error ? exception.message : 'Unable to send verification code.'); } finally { setLoading(false); }
+    try {
+      const response = await fetch(`${api}/api/auth/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.error || "Unable to send verification code.");
+      setExpiresAt(data.expiresAt || null);
+      setResendAvailableAt(data.resendAvailableAt || null);
+      setMessage(
+        "If this email can be used, verification instructions have been sent.",
+      );
+      setStep("OTP");
+    } catch (exception) {
+      setError(
+        exception instanceof Error
+          ? exception.message
+          : "Unable to send verification code.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
   const verifyOtp = async (event: React.FormEvent) => {
-    event.preventDefault(); setError(''); if (otp.join('').length !== 6) { setError('Enter the six-digit verification code.'); return; } setLoading(true);
-    try { const response = await fetch(`${api}/api/auth/verify-otp`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email: email.trim().toLowerCase(), otp: otp.join('') }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Unable to verify code.'); if (data.token) setAuthToken(data.token, false); onAuthenticated(data.user); }
-    catch (exception) { setError(exception instanceof Error ? exception.message : 'Unable to verify code.'); } finally { setLoading(false); }
+    event.preventDefault();
+    setError("");
+    if (otp.join("").length !== 6) {
+      setError("Enter the six-digit verification code.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await fetch(`${api}/api/auth/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          otp: otp.join(""),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to verify code.");
+      if (data.token) setAuthToken(data.token, false);
+      onAuthenticated(data.user);
+    } catch (exception) {
+      setError(
+        exception instanceof Error
+          ? exception.message
+          : "Unable to verify code.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
-  const updateOtp = (index: number, value: string) => { const next = [...otp]; next[index] = value.replace(/\D/g, '').slice(-1); setOtp(next); if (next[index] && index < 5) document.getElementById(`student-login-otp-${index + 1}`)?.focus(); };
-  return <div className="registration-page"><header className="registration-header"><button className="brand brand-link" onClick={onBackToLanding}><div className="brand-mark"><span>K</span></div><div><strong>KGS</strong><small>EXAM PORTAL</small></div></button><button className="text-button" onClick={onRegister}>New student? Create account</button></header><main className="login-main"><section className="registration-intro"><span className="landing-kicker">STUDENT AUTHENTICATION</span><h1>Welcome back</h1><p>Sign in securely with your registered email address and a one-time verification code.</p><div className="registration-note"><strong>Passwordless access</strong><span>Your verification code is single-use and expires after a short period.</span></div></section><section className="registration-card login-card">{step === 'EMAIL' ? <form onSubmit={requestOtp} noValidate><div className="registration-card-head"><h2>Student Login</h2><p>Enter your email address to receive a verification code.</p></div>{error && <div className="error-alert" role="alert">{error}</div>}<label className="login-field">Email Address <b>*</b><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="e.g. rahul@gmail.com" autoComplete="email" required /></label><button className="primary registration-submit" type="submit" disabled={loading}>{loading ? 'Sending verification code...' : 'Send Verification OTP'}</button><p className="login-feedback">{message}</p></form> : <form onSubmit={verifyOtp} noValidate><div className="registration-card-head"><h2>Enter Verification Code</h2><p>Enter the six-digit code sent to <strong>{email}</strong>.</p></div>{error && <div className="error-alert" role="alert">{error}</div>}<div className="otp-inputs login-otp">{otp.map((digit, index) => <input key={index} id={`student-login-otp-${index}`} aria-label={`OTP digit ${index + 1}`} inputMode="numeric" maxLength={1} value={digit} onChange={(event) => updateOtp(index, event.target.value)} />)}</div><button className="primary registration-submit" type="submit" disabled={loading}>{loading ? 'Verifying code...' : 'Verify OTP & Continue'}</button><div className="login-secondary-actions"><button type="button" className="text-button" onClick={() => { setStep('EMAIL'); setOtp(['', '', '', '', '', '']); setError(''); }}>Change email</button><button type="button" className="text-button" onClick={() => { void requestOtp(); }}>Resend code</button></div></form>}</section></main></div>;
+  const updateOtp = (index: number, value: string) => {
+    const next = [...otp];
+    next[index] = value.replace(/\D/g, "").slice(-1);
+    setOtp(next);
+    if (next[index] && index < 5)
+      document.getElementById(`student-login-otp-${index + 1}`)?.focus();
+  };
+  return (
+    <div className="registration-page">
+      <header className="registration-header">
+        <button className="brand brand-link" onClick={onBackToLanding}>
+          <div className="brand-mark">
+            <span>K</span>
+          </div>
+          <div>
+            <strong>KGS</strong>
+            <small>EXAM PORTAL</small>
+          </div>
+        </button>
+        <button className="text-button" onClick={onRegister}>
+          New student? Create account
+        </button>
+      </header>
+      <main className="login-main">
+        <section className="registration-intro">
+          <span className="landing-kicker">STUDENT AUTHENTICATION</span>
+          <h1>Welcome back</h1>
+          <p>
+            Sign in securely with your registered email address and a one-time
+            verification code.
+          </p>
+          <div className="registration-note">
+            <strong>Passwordless access</strong>
+            <span>
+              Your verification code is single-use and expires after a short
+              period.
+            </span>
+          </div>
+        </section>
+        <section className="registration-card login-card">
+          {step === "EMAIL" ? (
+            <form onSubmit={requestOtp} noValidate>
+              <div className="registration-card-head">
+                <h2>Student Login</h2>
+                <p>Enter your email address to receive a verification code.</p>
+              </div>
+              {error && (
+                <div className="error-alert" role="alert">
+                  {error}
+                </div>
+              )}
+              <label className="login-field">
+                Email Address <b>*</b>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="e.g. rahul@gmail.com"
+                  autoComplete="email"
+                  required
+                />
+              </label>
+              <button
+                className="primary registration-submit"
+                type="submit"
+                disabled={loading}
+              >
+                {loading
+                  ? "Sending verification code..."
+                  : "Send Verification OTP"}
+              </button>
+              <p className="login-feedback">{message}</p>
+            </form>
+          ) : (
+            <form onSubmit={verifyOtp} noValidate>
+              <div className="registration-card-head">
+                <h2>Enter Verification Code</h2>
+                <p>
+                  Enter the six-digit code sent to <strong>{email}</strong>.
+                </p>
+              </div>
+              {error && (
+                <div className="error-alert" role="alert">
+                  {error}
+                </div>
+              )}
+              <div className="otp-inputs login-otp">
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    id={`student-login-otp-${index}`}
+                    aria-label={`OTP digit ${index + 1}`}
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(event) => updateOtp(index, event.target.value)}
+                  />
+                ))}
+              </div>
+              <button
+                className="primary registration-submit"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Verifying code..." : "Verify OTP & Continue"}
+              </button>
+              <div className="login-secondary-actions">
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => {
+                    setStep("EMAIL");
+                    setOtp(["", "", "", "", "", ""]);
+                    setError("");
+                  }}
+                >
+                  Change email
+                </button>
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => {
+                    void requestOtp();
+                  }}
+                >
+                  Resend code
+                </button>
+              </div>
+            </form>
+          )}
+        </section>
+      </main>
+    </div>
+  );
 }

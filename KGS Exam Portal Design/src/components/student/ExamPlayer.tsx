@@ -1,13 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
-import { Exam, Question, AnswerState } from '../../types';
-import { API_BASE_URL, authFetch } from '../../api';
+import { useState, useEffect, useRef } from "react";
+import { Exam, Question, AnswerState } from "../../types";
+import { API_BASE_URL, authFetch } from "../../api";
 
 interface ExamPlayerProps {
   exam: Exam;
   questions: Question[];
   attemptId: string;
   candidateName?: string;
-  onSubmitExam: (answers: Record<string, AnswerState>, tabSwitches: number, automatic?: boolean) => void;
+  onSubmitExam: (
+    answers: Record<string, AnswerState>,
+    tabSwitches: number,
+    automatic?: boolean,
+  ) => void;
   onIntegrityAutoSubmit?: () => void;
 }
 
@@ -18,42 +22,82 @@ interface PersistedAttempt {
   expiresAt: number;
 }
 
-export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Student', onSubmitExam, onIntegrityAutoSubmit }: ExamPlayerProps) {
+export function ExamPlayer({
+  exam,
+  questions,
+  attemptId,
+  candidateName = "Student",
+  onSubmitExam,
+  onIntegrityAutoSubmit,
+}: ExamPlayerProps) {
   const storageKey = `kgs-exam-attempt:${exam.id}`;
   const [currentIdx, setCurrentIdx] = useState(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(storageKey) || 'null') as PersistedAttempt | null;
+      const saved = JSON.parse(
+        localStorage.getItem(storageKey) || "null",
+      ) as PersistedAttempt | null;
       return saved?.currentIdx ?? 0;
-    } catch { return 0; }
+    } catch {
+      return 0;
+    }
   });
   const [answers, setAnswers] = useState<Record<string, AnswerState>>(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(storageKey) || 'null') as PersistedAttempt | null;
+      const saved = JSON.parse(
+        localStorage.getItem(storageKey) || "null",
+      ) as PersistedAttempt | null;
       return saved?.answers ?? {};
-    } catch { return {}; }
+    } catch {
+      return {};
+    }
   });
   const [timeLeft, setTimeLeft] = useState(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(storageKey) || 'null') as PersistedAttempt | null;
-      return saved?.expiresAt ? Math.max(0, Math.ceil((saved.expiresAt - Date.now()) / 1000)) : exam.durationMinutes * 60;
-    } catch { return exam.durationMinutes * 60; }
+      const saved = JSON.parse(
+        localStorage.getItem(storageKey) || "null",
+      ) as PersistedAttempt | null;
+      return saved?.expiresAt
+        ? Math.max(0, Math.ceil((saved.expiresAt - Date.now()) / 1000))
+        : exam.durationMinutes * 60;
+    } catch {
+      return exam.durationMinutes * 60;
+    }
   });
   const [tabSwitches, setTabSwitches] = useState(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(storageKey) || 'null') as PersistedAttempt | null;
+      const saved = JSON.parse(
+        localStorage.getItem(storageKey) || "null",
+      ) as PersistedAttempt | null;
       return saved?.tabSwitches ?? 0;
-    } catch { return 0; }
+    } catch {
+      return 0;
+    }
   });
   const [fullscreenIncidents, setFullscreenIncidents] = useState(0);
-  const [fullscreenThreshold, setFullscreenThreshold] = useState<number | null>(null);
-  const [lastIntegrityType, setLastIntegrityType] = useState<'TAB_HIDDEN' | 'FULLSCREEN_EXIT'>('TAB_HIDDEN');
+  const [fullscreenThreshold, setFullscreenThreshold] = useState<number | null>(
+    null,
+  );
+  const [lastIntegrityType, setLastIntegrityType] = useState<
+    "TAB_HIDDEN" | "FULLSCREEN_EXIT"
+  >("TAB_HIDDEN");
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(true);
-  const [saveState, setSaveState] = useState<'saved' | 'saving' | 'failed' | 'retrying'>('saved');
-  const [answerVersions, setAnswerVersions] = useState<Record<string, number>>({});
-  const [connectionOnline, setConnectionOnline] = useState(() => navigator.onLine);
-  const [cameraStatus, setCameraStatus] = useState<'not-required' | 'starting' | 'active' | 'interrupted' | 'denied'>('not-required');
-  const [fullscreenActive, setFullscreenActive] = useState(() => !exam.readinessRequirements?.fullscreen || !!document.fullscreenElement);
+  const [saveState, setSaveState] = useState<
+    "saved" | "saving" | "failed" | "retrying"
+  >("saved");
+  const [answerVersions, setAnswerVersions] = useState<Record<string, number>>(
+    {},
+  );
+  const [connectionOnline, setConnectionOnline] = useState(
+    () => navigator.onLine,
+  );
+  const [cameraStatus, setCameraStatus] = useState<
+    "not-required" | "starting" | "active" | "interrupted" | "denied"
+  >("not-required");
+  const [fullscreenActive, setFullscreenActive] = useState(
+    () =>
+      !exam.readinessRequirements?.fullscreen || !!document.fullscreenElement,
+  );
   const [fullscreenNotice, setFullscreenNotice] = useState(false);
   const cameraVideoRef = useRef<HTMLVideoElement>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
@@ -61,29 +105,53 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
   const pendingIntegrityEvents = useRef(new Map<string, number>());
   const finalizingRef = useRef(false);
 
-  const recordIntegrityEvent = async (eventId: string, eventType: 'TAB_HIDDEN' | 'FULLSCREEN_EXIT', attempt = 0): Promise<void> => {
+  const recordIntegrityEvent = async (
+    eventId: string,
+    eventType: "TAB_HIDDEN" | "FULLSCREEN_EXIT",
+    attempt = 0,
+  ): Promise<void> => {
     try {
-      const response = await authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/integrity-events`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId, eventType, clientTimestamp: new Date().toISOString() }),
-      });
-      if (!response.ok) throw new Error('integrity event rejected');
+      const response = await authFetch(
+        `${API_BASE_URL}/api/attempts/${attemptId}/integrity-events`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            eventId,
+            eventType,
+            clientTimestamp: new Date().toISOString(),
+          }),
+        },
+      );
+      if (!response.ok) throw new Error("integrity event rejected");
       const result = await response.json();
       pendingIntegrityEvents.current.delete(eventId);
       setLastIntegrityType(eventType);
-      if (eventType === 'FULLSCREEN_EXIT') {
-        if (typeof result.confirmedCount === 'number') setFullscreenIncidents(result.confirmedCount);
-        if (typeof result.count === 'number') setFullscreenIncidents(result.count);
-        if (typeof result.threshold === 'number') setFullscreenThreshold(result.threshold);
-      } else if (typeof result.confirmedCount === 'number') setTabSwitches(result.confirmedCount);
-      if (result.action === 'WARNING') setShowWarningModal(true);
-      if (result.action === 'AUTO_SUBMIT') { finalizingRef.current = true; onIntegrityAutoSubmit?.(); }
+      if (eventType === "FULLSCREEN_EXIT") {
+        if (typeof result.confirmedCount === "number")
+          setFullscreenIncidents(result.confirmedCount);
+        if (typeof result.count === "number")
+          setFullscreenIncidents(result.count);
+        if (typeof result.threshold === "number")
+          setFullscreenThreshold(result.threshold);
+      } else if (typeof result.confirmedCount === "number")
+        setTabSwitches(result.confirmedCount);
+      if (result.action === "WARNING") setShowWarningModal(true);
+      if (result.action === "AUTO_SUBMIT") {
+        finalizingRef.current = true;
+        onIntegrityAutoSubmit?.();
+      }
     } catch {
       if (attempt < 2 && navigator.onLine) {
-        pendingIntegrityEvents.current.set(eventId, window.setTimeout(() => {
-          void recordIntegrityEvent(eventId, eventType, attempt + 1);
-        }, 1000 * (attempt + 1)));
+        pendingIntegrityEvents.current.set(
+          eventId,
+          window.setTimeout(
+            () => {
+              void recordIntegrityEvent(eventId, eventType, attempt + 1);
+            },
+            1000 * (attempt + 1),
+          ),
+        );
       } else {
         pendingIntegrityEvents.current.delete(eventId);
       }
@@ -93,13 +161,17 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
   const currentQ = questions[currentIdx] || questions[0];
 
   const stopCamera = () => {
-    cameraStreamRef.current?.getTracks().forEach((track) => { track.onended = null; track.stop(); });
+    cameraStreamRef.current?.getTracks().forEach((track) => {
+      track.onended = null;
+      track.stop();
+    });
     cameraStreamRef.current = null;
     if (cameraVideoRef.current) cameraVideoRef.current.srcObject = null;
   };
 
   const requestExamFullscreen = async () => {
-    if (!exam.readinessRequirements?.fullscreen || document.fullscreenElement) return true;
+    if (!exam.readinessRequirements?.fullscreen || document.fullscreenElement)
+      return true;
     try {
       await document.documentElement.requestFullscreen();
       setFullscreenActive(true);
@@ -115,30 +187,49 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
   const startCamera = async () => {
     if (!exam.readinessRequirements?.camera) return;
     stopCamera();
-    setCameraStatus('starting');
+    setCameraStatus("starting");
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false,
+      });
       cameraStreamRef.current = stream;
       stream.getVideoTracks().forEach((track) => {
         track.onended = () => {
           cameraStreamRef.current = null;
-          setCameraStatus('interrupted');
+          setCameraStatus("interrupted");
           const eventId = `camera-${attemptId}-${Date.now()}-${crypto.randomUUID()}`;
-          void authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/integrity-events`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ eventId, eventType: 'CAMERA_INTERRUPTED', clientTimestamp: new Date().toISOString() }) }).catch(() => undefined);
+          void authFetch(
+            `${API_BASE_URL}/api/attempts/${attemptId}/integrity-events`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                eventId,
+                eventType: "CAMERA_INTERRUPTED",
+                clientTimestamp: new Date().toISOString(),
+              }),
+            },
+          ).catch(() => undefined);
         };
       });
       if (cameraVideoRef.current) {
         cameraVideoRef.current.srcObject = stream;
         await cameraVideoRef.current.play();
-        if (cameraVideoRef.current.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || !cameraVideoRef.current.videoWidth || !cameraVideoRef.current.videoHeight) {
+        if (
+          cameraVideoRef.current.readyState <
+            HTMLMediaElement.HAVE_CURRENT_DATA ||
+          !cameraVideoRef.current.videoWidth ||
+          !cameraVideoRef.current.videoHeight
+        ) {
           stopCamera();
-          setCameraStatus('interrupted');
+          setCameraStatus("interrupted");
           return;
         }
       }
-      setCameraStatus('active');
+      setCameraStatus("active");
     } catch {
-      setCameraStatus('denied');
+      setCameraStatus("denied");
     }
   };
 
@@ -153,8 +244,13 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
     const timer = window.setInterval(() => {
       const video = cameraVideoRef.current;
       const track = cameraStreamRef.current?.getVideoTracks()[0];
-      const healthy = !!video && video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0 && video.videoHeight > 0 && track?.readyState === 'live';
-      if (cameraStatus === 'active' && !healthy) setCameraStatus('interrupted');
+      const healthy =
+        !!video &&
+        video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
+        video.videoWidth > 0 &&
+        video.videoHeight > 0 &&
+        track?.readyState === "live";
+      if (cameraStatus === "active" && !healthy) setCameraStatus("interrupted");
     }, 1000);
     return () => window.clearInterval(timer);
   }, [cameraStatus, exam.readinessRequirements?.camera]);
@@ -172,20 +268,24 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
       setFullscreenNotice(true);
       const eventId = `fullscreen-${attemptId}-${Date.now()}-${crypto.randomUUID()}`;
       setShowWarningModal(true);
-      void recordIntegrityEvent(eventId, 'FULLSCREEN_EXIT');
+      void recordIntegrityEvent(eventId, "FULLSCREEN_EXIT");
     };
     void requestExamFullscreen();
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, [attemptId, exam.readinessRequirements?.fullscreen]);
 
   useEffect(() => {
     void authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/integrity-status`)
-      .then((response) => response.ok ? response.json() : null)
+      .then((response) => (response.ok ? response.json() : null))
       .then((result) => {
-        if (typeof result?.counts?.tabSwitch === 'number') setTabSwitches(result.counts.tabSwitch);
-        if (typeof result?.counts?.fullscreenExit === 'number') setFullscreenIncidents(result.counts.fullscreenExit);
-        if (typeof result?.rules?.fullscreenExitThreshold === 'number') setFullscreenThreshold(result.rules.fullscreenExitThreshold);
+        if (typeof result?.counts?.tabSwitch === "number")
+          setTabSwitches(result.counts.tabSwitch);
+        if (typeof result?.counts?.fullscreenExit === "number")
+          setFullscreenIncidents(result.counts.fullscreenExit);
+        if (typeof result?.rules?.fullscreenExitThreshold === "number")
+          setFullscreenThreshold(result.rules.fullscreenExitThreshold);
       })
       .catch(() => undefined);
   }, [attemptId]);
@@ -193,9 +293,12 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
   useEffect(() => {
     const online = () => setConnectionOnline(true);
     const offline = () => setConnectionOnline(false);
-    window.addEventListener('online', online);
-    window.addEventListener('offline', offline);
-    return () => { window.removeEventListener('online', online); window.removeEventListener('offline', offline); };
+    window.addEventListener("online", online);
+    window.addEventListener("offline", offline);
+    return () => {
+      window.removeEventListener("online", online);
+      window.removeEventListener("offline", offline);
+    };
   }, []);
 
   // Initialize answer states
@@ -213,16 +316,29 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
     if (questions[0]) {
       initial[questions[0].id].visited = true;
     }
-    setAnswers((existing) => Object.keys(existing).length ? existing : initial);
+    setAnswers((existing) =>
+      Object.keys(existing).length ? existing : initial,
+    );
   }, [questions]);
 
   // Keep an attempt recoverable across refreshes or short disconnects. The
   // server remains authoritative in production; this provides a safe client
   // recovery layer for the current frontend prototype.
   useEffect(() => {
-    const existing = JSON.parse(localStorage.getItem(storageKey) || 'null') as PersistedAttempt | null;
-    const expiresAt = existing?.expiresAt || Date.now() + exam.durationMinutes * 60 * 1000;
-    localStorage.setItem(storageKey, JSON.stringify({ answers, currentIdx, tabSwitches, expiresAt } satisfies PersistedAttempt));
+    const existing = JSON.parse(
+      localStorage.getItem(storageKey) || "null",
+    ) as PersistedAttempt | null;
+    const expiresAt =
+      existing?.expiresAt || Date.now() + exam.durationMinutes * 60 * 1000;
+    localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        answers,
+        currentIdx,
+        tabSwitches,
+        expiresAt,
+      } satisfies PersistedAttempt),
+    );
   }, [answers, currentIdx, tabSwitches, exam.durationMinutes, storageKey]);
 
   // Timer countdown
@@ -252,40 +368,49 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
         const eventId = `visibility-${attemptId}-${now}-${crypto.randomUUID()}`;
         setShowWarningModal(true);
         pendingIntegrityEvents.current.set(eventId, 0);
-        void recordIntegrityEvent(eventId, 'TAB_HIDDEN');
+        void recordIntegrityEvent(eventId, "TAB_HIDDEN");
       }
     };
 
-    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
-      window.removeEventListener('visibilitychange', handleVisibilityChange);
-      pendingIntegrityEvents.current.forEach((timer) => { if (timer) window.clearTimeout(timer); });
+      window.removeEventListener("visibilitychange", handleVisibilityChange);
+      pendingIntegrityEvents.current.forEach((timer) => {
+        if (timer) window.clearTimeout(timer);
+      });
       pendingIntegrityEvents.current.clear();
     };
   }, [attemptId]);
 
   const persistAnswer = async (answer: AnswerState, retry = false) => {
     const version = (answerVersions[answer.questionId] || 0) + 1;
-    setSaveState(retry ? 'retrying' : 'saving');
+    setSaveState(retry ? "retrying" : "saving");
     try {
-      const response = await authFetch(`${API_BASE_URL}/api/exams/attempts/${exam.id}/answers/${answer.questionId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...answer, version }) });
-      if (!response.ok) throw new Error('save failed');
+      const response = await authFetch(
+        `${API_BASE_URL}/api/exams/attempts/${exam.id}/answers/${answer.questionId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...answer, version }),
+        },
+      );
+      if (!response.ok) throw new Error("save failed");
       setAnswerVersions((prev) => ({ ...prev, [answer.questionId]: version }));
-      setSaveState('saved');
+      setSaveState("saved");
     } catch {
-      setSaveState('failed');
+      setSaveState("failed");
     }
   };
 
   const selectOption = (optId: string) => {
     setAnswers((prev) => {
       const next = {
-      ...prev,
-      [currentQ.id]: {
-        ...prev[currentQ.id],
-        selectedOptionId: optId,
-        visited: true,
-      },
+        ...prev,
+        [currentQ.id]: {
+          ...prev[currentQ.id],
+          selectedOptionId: optId,
+          visited: true,
+        },
       };
       void persistAnswer(next[currentQ.id]);
       return next;
@@ -331,7 +456,7 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
     const s = secs % 60;
     const h = Math.floor(m / 60);
     const remM = m % 60;
-    return `${h > 0 ? String(h).padStart(2, '0') + ':' : ''}${String(remM).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    return `${h > 0 ? String(h).padStart(2, "0") + ":" : ""}${String(remM).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
 
   const currentAns = answers[currentQ.id] || {};
@@ -360,21 +485,58 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
   const isCriticalTime = timeLeft <= 120; // 2 mins
 
   if (!currentQ) {
-    return <div className="exam-player-shell exam-player-empty"><div className="panel"><h2>Questions are not available</h2><p>The assigned examination questions could not be loaded. Your attempt has not been reset.</p><button className="primary" onClick={() => window.location.reload()}>Retry loading questions</button></div></div>;
+    return (
+      <div className="exam-player-shell exam-player-empty">
+        <div className="panel">
+          <h2>Questions are not available</h2>
+          <p>
+            The assigned examination questions could not be loaded. Your attempt
+            has not been reset.
+          </p>
+          <button className="primary" onClick={() => window.location.reload()}>
+            Retry loading questions
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="exam-player-shell">
       {!connectionOnline && (
         <div className="connection-banner" role="alert">
-          <div><strong>Connection Lost</strong><span>Your examination timer is still running. We are attempting to reconnect.</span></div>
-          <button className="secondary" onClick={() => { setConnectionOnline(navigator.onLine); window.dispatchEvent(new Event('online')); }}>Retry Connection</button>
+          <div>
+            <strong>Connection Lost</strong>
+            <span>
+              Your examination timer is still running. We are attempting to
+              reconnect.
+            </span>
+          </div>
+          <button
+            className="secondary"
+            onClick={() => {
+              setConnectionOnline(navigator.onLine);
+              window.dispatchEvent(new Event("online"));
+            }}
+          >
+            Retry Connection
+          </button>
         </div>
       )}
       {exam.readinessRequirements?.fullscreen && fullscreenNotice && (
         <div className="fullscreen-banner" role="alert">
-          <span>Fullscreen has been exited. Return to fullscreen to continue the examination.</span>
-          <button className="secondary" onClick={() => { void requestExamFullscreen(); }}>Return to Fullscreen</button>
+          <span>
+            Fullscreen has been exited. Return to fullscreen to continue the
+            examination.
+          </span>
+          <button
+            className="secondary"
+            onClick={() => {
+              void requestExamFullscreen();
+            }}
+          >
+            Return to Fullscreen
+          </button>
         </div>
       )}
       {/* Proctoring Warning Modal */}
@@ -384,10 +546,27 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
             <div className="warning-icon">⚠️</div>
             <h3>Proctoring Security Warning</h3>
             <p>
-              A {lastIntegrityType === 'FULLSCREEN_EXIT' ? 'fullscreen exit' : 'tab-switch or window-visibility'} incident has been recorded. <strong>Recorded incidents: {lastIntegrityType === 'FULLSCREEN_EXIT' ? fullscreenIncidents : tabSwitches}</strong>{lastIntegrityType === 'FULLSCREEN_EXIT' && fullscreenThreshold ? ` of ${fullscreenThreshold}` : ''}.
-              Review the examination monitoring policy before continuing. The backend evaluates incidents according to the configured rules.
+              A{" "}
+              {lastIntegrityType === "FULLSCREEN_EXIT"
+                ? "fullscreen exit"
+                : "tab-switch or window-visibility"}{" "}
+              incident has been recorded.{" "}
+              <strong>
+                Recorded incidents:{" "}
+                {lastIntegrityType === "FULLSCREEN_EXIT"
+                  ? fullscreenIncidents
+                  : tabSwitches}
+              </strong>
+              {lastIntegrityType === "FULLSCREEN_EXIT" && fullscreenThreshold
+                ? ` of ${fullscreenThreshold}`
+                : ""}
+              . Review the examination monitoring policy before continuing. The
+              backend evaluates incidents according to the configured rules.
             </p>
-            <button className="primary" onClick={() => setShowWarningModal(false)}>
+            <button
+              className="primary"
+              onClick={() => setShowWarningModal(false)}
+            >
               I Understand & Resume Exam
             </button>
           </div>
@@ -395,14 +574,45 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
       )}
 
       {exam.readinessRequirements?.camera && (
-        <div className={`camera-monitor camera-${cameraStatus}`} role="status" aria-live="polite">
+        <div
+          className={`camera-monitor camera-${cameraStatus}`}
+          role="status"
+          aria-live="polite"
+        >
           <div className="camera-monitor-preview">
-            <video ref={cameraVideoRef} muted playsInline aria-label="Live camera preview" />
-            {cameraStatus !== 'active' && <span>{cameraStatus === 'starting' ? 'Starting camera…' : cameraStatus === 'denied' ? 'Camera permission required' : 'Camera interrupted'}</span>}
+            <video
+              ref={cameraVideoRef}
+              muted
+              playsInline
+              aria-label="Live camera preview"
+            />
+            {cameraStatus !== "active" && (
+              <span>
+                {cameraStatus === "starting"
+                  ? "Starting camera…"
+                  : cameraStatus === "denied"
+                    ? "Camera permission required"
+                    : "Camera interrupted"}
+              </span>
+            )}
           </div>
           <div className="camera-monitor-status">
-            <strong><span className="camera-status-dot" /> {cameraStatus === 'active' ? 'Camera Active' : cameraStatus === 'starting' ? 'Camera Reconnecting…' : 'Camera Unavailable'}</strong>
-            {cameraStatus !== 'active' && <button className="text-button" onClick={() => void startCamera()}>Retry camera</button>}
+            <strong>
+              <span className="camera-status-dot" />{" "}
+              {cameraStatus === "active"
+                ? "Camera Active"
+                : cameraStatus === "starting"
+                  ? "Camera Reconnecting…"
+                  : "Camera Unavailable"}
+            </strong>
+            {cameraStatus !== "active" && (
+              <button
+                className="text-button"
+                onClick={() => void startCamera()}
+              >
+                Retry camera
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -412,24 +622,54 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
         <div className="exam-title-group">
           <h2>{exam.title}</h2>
           <span className="exam-code">{exam.examCode}</span>
-          {exam.readinessRequirements?.fullscreen && <span className={`fullscreen-status ${fullscreenActive ? 'active' : 'inactive'}`}>{fullscreenActive ? 'Fullscreen active' : 'Fullscreen required'}</span>}
+          {exam.readinessRequirements?.fullscreen && (
+            <span
+              className={`fullscreen-status ${fullscreenActive ? "active" : "inactive"}`}
+            >
+              {fullscreenActive ? "Fullscreen active" : "Fullscreen required"}
+            </span>
+          )}
         </div>
 
         <div className="header-actions">
           <div className="offline-status">
-            {saveState === 'saved' ? <span className="saved">✓ All changes saved</span> : saveState === 'saving' ? <span className="saving">Saving answer...</span> : saveState === 'retrying' ? <span className="saving">Reconnecting and retrying...</span> : <button className="save-failed" onClick={() => persistAnswer(currentAns, true)}>Unable to save answer · Retry</button>}
+            {saveState === "saved" ? (
+              <span className="saved">✓ All changes saved</span>
+            ) : saveState === "saving" ? (
+              <span className="saving">Saving answer...</span>
+            ) : saveState === "retrying" ? (
+              <span className="saving">Reconnecting and retrying...</span>
+            ) : (
+              <button
+                className="save-failed"
+                onClick={() => persistAnswer(currentAns, true)}
+              >
+                Unable to save answer · Retry
+              </button>
+            )}
           </div>
 
-          <div className={`timer-box ${isCriticalTime ? 'critical' : isLowTime ? 'warning' : ''}`}>
+          <div
+            className={`timer-box ${isCriticalTime ? "critical" : isLowTime ? "warning" : ""}`}
+          >
             <small>TIME REMAINING</small>
             <b>{formatTimer(timeLeft)}</b>
           </div>
 
-          <button className="secondary" onClick={() => setPaletteOpen(!paletteOpen)}>
-            {paletteOpen ? 'Hide Palette' : 'Question Palette'}
+          <button
+            className="secondary"
+            onClick={() => setPaletteOpen(!paletteOpen)}
+          >
+            {paletteOpen ? "Hide Palette" : "Question Palette"}
           </button>
 
-          <button className="primary submit-btn" onClick={() => { finalizingRef.current = true; onSubmitExam(answers, tabSwitches); }}>
+          <button
+            className="primary submit-btn"
+            onClick={() => {
+              finalizingRef.current = true;
+              onSubmitExam(answers, tabSwitches);
+            }}
+          >
             Submit Exam
           </button>
         </div>
@@ -439,7 +679,9 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
       <div className="exam-body-grid">
         <main className="question-viewport">
           <div className="section-bar">
-            <span>SECTION: <strong>{currentQ.sectionName}</strong></span>
+            <span>
+              SECTION: <strong>{currentQ.sectionName}</strong>
+            </span>
             <div className="marks-info">
               <span>Marks: +{currentQ.marks}</span>
               <span className="neg">Neg: -{currentQ.negativeMarks}</span>
@@ -448,31 +690,38 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
 
           <div className="question-card">
             <div className="question-header">
-              <span className="q-number">Question {currentIdx + 1} of {questions.length}</span>
+              <span className="q-number">
+                Question {currentIdx + 1} of {questions.length}
+              </span>
               <button
-                className={`flag-button ${currentAns.isMarkedForReview ? 'active' : ''}`}
+                className={`flag-button ${currentAns.isMarkedForReview ? "active" : ""}`}
                 onClick={toggleMarkForReview}
               >
-                🚩 {currentAns.isMarkedForReview ? 'Marked for Review' : 'Mark for Review'}
+                🚩{" "}
+                {currentAns.isMarkedForReview
+                  ? "Marked for Review"
+                  : "Mark for Review"}
               </button>
             </div>
 
             <div className="question-text">{currentQ.questionText}</div>
 
             {currentQ.codeSnippet && (
-              <pre className="code-block"><code>{currentQ.codeSnippet}</code></pre>
+              <pre className="code-block">
+                <code>{currentQ.codeSnippet}</code>
+              </pre>
             )}
 
             <div className="options-group">
               {currentQ.options.map((opt) => {
                 const isSelected = currentAns.selectedOptionId === opt.id;
-                const optKey = (opt.id || '').includes('-')
-                  ? (opt.id.split('-').pop() || opt.id).toUpperCase()
-                  : String(opt.id || '').toUpperCase();
+                const optKey = (opt.id || "").includes("-")
+                  ? (opt.id.split("-").pop() || opt.id).toUpperCase()
+                  : String(opt.id || "").toUpperCase();
                 return (
                   <label
                     key={opt.id}
-                    className={`option-card ${isSelected ? 'selected' : ''}`}
+                    className={`option-card ${isSelected ? "selected" : ""}`}
                     onClick={() => selectOption(opt.id)}
                   >
                     <input
@@ -509,7 +758,8 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
                 className="secondary mark-next"
                 onClick={() => {
                   toggleMarkForReview();
-                  if (currentIdx < questions.length - 1) goToQuestion(currentIdx + 1);
+                  if (currentIdx < questions.length - 1)
+                    goToQuestion(currentIdx + 1);
                 }}
               >
                 Mark for Review & Next
@@ -517,7 +767,8 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
               <button
                 className="primary save-next"
                 onClick={() => {
-                  if (currentIdx < questions.length - 1) goToQuestion(currentIdx + 1);
+                  if (currentIdx < questions.length - 1)
+                    goToQuestion(currentIdx + 1);
                 }}
               >
                 Save & Next →
@@ -531,34 +782,46 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
           <aside className="palette-sidebar">
             <div className="palette-header">
               <h4>Question Palette</h4>
-              <p>Candidate: <strong>{candidateName}</strong></p>
+              <p>
+                Candidate: <strong>{candidateName}</strong>
+              </p>
             </div>
 
             <div className="palette-legend">
-              <div className="legend-item"><span className="dot answered" /> Answered ({answeredCount})</div>
-              <div className="legend-item"><span className="dot unanswered" /> Not Answered ({unansweredCount})</div>
-              <div className="legend-item"><span className="dot marked" /> Marked ({markedCount})</div>
-              <div className="legend-item"><span className="dot unvisited" /> Not Visited ({unvisitedCount})</div>
+              <div className="legend-item">
+                <span className="dot answered" /> Answered ({answeredCount})
+              </div>
+              <div className="legend-item">
+                <span className="dot unanswered" /> Not Answered (
+                {unansweredCount})
+              </div>
+              <div className="legend-item">
+                <span className="dot marked" /> Marked ({markedCount})
+              </div>
+              <div className="legend-item">
+                <span className="dot unvisited" /> Not Visited ({unvisitedCount}
+                )
+              </div>
             </div>
 
             <div className="palette-grid">
               {questions.map((q, idx) => {
                 const ans = answers[q.id];
-                let statusClass = 'unvisited';
+                let statusClass = "unvisited";
                 if (ans?.selectedOptionId && ans?.isMarkedForReview) {
-                  statusClass = 'ans-marked';
+                  statusClass = "ans-marked";
                 } else if (ans?.selectedOptionId) {
-                  statusClass = 'answered';
+                  statusClass = "answered";
                 } else if (ans?.isMarkedForReview) {
-                  statusClass = 'marked';
+                  statusClass = "marked";
                 } else if (ans?.visited) {
-                  statusClass = 'unanswered';
+                  statusClass = "unanswered";
                 }
 
                 return (
                   <button
                     key={q.id}
-                    className={`palette-tile ${statusClass} ${currentIdx === idx ? 'current' : ''}`}
+                    className={`palette-tile ${statusClass} ${currentIdx === idx ? "current" : ""}`}
                     onClick={() => goToQuestion(idx)}
                   >
                     {idx + 1}
@@ -568,8 +831,12 @@ export function ExamPlayer({ exam, questions, attemptId, candidateName = 'Studen
             </div>
 
             <div className="proctoring-info-box">
-              <div className="proctor-title">🛡️ Automated Proctoring Active</div>
-              <small>Tab-switch incidents: <strong>{tabSwitches}</strong></small>
+              <div className="proctor-title">
+                🛡️ Automated Proctoring Active
+              </div>
+              <small>
+                Tab-switch incidents: <strong>{tabSwitches}</strong>
+              </small>
             </div>
           </aside>
         )}

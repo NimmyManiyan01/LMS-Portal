@@ -957,7 +957,7 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app flex min-h-screen w-full bg-slate-50 text-slate-900">
       {viewState === "SYSTEM_CHECK" && selectedExam && (
         <SystemCheckModal
           examTitle={selectedExam.title}
@@ -992,7 +992,9 @@ export default function App() {
         />
       )}
 
-      <div className={menu ? "sidebar-shell open" : "sidebar-shell"}>
+      <div
+        className={`${menu ? "sidebar-shell open" : "sidebar-shell"} shrink-0`}
+      >
         <Sidebar
           admin={admin}
           active={active}
@@ -1012,7 +1014,7 @@ export default function App() {
         />
       )}
 
-      <div className="workspace">
+      <div className="workspace min-w-0 flex-1">
         <Topbar
           admin={admin}
           setAdmin={switchPortal}
@@ -1023,7 +1025,7 @@ export default function App() {
           onLogout={handleLogout}
         />
 
-        <main>
+        <main className="mx-auto w-full max-w-[1480px] px-4 py-8 sm:px-6 lg:px-9">
           {active === "My examinations" && viewState === "DASHBOARD" ? (
             <StudentExaminations
               onStartExam={handleStartExam}
