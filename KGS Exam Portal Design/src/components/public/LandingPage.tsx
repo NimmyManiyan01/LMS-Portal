@@ -346,29 +346,35 @@ const infoSections: [string, string, string][] = [
 
 function InfoSections() {
   return (
-    <div className="mx-auto my-8 mb-14 grid w-[calc(100%-32px)] max-w-[1120px] grid-cols-1 gap-4 sm:my-10 sm:mb-16 sm:w-[calc(100%-40px)] sm:grid-cols-2 md:w-[calc(100%-64px)] lg:grid-cols-4">
-      {infoSections.map(([id, title, copy], i) => (
-        <section
-          key={id}
-          id={id}
-          className="group flex min-h-[228px] flex-col rounded-2xl border border-[color:var(--glass-border)] bg-[color:var(--card-bg)] p-5 shadow-lg shadow-blue-600/[0.07] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-600/10 sm:min-h-[240px] sm:p-6"
-        >
-          <div className="mb-5 flex items-center justify-between">
-            <span className="text-xs font-extrabold tracking-[0.18em] text-blue-600">0{i + 1}</span>
-            <span className="h-2 w-2 rounded-full bg-blue-600/20 transition-colors group-hover:bg-blue-600" aria-hidden="true" />
-          </div>
-          <h2 className="m-0 mb-3 text-xl font-bold leading-snug tracking-tight text-[color:var(--heading)]">{title}</h2>
-          <p className="m-0 text-sm leading-relaxed text-[color:var(--body)]">{copy}</p>
-          {id === "contact" && (
-            <a
-              href="mailto:exams@kgs.edu"
-              className="mt-auto inline-flex cursor-pointer items-center gap-2 pt-5 text-sm font-bold text-blue-600 no-underline transition-all hover:translate-x-1 hover:text-violet-600"
-            >
-              exams@kgs.edu <Icon name="arrow" size={15} />
-            </a>
-          )}
-        </section>
-      ))}
+    <div className="mx-auto mt-6 mb-14 w-[calc(100%-32px)] max-w-[1120px] sm:mt-8 sm:mb-16 sm:w-[calc(100%-40px)] md:w-[calc(100%-64px)]">
+      <div className="mb-6 max-w-[680px] sm:mb-7">
+        <h2 className="m-0 text-2xl font-extrabold tracking-tight text-[color:var(--heading)] sm:text-3xl">Everything You Need for Confident Assessments</h2>
+        <p className="mt-2 mb-0 text-sm leading-relaxed text-[color:var(--body)] sm:text-base">A secure, auditable workflow for every stage of your examination program.</p>
+      </div>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {infoSections.map(([id, title, copy], i) => (
+          <section
+            key={id}
+            id={id}
+            className={`group flex min-h-[260px] flex-col rounded-[18px] border p-6 shadow-lg backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${id === "contact" ? "border-blue-200 bg-blue-50/80 shadow-blue-600/[0.10] hover:border-blue-400" : "border-[#E6EBF5] bg-white shadow-blue-600/[0.07] hover:border-blue-300"}`}
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <span className="text-xs font-extrabold tracking-[0.18em] text-blue-600">0{i + 1}</span>
+              <span className="h-2 w-2 rounded-full bg-blue-600/20 transition-colors group-hover:bg-blue-600" aria-hidden="true" />
+            </div>
+            <h2 className="m-0 min-h-[3.5rem] text-xl font-bold leading-snug tracking-tight text-[color:var(--heading)]">{title}</h2>
+            <p className="m-0 text-[15px] leading-relaxed text-[color:var(--body)]">{copy}</p>
+            {id === "contact" && (
+              <a
+                href="mailto:exams@kgs.edu"
+                className="mt-auto inline-flex cursor-pointer items-center gap-2 pt-5 text-sm font-bold text-blue-600 no-underline transition-all hover:translate-x-1 hover:text-violet-600"
+              >
+                exams@kgs.edu <Icon name="arrow" size={15} />
+              </a>
+            )}
+          </section>
+        ))}
+      </div>
     </div>
   );
 }
