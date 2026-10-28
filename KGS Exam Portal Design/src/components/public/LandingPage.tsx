@@ -41,11 +41,11 @@ const themeCss = `
 .kgs-grad-bg   { background-image: var(--grad); }
 .kgs-grad-text { background-image: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .kgs-glass {
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 16px 40px rgba(37,99,235,.14);
+  background: rgba(255,255,255,.88);
+  border: 1px solid rgba(255,255,255,.7);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 12px 40px rgba(20,35,90,.10);
 }
 .kgs-photo {
   -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 35%), linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
@@ -263,8 +263,8 @@ function MonitorCard() {
   return (
     <div className="kgs-glass kgs-float pointer-events-auto absolute right-[-2%] top-[2%] z-10 w-[195px] rounded-2xl p-4 xl:right-0 xl:w-[220px] xl:p-5 [animation-delay:-2s]">
       <CardTitle icon="clock">Real-time<br />Monitoring</CardTitle>
-      <div className="mt-3 flex h-10 items-end justify-between gap-0.5">
-        {barHeights.map((h, i) => (
+      <div className="mt-3 flex h-9 items-end justify-between gap-1">
+        {barHeights.filter((_, i) => i % 2 === 0).map((h, i) => (
           <div key={i} className="w-[3px] rounded-full bg-gradient-to-t from-blue-600 to-violet-600" style={{ height: `${Math.min(h, 40)}px` }} />
         ))}
       </div>
@@ -289,10 +289,10 @@ function EvaluationCard() {
 
 function ResponsiveHeroCards() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:hidden">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:hidden">
       <div className="relative min-h-[180px]"><ProctorCard /></div>
       <div className="relative min-h-[150px]"><MonitorCard /></div>
-      <div className="relative min-h-[180px]"><EvaluationCard /></div>
+      <div className="relative min-h-[180px] sm:col-span-2"><EvaluationCard /></div>
     </div>
   );
 }
