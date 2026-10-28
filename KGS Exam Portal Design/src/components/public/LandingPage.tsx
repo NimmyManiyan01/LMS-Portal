@@ -69,7 +69,7 @@ export function LandingPage({
             <span>Home</span>
             <span className="w-5 h-1 bg-blue-600 rounded-full" />
           </button>
-          <a href="#about" className="hover:text-blue-600 transition-colors">About</a>
+          <a href="#showcase" className="hover:text-blue-600 transition-colors">Showcase</a>
           <a href="#features" className="hover:text-blue-600 transition-colors">Features</a>
           <a href="#how-it-works" className="hover:text-blue-600 transition-colors">How It Works</a>
           <a href="#security" className="hover:text-blue-600 transition-colors">Security</a>
@@ -264,8 +264,13 @@ export function LandingPage({
         </div>
       </main>
 
-      {/* 3. BOTTOM FEATURE STRIP & WAVY SECTION */}
-      <section className="relative z-10 w-full mt-12">
+      {/* 3. SHOWCASE CAROUSEL SLIDER */}
+      <div id="showcase">
+        <ShowcaseCarousel />
+      </div>
+
+      {/* 4. BOTTOM FEATURE STRIP & WAVY SECTION */}
+      <section id="features" className="relative z-10 w-full mt-8">
         {/* Wave SVG Separator */}
         <div className="w-full overflow-hidden leading-none">
           <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-12 text-[#f8fafc] fill-current">
@@ -354,5 +359,110 @@ export function LandingPage({
         © 2025 KGS Institute · Secure examination and assessment infrastructure
       </footer>
     </div>
+  );
+}
+
+function ShowcaseCarousel() {
+  const showcaseItems = [
+    {
+      img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=500&fit=crop",
+      title: "Enterprise Examination Infrastructure",
+      desc: "High-concurrency proctored testing environments built for universities and certified test centers.",
+    },
+    {
+      img: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=500&fit=crop",
+      title: "AI-Resistant Integrity Monitoring",
+      desc: "Real-time webcam diagnostic, tab-switch detection, and candidate identity verification.",
+    },
+    {
+      img: "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=800&h=500&fit=crop",
+      title: "Instant Results & Scorecard Publishing",
+      desc: "Zero-delay automated grading with subject-wise analytics and cryptographic audit records.",
+    },
+    {
+      img: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=800&h=500&fit=crop",
+      title: "Seamless Student Experience",
+      desc: "Passwordless OTP sign-in, sub-second answer autosave, and continuous network recovery.",
+    },
+  ];
+
+  const [current, setCurrent] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(
+    typeof window !== "undefined" && window.innerWidth >= 768 ? 2 : 1
+  );
+
+  useEffect(() => {
+    const onResize = () =>
+      setVisibleCount(window.innerWidth >= 768 ? 2 : 1);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const GAP = 16;
+  const maxIdx = Math.max(showcaseItems.length - visibleCount, 0);
+  const safeIdx = Math.min(current, maxIdx);
+
+  return (
+    <section className="relative z-10 mx-auto w-full max-w-7xl px-6 py-8 sm:px-10 lg:px-12 my-4">
+      <div className="text-center mb-8">
+        <span className="text-xs uppercase font-bold tracking-widest text-blue-600">
+          Platform Showcase
+        </span>
+        <h3 className="text-2xl font-bold text-slate-900 mt-1">
+          Designed for Excellence at Every Step
+        </h3>
+      </div>
+
+      <div className="flex items-center gap-4 md:gap-6 w-full">
+        <button
+          onClick={() => setCurrent((c) => Math.max(c - 1, 0))}
+          disabled={safeIdx === 0}
+          className="size-11 bg-white border border-slate-200/80 shadow-md rounded-full flex items-center justify-center cursor-pointer hover:bg-slate-100 transition shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+          aria-label="Previous Slide"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="m15 18-6-6 6-6" stroke="#0f172b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
+        <div className="overflow-hidden flex-1 min-w-0">
+          <div
+            className="flex gap-4 transition-transform duration-500 ease-in-out"
+            style={{
+              transform: `translateX(calc(-${(safeIdx * 100) / visibleCount}% - ${(safeIdx * GAP) / visibleCount}px))`,
+            }}
+          >
+            {showcaseItems.map((item, i) => (
+              <div
+                key={i}
+                className="rounded-2xl overflow-hidden shrink-0 border border-slate-200/80 bg-white shadow-md hover:shadow-lg transition-shadow"
+                style={{
+                  width: `calc(${100 / visibleCount}% - ${(GAP * (visibleCount - 1)) / visibleCount}px)`,
+                }}
+              >
+                <div className="h-56 overflow-hidden">
+                  <img src={item.img} alt={item.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                </div>
+                <div className="p-5">
+                  <h4 className="font-bold text-slate-900 text-base">{item.title}</h4>
+                  <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button
+          onClick={() => setCurrent((c) => Math.min(c + 1, maxIdx))}
+          disabled={safeIdx >= maxIdx}
+          className="size-11 bg-white border border-slate-200/80 shadow-md rounded-full flex items-center justify-center cursor-pointer hover:bg-slate-100 transition shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+          aria-label="Next Slide"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="m9 18 6-6-6-6" stroke="#0f172b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </section>
   );
 }
