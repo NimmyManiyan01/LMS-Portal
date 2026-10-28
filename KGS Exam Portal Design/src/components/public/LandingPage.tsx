@@ -396,25 +396,25 @@ export function LandingPage(props: LandingPageProps) {
             />
           </div>
 
-          <div className={`${container} relative z-10 grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-[1.08fr_0.92fr]`}>
+          <div className={`${container} relative z-10 grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-[0.96fr_1.04fr]`}>
             <div className="flex flex-col items-start">
               <div className="inline-flex items-center gap-2.5 rounded-full border border-[color:var(--glass-border)] bg-[color:var(--glass)] px-[18px] py-2 text-xs font-extrabold uppercase tracking-wider text-[color:var(--heading)] shadow-sm backdrop-blur-md">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(34,197,94,0.2)]" />
                 SECURE • FAIR • AI-RESISTANT • ENTERPRISE GRADE
               </div>
 
-              <h1 className="my-5 max-w-[760px] text-[clamp(2.25rem,5.2vw,4.5rem)] font-extrabold leading-[1.04] tracking-tight sm:my-6">
+              <h1 className="my-5 max-w-[720px] text-[clamp(2.125rem,4.4vw,4.25rem)] font-extrabold leading-[1.09] tracking-[-0.035em] sm:my-6">
                 <span className="kgs-grad-text block">Next-Generation</span>
                 <span className="block text-[color:var(--heading)]">Online Examination</span>
                 <span className="block text-[color:var(--heading)]">Platform</span>
               </h1>
 
-              <p className="mb-8 max-w-[640px] text-base font-normal leading-relaxed text-[color:var(--body)] sm:text-lg lg:text-xl">
+              <p className="mb-8 max-w-[600px] text-[15px] font-normal leading-[1.6] text-[color:var(--body)] sm:text-base lg:text-lg">
                 A secure, proctored, and intelligent examination platform designed for educational
                 institutions and organizations to conduct fair, scalable, and tamper-proof assessments.
               </p>
 
-              <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto">
+              <div className="flex w-full flex-wrap items-center gap-3.5 sm:w-auto sm:gap-4">
                 <button
                   className={`${btnPrimary} h-[54px] w-full gap-2.5 rounded-2xl px-7 text-base font-semibold sm:w-auto`}
                   onClick={props.onRegister}
