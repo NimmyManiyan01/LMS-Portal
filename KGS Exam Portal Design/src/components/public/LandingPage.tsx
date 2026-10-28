@@ -311,13 +311,13 @@ const featureItems: [IconName, string, string][] = [
 function FeatureStrip() {
   return (
     <section className="relative z-10 bg-transparent pb-5 pt-6 sm:pb-7 sm:pt-8" id="features">
-      <div className={`${container} grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-5 lg:gap-5`}>
+      <div className={`${container} grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-5 xl:grid-cols-5`}>
         {featureItems.map(([icon, title, copy]) => (
           <div
             key={title}
-            className="relative flex min-h-[76px] items-center gap-4 rounded-2xl border border-[color:var(--hairline)] bg-[color:var(--card-bg)] px-4 py-3 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-500/20 hover:shadow-md lg:min-h-0 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none lg:hover:translate-y-0 lg:after:absolute lg:after:-right-3 lg:after:top-[15%] lg:after:block lg:after:h-[70%] lg:after:w-px lg:after:bg-[color:var(--hairline)] lg:after:content-[''] lg:last:after:hidden"
+            className="relative flex min-h-[76px] items-center gap-4 rounded-2xl border border-[color:var(--hairline)] bg-[color:var(--card-bg)] px-4 py-3 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-500/20 hover:shadow-md xl:min-h-0 xl:rounded-none xl:border-0 xl:bg-transparent xl:px-0 xl:py-0 xl:shadow-none xl:hover:translate-y-0 xl:after:absolute xl:after:-right-3 xl:after:top-[15%] xl:after:block xl:after:h-[70%] xl:after:w-px xl:after:bg-[color:var(--hairline)] xl:after:content-[''] xl:last:after:hidden"
           >
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-[color:var(--bubble)] shadow-lg shadow-blue-600/10">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-[color:var(--bubble)] shadow-lg shadow-blue-600/10">
               <GradientIcon name={icon} size={26} />
             </div>
             <div className="flex flex-col">
