@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { API_BASE_URL } from "../../api";
+import { useState, type ReactNode } from "react";
+import heroStudentImg from "../../assets/hero-student.png";
 
 interface LandingPageProps {
   onStudentLogin: () => void;
@@ -7,462 +7,465 @@ interface LandingPageProps {
   onAdminLogin: () => void;
 }
 
-export function LandingPage({
-  onStudentLogin,
-  onRegister,
-  onAdminLogin,
-}: LandingPageProps) {
-  const [health, setHealth] = useState<
-    "checking" | "operational" | "unavailable"
-  >("checking");
+/* Tune the hero photo crop here (x% y%). Higher x = shows more of the RIGHT side of the photo. */
+const HERO_POSITION = "85% 30%";
 
-  useEffect(() => {
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 5000);
-    fetch(`${API_BASE_URL}/api/health`, {
-      signal: controller.signal,
-      headers: { Accept: "application/json" },
-    })
-      .then((r) => {
-        if (!r.ok) throw new Error();
-        return r.json();
-      })
-      .then((d) => setHealth(d?.ok === true ? "operational" : "unavailable"))
-      .catch(() => setHealth("unavailable"))
-      .finally(() => window.clearTimeout(timeout));
-    return () => {
-      controller.abort();
-      window.clearTimeout(timeout);
-    };
-  }, []);
+/* ------------------------------------------------------------------ */
+/* Theme tokens + keyframes (self-contained, no index.css needed)       */
+/* ------------------------------------------------------------------ */
+const themeCss = `
+.kgs-landing {
+  --page-bg: #F7FAFF;
+  --glass: rgba(255,255,255,.78);
+  --glass-border: rgba(255,255,255,.9);
+  --nav-bg: rgba(255,255,255,.82);
+  --card-bg: rgba(255,255,255,.78);
+  --btn-bg: #FFFFFF;
+  --bubble: #FFFFFF;
+  --foot-bg: rgba(255,255,255,.6);
+  --hairline: rgba(15,27,76,.08);
+  --heading: #0F1B4C;
+  --body: #5B6478;
+  --sub: #4B5675;
+  --grad: linear-gradient(135deg, #2563EB, #7C3AED);
+  --glow-a: rgba(37,99,235,.12);
+  --glow-b: rgba(124,58,237,.10);
+  --photo-filter: none;
+  color-scheme: light;
+  color: var(--heading);
+  background-color: var(--page-bg);
+  background-image:
+    radial-gradient(circle at 78% 8%, var(--glow-a) 0%, transparent 38%),
+    radial-gradient(circle at 92% 30%, var(--glow-b) 0%, transparent 36%);
+}
+.kgs-grad-bg   { background-image: var(--grad); }
+.kgs-grad-text { background-image: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.kgs-glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 16px 40px rgba(37,99,235,.14);
+}
+.kgs-photo {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 35%), linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 0%, #000 35%), linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
+  mask-composite: intersect;
+}
+.kgs-photo img { filter: var(--photo-filter); }
+@keyframes kgs-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.kgs-float { animation: kgs-float 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .kgs-float { animation: none; } }
+`;
+
+/* ------------------------------------------------------------------ */
+/* Icons                                                                */
+/* ------------------------------------------------------------------ */
+type IconName =
+  | "arrow" | "bars" | "chart" | "check" | "clock" | "close" | "gear"
+  | "graduate" | "lock" | "login" | "menu" | "shield"
+  | "user" | "users";
+
+const iconPaths: Record<IconName, ReactNode> = {
+  arrow: (<><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></>),
+  bars: (<><path d="M4 19V9" /><path d="M10 19V5" /><path d="M16 19v-7" /><path d="M22 19V3" /></>),
+  chart: (<><path d="M3 3v18h18" /><path d="m7 15 4-4 3 3 5-7" /></>),
+  check: <path d="m5 12 4 4L19 6" />,
+  clock: (<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>),
+  close: (<><path d="m6 6 12 12" /><path d="m18 6-12 12" /></>),
+  gear: (
+    <>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19 15a2 2 0 0 0 .4 2l-2.5 2.5a2 2 0 0 0-2-.4 2 2 0 0 0-1.3 1.7H10A2 2 0 0 0 8.6 19a2 2 0 0 0-2 .4L4 17a2 2 0 0 0 .4-2A2 2 0 0 0 3 13.6V10a2 2 0 0 0 1.4-1.4 2 2 0 0 0-.4-2L6.5 4a2 2 0 0 0 2 .4A2 2 0 0 0 10 3h3.6A2 2 0 0 0 15 4.4a2 2 0 0 0 2-.4l2.5 2.5a2 2 0 0 0-.4 2 2 2 0 0 0 1.7 1.4v3.6A2 2 0 0 0 19 15Z" />
+    </>
+  ),
+  graduate: (<><path d="m2 10 10-5 10 5-10 5Z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></>),
+  lock: (<><rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></>),
+  login: (<><path d="M10 17l5-5-5-5" /><path d="M15 12H3" /><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /></>),
+  menu: <path d="M4 6h16M4 12h16M4 18h16" />,
+  shield: (<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /><path d="m9 12 2 2 4-4" /></>),
+  user: (<><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>),
+  users: (
+    <>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />
+    </>
+  ),
+};
+
+function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {iconPaths[name]}
+    </svg>
+  );
+}
+
+function GradientIcon({ name, size = 32 }: { name: IconName; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="url(#kgsIconGrad)"
+      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
+      {iconPaths[name]}
+    </svg>
+  );
+}
+
+function SvgGradients() {
+  return (
+    <svg width="0" height="0" className="absolute overflow-hidden" aria-hidden="true">
+      <defs>
+        {/* userSpaceOnUse so purely vertical/horizontal strokes (e.g. the bars icon) still render */}
+        <linearGradient id="kgsIconGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="24">
+          <stop offset="0%" stopColor="#2563EB" />
+          <stop offset="100%" stopColor="#7C3AED" />
+        </linearGradient>
+        <linearGradient id="chartLineGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#2563EB" />
+          <stop offset="100%" stopColor="#7C3AED" />
+        </linearGradient>
+        <linearGradient id="chartFillGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#2563EB" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="#7C3AED" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared class strings                                                 */
+/* ------------------------------------------------------------------ */
+const container =
+  "mx-auto w-[calc(100%-32px)] sm:w-[calc(100%-40px)] md:w-[calc(100%-64px)] max-w-[1400px]";
+
+const btnSecondary =
+  "flex cursor-pointer items-center justify-center gap-2 border border-[color:var(--hairline)] bg-[color:var(--btn-bg)] text-[color:var(--heading)] shadow-sm transition-all hover:-translate-y-0.5";
+
+const btnPrimary =
+  "kgs-grad-bg flex cursor-pointer items-center justify-center gap-2 border-none text-white shadow-lg shadow-indigo-600/30 transition-all hover:-translate-y-0.5 hover:shadow-indigo-600/40";
+
+/* ------------------------------------------------------------------ */
+/* Brand + Navbar                                                       */
+/* ------------------------------------------------------------------ */
+function Brand() {
+  return (
+    <a className="group flex shrink-0 items-center gap-3 no-underline" href="#home" aria-label="KGS Exam Portal home">
+      <span className="kgs-grad-bg flex h-11 w-11 items-center justify-center rounded-xl text-2xl font-black text-white shadow-lg shadow-blue-600/30 transition-transform group-hover:scale-105">
+        K
+      </span>
+      <span className="flex flex-col">
+        <span className="text-xl font-black leading-none tracking-tight text-[color:var(--heading)]">KGS</span>
+        <span className="mt-0.5 text-[9.5px] font-extrabold leading-none tracking-[0.16em] text-blue-600">
+          EXAM PORTAL
+        </span>
+      </span>
+    </a>
+  );
+}
+
+function Navbar({ onStudentLogin, onRegister, onAdminLogin }: LandingPageProps) {
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="relative min-h-screen flex flex-col justify-between overflow-x-hidden bg-gradient-to-br from-[#f8fafc] via-[#eff6ff]/50 to-[#f1f5f9] font-['Poppins',sans-serif] text-slate-800 antialiased">
-      {/* Background Glow Lighting Accents */}
-      <div className="pointer-events-none absolute -top-40 right-0 size-[700px] rounded-full bg-gradient-to-br from-blue-400/20 via-indigo-300/15 to-purple-300/10 blur-3xl animate-pulse duration-[8000ms]" />
-      <div className="pointer-events-none absolute top-1/3 -left-32 size-[600px] rounded-full bg-gradient-to-tr from-cyan-400/15 via-blue-300/10 to-transparent blur-3xl" />
+    <header className="sticky top-0 z-50 min-h-[72px] border-b border-[color:var(--hairline)] bg-[color:var(--nav-bg)] backdrop-blur-xl transition-colors duration-300">
+      <div className={`${container} flex min-h-[72px] items-center justify-between gap-6`}>
+        <Brand />
 
-      {/* 1. TOP NAVBAR */}
-      <header className="sticky top-0 z-50 flex min-h-20 items-center justify-between border-b border-slate-200/60 bg-white/80 px-6 backdrop-blur-2xl shadow-sm sm:px-10 lg:px-16">
-        {/* Brand Logo */}
+        <div className="hidden shrink-0 items-center gap-3 lg:flex">
+          <button className={`${btnSecondary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onStudentLogin}>
+            <Icon name="user" size={18} /> Student Login
+          </button>
+          <button className={`${btnSecondary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onRegister}>
+            Register
+          </button>
+          <button className={`${btnPrimary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onAdminLogin}>
+            <Icon name="lock" size={17} /> Admin Portal
+          </button>
+        </div>
+
         <button
-          className="flex items-center gap-3 text-left transition-transform hover:scale-[1.01] active:scale-[0.99]"
-          onClick={onStudentLogin}
-          aria-label="KGS Exam Portal Home"
+          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-[color:var(--glass-border)] bg-[color:var(--glass)] text-[color:var(--heading)] lg:hidden"
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle navigation"
+          aria-expanded={open}
         >
-          <div className="grid size-11 place-items-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 font-extrabold text-white text-xl shadow-lg shadow-blue-500/25">
-            K
-          </div>
-          <div>
-            <strong className="block text-slate-900 font-extrabold text-base tracking-tight leading-none">
-              KGS
-            </strong>
-            <small className="block text-[#3563F6] font-bold text-[10px] uppercase tracking-wider mt-1">
-              EXAM PORTAL
-            </small>
-          </div>
+          <Icon name={open ? "close" : "menu"} size={22} />
         </button>
-
-        {/* Center Nav Links */}
-        <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
-          <button className="font-bold text-blue-600 flex flex-col items-center gap-1">
-            <span>Home</span>
-            <span className="w-5 h-1 bg-blue-600 rounded-full" />
-          </button>
-          <a href="#showcase" className="hover:text-blue-600 transition-colors">Showcase</a>
-          <a href="#features" className="hover:text-blue-600 transition-colors">Features</a>
-          <a href="#how-it-works" className="hover:text-blue-600 transition-colors">How It Works</a>
-          <a href="#security" className="hover:text-blue-600 transition-colors">Security</a>
-          <a href="#contact" className="hover:text-blue-600 transition-colors">Contact</a>
-        </nav>
-
-        {/* Right Action Buttons */}
-        <div className="flex items-center gap-3">
-          <button
-            className="grid size-10 place-items-center rounded-full bg-slate-100/80 border border-slate-200/80 text-slate-600 hover:bg-slate-200/70 transition"
-            aria-label="Toggle Theme"
-          >
-            ☀️
-          </button>
-
-          <button
-            className="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-300/80 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-400"
-            onClick={onStudentLogin}
-          >
-            <span>👤</span>
-            <span>Student Login</span>
-          </button>
-
-          <button
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300/80 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-400"
-            onClick={onRegister}
-          >
-            <span>Register</span>
-          </button>
-
-          <button
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 active:translate-y-0"
-            onClick={onAdminLogin}
-          >
-            <span>🔒</span>
-            <span>Admin Portal</span>
-          </button>
-        </div>
-      </header>
-
-      {/* 2. HERO SECTION */}
-      <main className="relative z-10 mx-auto w-full max-w-7xl px-6 py-12 sm:px-10 lg:px-12 lg:py-16">
-        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
-          {/* Left Hero Copy Column */}
-          <section className="flex flex-col items-start lg:col-span-6">
-            {/* Kicker Pill Badge */}
-            <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-blue-200/80 bg-blue-50/90 px-4 py-1.5 text-xs font-bold text-blue-700 shadow-sm">
-              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>SECURE · FAIR · AI-RESISTANT · ENTERPRISE GRADE</span>
-            </div>
-
-            {/* Main Headline */}
-            <h1 className="text-5xl font-extrabold leading-[1.08] tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
-              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Next-Generation
-              </span>{" "}
-              <br />
-              <span className="text-slate-900">Online Examination</span> <br />
-              <span className="text-slate-900">Platform</span>
-            </h1>
-
-            {/* Sub-paragraph */}
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 font-normal sm:text-lg">
-              A secure, proctored, and intelligent examination platform designed for educational institutions and organizations to conduct fair, scalable, and tamper-proof assessments.
-            </p>
-
-            {/* CTA Button Row */}
-            <div className="mt-8 flex w-full max-w-md flex-col gap-4 sm:flex-row items-center">
-              <button
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-blue-500/25 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0"
-                onClick={onRegister}
-              >
-                <span>👤</span>
-                <span>Register as Student</span>
-                <span className="text-base">→</span>
-              </button>
-
-              <button
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300/80 bg-white/90 backdrop-blur-md px-8 py-4 text-sm font-bold text-slate-800 shadow-md transition-all duration-300 hover:bg-white hover:border-slate-400 hover:-translate-y-0.5 active:translate-y-0"
-                onClick={onStudentLogin}
-              >
-                <span>➔]</span>
-                <span>Student Login</span>
-              </button>
-            </div>
-
-            {/* Admin Secondary Link */}
-            <button
-              className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-blue-600 transition-colors hover:underline"
-              onClick={onAdminLogin}
-            >
-              <span>🛡️</span>
-              <span>Administrator Portal</span>
-              <span>→</span>
-            </button>
-          </section>
-
-          {/* Right Hero Cinematic Graphic & Glass Cards Column */}
-          <section className="relative lg:col-span-6">
-            <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
-              {/* Background Visual Container (Student at Laptop) */}
-              <div className="relative overflow-hidden rounded-3xl border border-white/90 bg-gradient-to-br from-blue-100/60 via-purple-100/40 to-cyan-100/50 p-2 shadow-2xl">
-                <img
-                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1000&auto=format&fit=crop"
-                  alt="Student taking online exam"
-                  className="w-full h-[480px] object-cover rounded-2xl"
-                />
-
-                {/* Neon Glow Arcs Overlay */}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent rounded-2xl" />
-              </div>
-
-              {/* Glass Card 1 (Top Left): Proctored Environment */}
-              <div className="absolute -top-6 -left-6 z-20 w-64 rounded-2xl border border-white/90 bg-white/90 p-5 backdrop-blur-2xl shadow-2xl">
-                <div className="flex items-center gap-3">
-                  <div className="grid size-10 place-items-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/30">
-                    🛡️
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-900 text-sm leading-tight">
-                      Proctored Environment
-                    </h3>
-                  </div>
-                </div>
-
-                <ul className="mt-4 space-y-2.5 text-xs font-semibold text-slate-700">
-                  <li className="flex items-center gap-2">
-                    <span className="grid size-5 place-items-center rounded-full bg-emerald-100 text-emerald-600 text-[10px] font-extrabold">✓</span>
-                    <span>Camera Monitoring</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="grid size-5 place-items-center rounded-full bg-emerald-100 text-emerald-600 text-[10px] font-extrabold">✓</span>
-                    <span>Tab Switch Detection</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="grid size-5 place-items-center rounded-full bg-emerald-100 text-emerald-600 text-[10px] font-extrabold">✓</span>
-                    <span>Fullscreen Enforcement</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Glass Card 2 (Top Right): Real-time Monitoring */}
-              <div className="absolute top-4 -right-6 z-20 w-52 rounded-2xl border border-white/90 bg-white/90 p-4 backdrop-blur-2xl shadow-2xl">
-                <div className="flex items-center gap-2.5">
-                  <span className="grid size-8 place-items-center rounded-lg bg-blue-100 text-blue-600 text-sm font-bold">⏱️</span>
-                  <span className="font-bold text-slate-900 text-xs">Real-time Monitoring</span>
-                </div>
-
-                {/* Equalizer Bar Chart Graphic */}
-                <div className="mt-3 flex items-end justify-between gap-1 h-10 px-2">
-                  {[40, 75, 55, 90, 65, 80, 45, 95, 70, 85, 60, 90, 50].map((h, i) => (
-                    <span
-                      key={i}
-                      className="w-1.5 rounded-full bg-gradient-to-t from-blue-600 via-indigo-500 to-purple-500 animate-pulse"
-                      style={{ height: `${h}%`, animationDelay: `${i * 100}ms` }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Glass Card 3 (Middle Right): Secure Evaluation */}
-              <div className="absolute bottom-6 -right-6 z-20 w-56 rounded-2xl border border-white/90 bg-white/90 p-4 backdrop-blur-2xl shadow-2xl">
-                <div className="flex items-center gap-2.5">
-                  <span className="grid size-8 place-items-center rounded-lg bg-purple-100 text-purple-600 text-sm font-bold">📊</span>
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-xs">Secure Evaluation</h4>
-                    <small className="text-[9px] text-slate-500 font-semibold block">Automated · Accurate · Auditable</small>
-                  </div>
-                </div>
-
-                {/* Spline Wave Curve */}
-                <div className="mt-3 h-9 w-full">
-                  <svg viewBox="0 0 200 50" fill="none" className="w-full h-full">
-                    <path
-                      d="M0 35 Q 40 10, 80 30 T 160 15 T 200 25"
-                      stroke="url(#splineGradient)"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    />
-                    <defs>
-                      <linearGradient id="splineGradient" x1="0" y1="0" x2="200" y2="0" gradientUnits="userSpaceOnUse">
-                        <stop stopColor="#3563F6" />
-                        <stop offset="0.5" stopColor="#7468F7" />
-                        <stop offset="1" stopColor="#C084FC" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-      </main>
-
-      {/* 3. SHOWCASE CAROUSEL SLIDER */}
-      <div id="showcase">
-        <ShowcaseCarousel />
       </div>
 
-      {/* 4. BOTTOM FEATURE STRIP & WAVY SECTION */}
-      <section id="features" className="relative z-10 w-full mt-8">
-        {/* Wave SVG Separator */}
-        <div className="w-full overflow-hidden leading-none">
-          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-12 text-[#f8fafc] fill-current">
-            <path d="M0,0 C150,90 350,-40 500,45 C650,130 900,10 1200,40 L1200,120 L0,120 Z" />
-          </svg>
-        </div>
-
-        {/* Feature Cards Grid */}
-        <div className="bg-[#f8fafc] py-10 px-6 sm:px-10 lg:px-12 border-t border-slate-200/60">
-          <div className="mx-auto max-w-7xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-            {/* Feature 1 */}
-            <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm transition-all hover:shadow-md hover:border-blue-300">
-              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-blue-50 text-blue-600 text-xl font-bold">
-                🛡️
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 text-sm">Secure & Reliable</h4>
-                <p className="text-xs text-slate-500 font-normal mt-0.5 leading-snug">
-                  Enterprise-grade security and data protection.
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm transition-all hover:shadow-md hover:border-indigo-300">
-              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 text-xl font-bold">
-                👥
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 text-sm">Fair Assessments</h4>
-                <p className="text-xs text-slate-500 font-normal mt-0.5 leading-snug">
-                  AI-resistant proctoring and integrity controls.
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm transition-all hover:shadow-md hover:border-cyan-300">
-              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-cyan-50 text-cyan-600 text-xl font-bold">
-                📊
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 text-sm">Real-time Insights</h4>
-                <p className="text-xs text-slate-500 font-normal mt-0.5 leading-snug">
-                  Live monitoring and instant analytics.
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm transition-all hover:shadow-md hover:border-blue-300">
-              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[#eff6ff] text-blue-600 text-xl font-bold">
-                ⚙️
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 text-sm">Easy Management</h4>
-                <p className="text-xs text-slate-500 font-normal mt-0.5 leading-snug">
-                  Simple tools for admins and institutions.
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 5 */}
-            <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm transition-all hover:shadow-md hover:border-purple-300">
-              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-purple-50 text-purple-600 text-xl font-bold">
-                🎓
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 text-sm">Built for Scale</h4>
-                <p className="text-xs text-slate-500 font-normal mt-0.5 leading-snug">
-                  From hundreds to millions of candidates.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Trust Label */}
-          <div className="mt-10 text-center text-xs font-semibold tracking-wider text-slate-400 uppercase">
-            Trusted by leading educational institutions and organizations
+      {open && (
+        <div className="flex flex-col border-b border-[color:var(--hairline)] bg-[color:var(--bubble)] p-6 lg:hidden">
+          <div className="flex flex-col gap-2.5">
+            <button
+              className={`${btnSecondary} h-11 w-full rounded-xl px-5 text-sm font-semibold`}
+              onClick={() => { setOpen(false); onStudentLogin(); }}
+            >
+              <Icon name="user" size={18} /> Student Login
+            </button>
+            <button
+              className={`${btnSecondary} h-11 w-full rounded-xl px-5 text-sm font-semibold`}
+              onClick={() => { setOpen(false); onRegister(); }}
+            >
+              Register
+            </button>
+            <button
+              className={`${btnPrimary} h-11 w-full rounded-xl px-5 text-sm font-semibold`}
+              onClick={() => { setOpen(false); onAdminLogin(); }}
+            >
+              <Icon name="lock" size={17} /> Admin Portal
+            </button>
           </div>
         </div>
-      </section>
+      )}
+    </header>
+  );
+}
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-slate-200/80 bg-white px-6 py-6 text-center text-xs font-semibold text-slate-500">
-        © 2025 KGS Institute · Secure examination and assessment infrastructure
-      </footer>
+/* ------------------------------------------------------------------ */
+/* Hero floating glass cards                                            */
+/* ------------------------------------------------------------------ */
+function CardTitle({ icon, children }: { icon: IconName; children: ReactNode }) {
+  return (
+    <div className="mb-3 flex items-center gap-3">
+      <GradientIcon name={icon} size={32} />
+      <div className="text-base font-bold leading-snug text-[color:var(--heading)]">{children}</div>
     </div>
   );
 }
 
-function ShowcaseCarousel() {
-  const showcaseItems = [
-    {
-      img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=500&fit=crop",
-      title: "Enterprise Examination Infrastructure",
-      desc: "High-concurrency proctored testing environments built for universities and certified test centers.",
-    },
-    {
-      img: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=500&fit=crop",
-      title: "AI-Resistant Integrity Monitoring",
-      desc: "Real-time webcam diagnostic, tab-switch detection, and candidate identity verification.",
-    },
-    {
-      img: "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=800&h=500&fit=crop",
-      title: "Instant Results & Scorecard Publishing",
-      desc: "Zero-delay automated grading with subject-wise analytics and cryptographic audit records.",
-    },
-    {
-      img: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=800&h=500&fit=crop",
-      title: "Seamless Student Experience",
-      desc: "Passwordless OTP sign-in, sub-second answer autosave, and continuous network recovery.",
-    },
-  ];
-
-  const [current, setCurrent] = useState(0);
-  const [visibleCount, setVisibleCount] = useState(
-    typeof window !== "undefined" && window.innerWidth >= 768 ? 2 : 1
-  );
-
-  useEffect(() => {
-    const onResize = () =>
-      setVisibleCount(window.innerWidth >= 768 ? 2 : 1);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  const GAP = 16;
-  const maxIdx = Math.max(showcaseItems.length - visibleCount, 0);
-  const safeIdx = Math.min(current, maxIdx);
-
+function ProctorCard() {
   return (
-    <section className="relative z-10 mx-auto w-full max-w-7xl px-6 py-8 sm:px-10 lg:px-12 my-4">
-      <div className="text-center mb-8">
-        <span className="text-xs uppercase font-bold tracking-widest text-blue-600">
-          Platform Showcase
-        </span>
-        <h3 className="text-2xl font-bold text-slate-900 mt-1">
-          Designed for Excellence at Every Step
-        </h3>
+    <div className="kgs-glass kgs-float pointer-events-auto absolute left-0 top-[6%] z-10 w-[250px] rounded-2xl p-5">
+      <CardTitle icon="shield">Proctored<br />Environment</CardTitle>
+      <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
+        {["Camera Monitoring", "Tab Switch Detection", "Fullscreen Enforcement"].map((item) => (
+          <li key={item} className="flex items-center gap-2.5 text-xs font-semibold text-[color:var(--body)]">
+            <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
+              <Icon name="check" size={12} />
+            </span>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+const barHeights = [14, 22, 34, 46, 30, 20, 36, 48, 40, 26, 16, 30, 44, 52, 42, 28, 18, 32, 48, 38, 22, 14, 30, 44, 50, 36, 20, 28, 42, 48, 34, 18, 26, 38, 44, 32, 20, 28, 36, 24];
+
+function MonitorCard() {
+  return (
+    <div className="kgs-glass kgs-float pointer-events-auto absolute right-0 top-0 z-10 w-[220px] rounded-2xl p-5 [animation-delay:-2s]">
+      <CardTitle icon="clock">Real-time<br />Monitoring</CardTitle>
+      <div className="mt-3 flex h-10 items-end justify-between gap-0.5">
+        {barHeights.map((h, i) => (
+          <div key={i} className="w-[3px] rounded-full bg-gradient-to-t from-blue-600 to-violet-600" style={{ height: `${Math.min(h, 40)}px` }} />
+        ))}
       </div>
+    </div>
+  );
+}
 
-      <div className="flex items-center gap-4 md:gap-6 w-full">
-        <button
-          onClick={() => setCurrent((c) => Math.max(c - 1, 0))}
-          disabled={safeIdx === 0}
-          className="size-11 bg-white border border-slate-200/80 shadow-md rounded-full flex items-center justify-center cursor-pointer hover:bg-slate-100 transition shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-          aria-label="Previous Slide"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="m15 18-6-6 6-6" stroke="#0f172b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+function EvaluationCard() {
+  return (
+    <div className="kgs-glass kgs-float pointer-events-auto absolute bottom-[2%] right-0 z-10 w-[250px] rounded-2xl p-5 [animation-delay:-4s]">
+      <CardTitle icon="chart">Secure<br />Evaluation</CardTitle>
+      <div className="mb-2 whitespace-nowrap text-[13px] font-medium text-[color:var(--sub)]">
+        Automated • Accurate • Auditable
+      </div>
+      <svg className="h-[52px] w-full overflow-visible" viewBox="0 0 240 60" preserveAspectRatio="none" aria-label="Evaluation accuracy chart">
+        <path d="M0,45 C30,48 50,22 80,32 C110,42 130,46 160,28 C190,10 215,14 240,6 L240,60 L0,60 Z" fill="url(#chartFillGrad)" />
+        <path d="M0,45 C30,48 50,22 80,32 C110,42 130,46 160,28 C190,10 215,14 240,6" fill="none" stroke="url(#chartLineGrad)" strokeWidth="3.2" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
 
-        <div className="overflow-hidden flex-1 min-w-0">
+/* ------------------------------------------------------------------ */
+/* Feature strip                                                        */
+/* ------------------------------------------------------------------ */
+const featureItems: [IconName, string, string][] = [
+  ["shield", "Secure & Reliable", "Enterprise-grade security and data protection."],
+  ["users", "Fair Assessments", "AI-resistant proctoring and integrity controls."],
+  ["bars", "Real-time Insights", "Live monitoring and instant analytics."],
+  ["gear", "Easy Management", "Simple tools for admins and institutions."],
+  ["graduate", "Built for Scale", "From hundreds to millions of candidates."],
+];
+
+function FeatureStrip() {
+  return (
+    <section className="relative z-10 bg-transparent pb-8 pt-10" id="features">
+      <div className={`${container} grid grid-cols-1 items-center gap-8 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6`}>
+        {featureItems.map(([icon, title, copy]) => (
           <div
-            className="flex gap-4 transition-transform duration-500 ease-in-out"
-            style={{
-              transform: `translateX(calc(-${(safeIdx * 100) / visibleCount}% - ${(safeIdx * GAP) / visibleCount}px))`,
-            }}
+            key={title}
+            className="relative flex items-center gap-4 lg:after:absolute lg:after:-right-3 lg:after:top-[15%] lg:after:block lg:after:h-[70%] lg:after:w-px lg:after:bg-[color:var(--hairline)] lg:after:content-[''] lg:last:after:hidden"
           >
-            {showcaseItems.map((item, i) => (
-              <div
-                key={i}
-                className="rounded-2xl overflow-hidden shrink-0 border border-slate-200/80 bg-white shadow-md hover:shadow-lg transition-shadow"
-                style={{
-                  width: `calc(${100 / visibleCount}% - ${(GAP * (visibleCount - 1)) / visibleCount}px)`,
-                }}
-              >
-                <div className="h-56 overflow-hidden">
-                  <img src={item.img} alt={item.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                </div>
-                <div className="p-5">
-                  <h4 className="font-bold text-slate-900 text-base">{item.title}</h4>
-                  <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">{item.desc}</p>
-                </div>
-              </div>
-            ))}
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-[color:var(--bubble)] shadow-lg shadow-blue-600/10">
+              <GradientIcon name={icon} size={26} />
+            </div>
+            <div className="flex flex-col">
+              <h3 className="m-0 mb-1 text-lg font-bold text-[color:var(--heading)]">{title}</h3>
+              <p className="m-0 max-w-[200px] text-[15px] leading-normal text-[color:var(--body)] [text-wrap:balance]">{copy}</p>
+            </div>
           </div>
-        </div>
-
-        <button
-          onClick={() => setCurrent((c) => Math.min(c + 1, maxIdx))}
-          disabled={safeIdx >= maxIdx}
-          className="size-11 bg-white border border-slate-200/80 shadow-md rounded-full flex items-center justify-center cursor-pointer hover:bg-slate-100 transition shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-          aria-label="Next Slide"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="m9 18 6-6-6-6" stroke="#0f172b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+        ))}
+      </div>
+      <div className="mt-12 text-center text-sm font-medium tracking-wide text-[color:var(--body)] sm:text-base">
+        Trusted by leading educational institutions and organizations
       </div>
     </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Info sections                                                        */
+/* ------------------------------------------------------------------ */
+const infoSections: [string, string, string][] = [
+  ["about", "Purpose-built for trusted assessments", "Give every candidate a calm, consistent experience while your team retains full control and visibility."],
+  ["how-it-works", "From registration to results", "Create an examination, invite candidates, monitor sessions in real time, and publish auditable results from one workspace."],
+  ["security", "Integrity at every layer", "Identity-aware access, configurable proctoring, activity signals, and defensible audit records protect every assessment."],
+  ["contact", "Ready to modernize your examinations?", "Talk to the KGS team about your institution, candidate volume, and security requirements."],
+];
+
+function InfoSections() {
+  return (
+    <div className="mx-auto my-12 mb-20 grid w-[calc(100%-32px)] max-w-[1120px] grid-cols-1 gap-4 sm:w-[calc(100%-40px)] sm:grid-cols-2 md:w-[calc(100%-64px)] lg:grid-cols-4">
+      {infoSections.map(([id, title, copy], i) => (
+        <section
+          key={id}
+          id={id}
+          className="group flex min-h-[260px] flex-col rounded-2xl border border-[color:var(--glass-border)] bg-[color:var(--card-bg)] p-5 shadow-lg shadow-blue-600/[0.07] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-600/10 sm:p-6"
+        >
+          <div className="mb-5 flex items-center justify-between">
+            <span className="text-xs font-extrabold tracking-[0.18em] text-blue-600">0{i + 1}</span>
+            <span className="h-2 w-2 rounded-full bg-blue-600/20 transition-colors group-hover:bg-blue-600" aria-hidden="true" />
+          </div>
+          <h2 className="m-0 mb-3 text-xl font-bold leading-snug tracking-tight text-[color:var(--heading)]">{title}</h2>
+          <p className="m-0 text-sm leading-relaxed text-[color:var(--body)]">{copy}</p>
+          {id === "contact" && (
+            <a
+              href="mailto:exams@kgs.edu"
+              className="mt-auto inline-flex cursor-pointer items-center gap-2 pt-5 text-sm font-bold text-blue-600 no-underline transition-all hover:translate-x-1 hover:text-violet-600"
+            >
+              exams@kgs.edu <Icon name="arrow" size={15} />
+            </a>
+          )}
+        </section>
+      ))}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                 */
+/* ------------------------------------------------------------------ */
+export function LandingPage(props: LandingPageProps) {
+  return (
+    <div className="kgs-landing relative min-h-screen overflow-x-hidden font-sans">
+      <style>{themeCss}</style>
+      <SvgGradients />
+      <Navbar {...props} />
+
+      <main>
+        {/* ---------------- HERO ---------------- */}
+        <section id="home" className="relative isolate min-h-[640px] overflow-hidden pb-28 pt-12">
+          {/* Photo layer: bleeds to the viewport's right edge, feathered on left + bottom */}
+          <div className="kgs-photo pointer-events-none absolute inset-y-0 right-0 z-0 w-full opacity-30 lg:w-[58%] lg:opacity-100">
+            <img
+              src={heroStudentImg}
+              alt="Student taking an online examination with headphones at a laptop"
+              className="h-full w-full object-cover"
+              style={{ objectPosition: HERO_POSITION }}
+            />
+          </div>
+
+          <div className={`${container} relative z-10 grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-[1.1fr_0.9fr]`}>
+            <div className="flex flex-col items-start">
+              <div className="inline-flex items-center gap-2.5 rounded-full border border-[color:var(--glass-border)] bg-[color:var(--glass)] px-[18px] py-2 text-xs font-extrabold uppercase tracking-wider text-[color:var(--heading)] shadow-sm backdrop-blur-md">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(34,197,94,0.2)]" />
+                SECURE • FAIR • AI-RESISTANT • ENTERPRISE GRADE
+              </div>
+
+              <h1 className="my-6 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl xl:text-[72px]">
+                <span className="kgs-grad-text block">Next-Generation</span>
+                <span className="block text-[color:var(--heading)]">Online Examination</span>
+                <span className="block text-[color:var(--heading)]">Platform</span>
+              </h1>
+
+              <p className="mb-8 max-w-[640px] text-base font-normal leading-relaxed text-[color:var(--body)] sm:text-lg lg:text-xl">
+                A secure, proctored, and intelligent examination platform designed for educational
+                institutions and organizations to conduct fair, scalable, and tamper-proof assessments.
+              </p>
+
+              <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto">
+                <button
+                  className={`${btnPrimary} h-[54px] w-full gap-2.5 rounded-2xl px-7 text-base font-semibold sm:w-auto`}
+                  onClick={props.onRegister}
+                >
+                  <Icon name="user" size={19} />
+                  Register as Student
+                  <Icon name="arrow" size={19} />
+                </button>
+                <button
+                  className={`${btnSecondary} h-[54px] w-full gap-2.5 rounded-2xl px-7 text-base font-semibold sm:w-auto`}
+                  onClick={props.onStudentLogin}
+                >
+                  <Icon name="login" size={19} />
+                  Student Login
+                </button>
+              </div>
+
+              <div className="mt-4">
+                <button
+                  className="inline-flex cursor-pointer items-center gap-2 border-none bg-transparent p-1 text-sm font-bold text-blue-600 transition-all hover:translate-x-1 hover:text-violet-600"
+                  onClick={props.onAdminLogin}
+                >
+                  <Icon name="shield" size={18} />
+                  Administrator Portal →
+                </button>
+              </div>
+            </div>
+
+            <div className="pointer-events-none relative hidden min-h-[520px] w-full lg:block">
+              <ProctorCard />
+              <MonitorCard />
+              <EvaluationCard />
+            </div>
+          </div>
+
+          {/* Full-width wave, always the same color as the page background */}
+          <svg
+            className="pointer-events-none absolute inset-x-0 -bottom-px z-20 block h-16 w-full"
+            viewBox="0 0 1440 80"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M0,32 C360,80 720,0 1080,48 C1260,72 1380,56 1440,80 L1440,80 L0,80 Z"
+              style={{ fill: "var(--page-bg)" }}
+            />
+          </svg>
+        </section>
+
+        <FeatureStrip />
+        <InfoSections />
+      </main>
+
+      <footer className="border-t border-[color:var(--hairline)] bg-[color:var(--foot-bg)] py-9 backdrop-blur-md">
+        <div className={`${container} flex flex-col items-center justify-between gap-6 text-sm text-[color:var(--body)] sm:flex-row`}>
+          <Brand />
+          <p className="m-0 text-center sm:text-left">
+            © {new Date().getFullYear()} KGS Institute. Secure examination infrastructure.
+          </p>
+          <a href="#home" className="text-[color:var(--body)] no-underline transition-colors hover:text-blue-600">
+            Back to top ↑
+          </a>
+        </div>
+      </footer>
+    </div>
   );
 }

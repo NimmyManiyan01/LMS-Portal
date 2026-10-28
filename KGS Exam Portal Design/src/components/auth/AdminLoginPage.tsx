@@ -1,46 +1,46 @@
-import { useState } from "react";
-import { API_BASE_URL, setAuthToken } from "../../api";
+import { useState } from "react"
+import { API_BASE_URL, setAuthToken } from "../../api"
 
 interface Props {
-  onBackToLanding: () => void;
-  onAuthenticated: (user: { email: string; role: string }) => void;
+  onBackToLanding: () => void
+  onAuthenticated: (user: { email: string role: string }) => void
 }
 
 export function AdminLoginPage({ onBackToLanding, onAuthenticated }: Props) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
   const submit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setLoading(true);
-    setError("");
+    event.preventDefault()
+    setLoading(true)
+    setError("")
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/admin/login`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-      });
+      })
       if (!response.ok)
         throw new Error(
           (await response.json().catch(() => null))?.error ||
             "Administrator authentication failed.",
-        );
-      const data = await response.json();
-      if (data.token) setAuthToken(data.token, true);
-      onAuthenticated(data.user);
+        )
+      const data = await response.json()
+      if (data.token) setAuthToken(data.token, true)
+      onAuthenticated(data.user)
     } catch (cause) {
       setError(
         cause instanceof Error
           ? cause.message
           : "Administrator authentication failed.",
-      );
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100 p-5">
       <div className="w-full max-w-[520px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10">
@@ -139,5 +139,5 @@ export function AdminLoginPage({ onBackToLanding, onAuthenticated }: Props) {
         </form>
       </div>
     </div>
-  );
+  )
 }

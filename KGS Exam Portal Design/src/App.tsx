@@ -1,26 +1,31 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Exam, AnswerState, StudentProfile } from "./types";
-import { API_BASE_URL, authFetch, clearAuthToken } from "./api";
-import { SystemCheckModal } from "./components/student/SystemCheckModal";
-import { ExamInstructionsModal } from "./components/student/ExamInstructionsModal";
-import { ExamPlayer } from "./components/student/ExamPlayer";
-import { SubmissionModal } from "./components/student/SubmissionModal";
-import { ResultsView } from "./components/student/ResultsView";
+import { lazy, Suspense, useEffect, useRef, useState } from "react"
+import { Exam, AnswerState, StudentProfile } from "./types"
+import { API_BASE_URL, authFetch, clearAuthToken } from "./api"
+import { SystemCheckModal } from "./components/student/SystemCheckModal"
+import { ExamInstructionsModal } from "./components/student/ExamInstructionsModal"
+import { ExamPlayer } from "./components/student/ExamPlayer"
+import { SubmissionModal } from "./components/student/SubmissionModal"
+import { ResultsView } from "./components/student/ResultsView"
 const SubmissionConfirmation = lazy(() =>
   import("./components/student/SubmissionConfirmation").then((module) => ({
     default: module.SubmissionConfirmation,
   })),
-);
-import { LandingPage } from "./components/public/LandingPage";
-import { RegistrationPage } from "./components/auth/RegistrationPage";
-import { StudentLoginPage } from "./components/auth/StudentLoginPage";
-import { AdminLoginPage } from "./components/auth/AdminLoginPage";
-import { StudentExaminations } from "./components/student/StudentExaminations";
-import { QuestionBankPage } from "./components/admin/QuestionBankPage";
-import { PaperSetsPage } from "./components/admin/PaperSetsPage";
-import { ExaminationsPage } from "./components/admin/ExaminationsPage";
-import { LiveMonitoringPage } from "./components/admin/LiveMonitoringPage";
-import { ResultsPage } from "./components/admin/ResultsPage";
+)
+import { LandingPage } from "./components/public/LandingPage"
+import {
+  PolicyPage,
+  monitoringSections,
+  privacySections,
+} from "./components/public/PolicyPage"
+import { RegistrationPage } from "./components/auth/RegistrationPage"
+import { StudentLoginPage } from "./components/auth/StudentLoginPage"
+import { AdminLoginPage } from "./components/auth/AdminLoginPage"
+import { StudentExaminations } from "./components/student/StudentExaminations"
+import { QuestionBankPage } from "./components/admin/QuestionBankPage"
+import { PaperSetsPage } from "./components/admin/PaperSetsPage"
+import { ExaminationsPage } from "./components/admin/ExaminationsPage"
+import { LiveMonitoringPage } from "./components/admin/LiveMonitoringPage"
+import { ResultsPage } from "./components/admin/ResultsPage"
 
 type IconName =
   | "grid"
@@ -43,7 +48,7 @@ type IconName =
   | "search"
   | "plus"
   | "more"
-  | "menu";
+  | "menu"
 
 function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, React.ReactNode> = {
@@ -166,7 +171,7 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
         <path d="M4 6h16M4 12h16M4 18h16" />
       </>
     ),
-  };
+  }
   return (
     <svg
       width={size}
@@ -181,7 +186,7 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
     >
       {paths[name]}
     </svg>
-  );
+  )
 }
 
 const studentNav = [
@@ -190,7 +195,7 @@ const studentNav = [
   ["result", "Results"],
   ["shield", "System check"],
   ["help", "Help & support"],
-] as const;
+] as const
 
 const adminNav = [
   ["grid", "Overview"],
@@ -202,35 +207,39 @@ const adminNav = [
   ["result", "Results"],
   ["download", "Reports"],
   ["shield", "Security & audit"],
-] as const;
+] as const
 
 async function readApiJson(response: Response) {
-  const contentType = response.headers.get("content-type") || "";
-  const body = await response.text();
+  const contentType = response.headers.get("content-type") || ""
+  const body = await response.text()
   if (!contentType.toLowerCase().includes("application/json")) {
     throw new Error(
       `API returned ${response.status} ${response.statusText || "an invalid response"} instead of JSON.`,
-    );
+    )
   }
   try {
-    return JSON.parse(body);
+    return JSON.parse(body)
   } catch {
-    throw new Error("The administrator API returned malformed JSON.");
+    throw new Error("The administrator API returned malformed JSON.")
   }
 }
 
-function Brand() {
+function Brand({ admin = false }: { admin?: boolean }) {
   return (
-    <div className="brand">
-      <div className="brand-mark">
+    <div className="flex items-center gap-3">
+      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black italic shadow-md shadow-blue-500/20">
         <span>K</span>
       </div>
       <div>
-        <strong>KGS</strong>
-        <small>EXAM PORTAL</small>
+        <strong className={`block text-sm font-extrabold tracking-tight ${admin ? "text-white" : "text-slate-900"}`}>
+          KGS
+        </strong>
+        <small className="block text-[9px] font-extrabold tracking-[0.16em] text-blue-600 leading-none">
+          EXAM PORTAL
+        </small>
       </div>
     </div>
-  );
+  )
 }
 
 function Sidebar({
@@ -238,70 +247,104 @@ function Sidebar({
   active,
   onNav,
 }: {
-  admin: boolean;
-  active: string;
-  onNav: (v: string) => void;
+  admin: boolean
+  active: string
+  onNav: (v: string) => void
 }) {
-  const nav = admin ? adminNav : studentNav;
-  const [activeAttempts, setActiveAttempts] = useState<number | null>(null);
+  const nav = admin ? adminNav : studentNav
+  const [activeAttempts, setActiveAttempts] = useState<number | null>(null)
   useEffect(() => {
-    if (!admin) return;
-    let cancelled = false;
+    if (!admin) return
+    let cancelled = false
     const load = async () => {
       try {
         const response = await authFetch(
           `${API_BASE_URL}/api/admin/dashboard?range=month`,
           {},
           true,
-        );
-        if (!response.ok) return;
-        const payload = await response.json();
+        )
+        if (!response.ok) return
+        const payload = await response.json()
         if (!cancelled)
-          setActiveAttempts(Number(payload?.stats?.activeAttempts || 0));
+          setActiveAttempts(Number(payload?.stats?.activeAttempts || 0))
       } catch {
         /* The dashboard remains usable when the count cannot be refreshed. */
       }
-    };
-    void load();
-    const timer = window.setInterval(load, 30000);
+    }
+    void load()
+    const timer = window.setInterval(load, 30000)
     return () => {
-      cancelled = true;
-      window.clearInterval(timer);
-    };
-  }, [admin]);
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [admin])
+
   return (
-    <aside className={`sidebar ${admin ? "admin-sidebar" : "student-sidebar"}`}>
-      <Brand />
-      <div className="portal-label">
-        {admin ? "ADMIN PORTAL" : "STUDENT PORTAL"}
+    <aside
+      className={`w-[260px] h-screen sticky top-0 shrink-0 flex flex-col justify-between p-5 border-r transition-colors z-30 ${
+        admin
+          ? "bg-slate-900 text-white border-slate-800"
+          : "bg-white text-slate-900 border-slate-200/80"
+      }`}
+    >
+      <div>
+        <Brand admin={admin} />
+        <div
+          className={`text-[10px] font-extrabold uppercase tracking-widest my-4 px-2.5 py-1 rounded-md ${
+            admin ? "bg-slate-800 text-slate-400" : "bg-slate-100 text-slate-500"
+          }`}
+        >
+          {admin ? "ADMIN PORTAL" : "STUDENT PORTAL"}
+        </div>
+        <nav className="flex flex-col gap-1">
+          {nav.map(([icon, label]) => (
+            <button
+              key={label}
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer border-none ${
+                active === label
+                  ? admin
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/20 font-bold"
+                    : "bg-blue-50 text-blue-600 font-bold"
+                  : admin
+                    ? "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
+              onClick={() => onNav(label)}
+            >
+              <div className="flex items-center gap-2.5">
+                <Icon name={icon} />
+                <span>{label}</span>
+              </div>
+              {label === "Live monitoring" &&
+                activeAttempts !== null &&
+                activeAttempts > 0 && (
+                  <i className="not-italic px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950">
+                    {activeAttempts}
+                  </i>
+                )}
+            </button>
+          ))}
+        </nav>
       </div>
-      <nav>
-        {nav.map(([icon, label]) => (
-          <button
-            key={label}
-            className={active === label ? "nav-item active" : "nav-item"}
-            onClick={() => onNav(label)}
-          >
-            <Icon name={icon} />
-            <span>{label}</span>
-            {label === "Live monitoring" &&
-              activeAttempts !== null &&
-              activeAttempts > 0 && <i>{activeAttempts}</i>}
-          </button>
-        ))}
-      </nav>
-      <div className="sidebar-foot">
-        <div className="secure">
-          <Icon name="shield" />
+
+      <div className="flex flex-col gap-3 pt-4 border-t border-slate-200/80 dark:border-slate-800">
+        <div
+          className={`flex items-start gap-2.5 p-3 rounded-xl text-xs font-medium ${
+            admin ? "bg-slate-800/80 text-slate-300" : "bg-slate-50 text-slate-600"
+          }`}
+        >
+          <Icon name="shield" size={16} />
           <div>
-            <b>Examination security</b>
-            <span>Monitoring follows the configured policy</span>
+            <b className="block font-bold text-xs mb-0.5">Examination security</b>
+            <span className="text-[11px] opacity-80">Monitoring follows policy</span>
           </div>
         </div>
-        <small>© 2025 KGS Institute</small>
+        <small className="text-[11px] font-medium text-slate-400 text-center">
+          © 2025 KGS Institute
+        </small>
       </div>
     </aside>
-  );
+  )
 }
 
 function Topbar({
@@ -313,79 +356,102 @@ function Topbar({
   openMenu,
   onLogout,
 }: {
-  admin: boolean;
-  setAdmin: (v: boolean) => void;
-  student: StudentProfile | null;
-  adminUser: { email: string; role: string } | null;
-  onOpenLogin: () => void;
-  openMenu: () => void;
-  onLogout: () => void;
+  admin: boolean
+  setAdmin: (v: boolean) => void
+  student: StudentProfile | null
+  adminUser: { email: string; role: string } | null
+  onOpenLogin: () => void
+  openMenu: () => void
+  onLogout: () => void
 }) {
   return (
-    <header className="topbar">
+    <header className="h-16 px-4 sm:px-8 bg-white border-b border-slate-200/80 sticky top-0 z-20 flex items-center justify-between gap-4">
       <button
-        className="mobile-menu icon-button"
+        className="lg:hidden flex items-center justify-center p-2 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer border-none bg-transparent"
         onClick={openMenu}
         aria-label="Open menu"
       >
         <Icon name="menu" />
       </button>
-      <div className="environment">
-        <span className="status-dot"></span>
+
+      <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-xs font-semibold text-emerald-800">
+        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
         <span>All systems operational</span>
       </div>
-      <div className="top-actions">
-        <button className="icon-button notify" aria-label="Notifications">
+
+      <div className="flex items-center gap-3 ml-auto">
+        <button
+          className="relative flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer bg-white"
+          aria-label="Notifications"
+        >
           <Icon name="bell" />
-          <span></span>
+          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-600"></span>
         </button>
+
         {admin && adminUser ? (
           <button
-            className="profile profile-button"
+            className="flex items-center gap-3 p-1.5 pl-2 pr-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer bg-white text-left group"
             onClick={onLogout}
             aria-label="Log out administrator"
           >
-            <div className="avatar">AD</div>
-            <div>
-              <b>{adminUser.email}</b>
-              <small>Administrator</small>
+            <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0">
+              AD
+            </div>
+            <div className="hidden sm:flex flex-col">
+              <b className="text-xs font-semibold text-slate-900 leading-tight">
+                {adminUser.email}
+              </b>
+              <small className="text-[11px] font-medium text-slate-500">
+                Administrator
+              </small>
             </div>
             <Icon name="chevron" size={14} />
-            <span className="profile-logout">Log out</span>
+            <span className="hidden group-hover:inline text-xs font-bold text-red-600 ml-1">
+              Log out
+            </span>
           </button>
         ) : student ? (
           <button
-            className="profile profile-button"
+            className="flex items-center gap-3 p-1.5 pl-2 pr-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer bg-white text-left group"
             onClick={onLogout}
             aria-label="Log out"
           >
-            <div className="avatar">{admin ? "AM" : "AK"}</div>
-            <div>
-              <b>
+            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+              {admin ? "AM" : "AK"}
+            </div>
+            <div className="hidden sm:flex flex-col">
+              <b className="text-xs font-semibold text-slate-900 leading-tight">
                 {admin ? adminUser?.email || "Administrator" : student.fullName}
               </b>
-              <small>{admin ? "Administrator" : student.registrationId}</small>
+              <small className="text-[11px] font-medium text-slate-500">
+                {admin ? "Administrator" : student.registrationId}
+              </small>
             </div>
             <Icon name="chevron" size={14} />
-            <span className="profile-logout">Log out</span>
+            <span className="hidden group-hover:inline text-xs font-bold text-red-600 ml-1">
+              Log out
+            </span>
           </button>
         ) : (
-          <button className="primary mini" onClick={onOpenLogin}>
+          <button
+            className="h-9 px-4 text-xs font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer border-none"
+            onClick={onOpenLogin}
+          >
             Sign In (OTP)
           </button>
         )}
       </div>
     </header>
-  );
+  )
 }
 
 function StudentExportAction() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
   const exportRegister = async () => {
-    if (loading) return;
-    setLoading(true);
-    setError("");
+    if (loading) return
+    setLoading(true)
+    setError("")
     try {
       const created = await authFetch(
         `${API_BASE_URL}/api/admin/reports/exports`,
@@ -395,46 +461,47 @@ function StudentExportAction() {
           body: JSON.stringify({}),
         },
         true,
-      );
-      const data = await created.json().catch(() => ({}));
+      )
+      const data = await created.json().catch(() => ({}))
       if (!created.ok || !data.exportId)
-        throw new Error(data.error || "Unable to generate student register.");
+        throw new Error(data.error || "Unable to generate student register.")
       const download = await authFetch(
         `${API_BASE_URL}/api/admin/reports/exports/${data.exportId}/download`,
         {},
         true,
-      );
+      )
       if (!download.ok)
-        throw new Error("Unable to download the generated workbook.");
-      const blob = await download.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = data.fileName || "kgs-student-register.xlsx";
-      link.click();
-      URL.revokeObjectURL(url);
+        throw new Error("Unable to download the generated workbook.")
+      const blob = await download.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = data.fileName || "kgs-student-register.xlsx"
+      link.click()
+      URL.revokeObjectURL(url)
     } catch (cause) {
       setError(
         cause instanceof Error
           ? cause.message
           : "Unable to export student register.",
-      );
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
   return (
-    <div className="student-export-action">
+    <div className="flex flex-col items-end gap-1">
       <button
-        className="secondary"
+        className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
         disabled={loading}
         onClick={() => void exportRegister()}
       >
         {loading ? "Exporting..." : "Export Student Register"}
       </button>
-      {error && <small className="field-error">{error}</small>}
+      {error && <small className="text-xs font-medium text-red-600">{error}</small>}
     </div>
-  );
+  )
 }
 
 function PageHead({
@@ -444,37 +511,40 @@ function PageHead({
   description,
   showCreateAction = true,
 }: {
-  admin: boolean;
-  student: StudentProfile | null;
-  title?: string;
-  description?: string;
-  showCreateAction?: boolean;
+  admin: boolean
+  student: StudentProfile | null
+  title?: string
+  description?: string
+  showCreateAction?: boolean
 }) {
-  const current = new Date();
+  const current = new Date()
   const greeting =
     current.getHours() < 12
       ? "Good morning"
       : current.getHours() < 18
         ? "Good afternoon"
-        : "Good evening";
+        : "Good evening"
   const localDate = new Intl.DateTimeFormat(undefined, {
     weekday: "long",
     day: "numeric",
     month: "long",
   })
     .format(current)
-    .toUpperCase();
+    .toUpperCase()
+
   return (
-    <div className="page-head">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm mb-6">
       <div>
-        <div className="eyebrow">{admin ? "ADMINISTRATION" : localDate}</div>
-        <h1>
+        <div className="text-[11px] font-extrabold uppercase tracking-wider text-blue-600 mb-1">
+          {admin ? "ADMINISTRATION" : localDate}
+        </div>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
           {title ||
             (admin
               ? "Examination overview"
               : `${greeting}, ${student?.fullName || "Student"}`)}
         </h1>
-        <p>
+        <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
           {admin
             ? "Monitor operations and manage the examination lifecycle."
             : "Here’s what’s happening with your examinations."}
@@ -483,21 +553,21 @@ function PageHead({
       {admin && title === "Student Management" ? (
         <StudentExportAction />
       ) : admin && showCreateAction ? (
-        <button className="primary">
+        <button className="inline-flex items-center justify-center gap-2 h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-all cursor-pointer shadow-sm shadow-blue-500/20 flex-shrink-0 border-none">
           <Icon name="plus" />
           Create examination
         </button>
       ) : admin ? null : (
-        <div className="student-id">
-          <small>STUDENT ID</small>
-          <b>{student?.registrationId || "—"}</b>
-          <span>
+        <div className="flex items-center gap-3 p-3 px-4 bg-slate-50 rounded-xl border border-slate-200/80 text-xs">
+          <small className="font-bold text-slate-400 uppercase tracking-wider">STUDENT ID</small>
+          <b className="font-mono font-bold text-slate-900 text-sm">{student?.registrationId || "—"}</b>
+          <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-[10px]">
             <Icon name="check" size={12} /> Verified
           </span>
         </div>
       )}
     </div>
-  );
+  )
 }
 
 function Meta({
@@ -505,105 +575,100 @@ function Meta({
   label,
   value,
 }: {
-  icon: IconName;
-  label: string;
-  value: string;
+  icon: IconName
+  label: string
+  value: string
 }) {
   return (
-    <div className="meta">
-      <Icon name={icon} />
-      <div>
-        <small>{label}</small>
-        <b>{value}</b>
+    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/70">
+      <div className="text-blue-600 shrink-0">
+        <Icon name={icon} />
+      </div>
+      <div className="flex flex-col">
+        <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</small>
+        <b className="text-xs font-semibold text-slate-900 mt-0.5">{value}</b>
       </div>
     </div>
-  );
+  )
 }
 
 export default function App() {
-  const publicPath = window.location.pathname;
-  const [entryRoute, setEntryRoute] = useState(publicPath);
-  const [admin, setAdmin] = useState(false);
+  const publicPath = window.location.pathname
+  const [entryRoute, setEntryRoute] = useState(publicPath)
+  const [admin, setAdmin] = useState(false)
   const [adminUser, setAdminUser] = useState<{
-    email: string;
-    role: string;
-  } | null>(null);
-  const [active, setActive] = useState("Overview");
-  const [menu, setMenu] = useState(false);
-  const [student, setStudent] = useState<StudentProfile | null>(null);
-  const [dashboardExams, setDashboardExams] = useState<Exam[]>([]);
-  const [dashboardLoading, setDashboardLoading] = useState(true);
-  const [dashboardError, setDashboardError] = useState("");
-  const [examActionError, setExamActionError] = useState("");
+    email: string
+    role: string
+  } | null>(null)
+  const [active, setActive] = useState("Overview")
+  const [menu, setMenu] = useState(false)
+  const [student, setStudent] = useState<StudentProfile | null>(null)
+  const [dashboardExams, setDashboardExams] = useState<Exam[]>([])
+  const [dashboardLoading, setDashboardLoading] = useState(true)
+  const [dashboardError, setDashboardError] = useState("")
+  const [examActionError, setExamActionError] = useState("")
   const [dashboardSummary, setDashboardSummary] = useState({
     available: 0,
     upcoming: 0,
     inProgress: 0,
     completed: 0,
     resultsPending: 0,
-  });
-  const [loginEmail, setLoginEmail] = useState("");
+  })
+  const [loginEmail, setLoginEmail] = useState("")
 
-  // Flow State for Exam Attempt
-  const [viewState, setViewState] = useState<
-    | "DASHBOARD"
-    | "INSTRUCTIONS"
-    | "SYSTEM_CHECK"
-    | "EXAM_PLAYER"
-    | "SUBMISSION_CONFIRM"
-    | "SUBMISSION_SUCCESS"
-    | "RESULTS"
-  >("DASHBOARD");
-  const [selectedExam, setSelectedExam] = useState<Exam | null>(null);
-  const [activeAttemptId, setActiveAttemptId] = useState("");
-  const [tab, setTab] = useState("Eligible");
-  const initialStatusTabApplied = useRef(false);
+  const [viewState, setViewState] =
+    useState<"DASHBOARD" | "INSTRUCTIONS" | "SYSTEM_CHECK" | "EXAM_PLAYER" | "SUBMISSION_CONFIRM" | "SUBMISSION_SUCCESS" | "RESULTS">(
+      "DASHBOARD",
+    )
+  const [selectedExam, setSelectedExam] = useState<Exam | null>(null)
+  const [activeAttemptId, setActiveAttemptId] = useState("")
+  const [tab, setTab] = useState("Eligible")
+  const initialStatusTabApplied = useRef(false)
   const [lastAnswers, setLastAnswers] = useState<Record<string, AnswerState>>(
     {},
-  );
-  const [examQuestions, setExamQuestions] = useState<
-    import("./types").Question[]
-  >([]);
-  const [submissionLoading, setSubmissionLoading] = useState(false);
-  const [submissionError, setSubmissionError] = useState("");
+  )
+  const [examQuestions, setExamQuestions] =
+    useState<import("./types").Question[]>([])
+  const [submissionLoading, setSubmissionLoading] = useState(false)
+  const [submissionError, setSubmissionError] = useState("")
   const [submittedResult, setSubmittedResult] = useState<{
-    marksScored?: number;
-    maximumMarks?: number;
-    released?: boolean;
-  } | null>(null);
+    marksScored?: number
+    maximumMarks?: number
+    released?: boolean
+  } | null>(null)
 
   useEffect(() => {
     if (entryRoute === "/admin/dashboard" && !admin) {
       authFetch(`${API_BASE_URL}/api/auth/admin/me`, {}, true)
         .then(async (response) => {
-          if (!response.ok) throw new Error();
-          const data = await response.json();
-          setAdminUser(data.user);
-          setAdmin(true);
+          if (!response.ok) throw new Error()
+          const data = await response.json()
+          setAdminUser(data.user)
+          setAdmin(true)
         })
-        .catch(() => navigateEntry("/admin"));
-      return;
+        .catch(() => navigateEntry("/admin"))
+      return
     }
-    if (entryRoute !== "/dashboard") return;
+    if (entryRoute !== "/dashboard") return
     const loadDashboard = async () => {
-      setDashboardLoading(true);
-      setDashboardError("");
+      setDashboardLoading(true)
+      setDashboardError("")
       try {
-        const api = API_BASE_URL;
+        const api = API_BASE_URL
         const [meResponse, dashboardResponse] = await Promise.all([
           authFetch(`${api}/api/auth/me`, { cache: "no-store" }),
           authFetch(`${api}/api/student/dashboard`, { cache: "no-store" }),
-        ]);
+        ])
         if (meResponse.status === 401 || dashboardResponse.status === 401) {
-          clearAuthToken();
-          navigateEntry("/login");
-          return;
+          clearAuthToken()
+          navigateEntry("/login")
+          return
         }
         if (!meResponse.ok || !dashboardResponse.ok)
-          throw new Error("Unable to load your dashboard.");
-        const me = await meResponse.json();
-        const dashboard = await dashboardResponse.json();
-        setStudent(me.user);
+          throw new Error("Unable to load your dashboard.")
+        const me = await meResponse.json()
+        const dashboard = await dashboardResponse.json()
+        setStudent(me.user)
         setDashboardSummary(
           dashboard.summary || {
             available: 0,
@@ -612,7 +677,7 @@ export default function App() {
             completed: 0,
             resultsPending: 0,
           },
-        );
+        )
         const mappedExams = (dashboard.exams || []).map((exam: any) => ({
           ...exam,
           id: String(exam.id || exam._id),
@@ -639,55 +704,57 @@ export default function App() {
           integrityRules: exam.integrityRules,
           instructions: exam.instructions || [],
           sections: exam.sections || [],
-        }));
-        setDashboardExams(mappedExams);
+        }))
+        setDashboardExams(mappedExams)
         if (
           !initialStatusTabApplied.current &&
           mappedExams.some((exam: any) => exam.status === "IN_PROGRESS")
         ) {
-          setTab("In Progress");
-          initialStatusTabApplied.current = true;
+          setTab("In Progress")
+          initialStatusTabApplied.current = true
         }
       } catch (error) {
         setDashboardError(
           error instanceof Error
             ? error.message
             : "Unable to load your dashboard.",
-        );
+        )
       } finally {
-        setDashboardLoading(false);
+        setDashboardLoading(false)
       }
-    };
-    void loadDashboard();
-  }, [entryRoute]);
+    }
+    void loadDashboard()
+  }, [entryRoute])
 
   const switchPortal = (v: boolean) => {
-    setAdmin(v);
-    setActive("Overview");
-    setViewState("DASHBOARD");
-  };
+    setAdmin(v)
+    setActive("Overview")
+    setViewState("DASHBOARD")
+  }
 
   const navigateEntry = (path: string) => {
-    window.history.pushState({}, "", path);
-    setEntryRoute(path);
-  };
+    window.history.pushState({}, "", path)
+    setEntryRoute(path)
+  }
 
   const handleLogout = async () => {
     try {
       await authFetch(
-        `${API_BASE_URL}${admin ? "/api/auth/admin/logout" : "/api/auth/logout"}`,
+        `${API_BASE_URL}${
+          admin ? "/api/auth/admin/logout" : "/api/auth/logout"
+        }`,
         { method: "POST" },
         admin,
-      );
+      )
     } finally {
-      clearAuthToken();
-      setStudent(null);
-      setAdmin(false);
-      setAdminUser(null);
-      setViewState("DASHBOARD");
-      navigateEntry("/");
+      clearAuthToken()
+      setStudent(null)
+      setAdmin(false)
+      setAdminUser(null)
+      setViewState("DASHBOARD")
+      navigateEntry("/")
     }
-  };
+  }
 
   if (entryRoute === "/") {
     return (
@@ -696,8 +763,30 @@ export default function App() {
         onRegister={() => navigateEntry("/register")}
         onAdminLogin={() => navigateEntry("/admin")}
       />
-    );
+    )
   }
+
+  if (entryRoute === "/privacy")
+    return (
+      <PolicyPage
+        eyebrow="YOUR DATA"
+        title="Privacy Policy"
+        summary="This policy explains what information the KGS Exam Portal processes, why it is needed, how it is protected, and the choices available to candidates."
+        sections={privacySections}
+        onBack={() => navigateEntry("/register")}
+      />
+    )
+
+  if (entryRoute === "/monitoring-policy")
+    return (
+      <PolicyPage
+        eyebrow="ASSESSMENT INTEGRITY"
+        title="Examination Monitoring Policy"
+        summary="This policy explains the monitoring signals that may be used during an assessment, candidate responsibilities, and how potential integrity events are reviewed."
+        sections={monitoringSections}
+        onBack={() => navigateEntry("/register")}
+      />
+    )
 
   if (
     entryRoute === "/login" ||
@@ -709,11 +798,11 @@ export default function App() {
         <RegistrationPage
           onBackToLogin={() => navigateEntry("/login")}
           onRegistered={(email) => {
-            setLoginEmail(email);
-            navigateEntry("/login");
+            setLoginEmail(email)
+            navigateEntry("/login")
           }}
         />
-      );
+      )
     if (entryRoute === "/login")
       return (
         <StudentLoginPage
@@ -721,95 +810,98 @@ export default function App() {
           onBackToLanding={() => navigateEntry("/")}
           onRegister={() => navigateEntry("/register")}
           onAuthenticated={(stu) => {
-            setStudent(stu);
-            navigateEntry("/dashboard");
+            setStudent(stu)
+            navigateEntry("/dashboard")
           }}
         />
-      );
+      )
     if (entryRoute === "/admin")
       return (
         <AdminLoginPage
           onBackToLanding={() => navigateEntry("/")}
           onAuthenticated={(user) => {
-            setAdminUser(user);
-            setAdmin(true);
-            navigateEntry("/admin/dashboard");
+            setAdminUser(user)
+            setAdmin(true)
+            navigateEntry("/admin/dashboard")
           }}
         />
-      );
+      )
   }
 
   if (entryRoute === "/admin/dashboard" && !admin)
     return (
-      <div className="dashboard-state">
-        <h2>Checking administrator session...</h2>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-900 font-sans">
+        <h2 className="text-xl font-bold">Checking administrator session...</h2>
       </div>
-    );
+    )
   if (entryRoute === "/dashboard" && dashboardLoading)
     return (
-      <div className="dashboard-state">
-        <h2>Loading your dashboard...</h2>
-        <p>Fetching your eligible examinations.</p>
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900 font-sans gap-2">
+        <h2 className="text-xl font-bold">Loading your dashboard...</h2>
+        <p className="text-xs sm:text-sm text-slate-500 font-medium">Fetching your eligible examinations.</p>
       </div>
-    );
+    )
   if (entryRoute === "/dashboard" && dashboardError)
     return (
-      <div className="dashboard-state">
-        <h2>Unable to load dashboard</h2>
-        <p>{dashboardError}</p>
-        <button className="primary" onClick={() => setEntryRoute("/dashboard")}>
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900 font-sans gap-3">
+        <h2 className="text-xl font-bold text-red-600">Unable to load dashboard</h2>
+        <p className="text-xs sm:text-sm text-slate-600 font-medium">{dashboardError}</p>
+        <button
+          className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer border-none"
+          onClick={() => setEntryRoute("/dashboard")}
+        >
           Retry
         </button>
       </div>
-    );
+    )
 
   const handleStartExam = (exam: Exam) => {
-    setSelectedExam(exam);
+    setSelectedExam(exam)
     if ((exam as Exam & { status?: string }).status === "IN_PROGRESS") {
-      void handleProceedToExam(exam);
-      return;
+      void handleProceedToExam(exam)
+      return
     }
-    setViewState("INSTRUCTIONS");
-  };
+    setViewState("INSTRUCTIONS")
+  }
 
   const handleProceedToExam = async (examOverride?: Exam) => {
-    const exam = examOverride || selectedExam;
-    if (!exam) return;
-    setExamActionError("");
-    const base = API_BASE_URL;
-    const activeAttempt = (
-      exam as Exam & { activeAttempt?: { attemptId?: string } }
-    ).activeAttempt;
-    let attemptId = activeAttempt?.attemptId;
+    const exam = examOverride || selectedExam
+    if (!exam) return
+    setExamActionError("")
+    const base = API_BASE_URL
+    const activeAttempt = (exam as Exam & {
+      activeAttempt?: { attemptId?: string }
+    }).activeAttempt
+    let attemptId = activeAttempt?.attemptId
     try {
       if (!attemptId) {
         if (!exam.id)
-          throw new Error("This examination has no valid identifier.");
+          throw new Error("This examination has no valid identifier.")
         const start = await authFetch(`${base}/api/exams/${exam.id}/start`, {
           method: "POST",
-        });
+        })
         if (!start.ok)
           throw new Error(
             (await start.json().catch(() => null))?.error ||
               "Unable to resume this examination.",
-          );
-        const attempt = await start.json();
-        attemptId = attempt.attemptId;
+          )
+        const attempt = await start.json()
+        attemptId = attempt.attemptId
       }
       if (!attemptId)
         throw new Error(
           "The active examination attempt could not be identified.",
-        );
-      setActiveAttemptId(attemptId);
+        )
+      setActiveAttemptId(attemptId)
       const response = await authFetch(
         `${base}/api/attempts/${attemptId}/questions`,
-      );
+      )
       if (!response.ok)
         throw new Error(
           (await response.json().catch(() => null))?.error ||
             "Unable to load the examination questions.",
-        );
-      const data = await response.json();
+        )
+      const data = await response.json()
       const normalizedQuestions = (data.questions || []).map(
         (question: any, index: number) => ({
           ...question,
@@ -836,7 +928,7 @@ export default function App() {
                   },
           ),
         }),
-      );
+      )
       if (
         !normalizedQuestions.length ||
         normalizedQuestions.some(
@@ -848,29 +940,29 @@ export default function App() {
       )
         throw new Error(
           "The assigned examination questions are incomplete. Please retry or contact support.",
-        );
-      setExamQuestions(normalizedQuestions);
-      setViewState("EXAM_PLAYER");
+        )
+      setExamQuestions(normalizedQuestions)
+      setViewState("EXAM_PLAYER")
     } catch (error) {
       setExamActionError(
         error instanceof Error
           ? error.message
           : "Unable to open the examination.",
-      );
+      )
     }
-  };
+  }
 
   const submitAttempt = async (answers: Record<string, AnswerState>) => {
-    if (submissionLoading || !activeAttemptId) return;
-    setSubmissionLoading(true);
-    setSubmissionError("");
+    if (submissionLoading || !activeAttemptId) return
+    setSubmissionLoading(true)
+    setSubmissionError("")
     try {
       const payloadAnswers = Object.fromEntries(
         Object.entries(answers).map(([questionId, answer]) => [
           questionId,
           answer.selectedOptionId || null,
         ]),
-      );
+      )
       const response = await authFetch(
         `${API_BASE_URL}/api/attempts/${activeAttemptId}/submit`,
         {
@@ -878,41 +970,59 @@ export default function App() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ answers: payloadAnswers }),
         },
-      );
-      const payload = await response.json().catch(() => ({}));
+      )
+      const payload = await response.json().catch(() => ({}))
       if (!response.ok && response.status !== 409)
-        throw new Error(payload.error || "Unable to submit the examination.");
+        throw new Error(payload.error || "Unable to submit the examination.")
       const resultResponse = await authFetch(
         `${API_BASE_URL}/api/student/results/${activeAttemptId}`,
         { cache: "no-store" },
-      );
-      const result = await resultResponse.json().catch(() => ({}));
-      setSubmittedResult(resultResponse.ok ? result : payload);
-      setViewState("SUBMISSION_SUCCESS");
+      )
+      const result = await resultResponse.json().catch(() => ({}))
+      const fallbackMaximumMarks =
+        selectedExam.totalMarks ||
+        examQuestions.reduce((sum, question) => sum + Number(question.marks || 0), 0)
+      const immediateResult = resultResponse.ok && result.released !== false
+        ? {
+            ...result,
+            maximumMarks: result.maximumMarks ?? result.maxMarks ?? fallbackMaximumMarks,
+          }
+        : {
+            ...payload,
+            released: true,
+            marksScored: payload.marksScored ?? payload.score,
+            maximumMarks:
+              payload.maximumMarks ??
+              payload.maxMarks ??
+              selectedExam.totalMarks ??
+              examQuestions.reduce((sum, question) => sum + Number(question.marks || 0), 0),
+          }
+      setSubmittedResult(immediateResult)
+      setViewState("SUBMISSION_SUCCESS")
     } catch (error) {
       setSubmissionError(
         error instanceof Error
           ? error.message
           : "Unable to submit the examination.",
-      );
+      )
     } finally {
-      setSubmissionLoading(false);
+      setSubmissionLoading(false)
     }
-  };
+  }
 
   const handleSubmitExamClick = (
     answers: Record<string, AnswerState>,
     _tabSwitches: number,
     automatic = false,
   ) => {
-    setLastAnswers(answers);
-    if (automatic) void submitAttempt(answers);
-    else setViewState("SUBMISSION_CONFIRM");
-  };
+    setLastAnswers(answers)
+    if (automatic) void submitAttempt(answers)
+    else setViewState("SUBMISSION_CONFIRM")
+  }
 
   const handleConfirmFinalSubmit = async () => {
-    await submitAttempt(lastAnswers);
-  };
+    await submitAttempt(lastAnswers)
+  }
 
   if (viewState === "EXAM_PLAYER" && selectedExam) {
     return (
@@ -924,19 +1034,19 @@ export default function App() {
         onSubmitExam={handleSubmitExamClick}
         onIntegrityAutoSubmit={() => void submitAttempt(lastAnswers)}
       />
-    );
+    )
   }
 
   if (viewState === "RESULTS" && selectedExam) {
-    return <ResultsView onBackToDashboard={() => setViewState("DASHBOARD")} />;
+    return <ResultsView onBackToDashboard={() => setViewState("DASHBOARD")} />
   }
 
   if (viewState === "SUBMISSION_SUCCESS" && selectedExam) {
     return (
       <Suspense
         fallback={
-          <div className="dashboard-state">
-            <h2>Loading submission confirmation...</h2>
+          <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-900 font-sans">
+            <h2 className="text-xl font-bold">Loading submission confirmation...</h2>
           </div>
         }
       >
@@ -953,11 +1063,11 @@ export default function App() {
           onBackToDashboard={() => setViewState("DASHBOARD")}
         />
       </Suspense>
-    );
+    )
   }
 
   return (
-    <div className="app flex min-h-screen w-full bg-slate-50 text-slate-900">
+    <div className="flex min-h-screen w-full bg-slate-50 text-slate-900 font-sans">
       {viewState === "SYSTEM_CHECK" && selectedExam && (
         <SystemCheckModal
           examTitle={selectedExam.title}
@@ -992,29 +1102,29 @@ export default function App() {
         />
       )}
 
-      <div
-        className={`${menu ? "sidebar-shell open" : "sidebar-shell"} shrink-0`}
-      >
+      {/* Sidebar Navigation */}
+      <div className={`shrink-0 ${menu ? "block" : "hidden lg:block"}`}>
         <Sidebar
           admin={admin}
           active={active}
           onNav={(v) => {
-            setActive(v);
-            setMenu(false);
-            setViewState("DASHBOARD");
+            setActive(v)
+            setMenu(false)
+            setViewState("DASHBOARD")
           }}
         />
       </div>
 
+      {/* Mobile Backdrop Scrim */}
       {menu && (
         <button
-          className="scrim"
+          className="fixed inset-0 z-20 bg-slate-900/60 backdrop-blur-sm lg:hidden border-none"
           onClick={() => setMenu(false)}
           aria-label="Close navigation"
         />
       )}
 
-      <div className="workspace min-w-0 flex-1">
+      <div className="min-w-0 flex-1 flex flex-col">
         <Topbar
           admin={admin}
           setAdmin={switchPortal}
@@ -1026,12 +1136,12 @@ export default function App() {
         />
 
         <main className="mx-auto w-full max-w-[1480px] px-4 py-8 sm:px-6 lg:px-9">
-          {active === "My examinations" && viewState === "DASHBOARD" ? (
+          {!admin && (active === "My examinations" || active === "Examinations") && viewState === "DASHBOARD" ? (
             <StudentExaminations
               onStartExam={handleStartExam}
               onViewMarks={(exam) => {
-                setSelectedExam(exam);
-                setViewState("RESULTS");
+                setSelectedExam(exam)
+                setViewState("RESULTS")
               }}
             />
           ) : !admin && active === "Results" && viewState === "DASHBOARD" ? (
@@ -1067,20 +1177,37 @@ export default function App() {
                 examActionError={examActionError}
                 onStartExam={handleStartExam}
                 onViewResults={() => {
-                  setSelectedExam(dashboardExams[0]);
-                  setViewState("RESULTS");
+                  setSelectedExam(dashboardExams[0])
+                  setViewState("RESULTS")
                 }}
               />
             )
+          ) : !admin && viewState === "DASHBOARD" ? (
+            <StudentDashboard
+              student={student}
+              exams={dashboardExams}
+              summary={dashboardSummary}
+              activeTab={tab}
+              setTab={setTab}
+              examActionError={examActionError}
+              onStartExam={handleStartExam}
+              onViewResults={() => {
+                setSelectedExam(dashboardExams[0])
+                setViewState("RESULTS")
+              }}
+            />
           ) : (
-            <div className="placeholder panel">
-              <Icon name={admin ? "settings" : "book"} size={30} />
-              <h2>{active}</h2>
-              <p>
+            <div className="p-8 sm:p-12 text-center bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col items-center gap-3">
+              <Icon name={admin ? "settings" : "book"} size={36} />
+              <h2 className="text-xl font-bold text-slate-900 m-0">{active}</h2>
+              <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-md m-0">
                 This module is fully configured in the KGS portal prototype.
                 Return to Overview to explore the primary student flow.
               </p>
-              <button className="primary" onClick={() => setActive("Overview")}>
+              <button
+                className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none mt-2"
+                onClick={() => setActive("Overview")}
+              >
                 Back to overview
               </button>
             </div>
@@ -1088,27 +1215,27 @@ export default function App() {
         </main>
       </div>
     </div>
-  );
+  )
 }
 
 function AdminStudents() {
-  const importPreviewDuplicates = useRef({ count: 0, invalid: 0 });
-  const api = API_BASE_URL;
-  const [students, setStudents] = useState<any[]>([]);
+  const importPreviewDuplicates = useRef({ count: 0, invalid: 0 })
+  const api = API_BASE_URL
+  const [students, setStudents] = useState<any[]>([])
   const [pagination, setPagination] = useState<any>({
     page: 1,
     pages: 1,
     total: 0,
-  });
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("");
-  const [college, setCollege] = useState("");
-  const [colleges, setColleges] = useState<any[]>([]);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [modal, setModal] = useState<"add" | "edit" | "import" | null>(null);
-  const [selected, setSelected] = useState<any>(null);
+  })
+  const [search, setSearch] = useState("")
+  const [status, setStatus] = useState("")
+  const [college, setCollege] = useState("")
+  const [colleges, setColleges] = useState<any[]>([])
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [modal, setModal] = useState<"add" | "edit" | "import" | null>(null)
+  const [selected, setSelected] = useState<any>(null)
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -1116,217 +1243,45 @@ function AdminStudents() {
     college: "",
     branch: "",
     passOutYear: String(new Date().getFullYear()),
-  });
-  const [message, setMessage] = useState("");
-  const [importRows, setImportRows] = useState<any[]>([]);
-  const [importInvalid, setImportInvalid] = useState<any[]>([]);
-  const [importFileName, setImportFileName] = useState("");
-  useEffect(() => {
-    if (modal !== "edit" || !selected) return;
-    const formElement = document.querySelector(".modal-card form");
-    const heading = formElement?.querySelector("h2");
-    const submitButton = formElement?.querySelector(
-      'button[type="submit"]',
-    ) as HTMLButtonElement | null;
-    if (!formElement || !heading || !submitButton) return;
-    const idLabel = document.createElement("label");
-    idLabel.textContent = "Student ID";
-    const idInput = document.createElement("input");
-    idInput.value = selected.studentId || "";
-    idInput.readOnly = true;
-    idInput.setAttribute("aria-readonly", "true");
-    idLabel.appendChild(idInput);
-    heading.after(idLabel);
-    submitButton.textContent = "Save Changes";
-    const cancelButton = document.createElement("button");
-    cancelButton.type = "button";
-    cancelButton.className = "secondary";
-    cancelButton.textContent = "Cancel";
-    cancelButton.onclick = () => {
-      setModal(null);
-      setSelected(null);
-    };
-    const footer = document.createElement("div");
-    footer.className = "modal-actions";
-    formElement.appendChild(footer);
-    footer.append(cancelButton, submitButton);
-    return () => {
-      idLabel.remove();
-      footer.remove();
-    };
-  }, [modal]);
-  useEffect(() => {
-    if (modal !== "import") return;
-    const card = document.querySelector(".modal-card");
-    const fileInput = card?.querySelector('input[type="file"]');
-    if (!card || !fileInput) return;
-    const template = document.createElement("button");
-    template.type = "button";
-    template.className = "text-button";
-    template.textContent = "Download CSV Template";
-    template.onclick = () => {
-      const blob = new Blob(
-        ["Full Name,Email Address,Phone,College Name,Branch,Pass-out Year\n"],
-        { type: "text/csv;charset=utf-8" },
-      );
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "kgs-student-import-template.csv";
-      link.click();
-      URL.revokeObjectURL(link.href);
-    };
-    const xlsxTemplate = document.createElement("button");
-    xlsxTemplate.type = "button";
-    xlsxTemplate.className = "text-button";
-    xlsxTemplate.textContent = "Download XLSX Template";
-    xlsxTemplate.onclick = async () => {
-      try {
-        const response = await authFetch(
-          `${api}/api/admin/students/import-template?format=xlsx`,
-          {},
-          true,
-        );
-        if (!response.ok) throw new Error();
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(await response.blob());
-        link.download = "kgs-student-import-template.xlsx";
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-      } catch {
-        setMessage("Unable to download the XLSX template.");
-      }
-    };
-    const templateActions = document.createElement("div");
-    templateActions.className = "template-actions";
-    fileInput.before(templateActions);
-    templateActions.append(template, xlsxTemplate);
-    const summary = document.createElement("div");
-    summary.className = "import-summary";
-    const duplicateCount = importInvalid.filter((row) =>
-      String(row.reason || "")
-        .toLowerCase()
-        .includes("duplicate"),
-    ).length;
-    summary.textContent = `Valid: ${importRows.length} · Invalid: ${importInvalid.length - duplicateCount} · Duplicate: ${duplicateCount}${importFileName ? ` · ${importFileName}` : ""}`;
-    fileInput.after(summary);
-    if (importRows.length || importInvalid.length) {
-      const table = document.createElement("table");
-      table.className = "student-table import-preview";
-      table.innerHTML =
-        "<thead><tr><th>Row</th><th>Full Name</th><th>Email</th><th>Result</th></tr></thead>";
-      const body = document.createElement("tbody");
-      [
-        ...importRows.map((row) => ({ ...row, result: "Valid" })),
-        ...importInvalid.map((row) => ({
-          ...row,
-          result: row.reason || "Invalid",
-        })),
-      ]
-        .sort(
-          (left, right) =>
-            Number(left.rowNumber || left.row || 0) -
-            Number(right.rowNumber || right.row || 0),
-        )
-        .slice(0, 100)
-        .forEach((row) => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td>${row.rowNumber || row.row || ""}</td><td>${row.fullName || row.name || ""}</td><td>${row.email || ""}</td><td>${row.result}</td>`;
-          body.appendChild(tr);
-        });
-      table.appendChild(body);
-      card.appendChild(table);
-      const confirmButton = Array.from(card.querySelectorAll("button")).find(
-        (button) => button.textContent?.trim() === "Confirm import",
-      );
-      if (confirmButton) card.appendChild(confirmButton);
-      return () => {
-        templateActions.remove();
-        summary.remove();
-        table.remove();
-      };
-    }
-    return () => {
-      templateActions.remove();
-      summary.remove();
-    };
-  }, [modal, importRows, importInvalid, importFileName]);
-  useEffect(() => {
-    const summary = document.querySelector(".import-summary");
-    if (!summary || modal !== "import") return;
-    const duplicateCount = importInvalid.filter(
-      (row) =>
-        row.type === "DUPLICATE" ||
-        String(row.reason || "")
-          .toLowerCase()
-          .includes("duplicate"),
-    ).length;
-    summary.textContent = `Total: ${importRows.length + importInvalid.length} · Valid: ${importRows.length} · Invalid: ${importInvalid.length - duplicateCount} · Duplicate: ${duplicateCount}${importFileName ? ` · ${importFileName}` : ""}`;
-  }, [modal, importRows, importInvalid, importFileName]);
-  useEffect(() => {
-    if (modal === "import") {
-      importPreviewDuplicates.current = {
-        count: importInvalid.filter(
-          (row) =>
-            row.type === "DUPLICATE" ||
-            String(row.reason || "")
-              .toLowerCase()
-              .includes("duplicate"),
-        ).length,
-        invalid: importInvalid.length,
-      };
-    }
-  }, [modal, importInvalid]);
-  useEffect(() => {
-    if (!message.includes("duplicates skipped")) return;
-    const match = message.match(
-      /^(\d+ imported .*? )(\d+)( duplicates skipped .*? )(\d+)( invalid records\.)$/,
-    );
-    if (!match) return;
-    const duplicateCount = Math.max(
-      Number(match[2]),
-      importPreviewDuplicates.current.count,
-    );
-    const invalidCount = Math.max(
-      Number(match[4]),
-      importPreviewDuplicates.current.invalid -
-        importPreviewDuplicates.current.count,
-    );
-    const updated = `${match[1]}${duplicateCount}${match[3]}${invalidCount}${match[5]}`;
-    if (updated !== message) setMessage(updated);
-  }, [message]);
+  })
+  const [message, setMessage] = useState("")
+  const [importRows, setImportRows] = useState<any[]>([])
+  const [importInvalid, setImportInvalid] = useState<any[]>([])
+  const [importFileName, setImportFileName] = useState("")
+
   const load = async () => {
-    setLoading(true);
-    setError("");
+    setLoading(true)
+    setError("")
     try {
       const response = await authFetch(
         `${api}/api/admin/students?page=${page}&search=${encodeURIComponent(search)}&status=${status}&college=${encodeURIComponent(college)}`,
         {},
         true,
-      );
-      if (!response.ok) throw new Error("Unable to load students.");
-      const data = await response.json();
-      setStudents(data.students || []);
-      setColleges(data.colleges || []);
-      setPagination(data.pagination || {});
+      )
+      if (!response.ok) throw new Error("Unable to load students.")
+      const data = await response.json()
+      setStudents(data.students || [])
+      setColleges(data.colleges || [])
+      setPagination(data.pagination || {})
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Unable to load students.",
-      );
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
   useEffect(() => {
-    void load();
-  }, [page, status, college]);
+    void load()
+  }, [page, status, college])
+
   const submit = async (event: any) => {
-    event.preventDefault();
-    setMessage("");
+    event.preventDefault()
+    setMessage("")
     const endpoint = selected
       ? `${api}/api/admin/students/${selected.id}`
-      : `${api}/api/admin/students`;
+      : `${api}/api/admin/students`
     const response = await authFetch(
       endpoint,
       {
@@ -1337,20 +1292,20 @@ function AdminStudents() {
         ),
       },
       true,
-    );
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok)
-      return setMessage(data.error || "Unable to save student.");
-    setModal(null);
-    setSelected(null);
-    setMessage("Student saved successfully.");
-    void load();
-  };
+    )
+    const data = await response.json().catch(() => ({}))
+    if (!response.ok) return setMessage(data.error || "Unable to save student.")
+    setModal(null)
+    setSelected(null)
+    setMessage("Student saved successfully.")
+    void load()
+  }
+
   const parseFile = async (event: any) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setImportFileName(file.name);
-    const reader = new FileReader();
+    const file = event.target.files?.[0]
+    if (!file) return
+    setImportFileName(file.name)
+    const reader = new FileReader()
     reader.onload = async () => {
       const response = await authFetch(
         `${api}/api/admin/students/import-file`,
@@ -1363,10 +1318,10 @@ function AdminStudents() {
           }),
         },
         true,
-      );
-      const data = await response.json().catch(() => ({}));
+      )
+      const data = await response.json().catch(() => ({}))
       if (!response.ok)
-        return setMessage(data.error || "Unable to read import file.");
+        return setMessage(data.error || "Unable to read import file.")
       const validation = await authFetch(
         `${api}/api/admin/students/import`,
         {
@@ -1375,16 +1330,17 @@ function AdminStudents() {
           body: JSON.stringify({ rows: data.rows || [], confirm: false }),
         },
         true,
-      );
-      const checked = await validation.json().catch(() => ({}));
-      setImportRows(checked.rows || []);
+      )
+      const checked = await validation.json().catch(() => ({}))
+      setImportRows(checked.rows || [])
       setImportInvalid([
         ...(checked.invalid || []),
         ...(checked.duplicates || []),
-      ]);
-    };
-    reader.readAsDataURL(file);
-  };
+      ])
+    }
+    reader.readAsDataURL(file)
+  }
+
   const confirmImport = async () => {
     const response = await authFetch(
       `${api}/api/admin/students/import`,
@@ -1394,20 +1350,21 @@ function AdminStudents() {
         body: JSON.stringify({ rows: importRows, confirm: true }),
       },
       true,
-    );
-    const data = await response.json().catch(() => ({}));
+    )
+    const data = await response.json().catch(() => ({}))
     setMessage(
       response.ok
         ? `${data.imported || 0} imported · ${(data.duplicates || []).length} duplicates skipped · ${(data.invalid || []).length} invalid records.`
         : data.error || "Import failed.",
-    );
+    )
     if (response.ok) {
-      setModal(null);
-      setImportRows([]);
-      setImportInvalid([]);
-      void load();
+      setModal(null)
+      setImportRows([])
+      setImportInvalid([])
+      void load()
     }
-  };
+  }
+
   return (
     <>
       <PageHead
@@ -1417,25 +1374,27 @@ function AdminStudents() {
         description="Manage registered students and account activation."
         showCreateAction={false}
       />
-      <div className="student-management-head">
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
         <div>
-          <h2>Student management</h2>
-          <p>Manage registered students and account activation.</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Student Management</h2>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Manage registered students and account activation.</p>
         </div>
-        <div className="student-management-actions">
+        <div className="flex items-center gap-3">
           <button
-            className="secondary"
+            className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
             onClick={() => {
-              setModal("import");
-              setMessage("");
+              setModal("import")
+              setMessage("")
             }}
           >
             Import CSV/XLSX
           </button>
           <button
-            className="primary"
+            className="inline-flex items-center justify-center gap-2 h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-all cursor-pointer shadow-sm shadow-blue-500/20 border-none"
             onClick={() => {
-              setSelected(null);
+              setSelected(null)
               setForm({
                 fullName: "",
                 email: "",
@@ -1443,9 +1402,9 @@ function AdminStudents() {
                 college: "",
                 branch: "",
                 passOutYear: String(new Date().getFullYear()),
-              });
-              setModal("add");
-              setMessage("");
+              })
+              setModal("add")
+              setMessage("")
             }}
           >
             <Icon name="plus" />
@@ -1453,8 +1412,15 @@ function AdminStudents() {
           </button>
         </div>
       </div>
-      {message && <div className="inline-message">{message}</div>}
-      <div className="student-filters">
+
+      {message && (
+        <div className="p-3.5 px-4 mb-6 text-xs sm:text-sm font-semibold rounded-xl border border-blue-200/80 bg-blue-50 text-blue-800 shadow-sm">
+          {message}
+        </div>
+      )}
+
+      {/* Filters Toolbar */}
+      <div className="flex flex-wrap items-center gap-3 mb-6 bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
@@ -1462,13 +1428,15 @@ function AdminStudents() {
             event.key === "Enter" && (setPage(1), void load())
           }
           placeholder="Search ID, name, or email"
+          className="flex-1 min-w-[200px] h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
         />
         <select
           value={college}
           onChange={(event) => {
-            setCollege(event.target.value);
-            setPage(1);
+            setCollege(event.target.value)
+            setPage(1)
           }}
+          className="h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
         >
           <option value="">All colleges</option>
           {colleges.map((item) => (
@@ -1480,80 +1448,93 @@ function AdminStudents() {
         <select
           value={status}
           onChange={(event) => {
-            setStatus(event.target.value);
-            setPage(1);
+            setStatus(event.target.value)
+            setPage(1)
           }}
+          className="h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
         >
           <option value="">All statuses</option>
           <option value="ACTIVE">Active</option>
           <option value="SUSPENDED">Inactive</option>
         </select>
         <button
-          className="secondary"
+          className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
           onClick={() => {
-            setPage(1);
-            void load();
+            setPage(1)
+            void load()
           }}
         >
           Search
         </button>
       </div>
-      <div className="panel student-table-panel">
-        <div className="student-summary">
-          <strong>{pagination.total || 0} registered students</strong>
-          <span>{colleges.length} colleges</span>
+
+      {/* Table Container */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
+        <div className="flex items-center justify-between p-4 px-5 border-b border-slate-100 bg-slate-50/50 text-xs sm:text-sm">
+          <strong className="font-bold text-slate-900">{pagination.total || 0} registered students</strong>
+          <span className="font-semibold text-slate-500">{colleges.length} colleges</span>
         </div>
+
         {loading ? (
-          <div className="dashboard-empty">Loading students...</div>
+          <div className="p-12 text-center text-xs sm:text-sm font-medium text-slate-500">
+            Loading students...
+          </div>
         ) : error ? (
-          <div className="dashboard-empty">
+          <div className="p-12 text-center text-xs sm:text-sm font-medium text-red-600 flex flex-col items-center gap-2">
             <p>{error}</p>
-            <button className="secondary" onClick={() => void load()}>
+            <button
+              className="h-9 px-4 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
+              onClick={() => void load()}
+            >
               Retry
             </button>
           </div>
         ) : students.length === 0 ? (
-          <div className="dashboard-empty">
+          <div className="p-12 text-center text-xs sm:text-sm font-medium text-slate-500">
             No students match the selected filters.
           </div>
         ) : (
-          <div className="table-scroll">
-            <table className="student-table">
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
+            <table className="w-full text-left text-xs sm:text-sm border-collapse">
               <thead>
-                <tr>
-                  <th>Student ID</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>College</th>
-                  <th>Branch</th>
-                  <th>Status</th>
-                  <th>Registered</th>
-                  <th></th>
+                <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold text-xs uppercase tracking-wider">
+                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Student ID</th>
+                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Name</th>
+                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Email</th>
+                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">College</th>
+                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Branch</th>
+                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Status</th>
+                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Registered</th>
+                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {students.map((student) => (
-                  <tr key={student.id}>
-                    <td>{student.studentId}</td>
-                    <td>{student.fullName}</td>
-                    <td>{student.email}</td>
-                    <td>{student.college || "—"}</td>
-                    <td>{student.branch || "—"}</td>
-                    <td>
+                  <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-4 py-3.5 font-mono text-xs font-semibold text-slate-600">{student.studentId}</td>
+                    <td className="px-4 py-3.5 font-semibold text-slate-900">{student.fullName}</td>
+                    <td className="px-4 py-3.5 text-slate-600">{student.email}</td>
+                    <td className="px-4 py-3.5 text-slate-600">{student.college || "—"}</td>
+                    <td className="px-4 py-3.5 text-slate-600">{student.branch || "—"}</td>
+                    <td className="px-4 py-3.5">
                       <span
-                        className={`status-pill ${student.accountStatus === "ACTIVE" ? "active" : "inactive"}`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                          student.accountStatus === "ACTIVE"
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                            : "bg-red-100 text-red-800 border border-red-200"
+                        }`}
                       >
-                        {student.accountStatus === "ACTIVE"
-                          ? "Active"
-                          : "Inactive"}
+                        {student.accountStatus === "ACTIVE" ? "Active" : "Inactive"}
                       </span>
                     </td>
-                    <td>{new Date(student.createdAt).toLocaleDateString()}</td>
-                    <td>
+                    <td className="px-4 py-3.5 text-slate-600">
+                      {new Date(student.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3.5 whitespace-nowrap">
                       <button
-                        className="text-button"
+                        className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors bg-transparent border-none p-0"
                         onClick={() => {
-                          setSelected(student);
+                          setSelected(student)
                           setForm({
                             fullName: student.fullName,
                             email: student.email,
@@ -1563,8 +1544,8 @@ function AdminStudents() {
                             passOutYear: String(
                               student.passOutYear || new Date().getFullYear(),
                             ),
-                          });
-                          setModal("edit");
+                          })
+                          setModal("edit")
                         }}
                       >
                         View / Edit
@@ -1576,477 +1557,215 @@ function AdminStudents() {
             </table>
           </div>
         )}
-        <div className="pagination">
+
+        {/* Pagination Bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-600 font-medium">
           <span>{pagination.total || 0} students</span>
-          <button
-            className="secondary"
-            disabled={page <= 1}
-            onClick={() => setPage(page - 1)}
-          >
-            Previous
-          </button>
-          <span>
-            Page {page} of {pagination.pages || 1}
-          </span>
-          <button
-            className="secondary"
-            disabled={page >= (pagination.pages || 1)}
-            onClick={() => setPage(page + 1)}
-          >
-            Next
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              className="h-8 px-3 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
+              disabled={page <= 1}
+              onClick={() => setPage(page - 1)}
+            >
+              Previous
+            </button>
+            <span>
+              Page {page} of {pagination.pages || 1}
+            </span>
+            <button
+              className="h-8 px-3 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
+              disabled={page >= (pagination.pages || 1)}
+              onClick={() => setPage(page + 1)}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Add / Edit / Import Modal */}
       {modal && (
-        <div className="modal-backdrop">
-          <div className="modal-card">
-            <button className="modal-close" onClick={() => setModal(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
+          <div className="relative w-full max-w-[620px] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
+            <button
+              className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors text-xl font-medium leading-none cursor-pointer focus:outline-none z-10"
+              onClick={() => setModal(null)}
+            >
               ×
             </button>
+
             {modal === "import" ? (
-              <>
-                <h2>Import students</h2>
-                <p>
-                  Upload a CSV or XLSX with Full Name, Email Address, Phone,
-                  College Name, Branch, and Pass-out Year columns.
-                </p>
-                <input type="file" accept=".csv,.xlsx" onChange={parseFile} />
+              <div className="p-5 sm:p-7 flex flex-col gap-4 overflow-y-auto min-h-0 flex-1 text-xs sm:text-sm">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900">Import students</h2>
+                  <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
+                    Upload a CSV or XLSX with Full Name, Email Address, Phone,
+                    College Name, Branch, and Pass-out Year columns.
+                  </p>
+                </div>
+                <input
+                  type="file"
+                  accept=".csv,.xlsx"
+                  onChange={parseFile}
+                  className="p-3 border border-slate-200 rounded-xl bg-slate-50 text-xs sm:text-sm text-slate-700 cursor-pointer"
+                />
                 {importRows.length > 0 && (
-                  <>
-                    <p>{importRows.length} rows ready for confirmation.</p>
+                  <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800">
+                    <span>{importRows.length} rows ready for confirmation.</span>
                     <button
-                      className="primary"
+                      className="h-9 px-4 text-xs font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer border-none"
                       onClick={() => void confirmImport()}
                     >
                       Confirm import
                     </button>
-                  </>
+                  </div>
                 )}
-              </>
+              </div>
             ) : (
-              <form onSubmit={submit}>
-                <h2>{selected ? "Edit student" : "Add student"}</h2>
-                <label>
-                  Full Name
-                  <input
-                    required
-                    minLength={2}
-                    value={form.fullName}
-                    onChange={(event) =>
-                      setForm({ ...form, fullName: event.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  Email Address
-                  <input
-                    required
-                    type="email"
-                    value={form.email}
-                    onChange={(event) =>
-                      setForm({ ...form, email: event.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  Phone Number
-                  <input
-                    required
-                    type="tel"
-                    value={form.phone}
-                    onChange={(event) =>
-                      setForm({ ...form, phone: event.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  College Name
-                  <input
-                    required
-                    value={form.college}
-                    onChange={(event) =>
-                      setForm({ ...form, college: event.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  Branch
-                  <input
-                    required
-                    value={form.branch}
-                    onChange={(event) =>
-                      setForm({ ...form, branch: event.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  Pass-out Year
-                  <select
-                    required
-                    value={form.passOutYear}
-                    onChange={(event) =>
-                      setForm({ ...form, passOutYear: event.target.value })
-                    }
-                  >
-                    {Array.from(
-                      { length: 21 },
-                      (_, i) => new Date().getFullYear() - 10 + i,
-                    ).map((year) => (
-                      <option key={year}>{year}</option>
-                    ))}
-                  </select>
-                </label>
-                {selected && (
-                  <label>
-                    Status
-                    <select
-                      value={selected.accountStatus}
+              <form onSubmit={submit} className="flex flex-col min-h-0 flex-1">
+                <div className="p-5 sm:p-7 overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm flex-1">
+                  <h2 className="text-xl font-bold text-slate-900">
+                    {selected ? "Edit student" : "Add student"}
+                  </h2>
+
+                  {selected && (
+                    <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                      Student ID
+                      <input
+                        readOnly
+                        value={selected.studentId || ""}
+                        className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 font-mono cursor-not-allowed shadow-sm"
+                      />
+                    </label>
+                  )}
+
+                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                    Full Name
+                    <input
+                      required
+                      minLength={2}
+                      value={form.fullName}
                       onChange={(event) =>
-                        setSelected({
-                          ...selected,
-                          accountStatus: event.target.value,
-                        })
+                        setForm({ ...form, fullName: event.target.value })
                       }
+                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                    Email Address
+                    <input
+                      required
+                      type="email"
+                      value={form.email}
+                      onChange={(event) =>
+                        setForm({ ...form, email: event.target.value })
+                      }
+                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                    Phone Number
+                    <input
+                      required
+                      type="tel"
+                      value={form.phone}
+                      onChange={(event) =>
+                        setForm({ ...form, phone: event.target.value })
+                      }
+                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                    College Name
+                    <input
+                      required
+                      value={form.college}
+                      onChange={(event) =>
+                        setForm({ ...form, college: event.target.value })
+                      }
+                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                    Branch
+                    <input
+                      required
+                      value={form.branch}
+                      onChange={(event) =>
+                        setForm({ ...form, branch: event.target.value })
+                      }
+                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                    Pass-out Year
+                    <select
+                      required
+                      value={form.passOutYear}
+                      onChange={(event) =>
+                        setForm({ ...form, passOutYear: event.target.value })
+                      }
+                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
                     >
-                      <option value="ACTIVE">Active</option>
-                      <option value="SUSPENDED">Inactive</option>
+                      {Array.from(
+                        { length: 21 },
+                        (_, i) => new Date().getFullYear() - 10 + i,
+                      ).map((year) => (
+                        <option key={year}>{year}</option>
+                      ))}
                     </select>
                   </label>
-                )}
-                <button className="primary" type="submit">
-                  {selected ? "Save Changes" : "Save student"}
-                </button>
+
+                  {selected && (
+                    <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                      Status
+                      <select
+                        value={selected.accountStatus}
+                        onChange={(event) =>
+                          setSelected({
+                            ...selected,
+                            accountStatus: event.target.value,
+                          })
+                        }
+                        className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+                      >
+                        <option value="ACTIVE">Active</option>
+                        <option value="SUSPENDED">Inactive</option>
+                      </select>
+                    </label>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-end gap-3 p-4 sm:px-7 sm:py-4 border-t border-slate-100 bg-slate-50/50 flex-none">
+                  <button
+                    type="button"
+                    className="h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
+                    onClick={() => {
+                      setModal(null)
+                      setSelected(null)
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="h-10 px-5 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-sm shadow-blue-500/20 border-none"
+                    type="submit"
+                  >
+                    {selected ? "Save Changes" : "Save student"}
+                  </button>
+                </div>
               </form>
             )}
           </div>
         </div>
       )}
     </>
-  );
-}
-
-function AdminQuestionBank() {
-  const api = API_BASE_URL;
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>({
-    total: 0,
-    active: 0,
-    draft: 0,
-    byType: [],
-  });
-  const [pagination, setPagination] = useState<any>({
-    page: 1,
-    pages: 1,
-    total: 0,
-  });
-  const [search, setSearch] = useState("");
-  const [type, setType] = useState("");
-  const [category, setCategory] = useState("");
-  const [status, setStatus] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({
-    questionText: "",
-    category: "",
-    marks: "1",
-    negativeMarks: "0",
-    correctOptionId: "A",
-    options: [
-      { id: "A", text: "" },
-      { id: "B", text: "" },
-    ],
-  });
-  const load = async (targetPage = pagination.page) => {
-    setLoading(true);
-    setError("");
-    try {
-      const query = new URLSearchParams({
-        page: String(targetPage),
-        search,
-        type,
-        category,
-        status,
-      });
-      const response = await fetch(`${api}/api/admin/questions?${query}`, {
-        credentials: "include",
-      });
-      if (!response.ok) throw new Error("Unable to load question bank.");
-      const data = await response.json();
-      setQuestions(data.questions || []);
-      setStats(data.stats || {});
-      setPagination(data.pagination || {});
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : "Unable to load question bank.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    void load(1);
-  }, [type, category, status]);
-  const submit = async (event: any) => {
-    event.preventDefault();
-    const response = await fetch(`${api}/api/admin/questions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        ...form,
-        marks: Number(form.marks),
-        negativeMarks: Number(form.negativeMarks),
-      }),
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok)
-      return setError(data.error || "Unable to create question.");
-    setShowAdd(false);
-    setForm({
-      questionText: "",
-      category: "",
-      marks: "1",
-      negativeMarks: "0",
-      correctOptionId: "A",
-      options: [
-        { id: "A", text: "" },
-        { id: "B", text: "" },
-      ],
-    });
-    void load(1);
-  };
-  return (
-    <>
-      <PageHead
-        admin
-        student={null}
-        title="Question Bank"
-        description="Create, organize, and manage examination questions."
-        showCreateAction={false}
-      />
-      <div className="student-management-head">
-        <div>
-          <h2>Question Bank</h2>
-          <p>Questions are loaded from the MongoDB question collection.</p>
-        </div>
-        <button className="primary" onClick={() => setShowAdd(true)}>
-          <Icon name="plus" />
-          Add Question
-        </button>
-      </div>
-      <section className="kpi-grid question-kpis">
-        <article className="kpi">
-          <small>Total Questions</small>
-          <strong>{stats.total || 0}</strong>
-        </article>
-        <article className="kpi">
-          <small>Active Questions</small>
-          <strong>{stats.active || 0}</strong>
-        </article>
-        <article className="kpi">
-          <small>Draft Questions</small>
-          <strong>{stats.draft || 0}</strong>
-        </article>
-        <article className="kpi">
-          <small>Question Types</small>
-          <strong>{(stats.byType || []).length}</strong>
-        </article>
-      </section>
-      <div className="student-filters">
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search question ID or text"
-          onKeyDown={(event) => event.key === "Enter" && void load(1)}
-        />
-        <select value={type} onChange={(event) => setType(event.target.value)}>
-          <option value="">All types</option>
-          <option value="MCQ">MCQ</option>
-        </select>
-        <select
-          value={category}
-          onChange={(event) => setCategory(event.target.value)}
-        >
-          <option value="">All categories</option>
-        </select>
-        <select
-          value={status}
-          onChange={(event) => setStatus(event.target.value)}
-        >
-          <option value="">All statuses</option>
-          <option value="ACTIVE">Active</option>
-          <option value="DRAFT">Draft</option>
-          <option value="PUBLISHED">Published</option>
-        </select>
-        <button className="secondary" onClick={() => void load(1)}>
-          Search
-        </button>
-      </div>
-      <div className="panel student-table-panel">
-        {loading ? (
-          <div className="dashboard-empty">Loading question bank...</div>
-        ) : error ? (
-          <div className="dashboard-empty">
-            <p>{error}</p>
-            <button className="secondary" onClick={() => void load()}>
-              Retry
-            </button>
-          </div>
-        ) : questions.length === 0 ? (
-          <div className="dashboard-empty">
-            No questions match the selected filters.
-          </div>
-        ) : (
-          <div className="table-scroll">
-            <table className="student-table">
-              <thead>
-                <tr>
-                  <th>Question ID</th>
-                  <th>Question Preview</th>
-                  <th>Type</th>
-                  <th>Subject/Category</th>
-                  <th>Difficulty</th>
-                  <th>Marks</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {questions.map((question) => (
-                  <tr key={question.id}>
-                    <td>{question.questionId.slice(-8)}</td>
-                    <td className="question-preview-cell">
-                      {question.questionText}
-                    </td>
-                    <td>{question.questionType}</td>
-                    <td>{question.category}</td>
-                    <td>{question.difficulty}</td>
-                    <td>{question.marks}</td>
-                    <td>
-                      <span
-                        className={`status-pill ${question.status === "DRAFT" ? "inactive" : "active"}`}
-                      >
-                        {question.status}
-                      </span>
-                    </td>
-                    <td>
-                      {question.createdAt
-                        ? new Date(question.createdAt).toLocaleDateString()
-                        : "—"}
-                    </td>
-                    <td>
-                      <button className="text-button" disabled>
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        <div className="pagination">
-          <span>{pagination.total || 0} questions</span>
-          <button
-            className="secondary"
-            disabled={pagination.page <= 1}
-            onClick={() => void load(pagination.page - 1)}
-          >
-            Previous
-          </button>
-          <span>
-            Page {pagination.page || 1} of {pagination.pages || 1}
-          </span>
-          <button
-            className="secondary"
-            disabled={pagination.page >= pagination.pages}
-            onClick={() => void load(pagination.page + 1)}
-          >
-            Next
-          </button>
-        </div>
-      </div>
-      {showAdd && (
-        <div className="modal-backdrop">
-          <div className="modal-card">
-            <button className="modal-close" onClick={() => setShowAdd(false)}>
-              ×
-            </button>
-            <form onSubmit={submit}>
-              <h2>Add Question</h2>
-              <label>
-                Question Text
-                <textarea
-                  required
-                  value={form.questionText}
-                  onChange={(event) =>
-                    setForm({ ...form, questionText: event.target.value })
-                  }
-                />
-              </label>
-              <label>
-                Category
-                <input
-                  value={form.category}
-                  onChange={(event) =>
-                    setForm({ ...form, category: event.target.value })
-                  }
-                />
-              </label>
-              {form.options.map((option, index) => (
-                <label key={option.id}>
-                  Option {option.id}
-                  <input
-                    required
-                    value={option.text}
-                    onChange={(event) =>
-                      setForm({
-                        ...form,
-                        options: form.options.map((item, itemIndex) =>
-                          itemIndex === index
-                            ? { ...item, text: event.target.value }
-                            : item,
-                        ),
-                      })
-                    }
-                  />
-                </label>
-              ))}
-              <label>
-                Correct Option
-                <select
-                  value={form.correctOptionId}
-                  onChange={(event) =>
-                    setForm({ ...form, correctOptionId: event.target.value })
-                  }
-                >
-                  {form.options.map((option) => (
-                    <option key={option.id}>{option.id}</option>
-                  ))}
-                </select>
-              </label>
-              <div className="modal-actions">
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() => setShowAdd(false)}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="primary">
-                  Save Question
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </>
-  );
+  )
 }
 
 function StudentDashboard({
@@ -2059,48 +1778,50 @@ function StudentDashboard({
   onStartExam,
   onViewResults,
 }: {
-  student: StudentProfile | null;
-  exams: Exam[];
+  student: StudentProfile | null
+  exams: Exam[]
   summary: {
-    available: number;
-    upcoming: number;
-    completed: number;
-    resultsPending: number;
-  };
-  activeTab: string;
-  setTab: (t: string) => void;
-  examActionError: string;
-  onStartExam: (exam: Exam) => void;
-  onViewResults: () => void;
+    available: number
+    upcoming: number
+    completed: number
+    resultsPending: number
+  }
+  activeTab: string
+  setTab: (t: string) => void
+  examActionError: string
+  onStartExam: (exam: Exam) => void
+  onViewResults: () => void
 }) {
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(Date.now())
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(timer);
-  }, []);
-  const heroExam = exams[0];
+    const timer = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const heroExam = exams[0]
   if (!heroExam)
     return (
-      <div className="empty-dashboard panel">
-        <h2>No eligible examinations</h2>
-        <p>There are no examinations available for your account right now.</p>
+      <div className="p-12 text-center text-xs sm:text-sm text-slate-500 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col items-center gap-1.5">
+        <h2 className="text-xl font-bold text-slate-900 m-0">No eligible examinations</h2>
+        <p className="font-medium text-slate-500 m-0">There are no examinations available for your account right now.</p>
       </div>
-    );
+    )
+
   const serverExam = heroExam as Exam & {
-    scheduledAt?: string;
-    closesAt?: string;
-    status?: string;
-    activeAttempt?: { deadline?: string } | null;
-  };
+    scheduledAt?: string
+    closesAt?: string
+    status?: string
+    activeAttempt?: { deadline?: string } | null
+  }
   const secondsToStart = Math.max(
     0,
     serverExam.scheduledAt
       ? Math.ceil((new Date(serverExam.scheduledAt).getTime() - now) / 1000)
       : 0,
-  );
+  )
   const readinessWindowOpen =
-    !serverExam.scheduledAt || secondsToStart <= 15 * 60;
-  const status = serverExam.status || "UPCOMING";
+    !serverExam.scheduledAt || secondsToStart <= 15 * 60
+  const status = serverExam.status || "UPCOMING"
   const secondsRemaining = Math.max(
     0,
     serverExam.activeAttempt?.deadline
@@ -2108,47 +1829,45 @@ function StudentDashboard({
           (new Date(serverExam.activeAttempt.deadline).getTime() - now) / 1000,
         )
       : 0,
-  );
-  const requirements = serverExam.readinessRequirements || {};
+  )
+  const requirements = serverExam.readinessRequirements || {}
 
-  // Readiness Calculations
   const systemCheckPassed =
     typeof window !== "undefined" &&
     Boolean(
       heroExam.id &&
-      localStorage.getItem(`kgs_readiness_${heroExam.id}`) === "PASSED",
-    );
-  const profileDone = Boolean(student?.profileVerified);
+        localStorage.getItem(`kgs_readiness_${heroExam.id}`) === "PASSED",
+    )
+  const profileDone = Boolean(student?.profileVerified)
   const browserDone =
     typeof window !== "undefined" &&
     Boolean(
       window.fetch &&
-      window.localStorage &&
-      document.documentElement?.requestFullscreen,
-    );
+        window.localStorage &&
+        document.documentElement?.requestFullscreen,
+    )
   const networkDone =
-    typeof navigator !== "undefined" ? navigator.onLine !== false : true;
-  const cameraDone = !requirements.camera || systemCheckPassed;
+    typeof navigator !== "undefined" ? navigator.onLine !== false : true
+  const cameraDone = !requirements.camera || systemCheckPassed
 
   const readiness = {
     profile: profileDone,
     browser: browserDone,
     network: networkDone,
     camera: cameraDone,
-  };
+  }
 
-  const checksList = [profileDone, browserDone, networkDone, cameraDone];
-  const completedCount = checksList.filter(Boolean).length;
-  const readinessScore = Math.round((completedCount / checksList.length) * 100);
+  const checksList = [profileDone, browserDone, networkDone, cameraDone]
+  const completedCount = checksList.filter(Boolean).length
+  const readinessScore = Math.round((completedCount / checksList.length) * 100)
 
-  // Time Countdown Display
-  const days = Math.floor(secondsToStart / 86400);
+  const days = Math.floor(secondsToStart / 86400)
   const hours =
     days > 0
       ? Math.floor((secondsToStart % 86400) / 3600)
-      : Math.floor(secondsToStart / 3600);
-  const mins = Math.floor((secondsToStart % 3600) / 60);
-  const secs = secondsToStart % 60;
+      : Math.floor(secondsToStart / 3600)
+  const mins = Math.floor((secondsToStart % 3600) / 60)
+  const secs = secondsToStart % 60
 
   const statusForTab: Record<string, string[]> = {
     Eligible: ["AVAILABLE"],
@@ -2156,68 +1875,61 @@ function StudentDashboard({
     "In Progress": ["IN_PROGRESS"],
     Completed: ["SUBMITTED", "COMPLETED"],
     "Results pending": ["RESULTS_PENDING"],
-  };
+  }
   const visibleExams = exams.filter((exam) =>
     (statusForTab[activeTab] || []).includes(String(exam.status)),
-  );
+  )
 
   return (
     <>
       <PageHead admin={false} student={student} />
+
       {examActionError && (
-        <div className="exam-action-error" role="alert">
-          <strong>
-            {status === "EXPIRED" || status === "CLOSED"
-              ? "Examination ended"
-              : "Examination unavailable"}
-          </strong>
-          <span>{examActionError}</span>
+        <div className="p-3.5 px-4 mb-6 text-xs sm:text-sm font-semibold rounded-xl border flex items-center justify-between gap-3 text-red-800 bg-red-50 border-red-200/80 shadow-sm" role="alert">
+          <div>
+            <strong className="block font-bold">
+              {status === "EXPIRED" || status === "CLOSED"
+                ? "Examination ended"
+                : "Examination unavailable"}
+            </strong>
+            <span className="text-xs font-normal">{examActionError}</span>
+          </div>
           {status !== "EXPIRED" && status !== "CLOSED" && (
-            <button className="secondary" onClick={() => onStartExam(heroExam)}>
+            <button
+              className="h-8 px-3 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors cursor-pointer"
+              onClick={() => onStartExam(heroExam)}
+            >
               Retry
             </button>
           )}
         </div>
       )}
-      <section className="hero-card">
-        <div className="hero-main">
-          <div className="row">
-            <span className="pill live">
-              <span></span>
+
+      {/* Hero Exam Card */}
+      <section className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-6 grid grid-cols-1 lg:grid-cols-[1fr_280px]">
+        <div className="p-6 sm:p-8 flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               {status}
             </span>
-            <small className="muted">
+            <small className="font-mono text-xs text-slate-500">
               Registration ID: {heroExam.examCode}
             </small>
           </div>
-          <h2>{heroExam.title}</h2>
-          <p>{heroExam.subtitle}</p>
-          <div className="meta-row">
-            <Meta
-              icon="calendar"
-              label="EXAM DATE"
-              value={heroExam.scheduledDate}
-            />
-            <Meta
-              icon="clock"
-              label="DURATION"
-              value={`${heroExam.durationMinutes} minutes`}
-            />
-            <Meta
-              icon="file"
-              label="QUESTIONS"
-              value={`${heroExam.totalQuestions} questions`}
-            />
-            <Meta
-              icon="result"
-              label="MAX. MARKS"
-              value={`${heroExam.totalMarks} marks`}
-            />
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight m-0">{heroExam.title}</h2>
+          <p className="text-sm text-slate-600 font-medium m-0">{heroExam.subtitle}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+            <Meta icon="calendar" label="EXAM DATE" value={heroExam.scheduledDate} />
+            <Meta icon="clock" label="DURATION" value={`${heroExam.durationMinutes} minutes`} />
+            <Meta icon="file" label="QUESTIONS" value={`${heroExam.totalQuestions} questions`} />
+            <Meta icon="result" label="MAX. MARKS" value={`${heroExam.totalMarks} marks`} />
           </div>
         </div>
-        <div className="hero-action">
-          <div className="starts">
-            <small>
+
+        <div className="p-6 sm:p-8 bg-slate-50/80 border-t lg:border-t-0 lg:border-l border-slate-200/80 flex flex-col justify-between gap-6 text-center">
+          <div className="flex flex-col items-center gap-1.5">
+            <small className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               {status === "IN_PROGRESS"
                 ? "TIME REMAINING"
                 : status === "AVAILABLE"
@@ -2227,18 +1939,15 @@ function StudentDashboard({
                     : "STARTS IN"}
             </small>
             {status === "IN_PROGRESS" ? (
-              <div className="available-now">
+              <div className="text-2xl font-extrabold font-mono text-slate-900">
                 {String(Math.floor(secondsRemaining / 3600)).padStart(2, "0")}:
-                {String(Math.floor((secondsRemaining % 3600) / 60)).padStart(
-                  2,
-                  "0",
-                )}
-                :{String(secondsRemaining % 60).padStart(2, "0")}
+                {String(Math.floor((secondsRemaining % 3600) / 60)).padStart(2, "0")}:
+                {String(secondsRemaining % 60).padStart(2, "0")}
               </div>
             ) : status === "AVAILABLE" ? (
-              <div className="available-now">Available Now</div>
+              <div className="text-xl font-extrabold text-emerald-700">Available Now</div>
             ) : status === "RESULTS_PENDING" ? (
-              <div className="exam-ended-message" role="status">
+              <div className="text-sm font-bold text-amber-700" role="status">
                 Results Awaiting Release
               </div>
             ) : [
@@ -2248,31 +1957,30 @@ function StudentDashboard({
                 "EXPIRED",
                 "CLOSED",
               ].includes(status) ? (
-              <div className="exam-ended-message" role="status">
+              <div className="text-sm font-bold text-slate-700" role="status">
                 Examination Completed
               </div>
             ) : status === "CLOSED" ? (
-              <div className="available-now">This examination has ended.</div>
+              <div className="text-sm font-bold text-slate-700">This examination has ended.</div>
             ) : (
-              <>
-                <div>
-                  <b>{String(days > 0 ? days : hours).padStart(2, "0")}</b>
-                  <i>:</i>
-                  <b>{String(days > 0 ? hours : mins).padStart(2, "0")}</b>
-                  <i>:</i>
+              <div className="flex flex-col items-center gap-1">
+                <div className="text-xl font-extrabold font-mono text-slate-900">
+                  <b>{String(days > 0 ? days : hours).padStart(2, "0")}</b>:
+                  <b>{String(days > 0 ? hours : mins).padStart(2, "0")}</b>:
                   <b>{String(days > 0 ? mins : secs).padStart(2, "0")}</b>
                 </div>
-                <span>
+                <span className="text-[10px] font-semibold text-slate-400">
                   {days > 0
-                    ? "DAYS \u00a0\u00a0 HOURS \u00a0\u00a0 MINS"
-                    : "HOURS \u00a0\u00a0 MINS \u00a0\u00a0 SECS"}
+                    ? "DAYS : HOURS : MINS"
+                    : "HOURS : MINS : SECS"}
                 </span>
-              </>
+              </div>
             )}
           </div>
+
           {status !== "EXPIRED" && (
             <button
-              className="primary wide"
+              className="h-11 w-full px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 border-none"
               disabled={
                 status === "CLOSED" ||
                 status === "SUBMITTED" ||
@@ -2293,15 +2001,14 @@ function StudentDashboard({
                     : status === "SUBMITTED" || status === "RESULTS_PENDING"
                       ? "Results Awaiting Release"
                       : "Launch Exam Check"}{" "}
-              {["CLOSED", "SUBMITTED", "RESULTS_PENDING"].includes(
+              {!["CLOSED", "SUBMITTED", "RESULTS_PENDING"].includes(
                 status,
-              ) ? null : (
-                <Icon name="arrow" />
-              )}
+              ) && <Icon name="arrow" />}
             </button>
           )}
+
           {status === "UPCOMING" && (
-            <small>
+            <small className="text-xs text-slate-500 font-medium">
               {readinessWindowOpen
                 ? "System check available now"
                 : "Available 15 minutes before start"}
@@ -2310,18 +2017,20 @@ function StudentDashboard({
         </div>
       </section>
 
-      <section className="content-grid">
-        <div className="panel exams">
-          <div className="panel-head">
+      {/* Main Content Grid */}
+      <section className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-6 flex flex-col gap-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h3>My examinations</h3>
-              <p>Track your registered assessments</p>
+              <h3 className="text-base font-bold text-slate-900 m-0">My examinations</h3>
+              <p className="text-xs text-slate-500 font-medium mt-0.5 m-0">Track your registered assessments</p>
             </div>
-            <button className="text-button">
-              View all <Icon name="arrow" />
+            <button className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer border-none bg-transparent flex items-center gap-1">
+              View all <Icon name="arrow" size={14} />
             </button>
           </div>
-          <div className="tabs">
+
+          <div className="flex items-center gap-2 overflow-x-auto p-1.5 bg-slate-100/80 rounded-xl border border-slate-200/60 scrollbar-thin">
             {[
               "Eligible",
               "Upcoming",
@@ -2330,12 +2039,16 @@ function StudentDashboard({
               "Results pending",
             ].map((x, i) => (
               <button
-                className={activeTab === x ? "active" : ""}
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border-none whitespace-nowrap ${
+                  activeTab === x
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                }`}
                 onClick={() => setTab(x)}
                 key={x}
               >
                 {x}
-                <span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${activeTab === x ? "bg-blue-100 text-blue-700" : "bg-slate-200/80 text-slate-600"}`}>
                   {
                     [
                       summary.available,
@@ -2349,139 +2062,105 @@ function StudentDashboard({
               </button>
             ))}
           </div>
-          <div className="exam-list">
+
+          <div className="flex flex-col gap-3">
             {visibleExams.length === 0 ? (
-              <div className="exam-list-empty">
-                <h3>No {activeTab.toLowerCase()} examinations</h3>
-                <p>
+              <div className="py-12 text-center text-xs sm:text-sm text-slate-500 flex flex-col items-center gap-1.5">
+                <h3 className="text-base font-bold text-slate-900">No {activeTab.toLowerCase()} examinations</h3>
+                <p className="font-medium text-slate-500 m-0">
                   Examinations in this category will appear here when available.
                 </p>
               </div>
             ) : (
               visibleExams.map((ex) => (
-                <div className="exam-row" key={ex.id}>
-                  <div className="date-tile">
-                    <b>
-                      {ex.scheduledAt
-                        ? new Date(ex.scheduledAt).toLocaleDateString(
-                            undefined,
-                            { day: "2-digit" },
-                          )
-                        : "—"}
-                    </b>
-                    <span>
-                      {ex.scheduledAt
-                        ? new Date(ex.scheduledAt)
-                            .toLocaleDateString(undefined, { month: "short" })
-                            .toUpperCase()
-                        : "TBD"}
+                <div className="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-white hover:border-slate-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs sm:text-sm" key={ex.id}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-200/80 text-blue-700 flex flex-col items-center justify-center font-bold shrink-0">
+                      <b className="text-sm leading-none">
+                        {ex.scheduledAt
+                          ? new Date(ex.scheduledAt).toLocaleDateString(
+                              undefined,
+                              { day: "2-digit" },
+                            )
+                          : "—"}
+                      </b>
+                      <span className="text-[9px] uppercase tracking-wider text-blue-600">
+                        {ex.scheduledAt
+                          ? new Date(ex.scheduledAt)
+                              .toLocaleDateString(undefined, { month: "short" })
+                              .toUpperCase()
+                          : "TBD"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      <h4 className="font-bold text-slate-900 text-sm sm:text-base m-0">{ex.title}</h4>
+                      <p className="text-xs text-slate-500 font-medium m-0 flex items-center gap-1.5">
+                        <Icon name="clock" size={13} />
+                        {ex.durationMinutes} minutes · {ex.totalQuestions} questions · {ex.totalMarks} marks
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 justify-between sm:justify-end">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                      {ex.status}
                     </span>
+                    {ex.status === "COMPLETED" ? (
+                      <button className="h-9 px-3.5 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors cursor-pointer shadow-sm" onClick={onViewResults}>
+                        View Scorecard
+                      </button>
+                    ) : (
+                      <button
+                        className="h-9 px-3.5 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors cursor-pointer shadow-sm"
+                        onClick={() => onStartExam(ex)}
+                      >
+                        Review details
+                      </button>
+                    )}
                   </div>
-                  <div className="exam-info">
-                    <h4>{ex.title}</h4>
-                    <p>
-                      <Icon name="clock" size={14} />
-                      {ex.durationMinutes} minutes <i /> {ex.totalQuestions}{" "}
-                      questions <i /> {ex.totalMarks} marks
-                    </p>
-                  </div>
-                  <span className={`pill ${ex.status.toLowerCase()}`}>
-                    {ex.status}
-                  </span>
-                  {ex.status === "COMPLETED" ? (
-                    <button className="secondary" onClick={onViewResults}>
-                      View Scorecard
-                    </button>
-                  ) : (
-                    <button
-                      className="secondary"
-                      onClick={() => onStartExam(ex)}
-                    >
-                      Review details
-                    </button>
-                  )}
                 </div>
               ))
             )}
           </div>
         </div>
 
-        <aside className="panel readiness">
-          <div className="panel-head">
+        {/* Readiness Sidebar */}
+        <aside className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex flex-col gap-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h3>Exam readiness</h3>
-              <p>Complete before exam day</p>
+              <h3 className="text-sm font-bold text-slate-900 m-0">Exam readiness</h3>
+              <p className="text-xs text-slate-500 font-medium mt-0.5 m-0">Complete before exam day</p>
             </div>
-            <div className="score-ring">{readinessScore}%</div>
-          </div>
-          <div
-            className={
-              readiness.profile ? "check-item done" : "check-item pending"
-            }
-          >
-            <span>{readiness.profile ? <Icon name="check" /> : "!"}</span>
-            <div>
-              <b>Profile verified</b>
-              <small>
-                {readiness.profile
-                  ? "Identity details confirmed"
-                  : "Profile unavailable"}
-              </small>
+            <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 text-blue-700 font-extrabold text-xs flex items-center justify-center">
+              {readinessScore}%
             </div>
           </div>
-          <div
-            className={
-              readiness.browser ? "check-item done" : "check-item pending"
-            }
-          >
-            <span>{readiness.browser ? <Icon name="check" /> : "!"}</span>
-            <div>
-              <b>Browser compatible</b>
-              <small>
-                {readiness.browser
-                  ? "Browser capabilities confirmed"
-                  : "Incompatible browser"}
-              </small>
-            </div>
+
+          <div className="flex flex-col gap-2.5">
+            {[
+              ["Profile verified", readiness.profile, readiness.profile ? "Identity details confirmed" : "Profile unavailable"],
+              ["Browser compatible", readiness.browser, readiness.browser ? "Browser capabilities confirmed" : "Incompatible browser"],
+              ["Network stable", readiness.network, readiness.network ? "Online connection verified" : "Network offline"],
+              [
+                requirements.camera ? "Camera permission required" : "Camera not required",
+                readiness.camera,
+                requirements.camera ? (systemCheckPassed ? "Camera permission confirmed" : "Complete during system check") : "Not configured for this exam",
+              ],
+            ].map(([label, isDone, desc]) => (
+              <div className={`flex items-start gap-3 p-3 rounded-xl border text-xs ${isDone ? "bg-emerald-50/60 border-emerald-200/80 text-emerald-900" : "bg-amber-50/60 border-amber-200/80 text-amber-900"}`} key={String(label)}>
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${isDone ? "bg-emerald-500 text-white" : "bg-amber-400 text-white"}`}>
+                  {isDone ? <Icon name="check" size={12} /> : "!"}
+                </span>
+                <div className="flex flex-col">
+                  <b className="font-bold text-xs">{label}</b>
+                  <small className="text-[11px] opacity-80 mt-0.5 font-medium">{desc}</small>
+                </div>
+              </div>
+            ))}
           </div>
-          <div
-            className={
-              readiness.network ? "check-item done" : "check-item pending"
-            }
-          >
-            <span>{readiness.network ? <Icon name="check" /> : "!"}</span>
-            <div>
-              <b>Network stable</b>
-              <small>
-                {readiness.network
-                  ? "Online connection verified"
-                  : "Network offline"}
-              </small>
-            </div>
-          </div>
-          <div
-            className={
-              readiness.camera ? "check-item done" : "check-item pending"
-            }
-          >
-            <span>{readiness.camera ? <Icon name="check" /> : "!"}</span>
-            <div>
-              <b>
-                {requirements.camera
-                  ? "Camera permission required"
-                  : "Camera not required"}
-              </b>
-              <small>
-                {requirements.camera
-                  ? systemCheckPassed
-                    ? "Camera permission confirmed"
-                    : "Complete during system check"
-                  : "Not configured for this exam"}
-              </small>
-            </div>
-          </div>
+
           <button
-            className="secondary full"
+            className="h-10 w-full px-4 text-xs font-semibold rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer mt-1"
             onClick={() => onStartExam(heroExam)}
           >
             {readinessScore === 100
@@ -2491,79 +2170,88 @@ function StudentDashboard({
         </aside>
       </section>
 
-      <div className="notice">
-        <Icon name="shield" />
-        <div>
-          <b>Your exam environment is protected</b>
-          <p>
-            Activity may be monitored according to exam policy. Your data is
-            encrypted and handled securely.
-          </p>
+      {/* Security Banner Notice */}
+      <div className="p-4 bg-slate-100/80 rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm text-slate-700">
+        <div className="flex items-center gap-3">
+          <div className="text-blue-600 shrink-0"><Icon name="shield" size={20} /></div>
+          <div>
+            <b className="font-bold text-slate-900 block">Your exam environment is protected</b>
+            <p className="text-slate-500 font-medium text-xs m-0 mt-0.5">
+              Activity may be monitored according to exam policy. Your data is
+              encrypted and handled securely.
+            </p>
+          </div>
         </div>
-        <button className="text-button">Learn policy</button>
+        <button className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer border-none bg-transparent p-0 shrink-0">
+          Learn policy
+        </button>
       </div>
     </>
-  );
+  )
 }
 
 function AdminDashboard() {
-  const [range, setRange] = useState<"week" | "month" | "quarter">("month");
-  const [dashboard, setDashboard] = useState<any>(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState<"week" | "month" | "quarter">("month")
+  const [dashboard, setDashboard] = useState<any>(null)
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(true)
+
   const load = async () => {
-    setLoading(true);
-    setError("");
+    setLoading(true)
+    setError("")
     try {
       const response = await authFetch(
         `${API_BASE_URL}/api/admin/dashboard?range=${range}`,
         {},
         true,
-      );
+      )
       if (!response.ok)
-        throw new Error("Unable to load administrator dashboard.");
-      setDashboard(await readApiJson(response));
+        throw new Error("Unable to load administrator dashboard.")
+      setDashboard(await readApiJson(response))
     } catch (cause) {
       setError(
         cause instanceof Error
           ? cause.message
           : "Unable to load administrator dashboard.",
-      );
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
   useEffect(() => {
-    void load();
-  }, [range]);
+    void load()
+  }, [range])
+
   if (loading)
     return (
-      <div className="dashboard-state">
-        <h2>Loading administrator dashboard...</h2>
+      <div className="p-12 text-center text-xs sm:text-sm font-medium text-slate-500 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
+        <h2 className="text-xl font-bold text-slate-900 m-0">Loading administrator dashboard...</h2>
       </div>
-    );
+    )
   if (error)
     return (
-      <div className="dashboard-state">
-        <h2>Unable to load administrator dashboard</h2>
-        <p>{error}</p>
-        <button className="primary" onClick={() => void load()}>
+      <div className="p-12 text-center text-xs sm:text-sm font-medium text-red-600 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col items-center gap-3">
+        <h2 className="text-xl font-bold text-slate-900 m-0">Unable to load administrator dashboard</h2>
+        <p className="m-0">{error}</p>
+        <button className="h-9 px-4 text-xs font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer border-none" onClick={() => void load()}>
           Retry
         </button>
       </div>
-    );
-  const stats = dashboard?.stats || {};
-  const chart = dashboard?.chart || { registrations: [], completed: [] };
-  const activity = dashboard?.activity || [];
+    )
+
+  const stats = dashboard?.stats || {}
+  const chart = dashboard?.chart || { registrations: [], completed: [] }
+  const activity = dashboard?.activity || []
   const registrationMap = new Map(
     (chart.registrations || []).map((item: any) => [item._id, item.count]),
-  );
+  )
   const completedMap = new Map(
     (chart.completed || []).map((item: any) => [item._id, item.count]),
-  );
+  )
   const dates = [
     ...new Set([...registrationMap.keys(), ...completedMap.keys()]),
-  ].sort();
+  ].sort()
   const max = Math.max(
     1,
     ...dates.map((date) =>
@@ -2572,7 +2260,7 @@ function AdminDashboard() {
         Number(completedMap.get(date) || 0),
       ),
     ),
-  );
+  )
   const dashboardKpis = [
     ["users", "Registrations", stats.registrations],
     ["book", "Active exams", stats.activeExams],
@@ -2586,25 +2274,27 @@ function AdminDashboard() {
         ? new Date(stats.latestExport).toLocaleString()
         : "None",
     ],
-  ] as const;
+  ] as const
+
   return (
     <>
       <PageHead admin student={null} />
-      <div className="admin-toolbar">
-        <div className="alert-inline">
-          <span>
+
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 p-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
+        <div className="flex items-center gap-3">
+          <span className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
             <Icon name="pulse" />
           </span>
           <div>
-            <b>{stats.activeExams || 0} examinations currently live</b>
-            <small>
-              {stats.activeAttempts || 0} active attempts · Database-backed
-              status
+            <b className="block text-sm font-bold text-slate-900">{stats.activeExams || 0} examinations currently live</b>
+            <small className="text-xs text-slate-500 font-medium">
+              {stats.activeAttempts || 0} active attempts · Database-backed status
             </small>
           </div>
         </div>
         <select
-          className="select-button"
+          className="h-9 px-3 text-xs font-semibold bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
           value={range}
           onChange={(event) => setRange(event.target.value as typeof range)}
           aria-label="Dashboard date range"
@@ -2614,62 +2304,57 @@ function AdminDashboard() {
           <option value="quarter">Last 90 days</option>
         </select>
       </div>
-      <section className="kpi-grid">
-        {dashboardKpis.map(([icon, label, value], i) => (
-          <article className="kpi" key={label}>
-            <div className={`kpi-icon c${i}`}>
+
+      {/* KPI Stats */}
+      <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 mb-6">
+        {dashboardKpis.map(([icon, label, value]) => (
+          <article className="flex flex-col p-4 bg-white rounded-xl border border-slate-200/80 shadow-sm hover:border-slate-300 transition-all" key={label}>
+            <div className="text-blue-600 mb-2">
               <Icon name={icon} />
             </div>
-            <small>{label}</small>
-            <strong>{value ?? 0}</strong>
-            <span>
-              {label === "Latest export" && stats.latestExport
-                ? "Completed"
-                : "From MongoDB"}
-            </span>
+            <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{label}</small>
+            <strong className="text-lg sm:text-xl font-extrabold text-slate-900 leading-none">{value ?? 0}</strong>
           </article>
         ))}
       </section>
-      <section className="admin-grid">
-        <div className="panel chart-panel">
-          <div className="panel-head">
+
+      {/* Grid: Chart & Activity */}
+      <section className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-6 flex flex-col gap-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h3>Participation overview</h3>
-              <p>Registrations and completed attempts in the selected period</p>
+              <h3 className="text-base font-bold text-slate-900 m-0">Participation overview</h3>
+              <p className="text-xs text-slate-500 font-medium mt-0.5 m-0">Registrations and completed attempts in the selected period</p>
             </div>
-            <div className="legend">
-              <span>
-                <i />
-                Registered
-              </span>
-              <span>
-                <i />
-                Completed
-              </span>
+            <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
+              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block shrink-0" /> Registered</span>
+              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shrink-0" /> Completed</span>
             </div>
           </div>
           {dates.length === 0 ? (
-            <div className="dashboard-empty">
+            <div className="py-12 text-center text-xs text-slate-500 font-medium">
               No registration or completed-attempt history for this period.
             </div>
           ) : (
-            <div className="data-chart">
+            <div className="flex flex-col gap-2.5 text-xs">
               {dates.map((date) => (
-                <div className="data-chart-row" key={date}>
-                  <span>
+                <div className="grid grid-cols-[80px_1fr] items-center gap-3" key={date}>
+                  <span className="text-slate-500 font-medium">
                     {new Intl.DateTimeFormat(undefined, {
                       month: "short",
                       day: "numeric",
                     }).format(new Date(`${date}T00:00:00`))}
                   </span>
-                  <div>
-                    <i
+                  <div className="flex flex-col gap-1">
+                    <div
+                      className="h-2 rounded-full bg-blue-600 transition-all"
                       style={{
                         width: `${(Number(registrationMap.get(date) || 0) / max) * 100}%`,
                       }}
                       title={`Registered: ${registrationMap.get(date) || 0}`}
                     />
-                    <b
+                    <div
+                      className="h-2 rounded-full bg-emerald-500 transition-all"
                       style={{
                         width: `${(Number(completedMap.get(date) || 0) / max) * 100}%`,
                       }}
@@ -2681,28 +2366,27 @@ function AdminDashboard() {
             </div>
           )}
         </div>
-        <div className="panel activity">
-          <div className="panel-head">
-            <div>
-              <h3>Recent activity</h3>
-              <p>Latest recorded audit events</p>
-            </div>
+
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-6 flex flex-col gap-4">
+          <div className="pb-3 border-b border-slate-100">
+            <h3 className="text-base font-bold text-slate-900 m-0">Recent activity</h3>
+            <p className="text-xs text-slate-500 font-medium mt-0.5 m-0">Latest recorded audit events</p>
           </div>
           {activity.length === 0 ? (
-            <div className="dashboard-empty">
+            <div className="py-12 text-center text-xs text-slate-500 font-medium">
               No audit activity recorded for this period.
             </div>
           ) : (
             activity.map((item: any) => (
-              <div className="activity-row" key={item.id}>
-                <div className="avatar mini">
+              <div className="flex items-center gap-3 py-2.5 border-b border-slate-100 last:border-none text-xs" key={item.id}>
+                <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold flex items-center justify-center shrink-0">
                   {String(item.actorRole || "AD").slice(0, 2)}
                 </div>
-                <div>
-                  <b>{item.action || "Administrative action"}</b>
-                  <span>{item.entityType || "System event"}</span>
+                <div className="flex flex-col min-w-0 flex-1">
+                  <b className="font-semibold text-slate-900 truncate">{item.action || "Administrative action"}</b>
+                  <span className="text-slate-500 text-[11px]">{item.entityType || "System event"}</span>
                 </div>
-                <small>
+                <small className="text-slate-400 font-medium text-[11px] shrink-0">
                   {item.recordedAt
                     ? new Date(item.recordedAt).toLocaleString()
                     : "—"}
@@ -2713,176 +2397,5 @@ function AdminDashboard() {
         </div>
       </section>
     </>
-  );
-}
-
-function AdminDashboardLegacy() {
-  const [range, setRange] = useState("Last 30 days");
-  const [dashboard, setDashboard] = useState<any>(null);
-  const [error, setError] = useState("");
-  useEffect(() => {
-    authFetch(`${API_BASE_URL}/api/admin/dashboard`, {}, true)
-      .then(async (response) => {
-        if (!response.ok)
-          throw new Error("Unable to load administrator dashboard.");
-        setDashboard(await readApiJson(response));
-      })
-      .catch((cause) =>
-        setError(
-          cause instanceof Error
-            ? cause.message
-            : "Unable to load administrator dashboard.",
-        ),
-      );
-  }, []);
-  if (error)
-    return (
-      <div className="dashboard-state">
-        <h2>Unable to load administrator dashboard</h2>
-        <p>{error}</p>
-      </div>
-    );
-  if (!dashboard)
-    return (
-      <div className="dashboard-state">
-        <h2>Loading administrator dashboard...</h2>
-      </div>
-    );
-  const stats = dashboard.stats;
-  const dashboardKpis = [
-    ["users", "Registrations", String(stats.registrations), ""],
-    ["book", "Active exams", String(stats.activeExams), ""],
-    ["pulse", "Active attempts", String(stats.activeAttempts), ""],
-    ["result", "Completed attempts", String(stats.completedAttempts), ""],
-    ["review", "Pending reviews", String(stats.pendingReviews), ""],
-    [
-      "download",
-      "Latest export",
-      stats.latestExport
-        ? new Date(stats.latestExport).toLocaleTimeString([], {
-            hour: "numeric",
-            minute: "2-digit",
-          })
-        : "None",
-      stats.latestExport ? "Completed" : "No exports",
-    ],
-  ] as const;
-  return (
-    <>
-      <PageHead admin student={null} />
-      <div className="admin-toolbar">
-        <div className="alert-inline">
-          <span>
-            <Icon name="pulse" />
-          </span>
-          <div>
-            <b>3 examinations are currently live</b>
-            <small>1,204 active candidates · All services operational</small>
-          </div>
-        </div>
-        <button
-          className="select-button"
-          onClick={() =>
-            setRange(range === "Last 30 days" ? "This week" : "Last 30 days")
-          }
-        >
-          <Icon name="calendar" />
-          {range}
-          <Icon name="chevron" size={14} />
-        </button>
-      </div>
-
-      <section className="kpi-grid">
-        {dashboardKpis.map(([icon, label, value, change], i) => (
-          <article className="kpi" key={label}>
-            <div className={`kpi-icon c${i}`}>
-              <Icon name={icon} />
-            </div>
-            <button aria-label={`More options for ${label}`}>
-              <Icon name="more" />
-            </button>
-            <small>{label}</small>
-            <strong>{value}</strong>
-            <span className={i === 4 ? "warn" : ""}>{change}</span>
-          </article>
-        ))}
-      </section>
-
-      <section className="admin-grid">
-        <div className="panel chart-panel">
-          <div className="panel-head">
-            <div>
-              <h3>Participation overview</h3>
-              <p>Candidate activity across all examinations</p>
-            </div>
-            <div className="legend">
-              <span>
-                <i />
-                Registered
-              </span>
-              <span>
-                <i />
-                Completed
-              </span>
-            </div>
-          </div>
-          <div className="chart">
-            <div className="axis">
-              <span>3K</span>
-              <span>2K</span>
-              <span>1K</span>
-              <span>0</span>
-            </div>
-            <svg
-              viewBox="0 0 660 190"
-              preserveAspectRatio="none"
-              aria-label="Participation chart"
-            >
-              <defs>
-                <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#1e4c8f" stopOpacity=".18" />
-                  <stop offset="1" stopColor="#1e4c8f" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <path
-                className="area"
-                d="M0 165 C70 150 90 125 145 132 S235 80 285 98 S390 60 430 75 S520 35 570 48 S625 20 660 27 L660 190 L0 190Z"
-              />
-              <path
-                className="line one"
-                d="M0 165 C70 150 90 125 145 132 S235 80 285 98 S390 60 430 75 S520 35 570 48 S625 20 660 27"
-              />
-              <path
-                className="line two"
-                d="M0 180 C75 172 105 158 150 164 S240 122 290 130 S390 102 435 106 S525 72 575 78 S630 53 660 58"
-              />
-            </svg>
-            <div className="x-axis">
-              <span>Jan 20</span>
-              <span>Jan 27</span>
-              <span>Feb 03</span>
-              <span>Feb 10</span>
-              <span>Feb 17</span>
-              <span>Feb 24</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="panel activity">
-          <div className="panel-head">
-            <div>
-              <h3>Recent activity</h3>
-              <p>Latest administrative actions</p>
-            </div>
-            <button className="icon-button">
-              <Icon name="more" />
-            </button>
-          </div>
-          <div className="dashboard-empty">
-            No audit activity is available in this legacy view.
-          </div>
-        </div>
-      </section>
-    </>
-  );
+  )
 }

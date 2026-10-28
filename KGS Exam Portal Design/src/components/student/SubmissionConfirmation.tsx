@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useState } from "react"
 
 interface Props {
-  examTitle: string;
-  submittedAt: Date;
-  marksScored?: number;
-  maximumMarks?: number;
-  resultsReleased?: boolean;
-  onBackToDashboard: () => void;
-  onViewMarks?: () => void;
+  examTitle: string
+  submittedAt: Date
+  marksScored?: number
+  maximumMarks?: number
+  resultsReleased?: boolean
+  onBackToDashboard: () => void
+  onViewMarks?: () => void
 }
 
 export function SubmissionConfirmation({
@@ -19,13 +19,14 @@ export function SubmissionConfirmation({
   onBackToDashboard,
   onViewMarks,
 }: Props) {
-  const [showToast, setShowToast] = useState(true);
+  const [showToast, setShowToast] = useState(true)
 
   return (
-    <div className="submission-success-page">
-      <div className="submission-success-card">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 font-sans text-slate-900">
+      <div className="relative w-full max-w-[560px] bg-white rounded-2xl shadow-xl border border-slate-200/80 p-6 sm:p-10 flex flex-col items-center text-center">
+        {/* Sync Toast */}
         {showToast && (
-          <div className="mb-6 flex items-center justify-between w-full bg-blue-600/90 backdrop-blur-md text-white px-3.5 py-2.5 rounded-lg shadow-md transition-all">
+          <div className="mb-6 flex items-center justify-between w-full bg-blue-600/90 backdrop-blur-md text-white px-3.5 py-2.5 rounded-xl shadow-md transition-all">
             <div className="flex items-center gap-2">
               <svg
                 width="20"
@@ -40,14 +41,14 @@ export function SubmissionConfirmation({
                   fill="currentColor"
                 />
               </svg>
-              <p className="text-xs font-semibold">
+              <p className="text-xs font-semibold m-0">
                 Success! Your examination submission is fully recorded.
               </p>
             </div>
             <button
               type="button"
               aria-label="close"
-              className="active:scale-90 transition-all ml-2 hover:bg-white/20 p-1 rounded"
+              className="active:scale-90 transition-all ml-2 hover:bg-white/20 p-1 rounded cursor-pointer border-none bg-transparent"
               onClick={() => setShowToast(false)}
             >
               <svg
@@ -69,21 +70,40 @@ export function SubmissionConfirmation({
           </div>
         )}
 
-        <div className="success-check">✓</div>
-        <div className="eyebrow">SUBMISSION CONFIRMATION</div>
-        <h1>Examination Submitted Successfully</h1>
-        <div className="submission-details">
-          <div>
-            <small>EXAM</small>
-            <b>{examTitle}</b>
+        <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl font-black mb-4 shadow-inner">
+          ✓
+        </div>
+
+        <div className="text-[11px] font-extrabold uppercase tracking-widest text-blue-600 mb-1">
+          SUBMISSION CONFIRMATION
+        </div>
+
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
+          Examination Submitted Successfully
+        </h1>
+
+        <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-slate-50/80 rounded-xl border border-slate-200/80 mb-6 text-left">
+          <div className="flex flex-col gap-0.5">
+            <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              EXAM
+            </small>
+            <b className="text-xs sm:text-sm font-semibold text-slate-900">
+              {examTitle}
+            </b>
           </div>
-          <div>
-            <small>SUBMISSION STATUS</small>
-            <b>Completed</b>
+          <div className="flex flex-col gap-0.5">
+            <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              SUBMISSION STATUS
+            </small>
+            <b className="text-xs sm:text-sm font-bold text-emerald-700">
+              Completed
+            </b>
           </div>
-          <div>
-            <small>SUBMITTED AT</small>
-            <b>
+          <div className="flex flex-col gap-0.5">
+            <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              SUBMITTED AT
+            </small>
+            <b className="text-xs font-medium text-slate-900">
               {submittedAt.toLocaleString("en-IN", {
                 dateStyle: "long",
                 timeStyle: "short",
@@ -91,35 +111,41 @@ export function SubmissionConfirmation({
             </b>
           </div>
         </div>
-        <p className="submission-recorded">
-          Your examination has been recorded.
-        </p>
+
         {resultsReleased && (
-          <div className="submission-marks">
-            <small>MARKS SCORED</small>
-            <strong>
+          <div className="w-full p-4 bg-emerald-50/80 border border-emerald-200/80 rounded-xl text-center mb-4">
+            <small className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block mb-1">
+              MARKS SCORED
+            </small>
+            <strong className="text-2xl sm:text-3xl font-extrabold text-emerald-900">
               {marksScored} / {maximumMarks}
             </strong>
           </div>
         )}
-        {resultsReleased ? (
-          <p className="submission-release">Your marks are available.</p>
-        ) : (
-          <p className="submission-release">
-            Your results will be available after they are released.
-          </p>
-        )}
-        <div className="submission-actions">
-          <button className="primary" onClick={onBackToDashboard}>
+
+        <p className="text-xs sm:text-sm text-slate-600 font-medium mb-6">
+          {resultsReleased
+            ? "Your marks are available."
+            : "Your results will be available after they are released."}
+        </p>
+
+        <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button
+            className="h-11 w-full sm:w-auto px-6 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
+            onClick={onBackToDashboard}
+          >
             Back to Dashboard
           </button>
           {resultsReleased && onViewMarks && (
-            <button className="secondary" onClick={onViewMarks}>
+            <button
+              className="h-11 w-full sm:w-auto px-6 text-xs sm:text-sm font-semibold rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
+              onClick={onViewMarks}
+            >
               View Marks
             </button>
           )}
         </div>
       </div>
     </div>
-  );
+  )
 }

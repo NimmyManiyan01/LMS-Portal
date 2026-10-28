@@ -109,10 +109,9 @@ async function finalizeAttempt({
             reason,
             reasonDetail,
             scoringVersion: Number(scheme.scoringVersion || 1),
-            releaseStatus:
-              exam?.resultReleasePolicy === "IMMEDIATE"
-                ? "RELEASED"
-                : "PENDING",
+            // Scores are calculated against the persisted answer key at finalization
+            // and are available to the candidate immediately after submission.
+            releaseStatus: "RELEASED",
             submittedAt: finalizedAt,
             receiptToken,
             finalizedAt,

@@ -1,25 +1,25 @@
-import { useState, useEffect, useRef } from "react";
-import { Exam, Question, AnswerState } from "../../types";
-import { API_BASE_URL, authFetch } from "../../api";
+import { useState, useEffect, useRef } from "react"
+import { Exam, Question, AnswerState } from "../../types"
+import { API_BASE_URL, authFetch } from "../../api"
 
 interface ExamPlayerProps {
-  exam: Exam;
-  questions: Question[];
-  attemptId: string;
-  candidateName?: string;
+  exam: Exam
+  questions: Question[]
+  attemptId: string
+  candidateName?: string
   onSubmitExam: (
     answers: Record<string, AnswerState>,
     tabSwitches: number,
     automatic?: boolean,
-  ) => void;
-  onIntegrityAutoSubmit?: () => void;
+  ) => void
+  onIntegrityAutoSubmit?: () => void
 }
 
 interface PersistedAttempt {
-  answers: Record<string, AnswerState>;
-  currentIdx: number;
-  tabSwitches: number;
-  expiresAt: number;
+  answers: Record<string, AnswerState>
+  currentIdx: number
+  tabSwitches: number
+  expiresAt: number
 }
 
 export function ExamPlayer({
@@ -30,80 +30,79 @@ export function ExamPlayer({
   onSubmitExam,
   onIntegrityAutoSubmit,
 }: ExamPlayerProps) {
-  const storageKey = `kgs-exam-attempt:${exam.id}`;
+  const storageKey = `kgs-exam-attempt:${exam.id}`
   const [currentIdx, setCurrentIdx] = useState(() => {
     try {
       const saved = JSON.parse(
         localStorage.getItem(storageKey) || "null",
-      ) as PersistedAttempt | null;
-      return saved?.currentIdx ?? 0;
+      ) as PersistedAttempt | null
+      return saved?.currentIdx ?? 0
     } catch {
-      return 0;
+      return 0
     }
-  });
+  })
   const [answers, setAnswers] = useState<Record<string, AnswerState>>(() => {
     try {
       const saved = JSON.parse(
         localStorage.getItem(storageKey) || "null",
-      ) as PersistedAttempt | null;
-      return saved?.answers ?? {};
+      ) as PersistedAttempt | null
+      return saved?.answers ?? {}
     } catch {
-      return {};
+      return {}
     }
-  });
+  })
   const [timeLeft, setTimeLeft] = useState(() => {
     try {
       const saved = JSON.parse(
         localStorage.getItem(storageKey) || "null",
-      ) as PersistedAttempt | null;
+      ) as PersistedAttempt | null
       return saved?.expiresAt
         ? Math.max(0, Math.ceil((saved.expiresAt - Date.now()) / 1000))
-        : exam.durationMinutes * 60;
+        : exam.durationMinutes * 60
     } catch {
-      return exam.durationMinutes * 60;
+      return exam.durationMinutes * 60
     }
-  });
+  })
   const [tabSwitches, setTabSwitches] = useState(() => {
     try {
       const saved = JSON.parse(
         localStorage.getItem(storageKey) || "null",
-      ) as PersistedAttempt | null;
-      return saved?.tabSwitches ?? 0;
+      ) as PersistedAttempt | null
+      return saved?.tabSwitches ?? 0
     } catch {
-      return 0;
+      return 0
     }
-  });
-  const [fullscreenIncidents, setFullscreenIncidents] = useState(0);
+  })
+  const [fullscreenIncidents, setFullscreenIncidents] = useState(0)
   const [fullscreenThreshold, setFullscreenThreshold] = useState<number | null>(
     null,
-  );
-  const [lastIntegrityType, setLastIntegrityType] = useState<
-    "TAB_HIDDEN" | "FULLSCREEN_EXIT"
-  >("TAB_HIDDEN");
-  const [showWarningModal, setShowWarningModal] = useState(false);
-  const [paletteOpen, setPaletteOpen] = useState(true);
-  const [saveState, setSaveState] = useState<
-    "saved" | "saving" | "failed" | "retrying"
-  >("saved");
+  )
+  const [lastIntegrityType, setLastIntegrityType] =
+    useState<"TAB_HIDDEN" | "FULLSCREEN_EXIT">("TAB_HIDDEN")
+  const [showWarningModal, setShowWarningModal] = useState(false)
+  const [paletteOpen, setPaletteOpen] = useState(true)
+  const [saveState, setSaveState] =
+    useState<"saved" | "saving" | "failed" | "retrying">("saved")
   const [answerVersions, setAnswerVersions] = useState<Record<string, number>>(
     {},
-  );
+  )
   const [connectionOnline, setConnectionOnline] = useState(
     () => navigator.onLine,
-  );
-  const [cameraStatus, setCameraStatus] = useState<
-    "not-required" | "starting" | "active" | "interrupted" | "denied"
-  >("not-required");
+  )
+  const [cameraStatus, setCameraStatus] =
+    useState<"not-required" | "starting" | "active" | "interrupted" | "denied">(
+      "not-required",
+    )
   const [fullscreenActive, setFullscreenActive] = useState(
     () =>
       !exam.readinessRequirements?.fullscreen || !!document.fullscreenElement,
-  );
-  const [fullscreenNotice, setFullscreenNotice] = useState(false);
-  const cameraVideoRef = useRef<HTMLVideoElement>(null);
-  const cameraStreamRef = useRef<MediaStream | null>(null);
-  const lastVisibilityIncident = useRef(0);
-  const pendingIntegrityEvents = useRef(new Map<string, number>());
-  const finalizingRef = useRef(false);
+  )
+  const [fullscreenNotice, setFullscreenNotice] = useState(false)
+  const cameraVideoRef = useRef<HTMLVideoElement>(null)
+  const cameraStreamRef = useRef<MediaStream | null>(null)
+  const lastVisibilityIncident = useRef(0)
+  const pendingIntegrityEvents = useRef(new Map<string, number>())
+  const finalizingRef = useRef(false)
 
   const recordIntegrityEvent = async (
     eventId: string,
@@ -122,24 +121,24 @@ export function ExamPlayer({
             clientTimestamp: new Date().toISOString(),
           }),
         },
-      );
-      if (!response.ok) throw new Error("integrity event rejected");
-      const result = await response.json();
-      pendingIntegrityEvents.current.delete(eventId);
-      setLastIntegrityType(eventType);
+      )
+      if (!response.ok) throw new Error("integrity event rejected")
+      const result = await response.json()
+      pendingIntegrityEvents.current.delete(eventId)
+      setLastIntegrityType(eventType)
       if (eventType === "FULLSCREEN_EXIT") {
         if (typeof result.confirmedCount === "number")
-          setFullscreenIncidents(result.confirmedCount);
+          setFullscreenIncidents(result.confirmedCount)
         if (typeof result.count === "number")
-          setFullscreenIncidents(result.count);
+          setFullscreenIncidents(result.count)
         if (typeof result.threshold === "number")
-          setFullscreenThreshold(result.threshold);
+          setFullscreenThreshold(result.threshold)
       } else if (typeof result.confirmedCount === "number")
-        setTabSwitches(result.confirmedCount);
-      if (result.action === "WARNING") setShowWarningModal(true);
+        setTabSwitches(result.confirmedCount)
+      if (result.action === "WARNING") setShowWarningModal(true)
       if (result.action === "AUTO_SUBMIT") {
-        finalizingRef.current = true;
-        onIntegrityAutoSubmit?.();
+        finalizingRef.current = true
+        onIntegrityAutoSubmit?.()
       }
     } catch {
       if (attempt < 2 && navigator.onLine) {
@@ -147,58 +146,58 @@ export function ExamPlayer({
           eventId,
           window.setTimeout(
             () => {
-              void recordIntegrityEvent(eventId, eventType, attempt + 1);
+              void recordIntegrityEvent(eventId, eventType, attempt + 1)
             },
             1000 * (attempt + 1),
           ),
-        );
+        )
       } else {
-        pendingIntegrityEvents.current.delete(eventId);
+        pendingIntegrityEvents.current.delete(eventId)
       }
     }
-  };
+  }
 
-  const currentQ = questions[currentIdx] || questions[0];
+  const currentQ = questions[currentIdx] || questions[0]
 
   const stopCamera = () => {
     cameraStreamRef.current?.getTracks().forEach((track) => {
-      track.onended = null;
-      track.stop();
-    });
-    cameraStreamRef.current = null;
-    if (cameraVideoRef.current) cameraVideoRef.current.srcObject = null;
-  };
+      track.onended = null
+      track.stop()
+    })
+    cameraStreamRef.current = null
+    if (cameraVideoRef.current) cameraVideoRef.current.srcObject = null
+  }
 
   const requestExamFullscreen = async () => {
     if (!exam.readinessRequirements?.fullscreen || document.fullscreenElement)
-      return true;
+      return true
     try {
-      await document.documentElement.requestFullscreen();
-      setFullscreenActive(true);
-      setFullscreenNotice(false);
-      return true;
+      await document.documentElement.requestFullscreen()
+      setFullscreenActive(true)
+      setFullscreenNotice(false)
+      return true
     } catch {
-      setFullscreenActive(false);
-      setFullscreenNotice(true);
-      return false;
+      setFullscreenActive(false)
+      setFullscreenNotice(true)
+      return false
     }
-  };
+  }
 
   const startCamera = async () => {
-    if (!exam.readinessRequirements?.camera) return;
-    stopCamera();
-    setCameraStatus("starting");
+    if (!exam.readinessRequirements?.camera) return
+    stopCamera()
+    setCameraStatus("starting")
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: false,
-      });
-      cameraStreamRef.current = stream;
+      })
+      cameraStreamRef.current = stream
       stream.getVideoTracks().forEach((track) => {
         track.onended = () => {
-          cameraStreamRef.current = null;
-          setCameraStatus("interrupted");
-          const eventId = `camera-${attemptId}-${Date.now()}-${crypto.randomUUID()}`;
+          cameraStreamRef.current = null
+          setCameraStatus("interrupted")
+          const eventId = `camera-${attemptId}-${Date.now()}-${crypto.randomUUID()}`
           void authFetch(
             `${API_BASE_URL}/api/attempts/${attemptId}/integrity-events`,
             {
@@ -210,126 +209,122 @@ export function ExamPlayer({
                 clientTimestamp: new Date().toISOString(),
               }),
             },
-          ).catch(() => undefined);
-        };
-      });
+          ).catch(() => undefined)
+        }
+      })
       if (cameraVideoRef.current) {
-        cameraVideoRef.current.srcObject = stream;
-        await cameraVideoRef.current.play();
+        cameraVideoRef.current.srcObject = stream
+        await cameraVideoRef.current.play()
         if (
           cameraVideoRef.current.readyState <
             HTMLMediaElement.HAVE_CURRENT_DATA ||
           !cameraVideoRef.current.videoWidth ||
           !cameraVideoRef.current.videoHeight
         ) {
-          stopCamera();
-          setCameraStatus("interrupted");
-          return;
+          stopCamera()
+          setCameraStatus("interrupted")
+          return
         }
       }
-      setCameraStatus("active");
+      setCameraStatus("active")
     } catch {
-      setCameraStatus("denied");
+      setCameraStatus("denied")
     }
-  };
+  }
 
   useEffect(() => {
-    if (!exam.readinessRequirements?.camera) return;
-    void startCamera();
-    return stopCamera;
-  }, [exam.readinessRequirements?.camera]);
+    if (!exam.readinessRequirements?.camera) return
+    void startCamera()
+    return stopCamera
+  }, [exam.readinessRequirements?.camera])
 
   useEffect(() => {
-    if (!exam.readinessRequirements?.camera) return;
+    if (!exam.readinessRequirements?.camera) return
     const timer = window.setInterval(() => {
-      const video = cameraVideoRef.current;
-      const track = cameraStreamRef.current?.getVideoTracks()[0];
+      const video = cameraVideoRef.current
+      const track = cameraStreamRef.current?.getVideoTracks()[0]
       const healthy =
         !!video &&
         video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
         video.videoWidth > 0 &&
         video.videoHeight > 0 &&
-        track?.readyState === "live";
-      if (cameraStatus === "active" && !healthy) setCameraStatus("interrupted");
-    }, 1000);
-    return () => window.clearInterval(timer);
-  }, [cameraStatus, exam.readinessRequirements?.camera]);
+        track?.readyState === "live"
+      if (cameraStatus === "active" && !healthy) setCameraStatus("interrupted")
+    }, 1000)
+    return () => window.clearInterval(timer)
+  }, [cameraStatus, exam.readinessRequirements?.camera])
 
   useEffect(() => {
-    if (!exam.readinessRequirements?.fullscreen) return;
+    if (!exam.readinessRequirements?.fullscreen) return
     const handleFullscreenChange = () => {
-      const active = !!document.fullscreenElement;
-      setFullscreenActive(active);
+      const active = !!document.fullscreenElement
+      setFullscreenActive(active)
       if (active) {
-        setFullscreenNotice(false);
-        return;
+        setFullscreenNotice(false)
+        return
       }
-      if (finalizingRef.current) return;
-      setFullscreenNotice(true);
-      const eventId = `fullscreen-${attemptId}-${Date.now()}-${crypto.randomUUID()}`;
-      setShowWarningModal(true);
-      void recordIntegrityEvent(eventId, "FULLSCREEN_EXIT");
-    };
-    void requestExamFullscreen();
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
+      if (finalizingRef.current) return
+      setFullscreenNotice(true)
+      const eventId = `fullscreen-${attemptId}-${Date.now()}-${crypto.randomUUID()}`
+      setShowWarningModal(true)
+      void recordIntegrityEvent(eventId, "FULLSCREEN_EXIT")
+    }
+    void requestExamFullscreen()
+    document.addEventListener("fullscreenchange", handleFullscreenChange)
     return () =>
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, [attemptId, exam.readinessRequirements?.fullscreen]);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange)
+  }, [attemptId, exam.readinessRequirements?.fullscreen])
 
   useEffect(() => {
     void authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/integrity-status`)
       .then((response) => (response.ok ? response.json() : null))
       .then((result) => {
         if (typeof result?.counts?.tabSwitch === "number")
-          setTabSwitches(result.counts.tabSwitch);
+          setTabSwitches(result.counts.tabSwitch)
         if (typeof result?.counts?.fullscreenExit === "number")
-          setFullscreenIncidents(result.counts.fullscreenExit);
+          setFullscreenIncidents(result.counts.fullscreenExit)
         if (typeof result?.rules?.fullscreenExitThreshold === "number")
-          setFullscreenThreshold(result.rules.fullscreenExitThreshold);
+          setFullscreenThreshold(result.rules.fullscreenExitThreshold)
       })
-      .catch(() => undefined);
-  }, [attemptId]);
+      .catch(() => undefined)
+  }, [attemptId])
 
   useEffect(() => {
-    const online = () => setConnectionOnline(true);
-    const offline = () => setConnectionOnline(false);
-    window.addEventListener("online", online);
-    window.addEventListener("offline", offline);
+    const online = () => setConnectionOnline(true)
+    const offline = () => setConnectionOnline(false)
+    window.addEventListener("online", online)
+    window.addEventListener("offline", offline)
     return () => {
-      window.removeEventListener("online", online);
-      window.removeEventListener("offline", offline);
-    };
-  }, []);
+      window.removeEventListener("online", online)
+      window.removeEventListener("offline", offline)
+    }
+  }, [])
 
   // Initialize answer states
   useEffect(() => {
-    const initial: Record<string, AnswerState> = {};
+    const initial: Record<string, AnswerState> = {}
     questions.forEach((q) => {
       initial[q.id] = {
         questionId: q.id,
         isMarkedForReview: false,
         visited: false,
         timeSpentSeconds: 0,
-      };
-    });
-    // Mark first question visited
+      }
+    })
     if (questions[0]) {
-      initial[questions[0].id].visited = true;
+      initial[questions[0].id].visited = true
     }
     setAnswers((existing) =>
       Object.keys(existing).length ? existing : initial,
-    );
-  }, [questions]);
+    )
+  }, [questions])
 
-  // Keep an attempt recoverable across refreshes or short disconnects. The
-  // server remains authoritative in production; this provides a safe client
-  // recovery layer for the current frontend prototype.
   useEffect(() => {
     const existing = JSON.parse(
       localStorage.getItem(storageKey) || "null",
-    ) as PersistedAttempt | null;
+    ) as PersistedAttempt | null
     const expiresAt =
-      existing?.expiresAt || Date.now() + exam.durationMinutes * 60 * 1000;
+      existing?.expiresAt || Date.now() + exam.durationMinutes * 60 * 1000
     localStorage.setItem(
       storageKey,
       JSON.stringify({
@@ -338,69 +333,68 @@ export function ExamPlayer({
         tabSwitches,
         expiresAt,
       } satisfies PersistedAttempt),
-    );
-  }, [answers, currentIdx, tabSwitches, exam.durationMinutes, storageKey]);
+    )
+  }, [answers, currentIdx, tabSwitches, exam.durationMinutes, storageKey])
 
   // Timer countdown
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(interval);
-          finalizingRef.current = true;
-          onSubmitExam(answers, tabSwitches, true);
-          localStorage.removeItem(storageKey);
-          return 0;
+          clearInterval(interval)
+          finalizingRef.current = true
+          onSubmitExam(answers, tabSwitches, true)
+          localStorage.removeItem(storageKey)
+          return 0
         }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [answers, tabSwitches, onSubmitExam]);
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [answers, tabSwitches, onSubmitExam])
 
-  // Browser visibility is an imperfect signal; the backend owns counts and actions.
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        const now = Date.now();
-        if (now - lastVisibilityIncident.current < 1500) return;
-        lastVisibilityIncident.current = now;
-        const eventId = `visibility-${attemptId}-${now}-${crypto.randomUUID()}`;
-        setShowWarningModal(true);
-        pendingIntegrityEvents.current.set(eventId, 0);
-        void recordIntegrityEvent(eventId, "TAB_HIDDEN");
+        const now = Date.now()
+        if (now - lastVisibilityIncident.current < 1500) return
+        lastVisibilityIncident.current = now
+        const eventId = `visibility-${attemptId}-${now}-${crypto.randomUUID()}`
+        setShowWarningModal(true)
+        pendingIntegrityEvents.current.set(eventId, 0)
+        void recordIntegrityEvent(eventId, "TAB_HIDDEN")
       }
-    };
+    }
 
-    window.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("visibilitychange", handleVisibilityChange)
     return () => {
-      window.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("visibilitychange", handleVisibilityChange)
       pendingIntegrityEvents.current.forEach((timer) => {
-        if (timer) window.clearTimeout(timer);
-      });
-      pendingIntegrityEvents.current.clear();
-    };
-  }, [attemptId]);
+        if (timer) window.clearTimeout(timer)
+      })
+      pendingIntegrityEvents.current.clear()
+    }
+  }, [attemptId])
 
   const persistAnswer = async (answer: AnswerState, retry = false) => {
-    const version = (answerVersions[answer.questionId] || 0) + 1;
-    setSaveState(retry ? "retrying" : "saving");
+    const version = (answerVersions[answer.questionId] || 0) + 1
+    setSaveState(retry ? "retrying" : "saving")
     try {
       const response = await authFetch(
-        `${API_BASE_URL}/api/exams/attempts/${exam.id}/answers/${answer.questionId}`,
+        `${API_BASE_URL}/api/attempts/${attemptId}/answers/${answer.questionId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...answer, version }),
         },
-      );
-      if (!response.ok) throw new Error("save failed");
-      setAnswerVersions((prev) => ({ ...prev, [answer.questionId]: version }));
-      setSaveState("saved");
+      )
+      if (!response.ok) throw new Error("save failed")
+      setAnswerVersions((prev) => ({ ...prev, [answer.questionId]: version }))
+      setSaveState("saved")
     } catch {
-      setSaveState("failed");
+      setSaveState("failed")
     }
-  };
+  }
 
   const selectOption = (optId: string) => {
     setAnswers((prev) => {
@@ -411,11 +405,11 @@ export function ExamPlayer({
           selectedOptionId: optId,
           visited: true,
         },
-      };
-      void persistAnswer(next[currentQ.id]);
-      return next;
-    });
-  };
+      }
+      void persistAnswer(next[currentQ.id])
+      return next
+    })
+  }
 
   const clearResponse = () => {
     setAnswers((prev) => ({
@@ -424,8 +418,8 @@ export function ExamPlayer({
         ...prev[currentQ.id],
         selectedOptionId: undefined,
       },
-    }));
-  };
+    }))
+  }
 
   const toggleMarkForReview = () => {
     setAnswers((prev) => ({
@@ -434,124 +428,134 @@ export function ExamPlayer({
         ...prev[currentQ.id],
         isMarkedForReview: !prev[currentQ.id]?.isMarkedForReview,
       },
-    }));
-  };
+    }))
+  }
 
   const goToQuestion = (idx: number) => {
     if (idx >= 0 && idx < questions.length) {
-      const targetQ = questions[idx];
+      const targetQ = questions[idx]
       setAnswers((prev) => ({
         ...prev,
         [targetQ.id]: {
           ...prev[targetQ.id],
           visited: true,
         },
-      }));
-      setCurrentIdx(idx);
+      }))
+      setCurrentIdx(idx)
     }
-  };
+  }
 
   const formatTimer = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    const h = Math.floor(m / 60);
-    const remM = m % 60;
-    return `${h > 0 ? String(h).padStart(2, "0") + ":" : ""}${String(remM).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  };
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    const h = Math.floor(m / 60)
+    const remM = m % 60
+    return `${
+      h > 0 ? String(h).padStart(2, "0") + ":" : ""
+    }${String(remM).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+  }
 
-  const currentAns = answers[currentQ.id] || {};
+  const currentAns = answers[currentQ.id] || {}
 
-  // Palette counts
-  let answeredCount = 0;
-  let markedCount = 0;
-  let unvisitedCount = 0;
-  let unansweredCount = 0;
+  let answeredCount = 0
+  let markedCount = 0
+  let unvisitedCount = 0
+  let unansweredCount = 0
 
   questions.forEach((q) => {
-    const st = answers[q.id];
+    const st = answers[q.id]
     if (!st || !st.visited) {
-      unvisitedCount++;
+      unvisitedCount++
     } else if (st.selectedOptionId) {
-      answeredCount++;
+      answeredCount++
     } else {
-      unansweredCount++;
+      unansweredCount++
     }
     if (st?.isMarkedForReview) {
-      markedCount++;
+      markedCount++
     }
-  });
+  })
 
-  const isLowTime = timeLeft <= 600; // 10 mins
-  const isCriticalTime = timeLeft <= 120; // 2 mins
+  const isLowTime = timeLeft <= 600
+  const isCriticalTime = timeLeft <= 120
 
   if (!currentQ) {
     return (
-      <div className="exam-player-shell exam-player-empty">
-        <div className="panel">
-          <h2>Questions are not available</h2>
-          <p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-900 font-sans">
+        <div className="max-w-md w-full p-8 bg-white rounded-2xl border border-slate-200/80 shadow-xl text-center flex flex-col gap-4">
+          <h2 className="text-xl font-bold text-slate-900">Questions are not available</h2>
+          <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
             The assigned examination questions could not be loaded. Your attempt
             has not been reset.
           </p>
-          <button className="primary" onClick={() => window.location.reload()}>
+          <button
+            className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
+            onClick={() => window.location.reload()}
+          >
             Retry loading questions
           </button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="exam-player-shell">
+    <div className="min-h-screen bg-slate-50 p-3 sm:p-6 font-sans text-slate-900 flex flex-col gap-4">
+      {/* Offline Banner */}
       {!connectionOnline && (
-        <div className="connection-banner" role="alert">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 px-5 bg-amber-500 text-slate-950 font-medium rounded-xl shadow-md z-30" role="alert">
           <div>
-            <strong>Connection Lost</strong>
-            <span>
+            <strong className="block font-bold text-slate-950 text-sm">Connection Lost</strong>
+            <span className="text-xs text-slate-900/90 font-medium">
               Your examination timer is still running. We are attempting to
               reconnect.
             </span>
           </div>
           <button
-            className="secondary"
+            className="h-8 px-3 text-xs font-bold rounded-lg text-slate-900 bg-white hover:bg-slate-100 transition-colors border-none cursor-pointer shrink-0 shadow-sm"
             onClick={() => {
-              setConnectionOnline(navigator.onLine);
-              window.dispatchEvent(new Event("online"));
+              setConnectionOnline(navigator.onLine)
+              window.dispatchEvent(new Event("online"))
             }}
           >
             Retry Connection
           </button>
         </div>
       )}
+
+      {/* Fullscreen Notice Banner */}
       {exam.readinessRequirements?.fullscreen && fullscreenNotice && (
-        <div className="fullscreen-banner" role="alert">
-          <span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 px-5 bg-red-600 text-white font-medium rounded-xl shadow-md z-30" role="alert">
+          <span className="text-xs sm:text-sm font-semibold">
             Fullscreen has been exited. Return to fullscreen to continue the
             examination.
           </span>
           <button
-            className="secondary"
+            className="h-8 px-3 text-xs font-bold rounded-lg text-slate-900 bg-white hover:bg-slate-100 transition-colors border-none cursor-pointer shrink-0 shadow-sm"
             onClick={() => {
-              void requestExamFullscreen();
+              void requestExamFullscreen()
             }}
           >
             Return to Fullscreen
           </button>
         </div>
       )}
+
       {/* Proctoring Warning Modal */}
       {showWarningModal && (
-        <div className="modal-scrim warning-scrim">
-          <div className="modal-card warning-card">
-            <div className="warning-icon">⚠️</div>
-            <h3>Proctoring Security Warning</h3>
-            <p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-[520px] bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 sm:p-8 flex flex-col items-center text-center gap-4 text-slate-900">
+            <div className="w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-3xl font-bold shrink-0">
+              ⚠️
+            </div>
+            <h3 className="text-xl font-bold text-slate-900">Proctoring Security Warning</h3>
+            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
               A{" "}
               {lastIntegrityType === "FULLSCREEN_EXIT"
                 ? "fullscreen exit"
                 : "tab-switch or window-visibility"}{" "}
               incident has been recorded.{" "}
-              <strong>
+              <strong className="text-slate-900 font-bold">
                 Recorded incidents:{" "}
                 {lastIntegrityType === "FULLSCREEN_EXIT"
                   ? fullscreenIncidents
@@ -564,7 +568,7 @@ export function ExamPlayer({
               backend evaluates incidents according to the configured rules.
             </p>
             <button
-              className="primary"
+              className="mt-2 h-11 w-full px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
               onClick={() => setShowWarningModal(false)}
             >
               I Understand & Resume Exam
@@ -573,21 +577,23 @@ export function ExamPlayer({
         </div>
       )}
 
+      {/* Floating Camera Monitor Overlay */}
       {exam.readinessRequirements?.camera && (
         <div
-          className={`camera-monitor camera-${cameraStatus}`}
+          className="fixed bottom-4 left-4 z-40 w-44 sm:w-48 bg-slate-900/90 backdrop-blur-md rounded-xl border border-slate-700/80 shadow-2xl p-2.5 flex flex-col gap-2 text-white"
           role="status"
           aria-live="polite"
         >
-          <div className="camera-monitor-preview">
+          <div className="relative w-full h-28 bg-slate-950 rounded-lg overflow-hidden flex items-center justify-center text-center">
             <video
               ref={cameraVideoRef}
               muted
               playsInline
               aria-label="Live camera preview"
+              className="w-full h-full object-cover"
             />
             {cameraStatus !== "active" && (
-              <span>
+              <span className="absolute inset-0 p-2 flex items-center justify-center text-[11px] font-semibold text-slate-300 bg-slate-950/80 leading-snug">
                 {cameraStatus === "starting"
                   ? "Starting camera…"
                   : cameraStatus === "denied"
@@ -596,21 +602,29 @@ export function ExamPlayer({
               </span>
             )}
           </div>
-          <div className="camera-monitor-status">
-            <strong>
-              <span className="camera-status-dot" />{" "}
+          <div className="flex items-center justify-between text-xs font-semibold px-0.5">
+            <strong className="flex items-center gap-1.5 text-[11px] text-slate-200">
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  cameraStatus === "active"
+                    ? "bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"
+                    : cameraStatus === "starting"
+                      ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"
+                      : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"
+                }`}
+              />{" "}
               {cameraStatus === "active"
                 ? "Camera Active"
                 : cameraStatus === "starting"
-                  ? "Camera Reconnecting…"
-                  : "Camera Unavailable"}
+                  ? "Reconnecting…"
+                  : "Unavailable"}
             </strong>
             {cameraStatus !== "active" && (
               <button
-                className="text-button"
+                className="text-[10px] font-bold text-blue-400 hover:text-blue-300 underline cursor-pointer border-none bg-transparent p-0"
                 onClick={() => void startCamera()}
               >
-                Retry camera
+                Retry
               </button>
             )}
           </div>
@@ -618,30 +632,34 @@ export function ExamPlayer({
       )}
 
       {/* Exam Header Toolbar */}
-      <header className="exam-player-header">
-        <div className="exam-title-group">
-          <h2>{exam.title}</h2>
-          <span className="exam-code">{exam.examCode}</span>
+      <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 sm:px-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">{exam.title}</h2>
+          <span className="font-mono text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md">{exam.examCode}</span>
           {exam.readinessRequirements?.fullscreen && (
             <span
-              className={`fullscreen-status ${fullscreenActive ? "active" : "inactive"}`}
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide ${
+                fullscreenActive
+                  ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                  : "bg-red-100 text-red-800 border border-red-200"
+              }`}
             >
               {fullscreenActive ? "Fullscreen active" : "Fullscreen required"}
             </span>
           )}
         </div>
 
-        <div className="header-actions">
-          <div className="offline-status">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="text-xs font-semibold">
             {saveState === "saved" ? (
-              <span className="saved">✓ All changes saved</span>
+              <span className="text-emerald-700">✓ All changes saved</span>
             ) : saveState === "saving" ? (
-              <span className="saving">Saving answer...</span>
+              <span className="text-slate-500">Saving answer...</span>
             ) : saveState === "retrying" ? (
-              <span className="saving">Reconnecting and retrying...</span>
+              <span className="text-amber-600">Reconnecting and retrying...</span>
             ) : (
               <button
-                className="save-failed"
+                className="text-red-600 hover:underline cursor-pointer bg-transparent border-none p-0"
                 onClick={() => persistAnswer(currentAns, true)}
               >
                 Unable to save answer · Retry
@@ -650,24 +668,30 @@ export function ExamPlayer({
           </div>
 
           <div
-            className={`timer-box ${isCriticalTime ? "critical" : isLowTime ? "warning" : ""}`}
+            className={`flex flex-col items-center justify-center px-3.5 py-1.5 rounded-xl border text-center transition-colors ${
+              isCriticalTime
+                ? "bg-red-50 border-red-300 text-red-700 animate-pulse"
+                : isLowTime
+                  ? "bg-amber-50 border-amber-300 text-amber-700"
+                  : "bg-slate-50 border-slate-200 text-slate-800"
+            }`}
           >
-            <small>TIME REMAINING</small>
-            <b>{formatTimer(timeLeft)}</b>
+            <small className="text-[9px] font-bold uppercase tracking-wider text-slate-400 leading-none">TIME REMAINING</small>
+            <b className="font-mono text-sm sm:text-base font-extrabold leading-none mt-1">{formatTimer(timeLeft)}</b>
           </div>
 
           <button
-            className="secondary"
+            className="h-10 px-3.5 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
             onClick={() => setPaletteOpen(!paletteOpen)}
           >
             {paletteOpen ? "Hide Palette" : "Question Palette"}
           </button>
 
           <button
-            className="primary submit-btn"
+            className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-800 transition-all cursor-pointer shadow-sm shadow-red-500/20 border-none"
             onClick={() => {
-              finalizingRef.current = true;
-              onSubmitExam(answers, tabSwitches);
+              finalizingRef.current = true
+              onSubmitExam(answers, tabSwitches)
             }}
           >
             Submit Exam
@@ -675,26 +699,32 @@ export function ExamPlayer({
         </div>
       </header>
 
-      {/* Main Examination Viewport */}
-      <div className="exam-body-grid">
-        <main className="question-viewport">
-          <div className="section-bar">
+      {/* Main Examination Viewport Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+        <main className="flex flex-col bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          {/* Section Info Bar */}
+          <div className="flex items-center justify-between p-3.5 px-5 bg-slate-50/80 border-b border-slate-200/80 text-xs sm:text-sm font-semibold text-slate-700">
             <span>
-              SECTION: <strong>{currentQ.sectionName}</strong>
+              SECTION: <strong className="text-slate-900 font-bold">{currentQ.sectionName}</strong>
             </span>
-            <div className="marks-info">
-              <span>Marks: +{currentQ.marks}</span>
-              <span className="neg">Neg: -{currentQ.negativeMarks}</span>
+            <div className="flex items-center gap-3">
+              <span>Marks: <strong className="text-emerald-700 font-bold">+{currentQ.marks}</strong></span>
+              <span>Neg: <strong className="text-red-600 font-bold">-{currentQ.negativeMarks}</strong></span>
             </div>
           </div>
 
-          <div className="question-card">
-            <div className="question-header">
-              <span className="q-number">
+          {/* Question Card */}
+          <div className="p-5 sm:p-7 flex flex-col gap-5">
+            <div className="flex items-center justify-between text-xs sm:text-sm">
+              <span className="font-bold text-slate-500 uppercase tracking-wider">
                 Question {currentIdx + 1} of {questions.length}
               </span>
               <button
-                className={`flag-button ${currentAns.isMarkedForReview ? "active" : ""}`}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                  currentAns.isMarkedForReview
+                    ? "bg-amber-100 text-amber-800 border-amber-300"
+                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                }`}
                 onClick={toggleMarkForReview}
               >
                 🚩{" "}
@@ -704,24 +734,29 @@ export function ExamPlayer({
               </button>
             </div>
 
-            <div className="question-text">{currentQ.questionText}</div>
+            <div className="text-sm sm:text-base font-semibold text-slate-900 leading-relaxed">{currentQ.questionText}</div>
 
             {currentQ.codeSnippet && (
-              <pre className="code-block">
+              <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl text-xs sm:text-sm font-mono overflow-x-auto">
                 <code>{currentQ.codeSnippet}</code>
               </pre>
             )}
 
-            <div className="options-group">
+            {/* Options List */}
+            <div className="flex flex-col gap-3 mt-1">
               {currentQ.options.map((opt) => {
-                const isSelected = currentAns.selectedOptionId === opt.id;
+                const isSelected = currentAns.selectedOptionId === opt.id
                 const optKey = (opt.id || "").includes("-")
                   ? (opt.id.split("-").pop() || opt.id).toUpperCase()
-                  : String(opt.id || "").toUpperCase();
+                  : String(opt.id || "").toUpperCase()
                 return (
                   <label
                     key={opt.id}
-                    className={`option-card ${isSelected ? "selected" : ""}`}
+                    className={`group flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl border text-xs sm:text-sm font-medium transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-blue-50/80 border-blue-500 text-blue-900 ring-2 ring-blue-500/20 shadow-sm"
+                        : "bg-white border-slate-200/90 text-slate-800 hover:border-slate-300 hover:bg-slate-50/50"
+                    }`}
                     onClick={() => selectOption(opt.id)}
                   >
                     <input
@@ -729,46 +764,52 @@ export function ExamPlayer({
                       name={`q-${currentQ.id}`}
                       checked={isSelected}
                       onChange={() => selectOption(opt.id)}
+                      className="h-4 w-4 text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
                     />
-                    <span className="opt-key">{optKey}</span>
-                    <span className="opt-text">{opt.text}</span>
+                    <span className={`flex items-center justify-center w-6 h-6 rounded-lg text-xs font-bold shrink-0 transition-colors ${isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"}`}>
+                      {optKey}
+                    </span>
+                    <span className="flex-1 font-medium">{opt.text}</span>
                   </label>
-                );
+                )
               })}
             </div>
           </div>
 
-          {/* Viewport Footer Actions */}
-          <footer className="viewport-footer">
-            <div className="left-actions">
+          {/* Viewport Footer Navigation Actions */}
+          <footer className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:px-6 bg-slate-50/60 border-t border-slate-200/80">
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
               <button
-                className="secondary"
+                className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm flex-1 sm:flex-initial"
                 disabled={currentIdx === 0}
                 onClick={() => goToQuestion(currentIdx - 1)}
               >
                 ← Previous
               </button>
-              <button className="secondary" onClick={clearResponse}>
+              <button
+                className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-all cursor-pointer shadow-sm flex-1 sm:flex-initial"
+                onClick={clearResponse}
+              >
                 Clear Response
               </button>
             </div>
 
-            <div className="right-actions">
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
               <button
-                className="secondary mark-next"
+                className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-all cursor-pointer shadow-sm flex-1 sm:flex-initial"
                 onClick={() => {
-                  toggleMarkForReview();
+                  toggleMarkForReview()
                   if (currentIdx < questions.length - 1)
-                    goToQuestion(currentIdx + 1);
+                    goToQuestion(currentIdx + 1)
                 }}
               >
                 Mark for Review & Next
               </button>
               <button
-                className="primary save-next"
+                className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-sm shadow-blue-500/20 border-none flex-1 sm:flex-initial"
                 onClick={() => {
                   if (currentIdx < questions.length - 1)
-                    goToQuestion(currentIdx + 1);
+                    goToQuestion(currentIdx + 1)
                 }}
               >
                 Save & Next →
@@ -779,68 +820,81 @@ export function ExamPlayer({
 
         {/* Question Palette Sidebar */}
         {paletteOpen && (
-          <aside className="palette-sidebar">
-            <div className="palette-header">
-              <h4>Question Palette</h4>
-              <p>
-                Candidate: <strong>{candidateName}</strong>
+          <aside className="flex flex-col gap-4 bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm">
+            <div>
+              <h4 className="text-sm font-bold text-slate-900">Question Palette</h4>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Candidate: <strong className="text-slate-800 font-semibold">{candidateName}</strong>
               </p>
             </div>
 
-            <div className="palette-legend">
-              <div className="legend-item">
-                <span className="dot answered" /> Answered ({answeredCount})
+            {/* Legend */}
+            <div className="grid grid-cols-2 gap-2 text-xs font-medium text-slate-600 p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-md bg-emerald-600 shrink-0" /> Answered ({answeredCount})
               </div>
-              <div className="legend-item">
-                <span className="dot unanswered" /> Not Answered (
-                {unansweredCount})
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-md bg-red-100 border border-red-200 shrink-0" /> Not Answered ({unansweredCount})
               </div>
-              <div className="legend-item">
-                <span className="dot marked" /> Marked ({markedCount})
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-md bg-amber-500 shrink-0" /> Marked ({markedCount})
               </div>
-              <div className="legend-item">
-                <span className="dot unvisited" /> Not Visited ({unvisitedCount}
-                )
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-md bg-slate-100 border border-slate-200 shrink-0" /> Not Visited ({unvisitedCount})
               </div>
             </div>
 
-            <div className="palette-grid">
+            {/* Palette Grid */}
+            <div className="grid grid-cols-5 gap-2 my-1 max-h-72 overflow-y-auto pr-1">
               {questions.map((q, idx) => {
-                const ans = answers[q.id];
-                let statusClass = "unvisited";
+                const ans = answers[q.id]
+                let statusClass = "unvisited"
                 if (ans?.selectedOptionId && ans?.isMarkedForReview) {
-                  statusClass = "ans-marked";
+                  statusClass = "ans-marked"
                 } else if (ans?.selectedOptionId) {
-                  statusClass = "answered";
+                  statusClass = "answered"
                 } else if (ans?.isMarkedForReview) {
-                  statusClass = "marked";
+                  statusClass = "marked"
                 } else if (ans?.visited) {
-                  statusClass = "unanswered";
+                  statusClass = "unanswered"
                 }
 
                 return (
                   <button
                     key={q.id}
-                    className={`palette-tile ${statusClass} ${currentIdx === idx ? "current" : ""}`}
+                    className={`h-9 w-full rounded-lg text-xs font-bold flex items-center justify-center transition-all cursor-pointer border ${
+                      currentIdx === idx
+                        ? "ring-2 ring-blue-600 ring-offset-2 z-10"
+                        : ""
+                    } ${
+                      statusClass === "ans-marked"
+                        ? "bg-purple-600 text-white border-purple-700"
+                        : statusClass === "answered"
+                          ? "bg-emerald-600 text-white border-emerald-700"
+                          : statusClass === "marked"
+                            ? "bg-amber-500 text-white border-amber-600"
+                            : statusClass === "unanswered"
+                              ? "bg-red-100 text-red-700 border-red-200"
+                              : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
+                    }`}
                     onClick={() => goToQuestion(idx)}
                   >
                     {idx + 1}
                   </button>
-                );
+                )
               })}
             </div>
 
-            <div className="proctoring-info-box">
-              <div className="proctor-title">
-                🛡️ Automated Proctoring Active
-              </div>
-              <small>
-                Tab-switch incidents: <strong>{tabSwitches}</strong>
+            {/* Proctoring Box */}
+            <div className="p-3.5 bg-blue-50/60 border border-blue-200/80 rounded-xl flex flex-col gap-1 text-xs text-blue-900 font-medium">
+              <div className="font-bold text-blue-950 flex items-center gap-1.5">🛡️ Automated Proctoring Active</div>
+              <small className="text-xs text-blue-800 font-medium">
+                Tab-switch incidents: <strong className="font-bold text-blue-950">{tabSwitches}</strong>
               </small>
             </div>
           </aside>
         )}
       </div>
     </div>
-  );
+  )
 }
