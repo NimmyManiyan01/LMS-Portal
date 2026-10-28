@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { API_BASE_URL } from "../../api";
 
 interface LandingPageProps {
@@ -15,6 +15,16 @@ export function LandingPage({
   const [health, setHealth] = useState<
     "checking" | "operational" | "unavailable"
   >("checking");
+
+  const [spotlightVisible, setSpotlightVisible] = useState(false);
+  const [spotlightPos, setSpotlightPos] = useState({ x: 0, y: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const bounds = cardRef.current.getBoundingClientRect();
+    setSpotlightPos({ x: e.clientX - bounds.left, y: e.clientY - bounds.top });
+  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -168,14 +178,31 @@ export function LandingPage({
           </button>
         </section>
 
-        {/* Glassmorphic Interactive Hero Card */}
+        {/* Glassmorphic Interactive Hero Card with Mouse Spotlight Glow */}
         <section className="relative mt-10 lg:mt-0 lg:col-span-5">
-          <div className="group relative overflow-hidden rounded-3xl border border-white/90 bg-white/60 p-8 backdrop-blur-2xl shadow-[0_20px_50px_rgba(15,23,42,0.08)] transition-all duration-500 hover:shadow-[0_30px_70px_rgba(37,99,235,0.12)]">
+          <div
+            ref={cardRef}
+            onMouseMove={handleMouseMove}
+            onMouseEnter={() => setSpotlightVisible(true)}
+            onMouseLeave={() => setSpotlightVisible(false)}
+            className="group relative overflow-hidden rounded-3xl border border-white/90 bg-white/60 p-8 backdrop-blur-2xl shadow-[0_20px_50px_rgba(15,23,42,0.08)] transition-all duration-500 hover:shadow-[0_30px_70px_rgba(37,99,235,0.12)] cursor-pointer"
+          >
+            {/* Interactive Mouse Tracking Spotlight Glow */}
+            {spotlightVisible && (
+              <div
+                className="pointer-events-none blur-2xl bg-gradient-to-r from-blue-400 via-indigo-500 to-cyan-400 size-64 absolute z-0 transition-opacity duration-300 opacity-50 rounded-full"
+                style={{
+                  top: spotlightPos.y - 128,
+                  left: spotlightPos.x - 128,
+                }}
+              />
+            )}
+
             {/* Top Shine Accent */}
             <div className="pointer-events-none absolute -top-20 -right-20 size-60 rounded-full bg-gradient-to-br from-blue-400/15 via-cyan-300/10 to-transparent blur-2xl" />
 
             {/* Health Status Pill */}
-            <div className="relative inline-flex items-center gap-2.5 rounded-full border border-slate-200/80 bg-slate-50/80 px-3.5 py-1.5 text-xs font-semibold backdrop-blur-md">
+            <div className="relative z-10 inline-flex items-center gap-2.5 rounded-full border border-slate-200/80 bg-slate-50/80 px-3.5 py-1.5 text-xs font-semibold backdrop-blur-md">
               <span
                 className={`size-2 rounded-full ${
                   health === "operational"
@@ -199,7 +226,7 @@ export function LandingPage({
             </div>
 
             {/* Floating Shield Illustration */}
-            <div className="relative mt-8 text-center">
+            <div className="relative z-10 mt-8 text-center">
               <div className="mx-auto grid size-24 place-items-center rounded-3xl border border-emerald-300/60 bg-gradient-to-br from-emerald-100/90 via-emerald-50/60 to-blue-50/40 text-4xl shadow-lg shadow-emerald-500/15 transition-transform duration-500 group-hover:scale-105">
                 🛡️
               </div>
@@ -212,7 +239,7 @@ export function LandingPage({
             </div>
 
             {/* Inner Glass Stats Grid */}
-            <div className="relative mt-8 grid grid-cols-3 gap-3">
+            <div className="relative z-10 mt-8 grid grid-cols-3 gap-3">
               {[
                 ["OTP Auth", "Passwordless"],
                 ["Auto-Sync", "Response Recovery"],
