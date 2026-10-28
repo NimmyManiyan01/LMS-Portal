@@ -145,7 +145,7 @@ const container =
   "mx-auto w-[calc(100%-32px)] sm:w-[calc(100%-40px)] md:w-[calc(100%-64px)] max-w-[1400px]";
 
 const btnSecondary =
-  "flex cursor-pointer items-center justify-center gap-2 border border-[color:var(--hairline)] bg-[color:var(--btn-bg)] text-[color:var(--heading)] shadow-sm transition-all hover:-translate-y-0.5";
+  "flex cursor-pointer items-center justify-center gap-2 border border-[color:var(--hairline)] bg-[color:var(--btn-bg)] text-[color:var(--heading)] shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-500/30";
 
 const btnPrimary =
   "kgs-grad-bg flex cursor-pointer items-center justify-center gap-2 border-none text-white shadow-lg shadow-indigo-600/30 transition-all hover:-translate-y-0.5 hover:shadow-indigo-600/40";
@@ -173,18 +173,18 @@ function Navbar({ onStudentLogin, onRegister, onAdminLogin }: LandingPageProps) 
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 min-h-[72px] border-b border-[color:var(--hairline)] bg-[color:var(--nav-bg)] backdrop-blur-xl transition-colors duration-300">
-      <div className={`${container} flex min-h-[72px] items-center justify-between gap-4 sm:gap-6`}>
+    <header className="sticky top-0 z-50 min-h-[76px] border-b border-[color:var(--hairline)] bg-[color:var(--nav-bg)] backdrop-blur-xl transition-colors duration-300">
+      <div className={`${container} flex min-h-[76px] items-center justify-between gap-4 px-1 sm:gap-6 sm:px-0`}>
         <Brand />
 
-        <div className="hidden shrink-0 items-center gap-2 xl:gap-3 lg:flex">
-          <button className={`${btnSecondary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onStudentLogin}>
+        <div className="hidden shrink-0 items-center gap-3 lg:flex">
+          <button className={`${btnPrimary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onStudentLogin}>
             <Icon name="user" size={18} /> Student Login
           </button>
           <button className={`${btnSecondary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onRegister}>
             Register
           </button>
-          <button className={`${btnPrimary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onAdminLogin}>
+          <button className={`${btnSecondary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onAdminLogin}>
             <Icon name="lock" size={17} /> Admin Portal
           </button>
         </div>
