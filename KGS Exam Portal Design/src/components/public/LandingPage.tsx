@@ -310,12 +310,12 @@ const featureItems: [IconName, string, string][] = [
 
 function FeatureStrip() {
   return (
-    <section className="relative z-10 bg-transparent pb-8 pt-10" id="features">
-      <div className={`${container} grid grid-cols-1 items-center gap-8 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6`}>
+    <section className="relative z-10 bg-transparent pb-5 pt-6 sm:pb-7 sm:pt-8" id="features">
+      <div className={`${container} grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-5 lg:gap-5`}>
         {featureItems.map(([icon, title, copy]) => (
           <div
             key={title}
-            className="relative flex items-center gap-4 lg:after:absolute lg:after:-right-3 lg:after:top-[15%] lg:after:block lg:after:h-[70%] lg:after:w-px lg:after:bg-[color:var(--hairline)] lg:after:content-[''] lg:last:after:hidden"
+            className="relative flex min-h-[76px] items-center gap-4 rounded-2xl border border-[color:var(--hairline)] bg-[color:var(--card-bg)] px-4 py-3 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-500/20 hover:shadow-md lg:min-h-0 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none lg:hover:translate-y-0 lg:after:absolute lg:after:-right-3 lg:after:top-[15%] lg:after:block lg:after:h-[70%] lg:after:w-px lg:after:bg-[color:var(--hairline)] lg:after:content-[''] lg:last:after:hidden"
           >
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-[color:var(--bubble)] shadow-lg shadow-blue-600/10">
               <GradientIcon name={icon} size={26} />
@@ -327,7 +327,7 @@ function FeatureStrip() {
           </div>
         ))}
       </div>
-      <div className="mt-12 text-center text-sm font-medium tracking-wide text-[color:var(--body)] sm:text-base">
+      <div className="mt-7 text-center text-sm font-medium tracking-wide text-[color:var(--body)] sm:mt-9 sm:text-base">
         Trusted by leading educational institutions and organizations
       </div>
     </section>
@@ -346,12 +346,12 @@ const infoSections: [string, string, string][] = [
 
 function InfoSections() {
   return (
-    <div className="mx-auto my-12 mb-20 grid w-[calc(100%-32px)] max-w-[1120px] grid-cols-1 gap-4 sm:w-[calc(100%-40px)] sm:grid-cols-2 md:w-[calc(100%-64px)] lg:grid-cols-4">
+    <div className="mx-auto my-8 mb-14 grid w-[calc(100%-32px)] max-w-[1120px] grid-cols-1 gap-4 sm:my-10 sm:mb-16 sm:w-[calc(100%-40px)] sm:grid-cols-2 md:w-[calc(100%-64px)] lg:grid-cols-4">
       {infoSections.map(([id, title, copy], i) => (
         <section
           key={id}
           id={id}
-          className="group flex min-h-[260px] flex-col rounded-2xl border border-[color:var(--glass-border)] bg-[color:var(--card-bg)] p-5 shadow-lg shadow-blue-600/[0.07] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-600/10 sm:p-6"
+          className="group flex min-h-[228px] flex-col rounded-2xl border border-[color:var(--glass-border)] bg-[color:var(--card-bg)] p-5 shadow-lg shadow-blue-600/[0.07] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-600/10 sm:min-h-[240px] sm:p-6"
         >
           <div className="mb-5 flex items-center justify-between">
             <span className="text-xs font-extrabold tracking-[0.18em] text-blue-600">0{i + 1}</span>
