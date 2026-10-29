@@ -269,8 +269,9 @@ router.get("/paper-sets", authenticate, adminOnly, async (req, res) => {
   if (req.query.examId && mongoose.isValidObjectId(req.query.examId)) filter.examId = req.query.examId;
   if (req.query.search) filter.name = { $regex: String(req.query.search).trim(), $options: "i" };
   const sets = await PaperSet.find(filter).populate("examId", "title code").sort({ createdAt: -1 }).lean();
-  const stats = { total: sets.length, draft: sets.filter((s) => s.status === "DRAFT").length, published: sets.filter((s) => s.status === "PUBLISHED").length, questions: sets.reduce((n, s) => n + (s.questionIds || []).length, 0) };
-  res.json({ paperSets: sets.map((s) => ({ ...s, id: String(s._id), exam: s.examId ? { id: String(s.examId._id), title: s.examId.title, code: s.examId.code } : null, questionCount: (s.questionIds || []).length, totalMarks: s.totalMarks ?? s.blueprint?.maximumMarks ?? 0 })), stats });
+  const countFor = (s) => s.blueprint?.automaticRandomization ? Number(s.blueprint?.totalQuestions || 50) : (s.questionIds || []).length;
+  const stats = { total: sets.length, draft: sets.filter((s) => s.status === "DRAFT").length, published: sets.filter((s) => s.status === "PUBLISHED").length, questions: sets.reduce((n, s) => n + countFor(s), 0) };
+  res.json({ paperSets: sets.map((s) => ({ ...s, id: String(s._id), exam: s.examId ? { id: String(s.examId._id), title: s.examId.title, code: s.examId.code } : null, questionCount: countFor(s), totalMarks: s.totalMarks ?? s.blueprint?.maximumMarks ?? 0 })), stats });
 });
 router.get("/paper-sets/questions/eligible", authenticate, adminOnly, async (req, res) => {
   const filter = { status: "ACTIVE" }; if (req.query.search) filter.questionText = { $regex: String(req.query.search), $options: "i" }; if (req.query.category) filter.sectionName = String(req.query.category); if (req.query.difficulty) filter.difficulty = String(req.query.difficulty).toUpperCase();
@@ -299,7 +300,10 @@ router.post("/paper-sets", authenticate, adminOnly, async (req, res) => {
   if (duplicate) return res.status(409).json({ error: "A paper set with this name already exists for the examination." });
   const code = `SET-${Date.now().toString(36).toUpperCase()}`;
   if (automaticRandomization) {
-    const set = await PaperSet.create({ examId, code, name: name.trim(), description, durationMinutes: Number(durationMinutes), totalMarks: Number(totalMarks), passingMarks: Number(passingMarks), instructions: Array.isArray(instructions) ? instructions : [], questionIds: [], blueprint: { totalQuestions: 50, maximumMarks: Number(totalMarks), automaticRandomization: true, topicDistribution: { programming: 10, operating: 10, logical: 20, quantitative: 10 } }, status: "DRAFT", active: false });
+    const previewQuestions = await Question.find({ status: "ACTIVE" }).select("_id").lean();
+    previewQuestions.sort(() => Math.random() - 0.5);
+    const previewQuestionIds = previewQuestions.slice(0, 50).map((question) => question._id);
+    const set = await PaperSet.create({ examId, code, name: name.trim(), description, durationMinutes: Number(durationMinutes), totalMarks: Number(totalMarks), passingMarks: Number(passingMarks), instructions: Array.isArray(instructions) ? instructions : [], questionIds: previewQuestionIds, blueprint: { totalQuestions: 50, maximumMarks: Number(totalMarks), automaticRandomization: true, topicDistribution: { programming: 10, operating: 10, logical: 20, quantitative: 10 } }, status: "DRAFT", active: false });
     return res.status(201).json({ paperSet: { ...set.toObject(), id: String(set._id) } });
   }
   const questions = await Question.find({ _id: { $in: questionIds }, status: "ACTIVE" }).select("_id marks").lean();
@@ -319,6 +323,13 @@ router.patch("/paper-sets/:id", authenticate, adminOnly, async (req, res) => {
   if (Number(set.durationMinutes) !== Number(exam.durationMinutes)) return res.status(400).json({ error: "Duration must match the selected examination duration." });
   const duplicate = await PaperSet.findOne({ _id: { $ne: set._id }, examId: set.examId, name: { $regex: `^${escapeRegex(set.name || "")}$`, $options: "i" } });
   if (duplicate) return res.status(409).json({ error: "A paper set with this name already exists for the examination." });
+  if (set.blueprint?.automaticRandomization) {
+    if (Number(set.durationMinutes) <= 0 || Number(set.passingMarks) <= 0 || Number(set.passingMarks) > Number(set.totalMarks)) return res.status(400).json({ error: "Passing marks must be greater than zero and cannot exceed total marks." });
+    set.questionIds = [];
+    set.blueprint = { ...(set.blueprint || {}), totalQuestions: 50, maximumMarks: Number(set.totalMarks), automaticRandomization: true, topicDistribution: { programming: 10, operating: 10, logical: 20, quantitative: 10 } };
+    await set.save();
+    return res.json({ paperSet: { ...set.toObject(), id: String(set._id) } });
+  }
   const questions = await Question.find({ _id: { $in: set.questionIds }, status: "ACTIVE" }).select("_id marks").lean();
   if (questions.length !== new Set((set.questionIds || []).map(String)).size) return res.status(400).json({ error: "One or more selected questions are unavailable or inactive." });
   const calculatedMarks = questions.reduce((sum, question) => sum + Number(question.marks || 0), 0);
