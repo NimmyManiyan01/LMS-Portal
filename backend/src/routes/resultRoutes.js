@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const FinalResult = require("../models/FinalResult");
 const Exam = require("../models/Exam");
+const PaperSet = require("../models/PaperSet");
 const { authenticate } = require("../middleware/auth");
 
 function publicResult(result, exam) {
@@ -23,10 +24,12 @@ router.get("/", authenticate, async (req, res) => {
     .select("title code totalMarks")
     .lean();
   const examMap = new Map(exams.map((exam) => [String(exam._id), exam]));
+  const sets = await PaperSet.find({ examId: { $in: results.map((r) => r.examId) }, status: "PUBLISHED", active: true }).select("examId totalMarks blueprint").lean();
+  const setMarks = new Map(sets.map((set) => [String(set.examId), set.totalMarks ?? set.blueprint?.maximumMarks ?? null]));
   res.json(
     results
       .map((result) =>
-        publicResult(result, examMap.get(String(result.examId))),
+        publicResult(result, { ...examMap.get(String(result.examId)), totalMarks: examMap.get(String(result.examId))?.totalMarks || setMarks.get(String(result.examId)) }),
       ),
   );
 });
@@ -46,6 +49,8 @@ router.get("/:attemptId", authenticate, async (req, res) => {
           "Your marks will be available once the examination results are released.",
       });
   const exam = await Exam.findById(result.examId).select("title code totalMarks").lean();
+  const paperSet = await PaperSet.findOne({ examId: result.examId, status: "PUBLISHED", active: true }).select("totalMarks blueprint").lean();
+  if (exam && !exam.totalMarks && paperSet) exam.totalMarks = paperSet.totalMarks ?? paperSet.blueprint?.maximumMarks ?? null;
   res.json(publicResult(result, exam));
 });
 
