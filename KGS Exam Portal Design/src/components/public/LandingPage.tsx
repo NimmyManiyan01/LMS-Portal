@@ -538,7 +538,13 @@ export function LandingPage(props: LandingPageProps) {
         <InfoSections />
       </main>
 
-      <footer className="border-t border-[color:var(--hairline)] bg-[color:var(--foot-bg)] py-8 backdrop-blur-md sm:py-9">
+      <footer className="border-t border-[color:var(--hairline)] bg-[color:var(--foot-bg)] py-12 backdrop-blur-md sm:py-14">
+        <div className={`${container} mb-10 grid gap-10 border-b border-[color:var(--hairline)] pb-10 sm:grid-cols-2 lg:grid-cols-4`}>
+          <div><Brand /><p className="mt-5 max-w-xs text-sm leading-relaxed text-[color:var(--body)]">Secure examination infrastructure for fair, auditable assessments.</p></div>
+          <div><h3 className="text-xs font-extrabold uppercase tracking-[.16em] text-[color:var(--heading)]">Product</h3><div className="mt-4 flex flex-col gap-3 text-sm"><a href="#how-it-works" className="text-[color:var(--body)] no-underline hover:text-blue-600">How it works</a><a href="#security-demo" className="text-[color:var(--body)] no-underline hover:text-blue-600">Security &amp; proctoring</a><a href="#features" className="text-[color:var(--body)] no-underline hover:text-blue-600">Capabilities</a></div></div>
+          <div><h3 className="text-xs font-extrabold uppercase tracking-[.16em] text-[color:var(--heading)]">Support</h3><div className="mt-4 flex flex-col gap-3 text-sm"><a href="mailto:exams@kgs.edu" className="text-[color:var(--body)] no-underline hover:text-blue-600">Help &amp; support</a><a href="#contact" className="text-[color:var(--body)] no-underline hover:text-blue-600">Contact KGS</a><a href="#security" className="text-[color:var(--body)] no-underline hover:text-blue-600">Examination policy</a><a href="#privacy" className="text-[color:var(--body)] no-underline hover:text-blue-600">Privacy policy</a><a href="#terms" className="text-[color:var(--body)] no-underline hover:text-blue-600">Terms of use</a></div></div>
+          <div><h3 className="text-xs font-extrabold uppercase tracking-[.16em] text-[color:var(--heading)]">Contact</h3><p className="mt-4 text-sm leading-relaxed text-[color:var(--body)]">Questions about your examination program?</p><a href="mailto:exams@kgs.edu" className="text-sm font-bold text-blue-600 no-underline hover:text-blue-700">exams@kgs.edu</a></div>
+        </div>
         <div className={`${container} flex flex-col items-center justify-between gap-6 text-sm text-[color:var(--body)] sm:flex-row`}>
           <Brand />
           <p className="m-0 text-center sm:text-left">
