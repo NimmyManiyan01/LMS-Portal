@@ -84,7 +84,7 @@ export function AdminLoginPage({ onBackToLanding, onAuthenticated }: Props) {
               {error}
             </div>
           )}
-          {step === "OTP" && (<label
+          <label
             className="grid gap-1.5 text-[11px] font-semibold tracking-wide text-slate-600"
             htmlFor="admin-email"
           >
@@ -99,7 +99,7 @@ export function AdminLoginPage({ onBackToLanding, onAuthenticated }: Props) {
               autoComplete="username"
             />
           </label>
-          <label
+          {step === "OTP" && (<label
             className="grid gap-1.5 text-[11px] font-semibold tracking-wide text-slate-600"
             htmlFor="admin-otp"
           >
