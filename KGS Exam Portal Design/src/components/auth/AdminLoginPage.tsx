@@ -8,8 +8,8 @@ interface Props {
 
 export function AdminLoginPage({ onBackToLanding, onAuthenticated }: Props) {
   const [email, setEmail] = useState("")
-  const [otp, setOtp] = useState("")
-  const [step, setStep] = useState<"EMAIL" | "OTP">("EMAIL")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const submit = async (event: React.FormEvent) => {
@@ -17,11 +17,11 @@ export function AdminLoginPage({ onBackToLanding, onAuthenticated }: Props) {
     setLoading(true)
     setError("")
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/admin/${step === "EMAIL" ? "request-otp" : "verify-otp"}`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/admin/login`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(step === "EMAIL" ? { email } : { email, otp }),
+        body: JSON.stringify({ email, password }),
       })
       if (!response.ok)
         throw new Error(
@@ -29,7 +29,6 @@ export function AdminLoginPage({ onBackToLanding, onAuthenticated }: Props) {
             "Administrator authentication failed.",
         )
       const data = await response.json()
-      if (step === "EMAIL") { setStep("OTP"); return }
       if (data.token) setAuthToken(data.token, true)
       onAuthenticated(data.user)
     } catch (cause) {
@@ -99,29 +98,29 @@ export function AdminLoginPage({ onBackToLanding, onAuthenticated }: Props) {
               autoComplete="username"
             />
           </label>
-          {step === "OTP" && (<label
+          <label
             className="grid gap-1.5 text-[11px] font-semibold tracking-wide text-slate-600"
-            htmlFor="admin-otp"
+            htmlFor="admin-password"
           >
-            ONE-TIME PASSWORD
+            PASSWORD
             <div className="relative">
               <input
-                id="admin-otp"
-                className="h-10 w-full rounded-md border border-slate-300 px-3 text-sm font-normal tracking-[0.3em] text-slate-900 outline-none transition focus:border-[#1f4f8f] focus:ring-4 focus:ring-blue-100"
-                inputMode="numeric"
-                maxLength={6}
-                value={otp}
-                onChange={(event) => setOtp(event.target.value.replace(/\D/g, ""))}
+                id="admin-password"
+                className="h-10 w-full rounded-md border border-slate-300 px-3 pr-14 text-sm font-normal tracking-normal text-slate-900 outline-none transition focus:border-[#1f4f8f] focus:ring-4 focus:ring-blue-100"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
                 required
-                autoComplete="one-time-code"
+                autoComplete="current-password"
               />
+              <button type="button" className="absolute right-2 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-[10px] font-bold text-[#1f4f8f] hover:bg-blue-50" onClick={() => setShowPassword((visible) => !visible)}>{showPassword ? "Hide" : "Show"}</button>
             </div>
-          </label>)}
+          </label>
           <button
             className="mt-2 h-11 rounded-md bg-[#1f4f8f] px-4 text-sm font-semibold text-white transition hover:bg-[#174275] disabled:cursor-not-allowed disabled:bg-slate-300"
             disabled={loading}
           >
-            {loading ? "Sending..." : step === "EMAIL" ? "Send OTP" : "Verify OTP"}
+            {loading ? "Authenticating..." : "Administrator Login"}
           </button>
           <button
             type="button"
