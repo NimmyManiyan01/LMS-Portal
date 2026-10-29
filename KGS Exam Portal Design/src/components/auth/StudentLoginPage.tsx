@@ -186,24 +186,7 @@ export function StudentLoginPage({
     null,
   );
   const [now, setNow] = useState(Date.now());
-  const [dark, setDark] = useState(() => {
-    try {
-      return localStorage.getItem("kgs-theme") === "dark";
-    } catch {
-      return false;
-    }
-  });
   const api = API_BASE_URL;
-
-  const toggleTheme = () => {
-    const next = !dark;
-    setDark(next);
-    try {
-      localStorage.setItem("kgs-theme", next ? "dark" : "light");
-    } catch {
-      /* ignore */
-    }
-  };
 
   /* Existing session check */
   useEffect(() => {
@@ -354,7 +337,7 @@ export function StudentLoginPage({
   return (
     <div
       className="kgs-auth relative flex min-h-screen flex-col overflow-x-hidden font-sans transition-colors duration-300"
-      data-theme={dark ? "dark" : "light"}
+      data-theme="light"
     >
       <style>{themeCss}</style>
 
@@ -380,13 +363,6 @@ export function StudentLoginPage({
           </button>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-[color:var(--glass)] text-[color:var(--heading)] shadow-sm transition-all hover:-translate-y-0.5"
-              onClick={toggleTheme}
-              aria-label={`Switch to ${dark ? "light" : "dark"} theme`}
-            >
-              <Icon name={dark ? "sun" : "moon"} size={20} />
-            </button>
             <button
               className={`${btnSecondary} h-10 rounded-xl px-4 text-sm font-semibold`}
               onClick={onRegister}
