@@ -740,22 +740,14 @@ export default function App() {
   }
 
   const handleLogout = async () => {
-    try {
-      await authFetch(
-        `${API_BASE_URL}${
-          admin ? "/api/auth/admin/logout" : "/api/auth/logout"
-        }`,
-        { method: "POST" },
-        admin,
-      )
-    } finally {
-      clearAuthToken()
-      setStudent(null)
-      setAdmin(false)
-      setAdminUser(null)
-      setViewState("DASHBOARD")
-      navigateEntry("/")
-    }
+    const logoutUrl = `${API_BASE_URL}${admin ? "/api/auth/admin/logout" : "/api/auth/logout"}`
+    void authFetch(logoutUrl, { method: "POST" }, admin).catch(() => undefined)
+    clearAuthToken()
+    setStudent(null)
+    setAdmin(false)
+    setAdminUser(null)
+    setViewState("DASHBOARD")
+    navigateEntry("/")
   }
 
   if (entryRoute === "/") {
