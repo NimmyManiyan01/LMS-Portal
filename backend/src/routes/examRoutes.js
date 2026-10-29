@@ -196,7 +196,7 @@ router.post(
       }),
     );
 
-    const validSets = sets.filter((set) => (set.questionIds || []).length > 0);
+    const validSets = sets.filter((set) => (set.blueprint?.automaticRandomization || (set.questionIds || []).length > 0));
     if (!validSets.length)
       return res
         .status(409)

@@ -8,6 +8,7 @@ const emptyForm = {
   examId: "",
   description: "",
   durationMinutes: "",
+  totalMarks: "",
   passingMarks: "",
   instructions: "",
   questionIds: [] as string[],
@@ -212,10 +213,9 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
       next.durationMinutes = "Duration must be greater than zero."
     if (!Number(form.passingMarks) || Number(form.passingMarks) <= 0)
       next.passingMarks = "Passing marks must be greater than zero."
-    if (Number(form.passingMarks) > calculatedMarks)
-      next.passingMarks = "Passing marks cannot exceed total selected marks."
-    if (!form.questionIds.length)
-      next.questionIds = "Select at least one active question."
+    const configuredMarks = Number(form.totalMarks || 0)
+    if (Number(form.passingMarks) > configuredMarks)
+      next.passingMarks = "Passing marks cannot exceed total marks."
 
     setErrors(next)
     if (Object.keys(next).length) return
@@ -230,7 +230,7 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
           body: JSON.stringify({
             ...form,
             name,
-            totalMarks: calculatedMarks,
+            totalMarks: configuredMarks,
             instructions: form.instructions ? [form.instructions] : [],
             questionIds: form.questionIds,
           }),
@@ -582,9 +582,11 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
                 <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
                   Total Marks
                   <input
-                    readOnly
-                    value={calculatedMarks}
-                    className="w-full h-10 px-3 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-500 font-bold cursor-not-allowed shadow-sm"
+                    type="number"
+                    min="1"
+                    value={form.totalMarks}
+                    onChange={(e) => updateForm("totalMarks", e.target.value)}
+                    className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </label>
                 <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
@@ -617,12 +619,15 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
               {/* Question Selection Section */}
               <div className="flex min-w-0 flex-col gap-3">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3 font-bold text-slate-900 text-xs sm:text-sm">
-                <h3>Select Active Questions</h3>
+                <h3>Automatic Question Allocation</h3>
                 <span className="text-xs font-semibold text-blue-600">
-                  {selectedQuestions.length} selected · {calculatedMarks} marks
+                  50 questions · category quotas locked
                 </span>
               </div>
 
+              <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-medium text-blue-800">
+                Questions are generated per student: Programming 10, Operating Systems 10, Logical 20, Quantitative 10.
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50/60 p-3 rounded-xl border border-slate-200/80">
                 <input
                   placeholder="Search question ID or text"
