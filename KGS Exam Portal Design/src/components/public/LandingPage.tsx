@@ -2,9 +2,8 @@ import { useState, type ReactNode } from "react";
 import heroStudentImg from "../../assets/hero-student.png";
 
 interface LandingPageProps {
-  onStudentLogin: () => void;
+  onLogin: () => void;
   onRegister: () => void;
-  onAdminLogin: () => void;
 }
 
 /* Tune the hero photo crop here (x% y%). Higher x = shows more of the RIGHT side of the photo. */
@@ -169,7 +168,7 @@ function Brand() {
   );
 }
 
-function Navbar({ onStudentLogin, onRegister, onAdminLogin }: LandingPageProps) {
+function Navbar({ onLogin, onRegister }: LandingPageProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -178,14 +177,11 @@ function Navbar({ onStudentLogin, onRegister, onAdminLogin }: LandingPageProps) 
         <Brand />
 
         <div className="hidden shrink-0 items-center gap-3 lg:flex">
-          <button className={`${btnPrimary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onStudentLogin}>
-            <Icon name="user" size={18} /> Student Login
+          <button className={`${btnPrimary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onLogin}>
+            <Icon name="login" size={18} /> Login
           </button>
           <button className={`${btnSecondary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onRegister}>
             Register
-          </button>
-          <button className={`${btnSecondary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onAdminLogin}>
-            <Icon name="lock" size={17} /> Admin Portal
           </button>
         </div>
 
@@ -204,21 +200,15 @@ function Navbar({ onStudentLogin, onRegister, onAdminLogin }: LandingPageProps) 
           <div className="flex flex-col gap-2.5">
             <button
               className={`${btnSecondary} h-11 w-full rounded-xl px-5 text-sm font-semibold`}
-              onClick={() => { setOpen(false); onStudentLogin(); }}
+              onClick={() => { setOpen(false); onLogin(); }}
             >
-              <Icon name="user" size={18} /> Student Login
+              <Icon name="login" size={18} /> Login
             </button>
             <button
               className={`${btnSecondary} h-11 w-full rounded-xl px-5 text-sm font-semibold`}
               onClick={() => { setOpen(false); onRegister(); }}
             >
               Register
-            </button>
-            <button
-              className={`${btnPrimary} h-11 w-full rounded-xl px-5 text-sm font-semibold`}
-              onClick={() => { setOpen(false); onAdminLogin(); }}
-            >
-              <Icon name="lock" size={17} /> Admin Portal
             </button>
           </div>
         </div>
@@ -431,20 +421,10 @@ export function LandingPage(props: LandingPageProps) {
                 </button>
                 <button
                   className={`${btnSecondary} h-[54px] w-full gap-2.5 rounded-2xl px-7 text-base font-semibold sm:w-auto`}
-                  onClick={props.onStudentLogin}
+                  onClick={props.onLogin}
                 >
                   <Icon name="login" size={19} />
-                  Student Login
-                </button>
-              </div>
-
-              <div className="mt-4">
-                <button
-                  className="inline-flex cursor-pointer items-center gap-2 border-none bg-transparent p-1 text-sm font-bold text-blue-600 transition-all hover:translate-x-1 hover:text-blue-700"
-                  onClick={props.onAdminLogin}
-                >
-                  <Icon name="shield" size={18} />
-                  Administrator Portal →
+                  Login
                 </button>
               </div>
             </div>

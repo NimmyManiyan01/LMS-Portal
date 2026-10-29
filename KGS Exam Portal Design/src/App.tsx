@@ -761,9 +761,8 @@ export default function App() {
   if (entryRoute === "/") {
     return (
       <LandingPage
-        onStudentLogin={() => navigateEntry("/login")}
+        onLogin={() => navigateEntry("/login")}
         onRegister={() => navigateEntry("/register")}
-        onAdminLogin={() => navigateEntry("/admin")}
       />
     )
   }
