@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const Exam = require("../models/Exam");
 const Attempt = require("../models/Attempt");
+const FinalResult = require("../models/FinalResult");
 const PaperSet = require("../models/PaperSet");
 const Question = require("../models/Question");
 const { authenticate } = require("../middleware/auth");
@@ -39,6 +40,11 @@ async function dashboard(req, res) {
   })
     .sort({ createdAt: -1 })
     .lean();
+  const releasedResults = await FinalResult.find({
+    studentId: req.student._id || req.student.id,
+    releaseStatus: "RELEASED",
+  }).select("examId attemptId releaseStatus").lean();
+  const releasedExamIds = new Set(releasedResults.map((result) => String(result.examId)));
   const visible = (
     await Promise.all(
       exams
@@ -77,7 +83,7 @@ async function dashboard(req, res) {
           if (active) {
             status = "IN_PROGRESS";
             nextAction = "RESUME_EXAM";
-          } else if (submitted && exam.resultsPublishedAt) {
+          } else if (submitted && (exam.resultsPublishedAt || releasedExamIds.has(String(exam._id)))) {
             status = "RESULTS_RELEASED";
             nextAction = "VIEW_MARKS";
           } else if (submitted) {
