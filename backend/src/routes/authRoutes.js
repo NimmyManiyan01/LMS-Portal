@@ -10,6 +10,8 @@ const {
 const { authenticate } = require("../middleware/auth");
 const {
   login: adminLogin,
+  requestOtp: adminRequestOtp,
+  verifyOtp: adminVerifyOtp,
   logout: adminLogout,
 } = require("../controllers/adminAuthController");
 router.post("/register", registerStudent);
@@ -19,6 +21,8 @@ router.post("/verify-otp", verifyOtp);
 router.post("/logout", authenticate, logout);
 router.get("/me", authenticate, me);
 router.post("/admin/login", adminLogin);
+router.post("/admin/request-otp", adminRequestOtp);
+router.post("/admin/verify-otp", adminVerifyOtp);
 router.post("/admin/logout", adminLogout);
 router.get("/admin/me", authenticate, (req, res) => {
   if (req.auth.role !== "ADMIN")

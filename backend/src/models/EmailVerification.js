@@ -5,8 +5,9 @@ const emailVerificationSchema = new mongoose.Schema(
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student",
-      required: true,
+      required: false,
     },
+    adminId: { type: mongoose.Schema.Types.ObjectId, ref: "AdminUser" },
     email: { type: String, required: true, lowercase: true, index: true },
     otpHash: { type: String, required: true },
     expiresAt: { type: Date, required: true, index: true },
