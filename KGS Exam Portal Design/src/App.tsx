@@ -810,10 +810,15 @@ export default function App() {
           initialEmail={loginEmail}
           onBackToLanding={() => navigateEntry("/")}
           onRegister={() => navigateEntry("/register")}
-          onAdminLogin={() => navigateEntry("/admin")}
-          onAuthenticated={(stu) => {
-            setStudent(stu)
-            navigateEntry("/dashboard")
+          onAuthenticated={(user) => {
+            if (user.role === "ADMIN") {
+              setAdminUser(user)
+              setAdmin(true)
+              navigateEntry("/admin/dashboard")
+            } else {
+              setStudent(user)
+              navigateEntry("/dashboard")
+            }
           }}
         />
       )

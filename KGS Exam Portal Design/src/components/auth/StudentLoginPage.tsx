@@ -13,8 +13,7 @@ interface Props {
   initialEmail?: string;
   onBackToLanding: () => void;
   onRegister: () => void;
-  onAdminLogin: () => void;
-  onAuthenticated: (student: StudentProfile) => void;
+  onAuthenticated: (user: any) => void;
 }
 
 /* ------------------------------------------------------------------ */
@@ -175,11 +174,11 @@ export function StudentLoginPage({
   onBackToLanding,
   onRegister,
   onAuthenticated,
-  onAdminLogin,
 }: Props) {
   const [email, setEmail] = useState(initialEmail);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [step, setStep] = useState<"EMAIL" | "OTP">("EMAIL");
+  const [authMode, setAuthMode] = useState<"STUDENT" | "ADMIN">("STUDENT");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -240,14 +239,26 @@ export function StudentLoginPage({
     }
     setLoading(true);
     try {
-      const response = await fetch(`${api}/api/auth/${endpoint}`, {
+      const authEndpoint = authMode === "ADMIN" ? "admin/request-otp" : endpoint;
+      const response = await fetch(`${api}/api/auth/${authEndpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
       const data = await response.json();
-      if (data.adminLogin) { onAdminLogin(); return; }
+      if (data.adminLogin) {
+        const adminResponse = await fetch(`${api}/api/auth/admin/request-otp`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ email: email.trim().toLowerCase() }) });
+        const adminData = await adminResponse.json();
+        if (!adminResponse.ok) throw new Error(adminData.error || "Unable to send verification code.");
+        setAuthMode("ADMIN");
+        setExpiresAt(adminData.expiresAt || null);
+        setResendAvailableAt(adminData.resendAvailableAt || null);
+        setOtp(["", "", "", "", "", ""]);
+        setMessage("Verification instructions have been sent.");
+        setStep("OTP");
+        return;
+      }
       if (!response.ok)
         throw new Error(data.error || "Unable to send verification code.");
       setExpiresAt(data.expiresAt || null);
@@ -278,7 +289,7 @@ export function StudentLoginPage({
     }
     setLoading(true);
     try {
-      const response = await fetch(`${api}/api/auth/verify-otp`, {
+      const response = await fetch(`${api}/api/auth/${authMode === "ADMIN" ? "admin/verify-otp" : "verify-otp"}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -289,7 +300,7 @@ export function StudentLoginPage({
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Unable to verify code.");
-      if (data.token) setAuthToken(data.token, false);
+      if (data.token) setAuthToken(data.token, authMode === "ADMIN");
       onAuthenticated(data.user);
     } catch (exception) {
       setError(

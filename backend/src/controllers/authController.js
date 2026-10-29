@@ -103,7 +103,7 @@ async function issueOtp(req, res) {
   if (!email || !email.includes("@"))
     return res.status(400).json({ error: "Valid email is required" });
   const student = await Student.findOne({ email });
-  if (!student) return res.json(generic);
+  if (!student) return res.status(404).json({ error: "Email not found. Please register before signing in." });
   const latest = await EmailVerification.findOne({
     studentId: student.id,
     consumedAt: null,
