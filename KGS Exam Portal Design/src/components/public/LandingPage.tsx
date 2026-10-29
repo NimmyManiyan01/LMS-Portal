@@ -388,6 +388,14 @@ function ExaminationJourney() {
   );
 }
 
+const workflowSteps = [["Create Exam", "gear"], ["Assign Students", "users"], ["Conduct Exam", "clock"], ["Monitor", "shield"], ["Evaluate", "chart"], ["Publish Marks", "check"]] as const;
+function PlatformWorkflow() {
+  const [active, setActive] = useState(0);
+  useEffect(() => { const timer = window.setInterval(() => setActive((value) => (value + 1) % workflowSteps.length), 3200); return () => window.clearInterval(timer); }, []);
+  const descriptions = ["Configure the assessment once.", "Invite the right candidates.", "Deliver a calm, secure attempt.", "See integrity signals in real time.", "Review auditable submissions.", "Release results with confidence."];
+  return <section className="py-14 sm:py-20"><div className={container}><div className="mx-auto max-w-2xl text-center"><span className="text-[11px] font-extrabold uppercase tracking-[.18em] text-blue-700">Platform workflow</span><h2 className="mt-3 text-3xl font-extrabold tracking-tight text-[color:var(--heading)] sm:text-4xl">Every operation, one connected workspace.</h2></div><div className="relative mt-10"><div className="absolute left-[8%] right-[8%] top-6 hidden h-1 rounded-full bg-slate-200 md:block"><div className="h-full rounded-full bg-blue-600 transition-all duration-700" style={{ width: `${(active / (workflowSteps.length - 1)) * 100}%` }} /></div><div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6 md:gap-2">{workflowSteps.map(([label, icon], index) => <button key={label} onClick={() => setActive(index)} className="group relative z-10 flex flex-col items-center text-center"><span className={`flex h-12 w-12 items-center justify-center rounded-full border-4 border-[color:var(--page-bg)] shadow-sm transition-all duration-300 ${index <= active ? "bg-blue-600 text-white shadow-blue-600/25" : "bg-white text-slate-400"}`}><Icon name={icon} size={20} /></span><strong className={`mt-3 text-xs ${index === active ? "text-blue-700" : "text-slate-700"}`}>{label}</strong><small className="mt-1 hidden text-[10px] leading-tight text-slate-500 sm:block">{descriptions[index]}</small></button>)}</div></div><div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_18px_50px_rgba(20,35,90,.09)] sm:p-5"><div className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3"><span className="text-xs font-bold text-slate-800">KGS operations preview</span><span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">{workflowSteps[active][0]}</span></div><div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center"><div><h3 className="m-0 text-lg font-extrabold text-slate-950">{descriptions[active]}</h3><p className="mb-0 mt-2 text-sm text-slate-500">The workspace updates as your team moves through the assessment lifecycle.</p></div><div className="flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-3 text-xs font-bold text-blue-700"><span className="h-2 w-2 animate-pulse rounded-full bg-blue-600" /> Live workflow state</div></div></div></div></section>;
+}
+
 /* ------------------------------------------------------------------ */
 /* Info sections                                                        */
 /* ------------------------------------------------------------------ */
@@ -520,6 +528,7 @@ export function LandingPage(props: LandingPageProps) {
 
         <FeatureStrip />
         <ExaminationJourney />
+        <PlatformWorkflow />
         <SecurityDemo />
         <InfoSections />
       </main>
