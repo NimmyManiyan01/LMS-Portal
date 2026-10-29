@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { API_BASE_URL, authFetch } from "../../api"
 
 export function LiveMonitoringPage({ PageHead }: { PageHead: any }) {
@@ -9,11 +9,12 @@ export function LiveMonitoringPage({ PageHead }: { PageHead: any }) {
   const [error, setError] = useState("")
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null)
   const [status, setStatus] = useState("IN_PROGRESS")
+  const initialLoad = useRef(true)
 
   const load = useCallback(async () => {
     try {
       setError("")
-      setLoading(true)
+      if (initialLoad.current) setLoading(true)
       const query = status ? `?status=${encodeURIComponent(status)}` : ""
       const response = await authFetch(
         `${API_BASE_URL}/api/admin/monitoring/attempts${query}`,
@@ -25,6 +26,7 @@ export function LiveMonitoringPage({ PageHead }: { PageHead: any }) {
         throw new Error(data.error || "Unable to load live monitoring.")
       setAttempts(data.attempts || [])
       setUpdatedAt(new Date())
+      initialLoad.current = false
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -38,7 +40,7 @@ export function LiveMonitoringPage({ PageHead }: { PageHead: any }) {
 
   useEffect(() => {
     void load()
-    const timer = window.setInterval(() => void load(), 15000)
+    const timer = window.setInterval(() => void load(), 3000)
     return () => window.clearInterval(timer)
   }, [load])
 
