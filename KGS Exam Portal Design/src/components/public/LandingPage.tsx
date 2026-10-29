@@ -301,11 +301,11 @@ function ResponsiveHeroCards() {
 /* Feature strip                                                        */
 /* ------------------------------------------------------------------ */
 const featureItems: [IconName, string, string][] = [
-  ["shield", "Secure & Reliable", "Enterprise-grade security and data protection."],
-  ["users", "Fair Assessments", "AI-resistant proctoring and integrity controls."],
-  ["bars", "Real-time Insights", "Live monitoring and instant analytics."],
-  ["gear", "Easy Management", "Simple tools for admins and institutions."],
-  ["graduate", "Built for Scale", "From hundreds to millions of candidates."],
+  ["shield", "Secure & Reliable", "Protected assessment data."],
+  ["users", "Fair Assessments", "Consistent, integrity-first testing."],
+  ["bars", "Real-time Insights", "Live monitoring and analytics."],
+  ["gear", "Easy Management", "Simple tools for every team."],
+  ["graduate", "Built for Scale", "Ready for every candidate volume."],
 ];
 
 function FeatureStrip() {
