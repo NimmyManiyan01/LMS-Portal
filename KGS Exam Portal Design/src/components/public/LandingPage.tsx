@@ -362,6 +362,32 @@ function SecurityDemo() {
   );
 }
 
+const journeySteps = [
+  ["Registration", "Create your candidate profile", "user"],
+  ["Email OTP", "Verify identity securely", "lock"],
+  ["Exam readiness", "Check browser, camera, and microphone", "shield"],
+  ["Examination", "Answer your assigned questions", "clock"],
+  ["Monitoring", "Protect integrity with live signals", "bars"],
+  ["Submission", "Finalize and securely record responses", "check"],
+  ["Results", "Publish auditable marks", "chart"],
+] as const;
+
+function ExaminationJourney() {
+  const [active, setActive] = useState(0);
+  const step = journeySteps[active];
+  return (
+    <section id="how-it-works" className="border-y border-slate-200/70 bg-white/45 py-16 sm:py-24">
+      <div className={`${container}`}>
+        <div className="mx-auto max-w-2xl text-center"><span className="text-[11px] font-extrabold uppercase tracking-[.18em] text-blue-700">One connected workflow</span><h2 className="mt-3 text-3xl font-extrabold tracking-tight text-[color:var(--heading)] sm:text-4xl">From registration to results.</h2><p className="mt-3 text-base leading-relaxed text-[color:var(--body)]">A calm, transparent journey for candidates and a complete operating picture for your team.</p></div>
+        <div className="mt-10 grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-start lg:gap-14">
+          <div className="lg:sticky lg:top-28"><div className="flex gap-2 overflow-x-auto pb-3 lg:block lg:space-y-2 lg:overflow-visible">{journeySteps.map(([label, description, icon], index) => <button key={label} onClick={() => setActive(index)} className={`group flex min-w-[150px] items-center gap-3 rounded-xl border px-3 py-3 text-left transition-all lg:w-full ${active === index ? "border-blue-200 bg-blue-50 shadow-sm" : "border-transparent hover:border-slate-200 hover:bg-white"}`}><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${active === index ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"}`}><Icon name={icon} size={18} /></span><span><strong className={`block text-xs ${active === index ? "text-blue-700" : "text-slate-700"}`}>{String(index + 1).padStart(2, "0")} · {label}</strong><small className="mt-0.5 block text-[11px] text-slate-500">{description}</small></span></button>)}</div></div>
+          <div className="relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(20,35,90,.12)] sm:p-5"><div className="rounded-xl bg-slate-950 px-4 py-3 text-white"><div className="flex items-center justify-between"><span className="text-xs font-bold">KGS secure workspace</span><span className="text-[10px] font-semibold text-blue-300">Stage {active + 1} of {journeySteps.length}</span></div><div className="mt-3 h-1.5 rounded-full bg-white/10"><div className="h-full rounded-full bg-blue-500 transition-all duration-500" style={{ width: `${((active + 1) / journeySteps.length) * 100}%` }} /></div></div><div className="relative mt-3 min-h-[300px] rounded-xl bg-gradient-to-br from-slate-50 to-blue-50 p-5 sm:p-8"><div className="absolute right-5 top-5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold text-emerald-700">Secure by design</div><div className="flex h-full flex-col justify-center transition-all duration-500" key={step[0]}><div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20"><Icon name={step[2]} size={28} /></div><p className="mb-0 mt-6 text-xs font-extrabold uppercase tracking-[.16em] text-blue-700">{step[0]}</p><h3 className="mb-0 mt-2 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">{step[1]}</h3><p className="mt-3 max-w-lg text-sm leading-relaxed text-slate-600">{active === 0 && "Candidates register once and keep their profile details in one trusted place."}{active === 1 && "A one-time code confirms the candidate before any assessment begins."}{active === 2 && "A guided system check confirms the environment is ready for a fair attempt."}{active === 3 && "Each candidate receives a randomized, category-balanced examination."}{active === 4 && "Camera, fullscreen, tab activity, and incidents are handled through configurable controls."}{active === 5 && "Responses are saved and the submission is recorded with an auditable timestamp."}{active === 6 && "Marks are calculated against the persisted answer key and released through the results workflow."}</p><div className="mt-7 flex items-center gap-2 text-xs font-bold text-slate-500"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Smooth transition to the next stage</div></div></div><div className="mt-3 flex justify-between"><button disabled={active === 0} onClick={() => setActive((value) => value - 1)} className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600 disabled:cursor-not-allowed disabled:opacity-40">Previous</button><button disabled={active === journeySteps.length - 1} onClick={() => setActive((value) => value + 1)} className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40">Next stage →</button></div></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Info sections                                                        */
 /* ------------------------------------------------------------------ */
@@ -493,6 +519,7 @@ export function LandingPage(props: LandingPageProps) {
         </section>
 
         <FeatureStrip />
+        <ExaminationJourney />
         <SecurityDemo />
         <InfoSections />
       </main>
