@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import heroStudentImg from "../../assets/hero-student.png";
 
 interface LandingPageProps {
@@ -336,6 +336,32 @@ function FeatureStrip() {
   );
 }
 
+function SecurityDemo() {
+  const events = ["Camera permission verified", "Fullscreen mode enabled", "Tab switch detected · review queued", "Microphone signal healthy"];
+  const [eventIndex, setEventIndex] = useState(0);
+  useEffect(() => { const timer = window.setInterval(() => setEventIndex((current) => (current + 1) % events.length), 2600); return () => window.clearInterval(timer); }, []);
+  return (
+    <section id="security-demo" className="relative py-14 sm:py-20">
+      <div className={`${container} grid items-center gap-8 lg:grid-cols-[.82fr_1.18fr] lg:gap-14`}>
+        <div>
+          <span className="inline-flex rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[.16em] text-blue-700">Security &amp; proctoring</span>
+          <h2 className="mt-4 max-w-xl text-3xl font-extrabold leading-tight tracking-tight text-[color:var(--heading)] sm:text-4xl">Confidence at every checkpoint.</h2>
+          <p className="mt-4 max-w-lg text-base leading-relaxed text-[color:var(--body)]">Give every candidate a clear, consistent exam environment while your team gets the signals needed to protect assessment integrity.</p>
+          <div className="mt-6 grid grid-cols-2 gap-3 text-sm font-semibold text-slate-700">{[["Camera monitoring","shield"],["Tab-switch detection","bars"],["Fullscreen monitoring","lock"],["Incident reporting","chart"]].map(([label, icon]) => <div key={label} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white/75 px-3 py-3 shadow-sm"><GradientIcon name={icon as IconName} size={20} />{label}</div>)}</div>
+        </div>
+        <div className="rounded-[1.5rem] border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(20,35,90,.12)] sm:p-4">
+          <div className="flex items-center justify-between rounded-xl bg-slate-950 px-4 py-3 text-white"><div><p className="m-0 text-[10px] font-bold uppercase tracking-[.16em] text-blue-300">Demonstration mode</p><p className="m-0 mt-1 text-sm font-bold">Secure assessment session</p></div><span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-300"><span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" /> Simulated</span></div>
+          <div className="grid gap-3 p-2 pt-4 sm:grid-cols-[1.2fr_.8fr]">
+            <div className="relative flex min-h-[220px] items-end overflow-hidden rounded-xl bg-gradient-to-br from-blue-100 via-slate-100 to-indigo-100 p-4"><div className="absolute left-4 top-4 rounded-lg bg-white/80 px-2.5 py-1.5 text-[10px] font-bold text-slate-700 shadow-sm">Candidate preview · demo only</div><div className="mx-auto mb-2 flex h-36 w-28 items-end justify-center rounded-[3.5rem] bg-gradient-to-b from-slate-700 to-blue-800"><div className="mb-12 h-16 w-16 rounded-full bg-amber-200 shadow-inner" /></div><div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg bg-slate-950/85 px-3 py-2 text-[11px] font-semibold text-white"><span>EXAM-2026-0001</span><span className="text-emerald-300">In progress</span></div></div>
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4"><div className="flex items-center justify-between"><span className="text-xs font-bold text-slate-800">Session controls</span><span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-bold text-emerald-700">Healthy</span></div><div className="mt-4 flex items-center justify-between text-xs"><span className="text-slate-500">Time remaining</span><strong className="text-slate-900">42:18</strong></div><div className="mt-2 h-2 rounded-full bg-slate-200"><div className="h-full w-[68%] rounded-full bg-blue-600" /></div><div className="mt-5 space-y-2 text-[11px] font-semibold text-slate-600">{["Camera active","Microphone active","Fullscreen locked"].map((label) => <div key={label} className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500" />{label}</div>)}</div></div>
+          </div>
+          <div className="mx-2 mt-2 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-white">!</span><span><span className="mr-1 text-[10px] uppercase tracking-wider text-amber-600">Example event</span>{events[eventIndex]}</span></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Info sections                                                        */
 /* ------------------------------------------------------------------ */
@@ -467,6 +493,7 @@ export function LandingPage(props: LandingPageProps) {
         </section>
 
         <FeatureStrip />
+        <SecurityDemo />
         <InfoSections />
       </main>
 
