@@ -511,7 +511,7 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
             </div>
 
             <div className="p-4 sm:p-6 overflow-y-auto min-h-0 flex-1 text-xs sm:text-sm">
-              <div className="grid grid-cols-1 lg:grid-cols-[35%_65%] gap-6 lg:gap-7">
+              <div className="grid grid-cols-1 gap-6 lg:gap-7">
                 <div className="flex flex-col gap-3.5">
               <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
                 Paper Set Name
@@ -617,7 +617,7 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
                 </div>
 
               {/* Question Selection Section */}
-              <div className="flex min-w-0 flex-col gap-3">
+              <div className="hidden">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3 font-bold text-slate-900 text-xs sm:text-sm">
                 <h3>Automatic Question Allocation</h3>
                 <span className="text-xs font-semibold text-blue-600">
@@ -711,7 +711,7 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
             </div>
 
             <div className="flex-none flex flex-wrap items-center justify-between gap-3 p-4 sm:px-6 sm:py-4 border-t border-slate-100 bg-slate-50/50">
-              <span className="text-xs font-semibold text-slate-600">{selectedQuestions.length} selected · {calculatedMarks} total marks</span>
+              <span className="text-xs font-semibold text-slate-600">Automatic allocation · {form.totalMarks || 0} total marks</span>
               <button
                 className="h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all cursor-pointer shadow-sm"
                 onClick={() => setOpen(false)}
