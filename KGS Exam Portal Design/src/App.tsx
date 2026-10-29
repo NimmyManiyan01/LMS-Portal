@@ -340,7 +340,7 @@ function Sidebar({
           </div>
         </div>
         <small className="text-[11px] font-medium text-slate-400 text-center">
-          © 2025 KGS Institute
+          © {new Date().getFullYear()} KGS Institute
         </small>
       </div>
     </aside>
