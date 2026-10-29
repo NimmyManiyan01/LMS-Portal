@@ -1,5 +1,6 @@
 const crypto = require("node:crypto");
 const Student = require("../models/Student");
+const AdminUser = require("../models/AdminUser");
 const Counter = require("../models/Counter");
 const EmailVerification = require("../models/EmailVerification");
 const Session = require("../models/Session");
@@ -160,6 +161,8 @@ async function requestOtp(req, res) {
     return res
       .status(429)
       .json({ error: "Too many requests. Please try again later." });
+  if (await AdminUser.exists({ email, active: true }))
+    return res.status(409).json({ error: "Administrator email detected. Continue with administrator login.", adminLogin: true });
   return issueOtp(req, res);
 }
 async function resendOtp(req, res) {

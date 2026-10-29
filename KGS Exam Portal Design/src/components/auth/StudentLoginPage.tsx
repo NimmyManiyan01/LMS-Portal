@@ -13,6 +13,7 @@ interface Props {
   initialEmail?: string;
   onBackToLanding: () => void;
   onRegister: () => void;
+  onAdminLogin: () => void;
   onAuthenticated: (student: StudentProfile) => void;
 }
 
@@ -174,6 +175,7 @@ export function StudentLoginPage({
   onBackToLanding,
   onRegister,
   onAuthenticated,
+  onAdminLogin,
 }: Props) {
   const [email, setEmail] = useState(initialEmail);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -245,6 +247,7 @@ export function StudentLoginPage({
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
       const data = await response.json();
+      if (data.adminLogin) { onAdminLogin(); return; }
       if (!response.ok)
         throw new Error(data.error || "Unable to send verification code.");
       setExpiresAt(data.expiresAt || null);
