@@ -617,6 +617,7 @@ export default function App() {
     resultsPending: 0,
   })
   const [loginEmail, setLoginEmail] = useState("")
+  const [dashboardRefresh, setDashboardRefresh] = useState(0)
 
   const [viewState, setViewState] =
     useState<"DASHBOARD" | "INSTRUCTIONS" | "SYSTEM_CHECK" | "EXAM_PLAYER" | "SUBMISSION_CONFIRM" | "SUBMISSION_SUCCESS" | "RESULTS">(
@@ -726,7 +727,7 @@ export default function App() {
       }
     }
     void loadDashboard()
-  }, [entryRoute])
+  }, [entryRoute, dashboardRefresh])
 
   const switchPortal = (v: boolean) => {
     setAdmin(v)
@@ -997,6 +998,7 @@ export default function App() {
               examQuestions.reduce((sum, question) => sum + Number(question.marks || 0), 0),
           }
       setSubmittedResult(immediateResult)
+      setDashboardRefresh((value) => value + 1)
       setViewState("SUBMISSION_SUCCESS")
     } catch (error) {
       setSubmissionError(
