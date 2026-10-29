@@ -84,7 +84,7 @@ export function AdminLoginPage({ onBackToLanding, onAuthenticated }: Props) {
               {error}
             </div>
           )}
-          {step === "OTP" && <label
+          <label
             className="grid gap-1.5 text-[11px] font-semibold tracking-wide text-slate-600"
             htmlFor="admin-email"
           >
@@ -99,7 +99,7 @@ export function AdminLoginPage({ onBackToLanding, onAuthenticated }: Props) {
               autoComplete="username"
             />
           </label>
-          <label
+          {step === "OTP" && (<label
             className="grid gap-1.5 text-[11px] font-semibold tracking-wide text-slate-600"
             htmlFor="admin-otp"
           >
@@ -116,7 +116,7 @@ export function AdminLoginPage({ onBackToLanding, onAuthenticated }: Props) {
                 autoComplete="one-time-code"
               />
             </div>
-          </label>}
+          </label>)}
           <button
             className="mt-2 h-11 rounded-md bg-[#1f4f8f] px-4 text-sm font-semibold text-white transition hover:bg-[#174275] disabled:cursor-not-allowed disabled:bg-slate-300"
             disabled={loading}
