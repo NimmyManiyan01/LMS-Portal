@@ -8,7 +8,6 @@ function hashPassword(password) {
 }
 
 async function ensureAdminAccount() {
-  if (process.env.NODE_ENV === "production") return null;
   const emails = String(
     process.env.ADMIN_EMAILS ||
       process.env.ADMIN_EMAIL ||
@@ -33,7 +32,7 @@ async function ensureAdminAccount() {
     ).lean();
     admins.push(admin);
   }
-  console.log(`Development Admins ready: ${admins.map((admin) => admin.email).join(", ")}`);
+  console.log(`Seeded Admins ready: ${admins.map((admin) => admin.email).join(", ")}`);
   return admins;
 }
 
