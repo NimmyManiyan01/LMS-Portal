@@ -496,7 +496,7 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
       {/* Create / Edit Paper Set Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
-          <div className="relative w-full max-w-[840px] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
+          <div className="relative w-full max-w-[1200px] max-h-[90vh] flex flex-col bg-white rounded-xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
             <div className="flex-none flex items-center justify-between gap-4 p-5 sm:px-7 sm:py-6 border-b border-slate-100 bg-slate-50/50">
               <h2 className="text-xl font-bold text-slate-900">
                 {editingId ? "Edit Paper Set" : "Create Paper Set"}
@@ -510,7 +510,9 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
               </button>
             </div>
 
-            <div className="p-5 sm:p-7 overflow-y-auto min-h-0 flex-1 flex flex-col gap-4 text-xs sm:text-sm">
+            <div className="p-4 sm:p-6 overflow-y-auto min-h-0 flex-1 text-xs sm:text-sm">
+              <div className="grid grid-cols-1 lg:grid-cols-[35%_65%] gap-6 lg:gap-7">
+                <div className="flex flex-col gap-3.5">
               <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
                 Paper Set Name
                 <input
@@ -610,8 +612,11 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
                 />
               </label>
 
+                </div>
+
               {/* Question Selection Section */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100 font-bold text-slate-900 text-xs sm:text-sm">
+              <div className="flex min-w-0 flex-col gap-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3 font-bold text-slate-900 text-xs sm:text-sm">
                 <h3>Select Active Questions</h3>
                 <span className="text-xs font-semibold text-blue-600">
                   {selectedQuestions.length} selected · {calculatedMarks} marks
@@ -666,7 +671,7 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
                 <small className="text-xs font-medium text-red-600 block">{errors.questionIds}</small>
               )}
 
-              <div className="max-h-60 overflow-y-auto p-2 flex flex-col gap-2 rounded-xl border border-slate-200/80 bg-slate-50/30">
+              <div className="min-h-[220px] max-h-[48vh] overflow-y-auto p-2 flex flex-col gap-2 rounded-xl border border-slate-200/80 bg-slate-50/30">
                 {visibleQuestions.map((q) => (
                   <label
                     key={q.id}
@@ -696,9 +701,12 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
                   </label>
                 ))}
               </div>
+              </div>
+              </div>
             </div>
 
-            <div className="flex-none flex items-center justify-end gap-3 p-4 sm:px-7 sm:py-4 border-t border-slate-100 bg-slate-50/50">
+            <div className="flex-none flex flex-wrap items-center justify-between gap-3 p-4 sm:px-6 sm:py-4 border-t border-slate-100 bg-slate-50/50">
+              <span className="text-xs font-semibold text-slate-600">{selectedQuestions.length} selected · {calculatedMarks} total marks</span>
               <button
                 className="h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all cursor-pointer shadow-sm"
                 onClick={() => setOpen(false)}
