@@ -299,40 +299,6 @@ function ResponsiveHeroCards() {
   );
 }
 
-function ProductPreview({ onLogin }: Pick<LandingPageProps, "onLogin">) {
-  const [view, setView] = useState<"student" | "admin">("student");
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  return (
-    <div
-      className="relative mx-auto w-full max-w-[620px] [perspective:1400px]"
-      onMouseMove={(event) => {
-        const rect = event.currentTarget.getBoundingClientRect();
-        setTilt({ x: ((event.clientY - rect.top) / rect.height - 0.5) * -5, y: ((event.clientX - rect.left) / rect.width - 0.5) * 7 });
-      }}
-      onMouseLeave={() => setTilt({ x: 0, y: 0 })}
-    >
-      <div className="absolute -inset-6 rounded-[2rem] bg-blue-500/10 blur-3xl" aria-hidden="true" />
-      <div className="relative overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/90 p-3 shadow-[0_30px_90px_rgba(15,35,90,.18)] backdrop-blur-xl transition-transform duration-500" style={{ transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` }}>
-        <div className="flex items-center justify-between rounded-xl bg-slate-950 px-4 py-3 text-white">
-          <div className="flex items-center gap-2 text-sm font-bold"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600">K</span>KGS Exam Portal</div>
-          <span className="rounded-full bg-emerald-400/15 px-2.5 py-1 text-[10px] font-semibold text-emerald-300">LIVE SYSTEMS</span>
-        </div>
-        <div className="flex gap-2 border-b border-slate-100 px-2 pt-3">
-          {(["student", "admin"] as const).map((item) => <button key={item} onClick={() => setView(item)} className={`rounded-t-lg px-4 py-2 text-xs font-bold capitalize transition-colors ${view === item ? "bg-blue-50 text-blue-700" : "text-slate-400 hover:text-slate-700"}`}>{item} journey</button>)}
-        </div>
-        {view === "student" ? (
-          <div className="grid gap-3 p-4 sm:grid-cols-[1.1fr_.9fr]">
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4"><div className="mb-4 flex items-center justify-between"><div><p className="m-0 text-[10px] font-bold uppercase tracking-wider text-blue-600">Ready to begin</p><h3 className="m-0 mt-1 text-lg font-extrabold text-slate-900">Aptitude assessment</h3></div><span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-bold text-emerald-700">Verified</span></div><div className="grid grid-cols-3 gap-2 text-center">{[["50","Questions"],["60","Minutes"],["100%","Secure"]].map(([value,label]) => <div key={label} className="rounded-lg bg-white p-2"><strong className="block text-sm text-slate-900">{value}</strong><span className="text-[10px] text-slate-500">{label}</span></div>)}</div><div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200"><div className="h-full w-[68%] rounded-full bg-blue-600" /></div></div>
-            <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-4"><p className="m-0 text-[10px] font-bold uppercase tracking-wider text-blue-700">Exam readiness</p>{["Identity verified","Browser compatible","Camera & microphone"].map((label) => <div key={label} className="mt-3 flex items-center gap-2 text-xs font-semibold text-slate-700"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white"><Icon name="check" size={12} /></span>{label}</div>)}<button onClick={props.onLogin} className="mt-4 w-full rounded-lg bg-blue-600 py-2 text-xs font-bold text-white transition hover:bg-blue-700">Enter secure workspace</button></div>
-          </div>
-        ) : (
-          <div className="grid gap-3 p-4 sm:grid-cols-3">{[["Live sessions","12","users"],["Completion rate","94%","chart"],["Audit events","248","shield"]].map(([label,value,icon]) => <div key={label} className="rounded-xl border border-slate-100 bg-slate-50 p-4"><GradientIcon name={icon as IconName} size={24} /><p className="mb-1 mt-3 text-xs text-slate-500">{label}</p><strong className="text-2xl text-slate-900">{value}</strong></div>)}<div className="rounded-xl border border-blue-100 bg-blue-50 p-4 sm:col-span-3"><div className="flex items-center justify-between"><span className="text-xs font-bold text-slate-700">Assessment operations</span><span className="text-[10px] font-semibold text-blue-700">Updated just now</span></div><div className="mt-3 flex h-16 items-end gap-1">{[34,48,42,62,54,72,66,84,70,90,76,96].map((height, i) => <span key={i} className="flex-1 rounded-t bg-blue-500/80" style={{ height: `${height}%` }} />)}</div></div></div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 /* ------------------------------------------------------------------ */
 /* Feature strip                                                        */
 /* ------------------------------------------------------------------ */
@@ -446,8 +412,9 @@ export function LandingPage(props: LandingPageProps) {
               </div>
 
               <h1 className="my-5 max-w-[720px] text-[clamp(2.125rem,4.4vw,4.25rem)] font-extrabold leading-[1.09] tracking-[-0.035em] sm:my-6">
-                <span className="kgs-grad-text">Next-Generation </span>
-                <span className="text-[color:var(--heading)]">Examinations, Built for Trust</span>
+                <span className="kgs-grad-text block">Next-Generation</span>
+                <span className="block text-[color:var(--heading)]">Online Examination</span>
+                <span className="block text-[color:var(--heading)]">Platform</span>
               </h1>
 
               <p className="mb-8 max-w-[600px] text-[15px] font-normal leading-[1.6] text-[color:var(--body)] sm:text-base lg:text-lg">
@@ -474,8 +441,10 @@ export function LandingPage(props: LandingPageProps) {
               </div>
             </div>
 
-            <div className="relative hidden w-full lg:block">
-              <ProductPreview onLogin={props.onLogin} />
+            <div className="pointer-events-none relative hidden min-h-[460px] w-full lg:block xl:min-h-[520px]">
+              <ProctorCard />
+              <MonitorCard />
+              <EvaluationCard />
             </div>
           </div>
 
