@@ -1,4 +1,26 @@
 const router = require("express").Router();
+const GLOBAL_CATEGORY_QUOTAS = {
+  programming: 10,
+  operating: 10,
+  logical: 20,
+  quantitative: 10,
+};
+const normalizeCategory = (value) => {
+  const category = String(value || "").toLowerCase();
+  if (category.includes("program")) return "programming";
+  if (category.includes("operat") || category.includes("os ") || category === "os") return "operating";
+  if (category.includes("logic")) return "logical";
+  if (category.includes("quant") || category.includes("math")) return "quantitative";
+  return null;
+};
+const shuffle = (items) => {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = crypto.randomInt(i + 1);
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+};
 const crypto = require("node:crypto");
 const mongoose = require("mongoose");
 const Exam = require("../models/Exam");
@@ -174,7 +196,7 @@ router.post(
       }),
     );
 
-    const validSets = setChecks.filter((check) => check.valid).map((check) => check.set);
+    const validSets = sets.filter((set) => (set.questionIds || []).length > 0);
     if (!validSets.length)
       return res
         .status(409)
@@ -185,6 +207,21 @@ router.post(
     const paperSet = validSets.sort(
       (a, b) => a.allocationCount - b.allocationCount || crypto.randomInt(-1, 2),
     )[0];
+
+    const categoryPools = await Question.find({ status: "ACTIVE" })
+      .select("_id marks questionType sectionName")
+      .lean();
+    const randomizedQuestionIds = [];
+    for (const [category, quota] of Object.entries(GLOBAL_CATEGORY_QUOTAS)) {
+      const pool = shuffle(categoryPools.filter((question) => normalizeCategory(question.sectionName) === category));
+      if (pool.length < quota) {
+        return res.status(409).json({
+          error: `Not enough active questions in the ${category} category. Required ${quota}, available ${pool.length}.`,
+        });
+      }
+      randomizedQuestionIds.push(...pool.slice(0, quota).map((question) => question._id));
+    }
+    const assignedQuestionIds = shuffle(randomizedQuestionIds);
 
     const startedAt = new Date();
     const expiresAt = new Date(
@@ -212,7 +249,7 @@ router.post(
         examId: exam._id,
         studentId,
         paperSetId: lockedSet._id,
-        assignedQuestionIds: lockedSet.questionIds,
+        assignedQuestionIds,
         orderSeed,
         attemptNumber: attemptCount + 1,
         startedAt,
