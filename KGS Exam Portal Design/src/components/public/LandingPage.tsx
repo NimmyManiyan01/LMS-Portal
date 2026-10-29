@@ -39,6 +39,18 @@ const themeCss = `
 }
 .kgs-grad-bg   { background-color: var(--brand); }
 .kgs-grad-text { color: var(--brand); }
+.landing-login-btn { position: relative; z-index: 1; overflow: hidden; }
+.landing-login-btn::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -20%; right: -20%; top: 0; bottom: 0;
+  background: #fff;
+  transform: skewX(-45deg) scale(0, 1);
+  transition: transform 0.35s ease;
+}
+.landing-login-btn:hover { color: #111d4e; }
+.landing-login-btn:hover::after { transform: skewX(-45deg) scale(1, 1); }
 .kgs-glass {
   background: rgba(255,255,255,.88);
   border: 1px solid rgba(255,255,255,.7);
@@ -177,7 +189,7 @@ function Navbar({ onLogin, onRegister }: LandingPageProps) {
         <Brand />
 
         <div className="hidden shrink-0 items-center gap-3 lg:flex">
-          <button className={`${btnPrimary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onLogin}>
+          <button className={`${btnPrimary} landing-login-btn h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onLogin}>
             <Icon name="login" size={18} /> Login
           </button>
           <button className={`${btnSecondary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onRegister}>
@@ -412,7 +424,7 @@ export function LandingPage(props: LandingPageProps) {
 
               <div className="flex w-full flex-wrap items-center gap-3.5 sm:w-auto sm:gap-4">
                 <button
-                  className={`${btnPrimary} h-[54px] w-full gap-2.5 rounded-2xl px-7 text-base font-semibold sm:w-auto`}
+                  className={`${btnSecondary} h-[54px] w-full gap-2.5 rounded-2xl px-7 text-base font-semibold sm:w-auto`}
                   onClick={props.onRegister}
                 >
                   <Icon name="user" size={19} />
@@ -420,7 +432,7 @@ export function LandingPage(props: LandingPageProps) {
                   <Icon name="arrow" size={19} />
                 </button>
                 <button
-                  className={`${btnSecondary} h-[54px] w-full gap-2.5 rounded-2xl px-7 text-base font-semibold sm:w-auto`}
+                  className={`${btnPrimary} landing-login-btn h-[54px] w-full gap-2.5 rounded-2xl px-7 text-base font-semibold sm:w-auto`}
                   onClick={props.onLogin}
                 >
                   <Icon name="login" size={19} />
