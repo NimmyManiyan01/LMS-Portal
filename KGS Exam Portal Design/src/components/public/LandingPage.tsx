@@ -27,7 +27,7 @@ const themeCss = `
   --heading: #0F1B4C;
   --body: #5B6478;
   --sub: #4B5675;
-  --grad: linear-gradient(135deg, #2563EB, #7C3AED);
+  --brand: #315CF5;
   --glow-a: rgba(37,99,235,.12);
   --glow-b: rgba(124,58,237,.10);
   --photo-filter: none;
@@ -38,8 +38,8 @@ const themeCss = `
     radial-gradient(circle at 78% 8%, var(--glow-a) 0%, transparent 38%),
     radial-gradient(circle at 92% 30%, var(--glow-b) 0%, transparent 36%);
 }
-.kgs-grad-bg   { background-image: var(--grad); }
-.kgs-grad-text { background-image: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.kgs-grad-bg   { background-color: var(--brand); }
+.kgs-grad-text { color: var(--brand); }
 .kgs-glass {
   background: rgba(255,255,255,.88);
   border: 1px solid rgba(255,255,255,.7);
@@ -123,15 +123,15 @@ function SvgGradients() {
         {/* userSpaceOnUse so purely vertical/horizontal strokes (e.g. the bars icon) still render */}
         <linearGradient id="kgsIconGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="24">
           <stop offset="0%" stopColor="#2563EB" />
-          <stop offset="100%" stopColor="#7C3AED" />
+          <stop offset="100%" stopColor="#315CF5" />
         </linearGradient>
         <linearGradient id="chartLineGrad" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor="#2563EB" />
-          <stop offset="100%" stopColor="#7C3AED" />
+          <stop offset="100%" stopColor="#315CF5" />
         </linearGradient>
         <linearGradient id="chartFillGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#2563EB" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#7C3AED" stopOpacity="0" />
+          <stop offset="100%" stopColor="#315CF5" stopOpacity="0" />
         </linearGradient>
       </defs>
     </svg>
@@ -148,7 +148,7 @@ const btnSecondary =
   "flex cursor-pointer items-center justify-center gap-2 border border-[color:var(--hairline)] bg-[color:var(--btn-bg)] text-[color:var(--heading)] shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-500/30";
 
 const btnPrimary =
-  "kgs-grad-bg flex cursor-pointer items-center justify-center gap-2 border-none text-white shadow-lg shadow-indigo-600/30 transition-all hover:-translate-y-0.5 hover:shadow-indigo-600/40";
+  "kgs-grad-bg flex cursor-pointer items-center justify-center gap-2 border-none text-white shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5 hover:shadow-blue-600/30";
 
 /* ------------------------------------------------------------------ */
 /* Brand + Navbar                                                       */
@@ -265,7 +265,7 @@ function MonitorCard() {
       <CardTitle icon="clock">Real-time<br />Monitoring</CardTitle>
       <div className="mt-3 flex h-9 items-end justify-between gap-1">
         {barHeights.filter((_, i) => i % 2 === 0).map((h, i) => (
-          <div key={i} className="w-[3px] rounded-full bg-gradient-to-t from-blue-600 to-violet-600" style={{ height: `${Math.min(h, 40)}px` }} />
+          <div key={i} className="w-[3px] rounded-full bg-blue-600" style={{ height: `${Math.min(h, 40)}px` }} />
         ))}
       </div>
     </div>
@@ -367,7 +367,7 @@ function InfoSections() {
             {id === "contact" && (
               <a
                 href="mailto:exams@kgs.edu"
-                className="mt-auto inline-flex cursor-pointer items-center gap-2 pt-5 text-sm font-bold text-blue-600 no-underline transition-all hover:translate-x-1 hover:text-violet-600"
+                className="mt-auto inline-flex cursor-pointer items-center gap-2 pt-5 text-sm font-bold text-blue-600 no-underline transition-all hover:translate-x-1 hover:text-blue-700"
               >
                 exams@kgs.edu <Icon name="arrow" size={15} />
               </a>
@@ -440,7 +440,7 @@ export function LandingPage(props: LandingPageProps) {
 
               <div className="mt-4">
                 <button
-                  className="inline-flex cursor-pointer items-center gap-2 border-none bg-transparent p-1 text-sm font-bold text-blue-600 transition-all hover:translate-x-1 hover:text-violet-600"
+                  className="inline-flex cursor-pointer items-center gap-2 border-none bg-transparent p-1 text-sm font-bold text-blue-600 transition-all hover:translate-x-1 hover:text-blue-700"
                   onClick={props.onAdminLogin}
                 >
                   <Icon name="shield" size={18} />
