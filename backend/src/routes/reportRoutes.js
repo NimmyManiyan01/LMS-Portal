@@ -28,10 +28,16 @@ function addRows(sheet, columns, rows) {
 async function buildWorkbook(filters = {}) {
   const { examId, college, releaseStatus } = filters;
   const studentFilter = college ? { college } : {};
-  const resultFilter = { ...(examId ? { examId } : {}), ...(releaseStatus ? { releaseStatus } : {}) };
+  const resultFilter = {
+    ...(examId ? { examId } : {}),
+    ...(releaseStatus ? { releaseStatus } : {}),
+  };
   const students = await Student.find(studentFilter).lean();
   const scopedResultFilter = college
-    ? { ...resultFilter, studentId: { $in: students.map((student) => student._id) } }
+    ? {
+        ...resultFilter,
+        studentId: { $in: students.map((student) => student._id) },
+      }
     : resultFilter;
   const [exams, results, attempts, sets] = await Promise.all([
     Exam.find(examId ? { _id: examId } : {}).lean(),
@@ -144,14 +150,12 @@ router.post(
       record.completedAt = new Date();
       record.fileName = `kgs-exam-report-${record.id}.xlsx`;
       await record.save();
-      res
-        .status(201)
-        .json({
-          exportId: record.id,
-          status: record.status,
-          fileName: record.fileName,
-          completedAt: record.completedAt,
-        });
+      res.status(201).json({
+        exportId: record.id,
+        status: record.status,
+        fileName: record.fileName,
+        completedAt: record.completedAt,
+      });
     } catch (error) {
       record.status = "FAILED";
       record.error = error.message;
@@ -183,7 +187,9 @@ router.get(
     });
     if (!record)
       return res.status(404).json({ error: "Ready export not found" });
-    const workbook = await buildWorkbook(record.filters || { examId: record.examId });
+    const workbook = await buildWorkbook(
+      record.filters || { examId: record.examId },
+    );
     res.attachment(record.fileName);
     await workbook.xlsx.write(res);
     res.end();

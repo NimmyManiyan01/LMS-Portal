@@ -33,7 +33,9 @@ function isEligible(exam, student) {
 async function dashboard(req, res) {
   const now = new Date();
   const exams = await Exam.find({
-    status: { $in: ["SCHEDULED", "PUBLISHED", "LIVE", "ACTIVE", "CLOSED", "COMPLETED"] },
+    status: {
+      $in: ["SCHEDULED", "PUBLISHED", "LIVE", "ACTIVE", "CLOSED", "COMPLETED"],
+    },
   }).lean();
   const attempts = await Attempt.find({
     studentId: req.student._id || req.student.id,
@@ -43,8 +45,12 @@ async function dashboard(req, res) {
   const releasedResults = await FinalResult.find({
     studentId: req.student._id || req.student.id,
     releaseStatus: "RELEASED",
-  }).select("examId attemptId releaseStatus").lean();
-  const releasedExamIds = new Set(releasedResults.map((result) => String(result.examId)));
+  })
+    .select("examId attemptId releaseStatus")
+    .lean();
+  const releasedExamIds = new Set(
+    releasedResults.map((result) => String(result.examId)),
+  );
   const visible = (
     await Promise.all(
       exams
@@ -56,16 +62,25 @@ async function dashboard(req, res) {
             active: { $ne: false },
           }).lean();
           const expected =
-            exam.totalQuestions || sets[0]?.blueprint?.totalQuestions || sets[0]?.questionIds?.length || 0;
+            exam.totalQuestions ||
+            sets[0]?.blueprint?.totalQuestions ||
+            sets[0]?.questionIds?.length ||
+            0;
           const maximumMarks =
-            exam.totalMarks || sets[0]?.blueprint?.maximumMarks || sets[0]?.totalMarks || 0;
+            exam.totalMarks ||
+            sets[0]?.blueprint?.maximumMarks ||
+            sets[0]?.totalMarks ||
+            0;
           const validSets = sets.filter((set) => {
-              const qCount = set.questionIds?.length || set.blueprint?.totalQuestions || 0;
-              const marks = set.totalMarks ?? set.blueprint?.maximumMarks ?? 0;
-              return qCount > 0 &&
-                (!exam.totalQuestions || qCount === exam.totalQuestions) &&
-                (!exam.totalMarks || marks === exam.totalMarks);
-            });
+            const qCount =
+              set.questionIds?.length || set.blueprint?.totalQuestions || 0;
+            const marks = set.totalMarks ?? set.blueprint?.maximumMarks ?? 0;
+            return (
+              qCount > 0 &&
+              (!exam.totalQuestions || qCount === exam.totalQuestions) &&
+              (!exam.totalMarks || marks === exam.totalMarks)
+            );
+          });
           if (!validSets.length) return null;
           const selectedSet = validSets[0];
           const mine = attempts.filter(
@@ -83,7 +98,10 @@ async function dashboard(req, res) {
           if (active) {
             status = "IN_PROGRESS";
             nextAction = "RESUME_EXAM";
-          } else if (submitted && (exam.resultsPublishedAt || releasedExamIds.has(String(exam._id)))) {
+          } else if (
+            submitted &&
+            (exam.resultsPublishedAt || releasedExamIds.has(String(exam._id)))
+          ) {
             status = "RESULTS_RELEASED";
             nextAction = "VIEW_MARKS";
           } else if (submitted) {
@@ -115,8 +133,14 @@ async function dashboard(req, res) {
           return {
             ...exam,
             id: exam._id,
-            totalQuestions: selectedSet.questionIds?.length || selectedSet.blueprint?.totalQuestions || expected,
-            totalMarks: selectedSet.totalMarks ?? selectedSet.blueprint?.maximumMarks ?? maximumMarks,
+            totalQuestions:
+              selectedSet.questionIds?.length ||
+              selectedSet.blueprint?.totalQuestions ||
+              expected,
+            totalMarks:
+              selectedSet.totalMarks ??
+              selectedSet.blueprint?.maximumMarks ??
+              maximumMarks,
             status,
             nextAction,
             attemptsUsed: mine.length,
@@ -137,7 +161,13 @@ async function dashboard(req, res) {
     upcoming: visible.filter((e) => e.status === "UPCOMING").length,
     inProgress: visible.filter((e) => e.status === "IN_PROGRESS").length,
     completed: visible.filter((e) =>
-      ["SUBMITTED", "RESULTS_PENDING", "RESULTS_RELEASED", "EXPIRED", "CLOSED"].includes(e.status),
+      [
+        "SUBMITTED",
+        "RESULTS_PENDING",
+        "RESULTS_RELEASED",
+        "EXPIRED",
+        "CLOSED",
+      ].includes(e.status),
     ).length,
     resultsPending: visible.filter((e) => e.status === "RESULTS_PENDING")
       .length,

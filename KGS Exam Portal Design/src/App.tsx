@@ -20,7 +20,6 @@ import {
 } from "./components/public/PolicyPage"
 import { RegistrationPage } from "./components/auth/RegistrationPage"
 import { StudentLoginPage } from "./components/auth/StudentLoginPage"
-import { AdminLoginPage } from "./components/auth/AdminLoginPage"
 import { StudentExaminations } from "./components/student/StudentExaminations"
 import { QuestionBankPage } from "./components/admin/QuestionBankPage"
 import { PaperSetsPage } from "./components/admin/PaperSetsPage"
@@ -654,7 +653,7 @@ export default function App() {
           setAdminUser(data.user)
           setAdmin(true)
         })
-        .catch(() => navigateEntry("/admin"))
+        .catch(() => navigateEntry("/login"))
       return
     }
     if (entryRoute !== "/dashboard") return
@@ -760,7 +759,7 @@ export default function App() {
     return (
       <LandingPage
         onLogin={() => navigateEntry("/login")}
-        onAdminLogin={() => navigateEntry("/admin")}
+        onAdminLogin={() => navigateEntry("/login")}
         onRegister={() => navigateEntry("/register")}
         onAbout={() => navigateEntry("/about")}
       />
@@ -812,7 +811,7 @@ export default function App() {
           }}
         />
       )
-    if (entryRoute === "/login")
+    if (entryRoute === "/login" || entryRoute === "/admin")
       return (
         <StudentLoginPage
           initialEmail={loginEmail}
@@ -827,17 +826,6 @@ export default function App() {
               setStudent(user)
               navigateEntry("/dashboard")
             }
-          }}
-        />
-      )
-    if (entryRoute === "/admin")
-      return (
-        <AdminLoginPage
-          onBackToLanding={() => navigateEntry("/")}
-          onAuthenticated={(user) => {
-            setAdminUser(user)
-            setAdmin(true)
-            navigateEntry("/admin/dashboard")
           }}
         />
       )

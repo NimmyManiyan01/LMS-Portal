@@ -184,8 +184,12 @@ router.put(
       Question.find({ _id: { $in: attempt.assignedQuestionIds } }).lean(),
       Exam.findById(attempt.examId).select("markingScheme").lean(),
     ]);
-    const answerByQuestion = new Map(allAnswers.map((answer) => [String(answer.questionId), answer]));
-    const questionById = new Map(questions.map((question) => [String(question._id), question]));
+    const answerByQuestion = new Map(
+      allAnswers.map((answer) => [String(answer.questionId), answer]),
+    );
+    const questionById = new Map(
+      questions.map((question) => [String(question._id), question]),
+    );
     const scheme = exam?.markingScheme || {};
     let liveScore = 0;
     for (const questionId of attempt.assignedQuestionIds) {
@@ -206,7 +210,10 @@ router.put(
       }
     }
     if (scheme.floorNegativeScoreAtZero) liveScore = Math.max(0, liveScore);
-    await Attempt.updateOne({ _id: attempt._id, status: "IN_PROGRESS" }, { $set: { score: liveScore } });
+    await Attempt.updateOne(
+      { _id: attempt._id, status: "IN_PROGRESS" },
+      { $set: { score: liveScore } },
+    );
 
     res.json({
       saved: true,
@@ -236,21 +243,32 @@ router.post("/:attemptId/feedback", authenticate, async (req, res) => {
   const attempt = await findOwnedAttempt(req, res);
   if (!attempt) return;
   if (attempt.status === "IN_PROGRESS")
-    return res.status(409).json({ error: "Feedback is available after the examination is submitted" });
+    return res
+      .status(409)
+      .json({
+        error: "Feedback is available after the examination is submitted",
+      });
 
   const rating = Number(req.body.rating);
   const comment = String(req.body.comment || "").trim();
   if (!Number.isInteger(rating) || rating < 1 || rating > 5)
     return res.status(400).json({ error: "Rating must be between 1 and 5" });
   if (comment.length > 1000)
-    return res.status(400).json({ error: "Feedback must be 1000 characters or fewer" });
+    return res
+      .status(400)
+      .json({ error: "Feedback must be 1000 characters or fewer" });
 
   const feedback = await ExamFeedback.findOneAndUpdate(
     { attemptId: attempt._id },
     { examId: attempt.examId, studentId: attempt.studentId, rating, comment },
     { upsert: true, new: true, runValidators: true },
   );
-  res.status(201).json({ saved: true, feedback: { id: String(feedback._id), rating: feedback.rating } });
+  res
+    .status(201)
+    .json({
+      saved: true,
+      feedback: { id: String(feedback._id), rating: feedback.rating },
+    });
 });
 
 module.exports = router;

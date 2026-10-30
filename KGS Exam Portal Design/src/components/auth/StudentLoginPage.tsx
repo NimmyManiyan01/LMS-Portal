@@ -11,7 +11,6 @@ import { API_BASE_URL, setAuthToken } from "../../api";
 
 interface Props {
   initialEmail?: string;
-  initialAuthMode?: "STUDENT" | "ADMIN";
   allowRegistration?: boolean;
   onBackToLanding: () => void;
   onRegister: () => void;
@@ -122,7 +121,6 @@ const alertBox = "rounded-xl border px-4 py-3 text-sm font-semibold";
 /* ------------------------------------------------------------------ */
 export function StudentLoginPage({
   initialEmail = "",
-  initialAuthMode = "STUDENT",
   allowRegistration = true,
   onBackToLanding,
   onRegister,
@@ -131,7 +129,6 @@ export function StudentLoginPage({
   const [email, setEmail] = useState(initialEmail);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [step, setStep] = useState<"EMAIL" | "OTP">("EMAIL");
-  const [authMode] = useState<"STUDENT" | "ADMIN">(initialAuthMode);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -145,16 +142,16 @@ export function StudentLoginPage({
   /* Existing session check */
   useEffect(() => {
     let cancelled = false;
-    fetch(`${api}/api/auth/${authMode === "ADMIN" ? "admin/me" : "me"}`, {
+    fetch(`${api}/api/auth/me`, {
       credentials: "include",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("kgs_student_token") || localStorage.getItem("kgs_token") || ""}`,
+        Authorization: `Bearer ${localStorage.getItem("kgs_token") || ""}`,
       },
     })
       .then(async (response) => {
         if (!response.ok || cancelled) return;
         const data = await response.json();
-        if (data.user?.role === authMode) onAuthenticated(data.user);
+        if (data.user?.role) onAuthenticated(data.user);
       })
       .catch(() => {
         /* No active session: show the OTP form. */
@@ -162,7 +159,7 @@ export function StudentLoginPage({
     return () => {
       cancelled = true;
     };
-  }, [api, authMode, onAuthenticated]);
+  }, [api, onAuthenticated]);
 
   /* 1s ticker while on the OTP step */
   useEffect(() => {
@@ -192,8 +189,7 @@ export function StudentLoginPage({
     }
     setLoading(true);
     try {
-      const authEndpoint = authMode === "ADMIN" ? "admin/request-otp" : endpoint;
-      const response = await fetch(`${api}/api/auth/${authEndpoint}`, {
+      const response = await fetch(`${api}/api/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -230,7 +226,7 @@ export function StudentLoginPage({
     }
     setLoading(true);
     try {
-      const response = await fetch(`${api}/api/auth/${authMode === "ADMIN" ? "admin/verify-otp" : "verify-otp"}`, {
+      const response = await fetch(`${api}/api/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -241,7 +237,7 @@ export function StudentLoginPage({
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Unable to verify code.");
-      if (data.token) setAuthToken(data.token, authMode === "ADMIN");
+      if (data.token) setAuthToken(data.token, data.user?.role === "ADMIN");
       onAuthenticated(data.user);
     } catch (exception) {
       setError(
@@ -339,7 +335,7 @@ export function StudentLoginPage({
 
           <div className="inline-flex items-center gap-2.5 rounded-full border border-white/90 bg-white/80 px-[18px] py-2 text-xs font-extrabold uppercase tracking-wider text-[#0F1B4C] shadow-sm backdrop-blur-md">
             <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(34,197,94,0.2)]" />
-            {authMode === "ADMIN" ? "Administrator Authentication" : "Student Authentication"}
+            Student &amp; Administrator Authentication
           </div>
 
           <h1 className="my-6 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-[64px]">
@@ -393,7 +389,7 @@ export function StudentLoginPage({
             >
               <div>
                 <h2 className="m-0 text-2xl font-bold tracking-tight text-[#0F1B4C]">
-                  {authMode === "ADMIN" ? "Administrator Login" : "Student Login"}
+                  Portal Login
                 </h2>
                 <p className="mt-1.5 text-sm text-slate-600">
                   Enter your email address to receive a verification code.

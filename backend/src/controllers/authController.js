@@ -1,5 +1,6 @@
 const crypto = require("node:crypto");
 const Student = require("../models/Student");
+const AdminUser = require("../models/AdminUser");
 const Counter = require("../models/Counter");
 const EmailVerification = require("../models/EmailVerification");
 const Session = require("../models/Session");
@@ -102,15 +103,21 @@ async function issueOtp(req, res) {
     .trim();
   if (!email || !email.includes("@"))
     return res.status(400).json({ error: "Valid email is required" });
-  const student = await Student.findOne({ email });
-  if (!student)
+  const [administrator, student] = await Promise.all([
+    AdminUser.findOne({ email, active: true }),
+    Student.findOne({ email, accountStatus: "ACTIVE" }),
+  ]);
+  const account = administrator || student;
+  if (!account)
     return res.status(202).json({
       ...generic,
       expiresAt: new Date(Date.now() + OTP_TTL),
       resendAvailableAt: new Date(Date.now() + RESEND_COOLDOWN),
     });
   const latest = await EmailVerification.findOne({
-    studentId: student.id,
+    ...(administrator
+      ? { adminId: administrator.id }
+      : { studentId: student.id }),
     consumedAt: null,
   }).sort({ createdAt: -1 });
   if (
@@ -126,7 +133,9 @@ async function issueOtp(req, res) {
   const otp = String(crypto.randomInt(100000, 1000000));
   const expiresAt = new Date(Date.now() + OTP_TTL);
   const verification = await EmailVerification.create({
-    studentId: student.id,
+    ...(administrator
+      ? { adminId: administrator.id }
+      : { studentId: student.id }),
     email,
     otpHash: hashOtp(otp),
     expiresAt,
@@ -135,7 +144,7 @@ async function issueOtp(req, res) {
   try {
     const delivery = await sendOtpEmail({
       to: email,
-      name: student.fullName,
+      name: administrator ? "KGS Administrator" : student.fullName,
       otp,
       expiresAt,
     });
@@ -187,7 +196,6 @@ async function verifyOtp(req, res) {
   const submittedOtp = String(req.body.otp || "");
   const verification = await EmailVerification.findOne({
     email,
-    studentId: { $exists: true },
     consumedAt: null,
   }).sort({ createdAt: -1 });
   if (!verification || verification.expiresAt < new Date())
@@ -210,6 +218,32 @@ async function verifyOtp(req, res) {
       .status(401)
       .json({ error: "Invalid verification code. Please try again." });
   }
+  if (verification.adminId) {
+    const administrator = await AdminUser.findOne({
+      _id: verification.adminId,
+      active: true,
+    });
+    if (!administrator)
+      return res.status(403).json({ error: "Administrator account unavailable" });
+    verification.consumedAt = new Date();
+    await verification.save();
+    const raw = crypto.randomBytes(32).toString("hex");
+    await Session.create({
+      tokenHash: hashSession(raw),
+      adminId: administrator.id,
+      expiresAt: new Date(Date.now() + SESSION_TTL),
+    });
+    res.setHeader("Set-Cookie", cookie(raw));
+    return res.json({
+      token: raw,
+      user: {
+        id: administrator.id,
+        email: administrator.email,
+        role: "ADMIN",
+      },
+    });
+  }
+
   const student = await Student.findById(verification.studentId);
   if (!student || student.accountStatus !== "ACTIVE")
     return res.status(403).json({ error: "Account unavailable" });
@@ -246,6 +280,14 @@ async function logout(req, res) {
   res.json({ ok: true });
 }
 async function me(req, res) {
+  if (req.auth.role === "ADMIN")
+    return res.json({
+      user: {
+        id: req.admin.id,
+        email: req.admin.email,
+        role: "ADMIN",
+      },
+    });
   res.json({
     user: {
       id: req.student.id,

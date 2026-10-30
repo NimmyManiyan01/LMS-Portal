@@ -27,8 +27,19 @@ const studentSchema = new mongoose.Schema(
       maxlength: 150,
       trim: true,
     },
-    branch: { type: String, required: false, default: "Unspecified", trim: true },
-    passOutYear: { type: Number, required: false, default: () => new Date().getFullYear(), min: 2000, max: 2100 },
+    branch: {
+      type: String,
+      required: false,
+      default: "Unspecified",
+      trim: true,
+    },
+    passOutYear: {
+      type: Number,
+      required: false,
+      default: () => new Date().getFullYear(),
+      min: 2000,
+      max: 2100,
+    },
     emailVerified: { type: Boolean, default: false },
     accountStatus: {
       type: String,

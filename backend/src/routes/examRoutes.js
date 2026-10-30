@@ -8,9 +8,15 @@ const GLOBAL_CATEGORY_QUOTAS = {
 const normalizeCategory = (value) => {
   const category = String(value || "").toLowerCase();
   if (category.includes("program")) return "programming";
-  if (category.includes("operat") || category.includes("os ") || category === "os") return "operating";
+  if (
+    category.includes("operat") ||
+    category.includes("os ") ||
+    category === "os"
+  )
+    return "operating";
   if (category.includes("logic")) return "logical";
-  if (category.includes("quant") || category.includes("math")) return "quantitative";
+  if (category.includes("quant") || category.includes("math"))
+    return "quantitative";
   return null;
 };
 const shuffle = (items) => {
@@ -61,7 +67,9 @@ router.get(
   authenticate,
   asyncHandler(async (_req, res) =>
     res.json(
-      await Exam.find({ status: { $in: ["PUBLISHED", "LIVE"] } }).select("-__v"),
+      await Exam.find({ status: { $in: ["PUBLISHED", "LIVE"] } }).select(
+        "-__v",
+      ),
     ),
   ),
 );
@@ -87,7 +95,10 @@ router.get(
       negativeMarking: exam.negativeMarking || 0,
       instructions: exam.instructions || [],
       readinessRequirements: exam.readinessRequirements || {},
-      monitoring: { profile: exam.integrityProfile, rules: exam.integrityRules },
+      monitoring: {
+        profile: exam.integrityProfile,
+        rules: exam.integrityRules,
+      },
     });
   }),
 );
@@ -159,9 +170,13 @@ router.post(
 
     const isMcqType = (t) =>
       !t ||
-      ["MCQ", "SINGLE_ANSWER_MCQ", "MCQ_SINGLE", "MULTIPLE_CHOICE", "OBJECTIVE"].includes(
-        String(t).toUpperCase(),
-      );
+      [
+        "MCQ",
+        "SINGLE_ANSWER_MCQ",
+        "MCQ_SINGLE",
+        "MULTIPLE_CHOICE",
+        "OBJECTIVE",
+      ].includes(String(t).toUpperCase());
 
     const setChecks = await Promise.all(
       sets.map(async (set) => {
@@ -183,29 +198,39 @@ router.post(
           !exam.examinationType ||
           isMcqType(exam.examinationType) ||
           questions.every(
-            (q) => String(q.questionType || "MCQ").toUpperCase() === String(exam.examinationType).toUpperCase(),
+            (q) =>
+              String(q.questionType || "MCQ").toUpperCase() ===
+              String(exam.examinationType).toUpperCase(),
           );
 
-        const countMatches = !exam.totalQuestions || qCount === exam.totalQuestions;
-        const marksMatches = !exam.totalMarks || setMarks === exam.totalMarks || questionMarks === exam.totalMarks;
+        const countMatches =
+          !exam.totalQuestions || qCount === exam.totalQuestions;
+        const marksMatches =
+          !exam.totalMarks ||
+          setMarks === exam.totalMarks ||
+          questionMarks === exam.totalMarks;
 
         return {
           set,
-          valid: qCount > 0 && countMatches && marksMatches && questionTypesMatch,
+          valid:
+            qCount > 0 && countMatches && marksMatches && questionTypesMatch,
         };
       }),
     );
 
-    const validSets = sets.filter((set) => (set.blueprint?.automaticRandomization || (set.questionIds || []).length > 0));
+    const validSets = sets.filter(
+      (set) =>
+        set.blueprint?.automaticRandomization ||
+        (set.questionIds || []).length > 0,
+    );
     if (!validSets.length)
-      return res
-        .status(409)
-        .json({
-          error: "Question paper sets do not match the examination blueprint",
-        });
+      return res.status(409).json({
+        error: "Question paper sets do not match the examination blueprint",
+      });
 
     const paperSet = validSets.sort(
-      (a, b) => a.allocationCount - b.allocationCount || crypto.randomInt(-1, 2),
+      (a, b) =>
+        a.allocationCount - b.allocationCount || crypto.randomInt(-1, 2),
     )[0];
 
     const categoryPools = await Question.find({ status: "ACTIVE" })
@@ -213,13 +238,19 @@ router.post(
       .lean();
     const randomizedQuestionIds = [];
     for (const [category, quota] of Object.entries(GLOBAL_CATEGORY_QUOTAS)) {
-      const pool = shuffle(categoryPools.filter((question) => normalizeCategory(question.sectionName) === category));
+      const pool = shuffle(
+        categoryPools.filter(
+          (question) => normalizeCategory(question.sectionName) === category,
+        ),
+      );
       if (pool.length < quota) {
         return res.status(409).json({
           error: `Not enough active questions in the ${category} category. Required ${quota}, available ${pool.length}.`,
         });
       }
-      randomizedQuestionIds.push(...pool.slice(0, quota).map((question) => question._id));
+      randomizedQuestionIds.push(
+        ...pool.slice(0, quota).map((question) => question._id),
+      );
     }
     const assignedQuestionIds = shuffle(randomizedQuestionIds);
 
@@ -266,25 +297,27 @@ router.post(
         console.error("Error starting exam attempt:", error);
         return res
           .status(500)
-          .json({ error: "Unable to start examination attempt. Please try again." });
+          .json({
+            error: "Unable to start examination attempt. Please try again.",
+          });
       }
     }
 
     if (!attempt) {
-      return res.status(500).json({ error: "Unable to start examination attempt." });
+      return res
+        .status(500)
+        .json({ error: "Unable to start examination attempt." });
     }
 
-    res
-      .status(201)
-      .json({
-        attemptId: String(attempt._id),
-        examName: exam.title,
-        status: attempt.status,
-        startedAt: attempt.startedAt,
-        deadline: attempt.expiresAt,
-        serverTime: new Date(),
-        durationSeconds: (exam.durationMinutes || 60) * 60,
-      });
+    res.status(201).json({
+      attemptId: String(attempt._id),
+      examName: exam.title,
+      status: attempt.status,
+      startedAt: attempt.startedAt,
+      deadline: attempt.expiresAt,
+      serverTime: new Date(),
+      durationSeconds: (exam.durationMinutes || 60) * 60,
+    });
   }),
 );
 
@@ -542,7 +575,10 @@ router.get(
     if (!exam.resultsPublishedAt)
       return res
         .status(409)
-        .json({ released: false, message: "Marks have not been published yet" });
+        .json({
+          released: false,
+          message: "Marks have not been published yet",
+        });
     const result = await FinalResult.findOne({
       examId: exam.id,
       studentId: req.auth.sub,
@@ -572,7 +608,8 @@ router.post(
           studentId: req.student.id,
           reason:
             new Date() >=
-            (await Attempt.findById(req.params.id).select("expiresAt")).expiresAt
+            (await Attempt.findById(req.params.id).select("expiresAt"))
+              .expiresAt
               ? "TIMER_EXPIRY"
               : "MANUAL",
           answers: req.body.answers,

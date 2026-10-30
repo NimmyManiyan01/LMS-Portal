@@ -18,21 +18,33 @@ async function ensureAdminAccount() {
     .split(",")
     .map((value) => value.toLowerCase().trim())
     .filter(Boolean);
-  const password = process.env.ADMIN_PASSWORD || process.env.DEMO_ADMIN_PASSWORD || "";
+  const password =
+    process.env.ADMIN_PASSWORD || process.env.DEMO_ADMIN_PASSWORD || "";
   if (!emails.length || !password) {
-    console.warn("Development admin auto-seed skipped: ADMIN_EMAIL and ADMIN_PASSWORD are not configured.");
+    console.warn(
+      "Development admin auto-seed skipped: ADMIN_EMAIL and ADMIN_PASSWORD are not configured.",
+    );
     return null;
   }
   const admins = [];
   for (const email of emails) {
     const admin = await AdminUser.findOneAndUpdate(
       { email },
-      { $set: { email, passwordHash: hashPassword(password), role: "ADMIN", active: true } },
+      {
+        $set: {
+          email,
+          passwordHash: hashPassword(password),
+          role: "ADMIN",
+          active: true,
+        },
+      },
       { upsert: true, new: true, setDefaultsOnInsert: true },
     ).lean();
     admins.push(admin);
   }
-  console.log(`Seeded Admins ready: ${admins.map((admin) => admin.email).join(", ")}`);
+  console.log(
+    `Seeded Admins ready: ${admins.map((admin) => admin.email).join(", ")}`,
+  );
   return admins;
 }
 

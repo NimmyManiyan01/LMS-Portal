@@ -34,11 +34,26 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
     });
   const isCamera = eventType === "CAMERA_INTERRUPTED";
   const isTab = eventType === "TAB_HIDDEN" || eventType === "FULLSCREEN_EXIT";
-  const isCopyPaste = eventType === "COPY" || eventType === "PASTE" || eventType === "SCREENSHOT";
+  const isCopyPaste =
+    eventType === "COPY" || eventType === "PASTE" || eventType === "SCREENSHOT";
   const isMultiplePerson = eventType === "MULTIPLE_PERSON";
   if (isCamera) {
-    const event = await IntegrityEvent.create({ eventId, studentId: req.student.id, attemptId: attempt.id, eventType, action: "RECORDED", clientTimestamp });
-    return res.status(201).json({ recorded: true, eventId: event.eventId, confirmedCount: 0, action: "RECORDED" });
+    const event = await IntegrityEvent.create({
+      eventId,
+      studentId: req.student.id,
+      attemptId: attempt.id,
+      eventType,
+      action: "RECORDED",
+      clientTimestamp,
+    });
+    return res
+      .status(201)
+      .json({
+        recorded: true,
+        eventId: event.eventId,
+        confirmedCount: 0,
+        action: "RECORDED",
+      });
   }
   if (
     (isTab &&
@@ -51,23 +66,29 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
     ? "integrityCounts.copyPaste"
     : isMultiplePerson
       ? "integrityCounts.multiplePerson"
-    : eventType === "FULLSCREEN_EXIT"
-      ? "integrityCounts.fullscreenExit"
-      : isTab
-      ? "integrityCounts.tabSwitch"
-      : null;
+      : eventType === "FULLSCREEN_EXIT"
+        ? "integrityCounts.fullscreenExit"
+        : isTab
+          ? "integrityCounts.tabSwitch"
+          : null;
   if (!field)
     return res
       .status(400)
       .json({ error: "Unsupported integrity event for this examination" });
-  const counterName = isCopyPaste ? "copyPaste" : isMultiplePerson ? "multiplePerson" : eventType === "FULLSCREEN_EXIT" ? "fullscreenExit" : "tabSwitch";
+  const counterName = isCopyPaste
+    ? "copyPaste"
+    : isMultiplePerson
+      ? "multiplePerson"
+      : eventType === "FULLSCREEN_EXIT"
+        ? "fullscreenExit"
+        : "tabSwitch";
   const threshold = isCopyPaste
     ? exam.integrityRules?.copyPasteThreshold || 3
     : isMultiplePerson
       ? exam.integrityRules?.multiplePersonThreshold || 2
-    : eventType === "FULLSCREEN_EXIT"
-      ? exam.integrityRules?.fullscreenExitThreshold || 2
-    : exam.integrityRules?.tabSwitchThreshold || 2;
+      : eventType === "FULLSCREEN_EXIT"
+        ? exam.integrityRules?.fullscreenExitThreshold || 2
+        : exam.integrityRules?.tabSwitchThreshold || 2;
   let event;
   try {
     event = await IntegrityEvent.create({
@@ -80,8 +101,17 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
     });
   } catch (error) {
     if (error?.code === 11000) {
-      const duplicate = await IntegrityEvent.findOne({ attemptId: attempt.id, eventId });
-      return res.json({ duplicate: true, action: duplicate?.action || "RECORDED", count: duplicate?.newCount || 0, confirmedCount: duplicate?.newCount || 0, threshold: duplicate?.threshold });
+      const duplicate = await IntegrityEvent.findOne({
+        attemptId: attempt.id,
+        eventId,
+      });
+      return res.json({
+        duplicate: true,
+        action: duplicate?.action || "RECORDED",
+        count: duplicate?.newCount || 0,
+        confirmedCount: duplicate?.newCount || 0,
+        threshold: duplicate?.threshold,
+      });
     }
     throw error;
   }
@@ -107,17 +137,22 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
       attemptId: attempt.id,
       studentId: req.student.id,
       reason: "INTEGRITY",
-      reasonDetail: eventType === "TAB_HIDDEN" ? "TAB_SWITCH_THRESHOLD" : eventType === "FULLSCREEN_EXIT" ? "FULLSCREEN_EXIT_THRESHOLD" : eventType === "MULTIPLE_PERSON" ? "MULTIPLE_PERSON_THRESHOLD" : "INTEGRITY_THRESHOLD",
+      reasonDetail:
+        eventType === "TAB_HIDDEN"
+          ? "TAB_SWITCH_THRESHOLD"
+          : eventType === "FULLSCREEN_EXIT"
+            ? "FULLSCREEN_EXIT_THRESHOLD"
+            : eventType === "MULTIPLE_PERSON"
+              ? "MULTIPLE_PERSON_THRESHOLD"
+              : "INTEGRITY_THRESHOLD",
     });
-  res
-    .status(201)
-    .json({
-      recorded: true,
-      eventId: event.eventId,
-      confirmedCount: next,
-      threshold,
-      action,
-    });
+  res.status(201).json({
+    recorded: true,
+    eventId: event.eventId,
+    confirmedCount: next,
+    threshold,
+    action,
+  });
 });
 
 router.get("/:attemptId/integrity-status", authenticate, async (req, res) => {

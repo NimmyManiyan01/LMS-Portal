@@ -29,8 +29,10 @@ export function getAuthToken(isAdmin = false): string | null {
 export function setAuthToken(token: string, isAdmin = false): void {
   if (isAdmin) {
     localStorage.setItem("kgs_admin_token", token)
+    localStorage.removeItem("kgs_student_token")
   } else {
     localStorage.setItem("kgs_student_token", token)
+    localStorage.removeItem("kgs_admin_token")
   }
 
   localStorage.setItem("kgs_token", token)

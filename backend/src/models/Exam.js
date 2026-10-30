@@ -10,7 +10,15 @@ const examSchema = new mongoose.Schema(
     durationMinutes: Number,
     status: {
       type: String,
-      enum: ["DRAFT", "SCHEDULED", "ACTIVE", "COMPLETED", "PUBLISHED", "LIVE", "CLOSED"],
+      enum: [
+        "DRAFT",
+        "SCHEDULED",
+        "ACTIVE",
+        "COMPLETED",
+        "PUBLISHED",
+        "LIVE",
+        "CLOSED",
+      ],
       default: "DRAFT",
     },
     totalQuestions: Number,
