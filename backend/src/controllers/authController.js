@@ -53,8 +53,13 @@ async function registerStudent(req, res) {
     (phone && !/^[6-9]\d{9}$/.test(String(phone))) ||
     String(fullName || "").trim().length < 2 ||
     String(fullName).trim().length > 100 ||
-    (college && (String(college).trim().length < 2 || String(college).trim().length > 150)) ||
-    (passOutYear && (!Number.isInteger(year) || year < current - 10 || year > current + 10)) ||
+    (college &&
+      (String(college).trim().length < 2 ||
+        String(college).trim().length > 150)) ||
+    (passOutYear &&
+      (!Number.isInteger(year) ||
+        year < current - 10 ||
+        year > current + 10)) ||
     privacyAccepted !== true ||
     monitoringAccepted !== true
   )
@@ -193,7 +198,10 @@ async function verifyOtp(req, res) {
     return res
       .status(429)
       .json({ error: "Too many attempts. Please try again later." });
-  if (!/^\d{6}$/.test(submittedOtp) || verification.otpHash !== hashOtp(submittedOtp)) {
+  if (
+    !/^\d{6}$/.test(submittedOtp) ||
+    verification.otpHash !== hashOtp(submittedOtp)
+  ) {
     await EmailVerification.updateOne(
       { _id: verification.id },
       { $inc: { attemptCount: 1 } },
