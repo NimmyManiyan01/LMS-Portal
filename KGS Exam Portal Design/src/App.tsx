@@ -192,11 +192,7 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
 }
 
 const studentNav = [
-  ["grid", "Overview"],
-  ["book", "My examinations"],
-  ["result", "Results"],
-  ["shield", "System check"],
-  ["help", "Help & support"],
+  ["book", "My examinations", "all"],
 ] as const
 
 const adminNav = [
@@ -250,12 +246,16 @@ function Sidebar({
   admin,
   active,
   onNav,
+  studentVerified = false,
 }: {
   admin: boolean
   active: string
   onNav: (v: string) => void
+  studentVerified?: boolean
 }) {
-  const nav = admin ? adminNav : studentNav
+  const nav = admin
+    ? adminNav.map(([icon, label]) => [icon, label, "all"] as const)
+    : studentNav.filter(([, , access]) => access === "all" || studentVerified)
   const [activeAttempts, setActiveAttempts] = useState<number | null>(null)
   useEffect(() => {
     if (!admin) return
@@ -370,13 +370,15 @@ function Topbar({
 }) {
   return (
     <header className="h-16 px-4 sm:px-8 bg-white border-b border-slate-200/80 sticky top-0 z-20 flex items-center justify-between gap-4">
-      <button
-        className="lg:hidden flex items-center justify-center p-2 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer border-none bg-transparent"
-        onClick={openMenu}
-        aria-label="Open menu"
-      >
-        <Icon name="menu" />
-      </button>
+      {admin && (
+        <button
+          className="lg:hidden flex items-center justify-center p-2 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer border-none bg-transparent"
+          onClick={openMenu}
+          aria-label="Open menu"
+        >
+          <Icon name="menu" />
+        </button>
+      )}
 
       <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-xs font-semibold text-emerald-800">
         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -606,7 +608,7 @@ export default function App() {
     email: string
     role: string
   } | null>(null)
-  const [active, setActive] = useState("Overview")
+  const [active, setActive] = useState("My examinations")
   const [menu, setMenu] = useState(false)
   const [student, setStudent] = useState<StudentProfile | null>(null)
   const [dashboardExams, setDashboardExams] = useState<Exam[]>([])
@@ -661,70 +663,22 @@ export default function App() {
       setDashboardLoading(true)
       setDashboardError("")
       try {
-        const api = API_BASE_URL
-        const [meResponse, dashboardResponse] = await Promise.all([
-          authFetch(`${api}/api/auth/me`, { cache: "no-store" }),
-          authFetch(`${api}/api/student/dashboard`, { cache: "no-store" }),
-        ])
-        if (meResponse.status === 401 || dashboardResponse.status === 401) {
+        const meResponse = await authFetch(`${API_BASE_URL}/api/auth/me`, {
+          cache: "no-store",
+        })
+        if (meResponse.status === 401) {
           clearAuthToken()
           navigateEntry("/login")
           return
         }
-        if (!meResponse.ok || !dashboardResponse.ok)
-          throw new Error("Unable to load your dashboard.")
+        if (!meResponse.ok) throw new Error("Unable to load your session.")
         const me = await meResponse.json()
-        const dashboard = await dashboardResponse.json()
         setStudent(me.user)
-        setDashboardSummary(
-          dashboard.summary || {
-            available: 0,
-            upcoming: 0,
-            inProgress: 0,
-            completed: 0,
-            resultsPending: 0,
-          },
-        )
-        const mappedExams = (dashboard.exams || []).map((exam: any) => ({
-          ...exam,
-          id: String(exam.id || exam._id),
-          examCode: exam.code || exam.examCode || String(exam.id || exam._id),
-          subtitle: exam.subtitle || "KGS examination",
-          scheduledDate: exam.scheduledAt
-            ? new Date(exam.scheduledAt).toLocaleString(undefined, {
-                dateStyle: "medium",
-                timeStyle: "short",
-              })
-            : "Date to be announced",
-          totalQuestions:
-            exam.totalQuestions ??
-            exam.questionCount ??
-            exam.questionsCount ??
-            0,
-          totalMarks: exam.totalMarks ?? exam.maximumMarks ?? 0,
-          durationMinutes: exam.durationMinutes ?? 0,
-          negativeMarking: exam.negativeMarking ?? 0,
-          markingScheme: exam.markingScheme,
-          maxAttempts: exam.maxAttempts ?? 1,
-          activeAttempt: exam.activeAttempt || null,
-          integrityProfile: exam.integrityProfile,
-          integrityRules: exam.integrityRules,
-          instructions: exam.instructions || [],
-          sections: exam.sections || [],
-        }))
-        setDashboardExams(mappedExams)
-        if (
-          !initialStatusTabApplied.current &&
-          mappedExams.some((exam: any) => exam.status === "IN_PROGRESS")
-        ) {
-          setTab("In Progress")
-          initialStatusTabApplied.current = true
-        }
       } catch (error) {
         setDashboardError(
           error instanceof Error
             ? error.message
-            : "Unable to load your dashboard.",
+            : "Unable to load your session.",
         )
       } finally {
         setDashboardLoading(false)
@@ -735,7 +689,7 @@ export default function App() {
 
   const switchPortal = (v: boolean) => {
     setAdmin(v)
-    setActive("Overview")
+    setActive(v ? "Overview" : "My examinations")
     setViewState("DASHBOARD")
   }
 
@@ -824,6 +778,7 @@ export default function App() {
               navigateEntry("/admin/dashboard")
             } else {
               setStudent(user)
+              setActive("My examinations")
               navigateEntry("/dashboard")
             }
           }}
@@ -1129,17 +1084,19 @@ export default function App() {
       )}
 
       {/* Sidebar Navigation */}
-      <div className={`shrink-0 ${menu ? "block" : "hidden lg:block"}`}>
-        <Sidebar
-          admin={admin}
-          active={active}
-          onNav={(v) => {
-            setActive(v)
-            setMenu(false)
-            setViewState("DASHBOARD")
-          }}
-        />
-      </div>
+      {admin && (
+        <div className={`shrink-0 ${menu ? "block" : "hidden lg:block"}`}>
+          <Sidebar
+            admin
+            active={active}
+            onNav={(v) => {
+              setActive(v)
+              setMenu(false)
+              setViewState("DASHBOARD")
+            }}
+          />
+        </div>
+      )}
 
       {/* Mobile Backdrop Scrim */}
       {menu && (
@@ -1162,7 +1119,7 @@ export default function App() {
         />
 
         <main className="mx-auto w-full max-w-[1480px] px-4 py-8 sm:px-6 lg:px-9">
-          {!admin && (active === "My examinations" || active === "Examinations") && viewState === "DASHBOARD" ? (
+          {!admin && viewState === "DASHBOARD" ? (
             <StudentExaminations
               onStartExam={handleStartExam}
               onViewMarks={(exam) => {
@@ -1170,8 +1127,6 @@ export default function App() {
                 setViewState("RESULTS")
               }}
             />
-          ) : !admin && active === "Results" && viewState === "DASHBOARD" ? (
-            <ResultsView onBackToDashboard={() => setActive("Overview")} />
           ) : admin && active === "Students" && viewState === "DASHBOARD" ? (
             <AdminStudents />
           ) : admin &&
@@ -1198,31 +1153,19 @@ export default function App() {
             admin ? (
               <AdminDashboard />
             ) : (
-              <StudentDashboard
-                student={student}
-                exams={dashboardExams}
-                summary={dashboardSummary}
-                activeTab={tab}
-                setTab={setTab}
-                examActionError={examActionError}
+              <StudentExaminations
                 onStartExam={handleStartExam}
-                onViewResults={() => {
-                  setSelectedExam(dashboardExams[0])
+                onViewMarks={(exam) => {
+                  setSelectedExam(exam)
                   setViewState("RESULTS")
                 }}
               />
             )
           ) : !admin && viewState === "DASHBOARD" ? (
-            <StudentDashboard
-              student={student}
-              exams={dashboardExams}
-              summary={dashboardSummary}
-              activeTab={tab}
-              setTab={setTab}
-              examActionError={examActionError}
+            <StudentExaminations
               onStartExam={handleStartExam}
-              onViewResults={() => {
-                setSelectedExam(dashboardExams[0])
+              onViewMarks={(exam) => {
+                setSelectedExam(exam)
                 setViewState("RESULTS")
               }}
             />

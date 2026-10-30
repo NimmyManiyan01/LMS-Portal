@@ -4,7 +4,7 @@ export function getApiBaseUrl(): string {
   if (!envUrl || envUrl === "." || envUrl === "./") {
     return envUrl === "." || envUrl === "./"
       ? "."
-      : "https://assesspro-backend-ny01.onrender.com"
+      : "http://localhost:4000"
   }
 
   return envUrl.replace(/\/$/, "")

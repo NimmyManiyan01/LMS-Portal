@@ -196,9 +196,45 @@
   transform: scaleX(1);
 }
 
+.hero-login-button {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
+  color: #fff;
+  transition: color 220ms ease;
+}
+
+.hero-login-button::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0 -20%;
+  background: #fff;
+  transform: skewX(-45deg) scaleX(0);
+  transform-origin: center;
+  transition: transform 500ms ease;
+}
+
+.hero-login-button:hover {
+  color: #000;
+}
+
+.hero-login-button:hover::after {
+  transform: skewX(-45deg) scaleX(1);
+}
+
+.hero-login-button > * {
+  position: relative;
+  z-index: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .public-nav-link,
-  .public-nav-link::after {
+  .public-nav-link::after,
+  .hero-login-button,
+  .hero-login-button::after {
     transition: none;
   }
 }

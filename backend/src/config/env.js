@@ -27,8 +27,7 @@ module.exports = {
     process.env.EMAIL_FROM_NAME ||
     "KGS Exam Portal",
   clientOrigins: (
-    process.env.CLIENT_ORIGIN ||
-    "http://localhost:8443,https://assesspro-1-d865.onrender.com,https://assesspro-1-i07n.onrender.com,https://assesspro-2j7q.onrender.com"
+    process.env.CLIENT_ORIGIN || "http://localhost:8443,http://localhost:5173"
   )
     .split(",")
     .map((origin) => origin.trim())

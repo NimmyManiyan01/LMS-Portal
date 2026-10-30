@@ -18,9 +18,6 @@ const allowedClientOrigins = new Set(
     ...clientOrigins,
     "http://localhost:8443",
     "http://localhost:5173",
-    "https://assesspro-1-d865.onrender.com",
-    "https://assesspro-1-i07n.onrender.com",
-    "https://assesspro-2j7q.onrender.com",
   ]
     .map((origin) => origin.trim().replace(/\/$/, ""))
     .filter(Boolean),
@@ -36,10 +33,7 @@ function isAllowedOrigin(origin) {
     const host = url.hostname;
     if (
       host === "localhost" ||
-      host === "127.0.0.1" ||
-      host.endsWith(".onrender.com") ||
-      host.endsWith(".vercel.app") ||
-      host.endsWith(".netlify.app")
+      host === "127.0.0.1"
     ) {
       return true;
     }

@@ -42,7 +42,6 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [selected, setSelected] = useState<ApiExam | null>(null)
-  const [showNoticeToast, setShowNoticeToast] = useState(true)
 
   const load = async () => {
     setLoading(true)
@@ -92,8 +91,7 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
 
   return (
     <main className="w-full flex flex-col gap-6 font-sans text-slate-900">
-      {/* Sync Toast Notice */}
-      {showNoticeToast && (
+      {false && (
         <div className="flex items-center justify-between max-w-md w-full bg-blue-600/90 backdrop-blur-md text-white px-3.5 py-2.5 rounded-xl shadow-md transition-all">
           <div className="flex items-center gap-2 min-w-0">
             <svg

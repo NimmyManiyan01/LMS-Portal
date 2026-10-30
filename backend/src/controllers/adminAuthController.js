@@ -134,9 +134,16 @@ async function requestOtp(req, res) {
     await verification.save();
   } catch (error) {
     verification.deliveryStatus = "FAILED";
-    verification.deliveryError = error.message;
+    const providerMessage = error?.providerResponse?.message;
+    verification.deliveryError = providerMessage || error.message;
     await verification.save();
-    return res.status(503).json({ ...generic, delivery: "FAILED" });
+    return res.status(503).json({
+      ...generic,
+      delivery: "FAILED",
+      ...(process.env.NODE_ENV !== "production" && {
+        deliveryError: providerMessage || error.message,
+      }),
+    });
   }
   res.json({
     ...generic,

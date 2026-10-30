@@ -1,0 +1,4 @@
+[mcp_servers.google-stitch]
+command = "C:\\Users\\harsh\\AppData\\Local\\nvm\\v24.19.0\\npx.cmd"
+args = ["-y", "@google/stitch", "mcp", "start"]
+env_vars = ["STITCH_API_KEY"]

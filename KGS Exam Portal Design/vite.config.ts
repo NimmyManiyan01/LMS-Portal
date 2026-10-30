@@ -69,11 +69,11 @@ export default defineConfig(({ mode }) => {
 
       proxy: {
         "/api": {
-          target: "https://assesspro-backend-ny01.onrender.com",
+          target: "http://localhost:4000",
 
           changeOrigin: true,
 
-          secure: true,
+          secure: false,
         },
       },
 

@@ -25,7 +25,7 @@ export function SubmissionConfirmation({
   onViewMarks,
 }: Props) {
   const [showToast, setShowToast] = useState(true)
-  const [showFeedback, setShowFeedback] = useState(true)
+  const [showFeedback, setShowFeedback] = useState(false)
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState("")
   const [feedbackSaving, setFeedbackSaving] = useState(false)
@@ -204,18 +204,10 @@ export function SubmissionConfirmation({
         <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
             className="h-11 w-full sm:w-auto px-6 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
-            onClick={onBackToDashboard}
+            onClick={() => setShowFeedback(true)}
           >
-            Back to Dashboard
+            Next
           </button>
-          {resultsReleased && onViewMarks && (
-            <button
-              className="h-11 w-full sm:w-auto px-6 text-xs sm:text-sm font-semibold rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
-              onClick={onViewMarks}
-            >
-              View Marks
-            </button>
-          )}
         </div>
       </div>
     </div>

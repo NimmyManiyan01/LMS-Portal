@@ -55,6 +55,8 @@ export interface StudentProfile {
 
   profileVerified: boolean
 
+  role?: "STUDENT"
+
   avatarUrl?: string
 }
 

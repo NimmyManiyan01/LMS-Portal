@@ -108,6 +108,11 @@ export function ExamPlayer({
   const consecutiveMultipleFacesRef = useRef(0)
   const lastMultiplePersonIncidentRef = useRef(0)
 
+  useEffect(() => {
+    window.kgsDesktop?.setExamMode(true)
+    return () => window.kgsDesktop?.setExamMode(false)
+  }, [])
+
   const recordIntegrityEvent = async (
     eventId: string,
     eventType: "TAB_HIDDEN" | "FULLSCREEN_EXIT" | "COPY" | "PASTE" | "SCREENSHOT" | "MULTIPLE_PERSON",
@@ -142,6 +147,7 @@ export function ExamPlayer({
       if (result.action === "WARNING") setShowWarningModal(true)
       if (result.action === "AUTO_SUBMIT") {
         finalizingRef.current = true
+        stopCamera()
         onIntegrityAutoSubmit?.()
       }
     } catch {
@@ -346,8 +352,14 @@ export function ExamPlayer({
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "PrintScreen") return
+      const key = event.key.toLowerCase()
+      const captureShortcut =
+        event.key === "PrintScreen" ||
+        (event.shiftKey && event.metaKey && key === "s") ||
+        (event.shiftKey && event.ctrlKey && key === "s")
+      if (!captureShortcut) return
       event.preventDefault()
+      event.stopImmediatePropagation()
       protectContent("SCREENSHOT")
       void navigator.clipboard?.writeText("").catch(() => undefined)
     }
@@ -433,6 +445,7 @@ export function ExamPlayer({
         if (prev <= 1) {
           clearInterval(interval)
           finalizingRef.current = true
+          stopCamera()
           onSubmitExam(answers, tabSwitches, true)
           localStorage.removeItem(storageKey)
           return 0
@@ -446,6 +459,8 @@ export function ExamPlayer({
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
+        setContentObscured(true)
+        setLastIntegrityType("TAB_HIDDEN")
         const now = Date.now()
         if (now - lastVisibilityIncident.current < 1500) return
         lastVisibilityIncident.current = now
@@ -456,9 +471,23 @@ export function ExamPlayer({
       }
     }
 
-    window.addEventListener("visibilitychange", handleVisibilityChange)
+    const handleWindowBlur = () => {
+      setContentObscured(true)
+      setLastIntegrityType("TAB_HIDDEN")
+      const now = Date.now()
+      if (now - lastVisibilityIncident.current < 1500) return
+      lastVisibilityIncident.current = now
+      const eventId = `blur-${attemptId}-${now}-${crypto.randomUUID()}`
+      setShowWarningModal(true)
+      pendingIntegrityEvents.current.set(eventId, 0)
+      void recordIntegrityEvent(eventId, "TAB_HIDDEN")
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange, true)
+    window.addEventListener("blur", handleWindowBlur, true)
     return () => {
-      window.removeEventListener("visibilitychange", handleVisibilityChange)
+      document.removeEventListener("visibilitychange", handleVisibilityChange, true)
+      window.removeEventListener("blur", handleWindowBlur, true)
       pendingIntegrityEvents.current.forEach((timer) => {
         if (timer) window.clearTimeout(timer)
       })
@@ -594,7 +623,19 @@ export function ExamPlayer({
   }
 
   return (
-    <div className="relative min-h-screen select-none bg-slate-50 p-3 sm:p-6 font-sans text-slate-900 flex flex-col gap-4">
+    <div className="relative min-h-screen select-none bg-slate-50 p-3 sm:p-6 font-sans text-slate-900 flex flex-col gap-4 print:hidden">
+      <div
+        className="pointer-events-none fixed inset-0 z-[35] overflow-hidden opacity-[0.075]"
+        aria-hidden="true"
+      >
+        <div className="absolute inset-[-30%] grid rotate-[-24deg] grid-cols-3 content-around gap-x-12 gap-y-20 text-center text-xs font-black uppercase tracking-[0.18em] text-slate-950">
+          {Array.from({ length: 36 }, (_, index) => (
+            <span key={index} className="whitespace-nowrap">
+              {candidateName} · {attemptId.slice(-8)}
+            </span>
+          ))}
+        </div>
+      </div>
       {contentObscured && (
         <div className="fixed inset-0 z-[45] flex items-center justify-center bg-slate-950 p-6 text-center text-white" aria-live="assertive">
           <div className="max-w-md">
@@ -806,6 +847,7 @@ export function ExamPlayer({
             className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-800 transition-all cursor-pointer shadow-sm shadow-red-500/20 border-none"
             onClick={() => {
               finalizingRef.current = true
+              stopCamera()
               onSubmitExam(answers, tabSwitches)
             }}
           >

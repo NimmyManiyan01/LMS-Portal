@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"secondary-fixed":"#6ffbbe","background":"#faf8ff","inverse-surface":"#283044","on-primary":"#ffffff","on-tertiary-container":"#ffd4a4","outline":"#777587","on-background":"#131b2e","on-secondary-container":"#00714d","on-error-container":"#93000a","on-secondary-fixed-variant":"#005236","on-tertiary-fixed":"#2a1700","surface-container-low":"#f2f3ff","surface-bright":"#faf8ff","tertiary-fixed":"#ffddb8","on-surface-variant":"#464555","tertiary":"#684000","primary":"#3525cd","primary-container":"#4f46e5","outline-variant":"#c7c4d8","inverse-primary":"#c3c0ff","secondary-container":"#6cf8bb","on-tertiary":"#ffffff","surface-variant":"#dae2fd","on-secondary-fixed":"#002113","on-secondary":"#ffffff","surface-dim":"#d2d9f4","error":"#ba1a1a","on-error":"#ffffff","surface-tint":"#4d44e3","on-primary-fixed-variant":"#3323cc","tertiary-fixed-dim":"#ffb95f","on-tertiary-fixed-variant":"#653e00","surface-container":"#eaedff","primary-fixed":"#e2dfff","surface-container-highest":"#dae2fd","surface-container-lowest":"#ffffff","primary-fixed-dim":"#c3c0ff","on-primary-fixed":"#0f0069","surface-container-high":"#e2e7ff","on-primary-container":"#dad7ff","on-surface":"#131b2e","secondary-fixed-dim":"#4edea3","error-container":"#ffdad6","inverse-on-surface":"#eef0ff","surface":"#faf8ff","secondary":"#006c49","tertiary-container":"#885500"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"space-lg":"1.5rem","space-md":"1rem","space-xl":"2rem","gutter-sm":"1rem","margin-sm":"1rem","gutter":"1.5rem","space-xs":"0.25rem","space-sm":"0.5rem","margin":"2rem"},fontFamily:{"headline-xl":["Outfit"],"label-md":["Outfit"],"headline-md":["Outfit"],"headline-lg-mobile":["Outfit"],"headline-lg":["Outfit"],"headline-sm":["Outfit"],"body-md":["Outfit"],"label-sm":["Outfit"],"body-sm":["Outfit"],"headline-xl-mobile":["Outfit"],"label-lg":["Outfit"],"body-lg":["Outfit"]},fontSize:{"headline-xl":["40px",{"lineHeight":"48px","fontWeight":"700"}],"label-md":["12px",{"lineHeight":"16px","fontWeight":"600"}],"headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","fontWeight":"600"}],"headline-lg":["32px",{"lineHeight":"40px","fontWeight":"600"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","fontWeight":"500"}],"body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-xl-mobile":["30px",{"lineHeight":"38px","fontWeight":"700"}],"label-lg":["14px",{"lineHeight":"20px","fontWeight":"600"}],"body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface"><header class="fixed top-0 left-0 right-0 z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter flex items-center justify-between"><div class="flex items-center gap-space-md"><img alt="DCL Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VWqrVeBc4ojab4Qy6XPFZ2DcjyEA4pDd1q2erH8_06_xeRxUOQ0irY1pTOm4HVWUaexGycwMncKYwf9dDcmvRchXSkqc0VkeunBiH1NY4UAqSG_-er1zDyfhKru6dmL6_eJXwFn22SnGEe8zIdOv-Z2CK_F-aJAHL7pVU_emVWuTyQnuHgkjr2MErljrs3_DunLfmFfJ73RARvahHCUAEdTdD9tFU4P8xhMuQXGtNX"/><div class="flex flex-col"><span class="font-label-lg text-label-lg text-on-surface tracking-tight leading-none">Dhee Coding Lab</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none mt-0.5">Student Career Portal</span></div><div class="hidden xl:flex items-center gap-space-xs ml-space-sm px-space-sm py-1 bg-surface-container rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span><span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Batch FS-2026-A | Front-End &amp; React</span></div></div><div class="flex items-center gap-space-sm sm:gap-space-md"><div class="flex items-center gap-1.5 px-space-sm sm:px-space-md py-1 bg-surface-container-low rounded-full shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><span class="text-xs">🪙</span><span class="font-label-md text-label-md text-on-surface font-bold">1,250</span><span class="hidden sm:inline font-label-sm text-label-sm text-on-surface-variant">Coins</span></div><button aria-label="Notifications" class="relative p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-error ring-2 ring-surface"></span></button><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVc3G7kAyTq3MiZtFLjjgN-kfKxeB3XLo4ky7GxNVEAk7Rv432X8DtnXGT2Bh8FoFog7YRuvA6q5SvsDxI5Tjp5ZWNWHIaQcXCY0Mw6nrlNfdXuc7UPcluA_RyKJcSumoPMcuVEz9JsXLPTGjnIEs_Yl2iQtBpToF3JbkRzzFuW108rUU-h7rVy2WPeWev8nF4HqgtUycpDkzO9QhzUh3c-40ZO3XfKtG-CCtb3JY"/><div class="hidden md:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface leading-none">Aarav Sharma</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none mt-0.5">FS26-042</span></div></div></div></div></header><aside class="hidden lg:flex fixed left-0 top-16 bottom-0 w-64 bg-surface-container-low z-40 flex-col pt-space-md pb-space-lg justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)] overflow-y-auto"><div class="flex flex-col gap-space-sm px-space-md"><div class="px-space-sm py-1 text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Workspace</div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-bold shadow-[0_10px_15px_-3px_rgba(79,70,229,0.08)]"><a class="flex items-center px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="home" href="#">Home</a><a class="flex items-center px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="careers" href="#">Careers &amp; Drives</a><a class="flex items-center px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="applications-and-interviews" href="#">Applications &amp; Interviews</a><a class="flex items-center px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="performance-and-tests" href="#">Performance &amp; Tests</a><a class="flex items-center px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="referrals-and-wallet-ledger" href="#">Referrals &amp; Wallet Ledger</a><a class="flex items-center px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="bank-kyc-and-verification" href="#">Bank KYC &amp; Verification</a><a aria-current="page" class="flex items-center px-space-md py-2.5 rounded-xl transition-all bg-primary-container text-on-primary font-bold shadow-[0_10px_15px_-3px_rgba(79,70,229,0.08)]" data-path="mentorship-and-classes" href="#">Mentorship &amp; Classes</a><a class="flex items-center px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="student-employability-profile" href="#">Employability Profile &amp; QR</a></nav></div><div class="px-space-md pt-space-md"><div class="p-space-md rounded-xl bg-surface-container flex flex-col gap-1"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Assigned Mentor</span><span class="font-label-md text-label-md text-on-surface">Devendra R. (Ex-Swiggy)</span><span class="font-body-sm text-body-sm text-secondary font-medium">Available 4:00 - 7:00 PM</span></div></div></aside><nav class="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] px-space-xs py-2 flex items-center justify-around overflow-x-auto" data-active-classes="bg-primary-container text-on-primary font-bold"><a class="flex flex-col items-center p-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-sm text-label-sm whitespace-nowrap" data-path="home" href="#">Home</a><a class="flex flex-col items-center p-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-sm text-label-sm whitespace-nowrap" data-path="careers" href="#">Careers</a><a class="flex flex-col items-center p-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-sm text-label-sm whitespace-nowrap" data-path="referrals-and-wallet-ledger" href="#">Wallet</a><a class="flex flex-col items-center p-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-sm text-label-sm whitespace-nowrap" data-path="bank-kyc-and-verification" href="#">KYC</a><a aria-current="page" class="flex flex-col items-center p-1.5 rounded-xl transition-all whitespace-nowrap bg-primary-container text-on-primary font-bold" data-path="mentorship-and-classes" href="#">Classes</a><a class="flex flex-col items-center p-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-sm text-label-sm whitespace-nowrap" data-path="student-employability-profile" href="#">Profile QR</a></nav><div class="lg:pl-64"><main class="relative pt-16 pb-20 lg:pb-0 w-full min-h-screen bg-surface"><div class="flex flex-col w-full">
+<div class="w-full px-gutter-sm sm:px-gutter lg:px-margin py-space-lg flex flex-col gap-space-xl max-w-7xl mx-auto">
+<!-- Top Headline Banner with Asymmetric Badge Strip -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm tracking-wide">
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+            ACADEMIC SESSION ACTIVE
+          </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">PRD Sec 6.9 – 6.11</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Mentorship &amp; Live Academic Classes</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+          Batch FS-2026-A • Guided mentorship, lab sessions, and dynamic attendance verification for placement readiness.
+        </p>
+</div>
+<!-- Quick Placement Eligibility Alert Pill -->
+<div class="flex items-center gap-space-sm bg-surface-container-low p-space-sm rounded-2xl shadow-sm self-start md:self-auto">
+<div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">verified</span>
+</div>
+<div class="flex flex-col pr-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Drive Eligibility</span>
+<span class="font-label-md text-label-md text-secondary font-bold">Compliant • 94% Tracked</span>
+</div>
+</div>
+</div>
+<!-- Top Grid: Assigned Mentor Spotlight + Dynamic QR Code Nonce Engine -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Mentor Spotlight Card (PRD 6.10) - 7 cols -->
+<div class="lg:col-span-7 flex flex-col justify-between bg-surface-container-lowest rounded-3xl p-space-lg sm:p-space-xl shadow-sm relative overflow-hidden">
+<div class="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-primary-fixed/30 blur-2xl pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between pb-space-md">
+<span class="px-3 py-1 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm font-semibold tracking-wider uppercase">
+              Assigned Career Mentor • PRD 6.10
+            </span>
+<span class="flex items-center gap-1.5 font-label-sm text-label-sm text-secondary font-semibold bg-secondary/10 px-3 py-1 rounded-full">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+              Slots Open Today
+            </span>
+</div>
+<div class="flex flex-col sm:flex-row gap-space-lg items-start sm:items-center pt-space-xs">
+<div class="relative shrink-0">
+<img class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover shadow-sm" data-alt="Professional portrait photograph of a confident male senior software engineering mentor smiling in a modern creative technology studio, ambient indigo backlighting, crisp depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJB5mjC2_ekurC8b5tSGu3EmIBnPrbL6zL2SvJRmzNuHyHjulVDUreuiLT4z0YGuvKkezs4pp0BRwwDD938MWPcaRN4usrwitrtoxJItU3qj2mklr9QAMTBDcVAJ7peGoyMaHPoPFy0d-HWsTM1n4xuiBqioIRR2UIKCKiSBlncKWpYhErU9Pxy7PbFJ9It7kM6_Lv3RmWkGfrsIudhmuk3GHWYRycxC6ROmh4BYM"/>
+<div class="absolute -bottom-1.5 -right-1.5 bg-surface-container-lowest p-1 rounded-xl shadow-sm">
+<span class="inline-flex p-1 rounded-lg bg-primary-container text-on-primary">
+<span class="material-symbols-outlined text-[16px]">code</span>
+</span>
+</div>
+</div>
+<div class="flex flex-col">
+<div class="flex items-baseline gap-2">
+<h2 class="font-headline-md text-headline-md text-on-surface">Devendra R.</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">(Ex-Swiggy)</span>
+</div>
+<p class="font-label-lg text-label-lg text-primary font-semibold">Senior Staff Engineer • Full-Stack Architect</p>
+<div class="mt-2 flex flex-wrap items-center gap-y-1 gap-x-space-md text-on-surface-variant font-body-sm text-body-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline">schedule</span>
+                  Next 1-on-1: <strong class="text-on-surface ml-0.5">Today, 4:00 PM – 7:00 PM IST</strong>
+</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline">thumb_up</span>
+                  4.95 Rating (128 reviews)
+                </span>
+</div>
+</div>
+</div>
+<!-- Highlight Box for Session Focus -->
+<div class="mt-space-lg p-space-md rounded-2xl bg-surface-container-low flex flex-col gap-1.5">
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">Current Focus Track</span>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+              “React reconciliation profiling, caching strategies, and system design whiteboarding mock dry-runs for tier-1 product organizations.”
+            </p>
+</div>
+</div>
+<!-- Action Row -->
+<div class="flex flex-wrap items-center gap-space-sm pt-space-lg mt-space-md">
+<button class="flex-1 sm:flex-none px-space-md py-3 rounded-xl bg-primary text-on-primary font-label-md text-label-md shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2" id="bookModalBtn">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+            Book 1-on-1 Code Review (20 mins)
+          </button>
+<button class="px-space-md py-3 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-container-highest transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+            Message Mentor
+          </button>
+<button class="px-space-md py-3 rounded-xl bg-surface-container text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-1 font-label-md text-label-md">
+<span>Goals &amp; Feedback</span>
+<span class="material-symbols-outlined text-[16px]">north_east</span>
+</button>
+</div>
+</div>
+<!-- Dynamic Rotating QR Attendance (PRD 6.9 & Flow 7) - 5 cols -->
+<div class="lg:col-span-5 bg-surface-container-lowest rounded-3xl p-space-lg sm:p-space-xl shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">qr_code_scanner</span>
+<span class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Dynamic QR Attendance</span>
+</div>
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">security</span> Anti-Proxy Active
+          </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Scan via Mobile App or Classroom Terminal. Rotates automatically via cryptographic nonce token to prevent duplicate proxy logins.
+        </p>
+<!-- QR Display Container with SVG QR Simulation & Live Pulse -->
+<div class="my-space-md flex flex-col items-center justify-center p-space-lg rounded-2xl bg-surface-container-low relative">
+<div class="relative bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex items-center justify-center">
+<!-- Crisp bespoke SVG geometric QR matrix with rotation animation feedback -->
+<svg class="w-40 h-40 text-on-surface transition-all duration-300" fill="none" id="qrMatrixSvg" viewbox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+<!-- Corner Finder 1 -->
+<rect height="44" rx="6" stroke="currentColor" stroke-width="6" width="44" x="8" y="8"></rect>
+<rect fill="currentColor" height="20" rx="3" width="20" x="20" y="20"></rect>
+<!-- Corner Finder 2 -->
+<rect height="44" rx="6" stroke="currentColor" stroke-width="6" width="44" x="108" y="8"></rect>
+<rect fill="currentColor" height="20" rx="3" width="20" x="120" y="20"></rect>
+<!-- Corner Finder 3 -->
+<rect height="44" rx="6" stroke="currentColor" stroke-width="6" width="44" x="8" y="108"></rect>
+<rect fill="currentColor" height="20" rx="3" width="20" x="20" y="120"></rect>
+<!-- Data Dots & Alignment Patterns -->
+<rect fill="currentColor" height="10" rx="2" width="10" x="64" y="12"></rect>
+<rect fill="currentColor" height="12" rx="2" width="12" x="84" y="12"></rect>
+<rect fill="currentColor" height="14" rx="2" width="14" x="64" y="32"></rect>
+<rect fill="currentColor" height="8" rx="2" width="8" x="88" y="34"></rect>
+<rect fill="currentColor" height="14" rx="2" width="14" x="16" y="64"></rect>
+<rect fill="currentColor" height="10" rx="2" width="10" x="38" y="70"></rect>
+<rect fill="currentColor" height="12" rx="2" width="12" x="16" y="88"></rect>
+<rect fill="currentColor" height="8" rx="2" width="8" x="36" y="90"></rect>
+<!-- Center Core Nonce Identifier -->
+<rect fill="#3525cd" height="40" rx="6" width="40" x="60" y="60"></rect>
+<circle cx="80" cy="80" fill="#ffffff" r="10"></circle>
+<!-- Right & Bottom Bits -->
+<rect fill="currentColor" height="10" rx="2" width="10" x="112" y="64"></rect>
+<rect fill="currentColor" height="12" rx="2" width="16" x="130" y="72"></rect>
+<rect fill="currentColor" height="14" rx="2" width="14" x="110" y="90"></rect>
+<rect fill="currentColor" height="12" rx="2" width="12" x="134" y="92"></rect>
+<rect fill="currentColor" height="12" rx="2" width="12" x="64" y="112"></rect>
+<rect fill="currentColor" height="12" rx="2" width="12" x="84" y="116"></rect>
+<rect fill="currentColor" height="14" rx="2" width="14" x="68" y="136"></rect>
+<rect fill="currentColor" height="10" rx="2" width="10" x="92" y="134"></rect>
+<rect fill="currentColor" height="16" rx="3" width="16" x="114" y="120"></rect>
+<rect fill="currentColor" height="10" rx="2" width="10" x="138" y="122"></rect>
+<rect fill="currentColor" height="10" rx="2" width="14" x="124" y="142"></rect>
+</svg>
+<!-- Refresh Spin Indicator Badge -->
+<div class="absolute -bottom-2 -right-2 bg-secondary text-on-secondary px-2 py-0.5 rounded-full font-label-sm text-label-sm shadow flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] animate-spin">sync</span>
+<span>LIVE</span>
+</div>
+</div>
+<!-- Nonce and Countdown Meter -->
+<div class="w-full mt-space-md flex flex-col gap-1.5">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant font-mono">TOKEN: <span class="text-primary font-bold" id="nonceCode">#DCL-9842A</span></span>
+<span class="text-on-surface font-semibold flex items-center gap-1">
+                Expires in <span class="text-error font-mono font-bold" id="countdownTimer">28s</span>
+</span>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-1000 ease-linear" id="countdownBar" style="width: 93%;"></div>
+</div>
+</div>
+</div>
+<!-- Student Verification Notice -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified_user</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Device GPS Locked • Room 3B</span>
+</div>
+<button class="text-primary hover:text-on-surface font-label-sm text-label-sm underline transition-colors" id="manualCodeBtn">
+            Use OTP Fallback
+          </button>
+</div>
+</div>
+</div>
+<!-- Middle Section: Class Schedule, Specialized Batch (6.11) & Attendance Analytics (Flow 5 & 7) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Upcoming & Live Classes List (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Academic Schedule &amp; Lab Sessions</h3>
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold">3 Today</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Batch Timeline: Week 14 / 24</span>
+</div>
+<!-- Class Card 1: Live / Imminent Class -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md border-l-4 border-l-primary hover:shadow-md transition-all">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed shrink-0 font-bold">
+<span class="material-symbols-outlined text-[24px]">terminal</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-md bg-error/10 text-error font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-ping"></span> Starts in 45 mins
+                  </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Core Curriculum</span>
+</div>
+<h4 class="font-label-lg text-label-lg sm:font-headline-sm sm:text-headline-sm text-on-surface mt-1">
+                  Advanced React State Management &amp; RTK Query
+                </h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+                  Trainer: <strong class="text-on-surface">Priya S.</strong> • Location: <strong class="text-on-surface">Lab 3B / Zoom Hybrid</strong>
+</span>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-1 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<span class="material-symbols-outlined text-[16px] text-outline">schedule</span>
+<span class="font-label-md text-label-md text-on-surface font-mono">11:30 AM – 1:30 PM</span>
+</div>
+</div>
+<!-- Bottom interactive bar -->
+<div class="flex flex-wrap items-center justify-between pt-space-xs gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-lg bg-surface-container font-medium text-on-surface-variant">Redux Toolkit</span>
+<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-lg bg-surface-container font-medium text-on-surface-variant">Cache Invalidation</span>
+<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-lg bg-surface-container font-medium text-on-surface-variant">Optimistic UI</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-2 rounded-xl bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                Download Notes
+              </button>
+<button class="px-4 py-2 rounded-xl bg-primary text-on-primary font-label-sm text-label-sm shadow hover:bg-primary-container transition-colors flex items-center gap-1.5 font-bold">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                Join Live Class
+              </button>
+</div>
+</div>
+</div>
+<!-- Class Card 2: Specialized Cohort Assigned by Admin (PRD 6.11) -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md hover:shadow-md transition-all relative overflow-hidden">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed shrink-0">
+<span class="material-symbols-outlined text-[24px]">hub</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-0.5 rounded-md bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">auto_awesome</span> Specialized Cohort • PRD 6.11
+                  </span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Admin Enrolled</span>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface mt-1">
+                  Complementary Specialized Batch: System Architecture &amp; Distributed Caching
+                </h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+                  Instructor: <strong class="text-on-surface">Anand K.</strong> • Schedule: <strong class="text-on-surface">Tomorrow, 10:00 AM – 12:00 PM IST</strong>
+</span>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-1 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<span class="material-symbols-outlined text-[16px] text-outline">event</span>
+<span class="font-label-md text-label-md text-on-surface font-mono">Tomorrow 10:00 AM</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between pt-space-xs gap-space-sm">
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-outline">storage</span>
+<span>Redis Cluster • Write-Through Patterns • Distributed Locks</span>
+</div>
+<button class="px-3.5 py-1.5 rounded-xl bg-surface-container-high text-on-surface font-label-sm text-label-sm hover:bg-surface-container-highest transition-colors flex items-center gap-1">
+<span>View Cohort Syllabus</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Class Card 3: Mock Technical Interview Dry Run -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md hover:shadow-md transition-all">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface shrink-0">
+<span class="material-symbols-outlined text-[24px]">co_present</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-md bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+                    Interview Readiness
+                  </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">1:1 Evaluation Slot</span>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface mt-1">
+                  Mock Technical Interview Dry Run (Simulated Product Round)
+                </h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+                  Lead Interviewer: <strong class="text-on-surface">Devendra R.</strong> • Mode: <strong class="text-on-surface">Private Whiteboard Session</strong>
+</span>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-1 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<span class="material-symbols-outlined text-[16px] text-outline">calendar_today</span>
+<span class="font-label-md text-label-md text-on-surface font-mono">Friday 2:30 PM</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between pt-space-xs gap-space-sm">
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Rubric: DSA Problem Solving, Time Complexity, Clean React Hooks</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-bold">Calendar Invite Confirmed ✓</span>
+</div>
+</div>
+</div>
+<!-- Attendance History & Streak Tracker (PRD 6.9 & Flow 7) - 5 Cols -->
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Attendance &amp; Streak Metrics</h3>
+<span class="font-label-sm text-label-sm text-secondary font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">local_fire_department</span> 18-Day Streak!
+          </span>
+</div>
+<div class="bg-surface-container-lowest rounded-3xl p-space-lg sm:p-space-xl shadow-sm flex flex-col gap-space-lg">
+<!-- Top Row: Radial / Donut SVG & Key Metrics -->
+<div class="flex items-center gap-space-lg">
+<!-- High Polish SVG Donut Progress Ring -->
+<div class="relative w-28 h-28 shrink-0 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 100 100">
+<circle class="text-surface-container" cx="50" cy="50" fill="none" r="40" stroke="currentColor" stroke-width="9"></circle>
+<circle class="text-secondary" cx="50" cy="50" fill="none" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="15.07" stroke-linecap="round" stroke-width="9"></circle>
+</svg>
+<div class="absolute flex flex-col items-center justify-center">
+<span class="font-headline-md text-headline-md text-on-surface font-bold leading-none">94%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium mt-0.5">Monthly</span>
+</div>
+</div>
+<!-- Stats Description -->
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Placement Drive Rule</span>
+<p class="font-body-sm text-body-sm text-on-surface font-medium leading-tight">
+                Minimum <strong class="text-secondary">≥ 85% attendance required</strong> to unlock Tier-1 campus placement drives.
+              </p>
+<div class="mt-1 flex items-center gap-1.5 font-label-sm text-label-sm text-secondary">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>You are currently +9% above cutoff</span>
+</div>
+</div>
+</div>
+<!-- Status Breakdown Counters -->
+<div class="grid grid-cols-3 gap-space-sm pt-space-xs">
+<div class="p-space-md rounded-2xl bg-secondary-fixed/30 flex flex-col items-center text-center">
+<span class="font-headline-md text-headline-md text-on-secondary-fixed font-bold leading-none">42</span>
+<span class="font-label-sm text-label-sm text-on-secondary-fixed-variant mt-1 font-semibold">Attended</span>
+</div>
+<div class="p-space-md rounded-2xl bg-surface-container-high flex flex-col items-center text-center">
+<span class="font-headline-md text-headline-md text-on-surface font-bold leading-none">2</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1 font-semibold">Excused Leave</span>
+</div>
+<div class="p-space-md rounded-2xl bg-error-container/40 flex flex-col items-center text-center">
+<span class="font-headline-md text-headline-md text-error font-bold leading-none">1</span>
+<span class="font-label-sm text-label-sm text-error mt-1 font-semibold">Unexcused Missed</span>
+</div>
+</div>
+<!-- 30-Day Heatmap / Mini Activity Sparkline -->
+<div class="flex flex-col gap-2 pt-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Recent 14 Sessions Attendance Ledger</span>
+<span class="text-secondary font-medium">96.4% consistency</span>
+</div>
+<div class="grid grid-cols-7 sm:grid-cols-14 gap-1.5">
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold" title="Day 1: Present">✓</div>
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold" title="Day 2: Present">✓</div>
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold" title="Day 3: Present">✓</div>
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold" title="Day 4: Present">✓</div>
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold" title="Day 5: Present">✓</div>
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold" title="Day 6: Present">✓</div>
+<div class="h-6 rounded bg-surface-container-high flex items-center justify-center text-on-surface-variant text-[9px] font-bold" title="Day 7: Weekend">−</div>
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold" title="Day 8: Present">✓</div>
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold" title="Day 9: Present">✓</div>
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold" title="Day 10: Present">✓</div>
+<div class="h-6 rounded bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center text-[9px] font-bold" title="Day 11: Excused">Ex</div>
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold" title="Day 12: Present">✓</div>
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold" title="Day 13: Present">✓</div>
+<div class="h-6 rounded bg-secondary flex items-center justify-center text-on-secondary text-[9px] font-bold ring-2 ring-primary ring-offset-1" title="Day 14 (Today): Present">✓</div>
+</div>
+</div>
+<!-- Kiosk Attendance Manual Sync Action -->
+<div class="pt-space-xs flex items-center justify-between border-t-0">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Missed biometric tap in Lab?</span>
+<button class="font-label-sm text-label-sm text-primary font-bold hover:underline flex items-center gap-1">
+              Submit Leave Exemption Form <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Section: Student Mentorship Feedback Form (PRD 6.10 & Quality Assurance Loop) -->
+<div class="bg-surface-container-lowest rounded-3xl p-space-lg sm:p-space-xl shadow-sm flex flex-col gap-space-lg">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-tertiary">rate_review</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Student Mentorship Feedback Form</h3>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold">PRD 6.10</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            Evaluate your last completed 1-on-1 session with <strong class="text-on-surface">Devendra R.</strong> (Held Yesterday at 5:30 PM • Topic: Redux Sagas vs Thunk Architecture).
+          </p>
+</div>
+<!-- Anonymity Toggle -->
+<label class="flex items-center gap-3 cursor-pointer self-start md:self-auto bg-surface-container-low px-4 py-2.5 rounded-2xl">
+<input checked="" class="sr-only peer" id="anonToggle" type="checkbox"/>
+<div class="w-10 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface peer-checked:bg-secondary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border after:rounded-full after:h-4 after:w-4 after:transition-all relative"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Submit Anonymously</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Visible only to Academic Dean</span>
+</div>
+</label>
+</div>
+<!-- Feedback Interaction Elements -->
+<form class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg" id="feedbackForm" onsubmit="event.preventDefault(); handleFeedbackSubmit();">
+<!-- Star Rating & Core Metrics - 4 cols -->
+<div class="lg:col-span-4 flex flex-col gap-space-md p-space-md rounded-2xl bg-surface-container-low">
+<div>
+<label class="font-label-md text-label-md text-on-surface font-bold block mb-1">Session Effectiveness Rating</label>
+<div class="flex items-center gap-1.5 text-tertiary-fixed-dim" id="starContainer">
+<button class="star-btn hover:scale-110 transition-transform text-tertiary" data-val="1" type="button"><span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">star</span></button>
+<button class="star-btn hover:scale-110 transition-transform text-tertiary" data-val="2" type="button"><span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">star</span></button>
+<button class="star-btn hover:scale-110 transition-transform text-tertiary" data-val="3" type="button"><span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">star</span></button>
+<button class="star-btn hover:scale-110 transition-transform text-tertiary" data-val="4" type="button"><span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">star</span></button>
+<button class="star-btn hover:scale-110 transition-transform text-tertiary" data-val="5" type="button"><span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">star</span></button>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1 block" id="ratingLabel">5.0 • Exceptional Guidance &amp; Code Review</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Was code review actionable?</span>
+<div class="grid grid-cols-2 gap-2">
+<button class="px-3 py-2 rounded-xl bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">thumb_up</span> Yes, Highly
+              </button>
+<button class="px-3 py-2 rounded-xl bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-medium flex items-center justify-center gap-1 hover:bg-surface-container-high" type="button">
+<span class="material-symbols-outlined text-[16px]">thumb_down</span> Neutral
+              </button>
+</div>
+</div>
+</div>
+<!-- Subject Review & Remarks Textarea - 8 cols -->
+<div class="lg:col-span-8 flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface font-bold flex items-center justify-between" for="feedbackComments">
+<span>Specific Feedback on Topics &amp; Mentorship Quality</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-normal">Max 500 characters</span>
+</label>
+<textarea class="w-full p-space-md rounded-2xl bg-surface-container-low text-on-surface placeholder:text-outline font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none" id="feedbackComments" placeholder="Share specific insights, code review takeaways, or recommendations for Devendra and the Academic Council..." rows="3"></textarea>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-1">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[18px] text-secondary">lock</span>
+<span>Encrypted transmission to DCL Academic Quality Assurance</span>
+</div>
+<div class="flex items-center gap-space-sm w-full sm:w-auto">
+<button class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors" type="button">
+                Clear
+              </button>
+<button class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-on-primary font-label-md text-label-md shadow hover:bg-primary-container transition-all flex items-center justify-center gap-1.5 font-bold" id="submitFeedbackBtn" type="submit">
+<span class="material-symbols-outlined text-[18px]">send</span>
+                Submit Feedback
+              </button>
+</div>
+</div>
+</div>
+</form>
+<!-- Submission Confirmation Banner (hidden initially) -->
+<div class="hidden p-space-md rounded-2xl bg-secondary-fixed/50 text-on-secondary-fixed flex items-center justify-between" id="feedbackSuccessToast">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[24px]">task_alt</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold">Mentorship Evaluation Recorded</span>
+<span class="font-body-sm text-body-sm">Thank you. Anonymized feedback routed to Academic Dean • Reference #FB-2026-993</span>
+</div>
+</div>
+<button class="font-label-sm text-label-sm underline" onclick="document.getElementById('feedbackSuccessToast').classList.add('hidden')">Dismiss</button>
+</div>
+</div>
+</div>
+<!-- Interactive 1-on-1 Booking Drawer Modal (PRD 6.10 Micro-interaction) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm hidden p-4" id="bookingModal">
+<div class="bg-surface-container-lowest rounded-3xl max-w-lg w-full p-space-lg sm:p-space-xl shadow-2xl flex flex-col gap-space-lg relative animate-in fade-in zoom-in-95 duration-200">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[24px]">calendar_add_on</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Book 20-min Code Review</h3>
+</div>
+<button class="p-1 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" id="closeBookingModal">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex items-center gap-space-md p-space-sm rounded-2xl bg-surface-container-low">
+<img class="w-12 h-12 rounded-xl object-cover" data-alt="Close-up portrait of professional software mentor Devendra R., confident smile, wearing dark glasses and navy pullover." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs43YWoas-bD8r-5STRh7IpZWCYKTHzwZEpwAqePZrc8PSrkSFhOpatArh7BrwMIwb8o-nxOjlb9FIHL_qd6zvJ7hrSktk0qVSrK97At9UjRvGuVh67SesrQhFxt4wr5BksieH59pT9UeRz81StDA8U0zNdQGefbiqP0JS1klRQ_3OwKYP284i_lilwCc09yE5uXQqL5cdJiCjNnTEtY71Bf_7vewZGgTMs_hfQFk"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">Devendra R. (Ex-Swiggy)</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Today's Office Hours • 4:00 PM – 7:00 PM IST</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Select Time Slot:</span>
+<div class="grid grid-cols-2 gap-2">
+<button class="slot-select-btn p-3 rounded-xl bg-primary text-on-primary font-label-sm text-label-sm font-bold flex items-center justify-center gap-1 shadow-sm" type="button">
+            4:15 PM – 4:35 PM
+          </button>
+<button class="slot-select-btn p-3 rounded-xl bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high flex items-center justify-center gap-1" type="button">
+            4:45 PM – 5:05 PM
+          </button>
+<button class="slot-select-btn p-3 rounded-xl bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high flex items-center justify-center gap-1" type="button">
+            5:30 PM – 5:50 PM
+          </button>
+<button class="slot-select-btn p-3 rounded-xl bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high flex items-center justify-center gap-1" type="button">
+            6:15 PM – 6:35 PM
+          </button>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Review Focus Area:</span>
+<select class="w-full p-space-sm rounded-xl bg-surface-container-low font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary outline-none">
+<option>Full-Stack MERN Project Review (PRD Repo Check)</option>
+<option>Live Mock Whiteboard System Design</option>
+<option>Resume &amp; GitHub Profile Optimization</option>
+<option>Algorithm Complexity Bottleneck Debugging</option>
+</select>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-2">
+<button class="px-4 py-2.5 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md" id="cancelBookingBtn">
+          Cancel
+        </button>
+<button class="px-6 py-2.5 rounded-xl bg-primary text-on-primary font-label-md text-label-md font-bold shadow hover:bg-primary-container transition-all flex items-center gap-1" id="confirmBookingBtn">
+<span class="material-symbols-outlined text-[18px]">done</span> Confirm Booking
+        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Inline Javascript for Nonce Rotation, Modal Control, and Feedback Form -->
+<script>
+  // 1. Dynamic Rotating QR Nonce Timer Simulation (Flow 7 & PRD 6.9)
+  let timeLeft = 30;
+  const timerElem = document.getElementById('countdownTimer');
+  const barElem = document.getElementById('countdownBar');
+  const nonceElem = document.getElementById('nonceCode');
+  const qrSvg = document.getElementById('qrMatrixSvg');
+
+  const nonceList = ['#DCL-9842A', '#DCL-4109B', '#DCL-7731C', '#DCL-2208F', '#DCL-8854E'];
+  let nonceIdx = 0;
+
+  setInterval(() => {
+    timeLeft--;
+    if (timeLeft <= 0) {
+      timeLeft = 30;
+      nonceIdx = (nonceIdx + 1) % nonceList.length;
+      nonceElem.textContent = nonceList[nonceIdx];
+      
+      // Slight visual pulse to signify new key generated
+      qrSvg.classList.add('scale-95', 'opacity-75');
+      setTimeout(() => {
+        qrSvg.classList.remove('scale-95', 'opacity-75');
+      }, 250);
+    }
+    
+    timerElem.textContent = timeLeft + 's';
+    const pct = Math.round((timeLeft / 30) * 100);
+    barElem.style.width = pct + '%';
+  }, 1000);
+
+  // 2. Booking Modal Behavior
+  const bookBtn = document.getElementById('bookModalBtn');
+  const bookingModal = document.getElementById('bookingModal');
+  const closeBooking = document.getElementById('closeBookingModal');
+  const cancelBooking = document.getElementById('cancelBookingBtn');
+  const confirmBooking = document.getElementById('confirmBookingBtn');
+
+  function openBooking() {
+    bookingModal.classList.remove('hidden');
+  }
+
+  function closeBookingModal() {
+    bookingModal.classList.add('hidden');
+  }
+
+  if (bookBtn) bookBtn.addEventListener('click', openBooking);
+  if (closeBooking) closeBooking.addEventListener('click', closeBookingModal);
+  if (cancelBooking) cancelBooking.addEventListener('click', closeBookingModal);
+  
+  if (confirmBooking) {
+    confirmBooking.addEventListener('click', () => {
+      confirmBooking.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Booking...';
+      setTimeout(() => {
+        closeBookingModal();
+        confirmBooking.innerHTML = '<span class="material-symbols-outlined text-[18px]">done</span> Confirm Booking';
+        alert('Code Review with Devendra R. confirmed for today at 4:15 PM IST. Calendar invite sent to registered email.');
+      }, 700);
+    });
+  }
+
+  // Slot toggle micro-interaction
+  document.querySelectorAll('.slot-select-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.slot-select-btn').forEach(b => {
+        b.className = 'slot-select-btn p-3 rounded-xl bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high flex items-center justify-center gap-1';
+      });
+      this.className = 'slot-select-btn p-3 rounded-xl bg-primary text-on-primary font-label-sm text-label-sm font-bold flex items-center justify-center gap-1 shadow-sm';
+    });
+  });
+
+  // 3. Feedback Rating Micro-interaction
+  const starBtns = document.querySelectorAll('.star-btn');
+  const ratingLabel = document.getElementById('ratingLabel');
+  const ratingTexts = {
+    1: '1.0 • Needs Fundamental Improvement',
+    2: '2.0 • Below Expectations',
+    3: '3.0 • Satisfactory Session',
+    4: '4.0 • Solid & Informative Session',
+    5: '5.0 • Exceptional Guidance & Code Review'
+  };
+
+  starBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = parseInt(btn.getAttribute('data-val'));
+      starBtns.forEach(b => {
+        const bVal = parseInt(b.getAttribute('data-val'));
+        if (bVal <= val) {
+          b.className = 'star-btn hover:scale-110 transition-transform text-tertiary';
+        } else {
+          b.className = 'star-btn hover:scale-110 transition-transform text-outline-variant';
+        }
+      });
+      ratingLabel.textContent = ratingTexts[val] || (val + '.0 Rating');
+    });
+  });
+
+  // 4. Feedback Submit Handler
+  function handleFeedbackSubmit() {
+    const submitBtn = document.getElementById('submitFeedbackBtn');
+    const toast = document.getElementById('feedbackSuccessToast');
+    const comments = document.getElementById('feedbackComments');
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Submitting...';
+
+    setTimeout(() => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">send</span> Submit Feedback';
+      toast.classList.remove('hidden');
+      comments.value = '';
+    }, 600);
+  }
+</script></main></div></body></html>

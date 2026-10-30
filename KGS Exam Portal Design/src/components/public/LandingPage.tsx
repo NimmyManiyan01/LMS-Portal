@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import logo from "../../assets/Logo.png";
 import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4";
+import heroStudent from "../../assets/hero-student.png";
 import { TransparentLogoVideo } from "./TransparentLogoVideo";
 
 interface LandingPageProps {
@@ -381,7 +382,12 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
       {/* MAIN BODY CONTENT */}
       <main className="w-full pt-16 bg-surface">
         {/* SECTION 1: HERO & LIVE WORKBENCH PREVIEW */}
-        <section className="relative overflow-hidden bg-surface-container-low pt-space-xl pb-24 px-margin">
+        <section
+          className="relative overflow-hidden bg-surface-container-low bg-cover bg-center pt-space-xl pb-24 px-margin"
+          style={{
+            backgroundImage: `linear-gradient(90deg, rgba(250, 248, 255, 0.98) 0%, rgba(250, 248, 255, 0.92) 32%, rgba(250, 248, 255, 0.62) 58%, rgba(250, 248, 255, 0.12) 82%, rgba(250, 248, 255, 0) 100%), url(${heroStudent})`,
+          }}
+        >
           <div className="absolute -top-32 right-10 w-96 h-96 bg-primary-fixed-dim/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 left-10 w-80 h-80 bg-tertiary-fixed/30 rounded-full blur-3xl pointer-events-none" />
 
@@ -401,19 +407,9 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
 
               {/* Primary Call to Action Buttons */}
               <div className="flex flex-wrap items-center gap-space-md pt-space-xs">
-                <a
-                  href="#batches"
-                  className="px-space-lg py-3 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-md hover:bg-primary-container hover:text-on-primary-container transition-all flex items-center gap-2 group cursor-pointer"
-                >
-                  <span>Enroll in Next Batch</span>
-                  <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
-                    arrow_forward
-                  </span>
-                </a>
-
                 <button
                   onClick={onLogin}
-                  className="px-space-lg py-3 rounded-xl bg-surface-container-lowest text-on-surface font-label-lg text-label-lg shadow-sm hover:bg-surface-container-high transition-all flex items-center gap-2 cursor-pointer"
+                  className="hero-login-button px-space-lg py-3 rounded-xl font-label-lg text-label-lg shadow-md flex items-center gap-2 cursor-pointer border-0"
                 >
                   <span className="material-symbols-outlined text-primary text-[20px]">
                     terminal
@@ -421,13 +417,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                   <span>Student Portal Login</span>
                 </button>
 
-                <button
-                  onClick={onAdminLogin}
-                  className="px-4 py-3 rounded-xl bg-surface-container-high text-on-secondary-container font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[18px]">account_balance</span>
-                  <span>Campus Partner</span>
-                </button>
               </div>
 
               {/* 4 Key Platform Metric Cards */}
@@ -488,94 +477,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               </div>
             </div>
 
-            {/* Right Visual: Terminal & Live Code Evaluation Workbench Preview */}
-            <div className="lg:col-span-5 flex flex-col gap-space-md">
-              <div className="bg-inverse-surface rounded-2xl shadow-xl overflow-hidden p-space-md text-inverse-on-surface flex flex-col">
-                <div className="flex items-center justify-between pb-3 border-b border-surface-variant/20">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-error inline-block" />
-                    <span className="w-3 h-3 rounded-full bg-amber-400 inline-block" />
-                    <span className="w-3 h-3 rounded-full bg-tertiary-fixed inline-block" />
-                    <span className="font-label-sm text-label-sm text-outline-variant font-mono ml-2">
-                      kgs-engine // distributed-cache.ts
-                    </span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-semibold">
-                    LIVE RUNNER
-                  </span>
-                </div>
-
-                <div className="py-space-md font-mono text-body-sm space-y-1.5 select-none overflow-x-auto text-surface-container-low">
-                  <div>
-                    <span className="text-tertiary-fixed font-bold">export class</span>{" "}
-                    <span className="text-secondary-fixed">LRUCacheCluster</span> &#123;
-                  </div>
-                  <div className="pl-4 text-outline-variant">
-                    <span className="text-primary-fixed-dim">private</span> capacity:{" "}
-                    <span className="text-amber-300">number</span>;
-                  </div>
-                  <div className="pl-4 text-outline-variant">
-                    <span className="text-primary-fixed-dim">private</span> nodeMap ={" "}
-                    <span className="text-tertiary-fixed">new</span> Map&lt;
-                    <span className="text-amber-300">string</span>,{" "}
-                    <span className="text-amber-300">Node</span>&gt;();
-                  </div>
-                  <div className="pl-4 pt-1">
-                    <span className="text-primary-fixed-dim">async</span>{" "}
-                    <span className="text-secondary-fixed">rebalanceShards</span>() &#123;
-                  </div>
-                  <div className="pl-8 text-tertiary-fixed">// Zero-downtime consensus hashing</div>
-                  <div className="pl-8">
-                    await <span className="text-secondary-fixed">ConsensusMesh</span>.sync();
-                  </div>
-                  <div className="pl-8 text-on-tertiary-container">
-                    return &#123; status: <span className="text-amber-300">"OPTIMAL"</span>,
-                    latencyMs: 1.4 &#125;;
-                  </div>
-                  <div className="pl-4">&#125;</div>
-                  <div>&#125;</div>
-                </div>
-
-                <div className="bg-surface-container-lowest/10 rounded-xl p-3 flex items-center justify-between mt-2">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-tertiary-fixed text-[20px]">
-                      check_circle
-                    </span>
-                    <span className="font-label-sm text-label-sm text-surface-bright">
-                      Test Suite Passed: 48/48 edge cases
-                    </span>
-                  </div>
-                  <span className="font-mono text-[11px] text-tertiary-fixed bg-tertiary-fixed/20 px-2 py-0.5 rounded">
-                    0.024s CPU
-                  </span>
-                </div>
-              </div>
-
-              {/* Student Interview Simulation Floating Card */}
-              <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-md flex items-center justify-between -mt-4 mx-4 z-20 border border-surface-container">
-                <div className="flex items-center gap-space-sm">
-                  <img
-                    className="w-12 h-12 rounded-xl object-cover"
-                    alt="Praveen K. Alumni"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxWumRUkZR-VvDWJiRwsrOeM2Y5ASn8KOnVuHDa9elg3rwAvRzdxFLzHoy2vZpUY1ketlfF4f7fjpbV2NDYWEU9PZoDAjj2A-IqpOwlTdRfEwIDZeX0OYm4cgVJuZCSP8GY2wSyiYAOGLdFyjFukkIfi76ZYDufh7wygWS5X9wA_kg5iV95XF_JneUeWHNOUPSXKhrFi8J4cq1h0hNhvpQSRlTxAdqtao3APxd4Llw"
-                  />
-                  <div>
-                    <div className="font-label-lg text-label-lg text-on-surface">
-                      Praveen K. (Alumni)
-                    </div>
-                    <div className="font-body-sm text-body-sm text-on-surface-variant">
-                      SDE-1 @ Amazon Web Services
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-headline-sm text-headline-sm text-tertiary font-bold">
-                    14.2 LPA
-                  </div>
-                  <div className="font-label-sm text-label-sm text-outline">Batch of Oct 2024</div>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
