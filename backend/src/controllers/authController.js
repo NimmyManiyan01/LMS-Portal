@@ -108,7 +108,11 @@ async function issueOtp(req, res) {
     studentId: student.id,
     consumedAt: null,
   }).sort({ createdAt: -1 });
-  if (latest && latest.resendAvailableAt > new Date())
+  if (
+    latest &&
+    latest.deliveryStatus !== "FAILED" &&
+    latest.resendAvailableAt > new Date()
+  )
     return res.status(202).json({
       ...generic,
       expiresAt: latest.expiresAt,

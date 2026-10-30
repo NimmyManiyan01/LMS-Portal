@@ -1,4 +1,7 @@
-require("dotenv").config();
+const path = require("node:path");
+
+// Always load backend/.env, even when the API is launched from the repository root.
+require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 
 module.exports = {
   port: Number(process.env.PORT || 4000),

@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const Student = require("../models/Student");
+const AdminUser = require("../models/AdminUser");
 const Exam = require("../models/Exam");
 const Attempt = require("../models/Attempt");
 const IntegrityEvent = require("../models/IntegrityEvent");
@@ -27,6 +28,43 @@ const effectiveExamStatus = (exam, now = new Date()) => {
   return exam.status;
 };
 const reserveExamCode = async () => { const year = new Date().getFullYear(); for (;;) { const counter = await Counter.findOneAndUpdate({ _id: `examCode:${year}` }, { $inc: { sequence: 1 } }, { upsert: true, new: true }); const code = `EXAM-${year}-${String(counter.sequence).padStart(4, "0")}`; if (!(await Exam.exists({ code }))) return code; } };
+
+router.get("/administrators", authenticate, adminOnly, async (_req, res) => {
+  const administrators = await AdminUser.find()
+    .select("email role active createdAt updatedAt")
+    .sort({ createdAt: -1 })
+    .lean();
+  res.set("Cache-Control", "no-store");
+  res.json({
+    administrators: administrators.map((admin) => ({
+      id: String(admin._id),
+      email: admin.email,
+      role: admin.role,
+      active: admin.active,
+      createdAt: admin.createdAt,
+      updatedAt: admin.updatedAt,
+    })),
+  });
+});
+
+router.post("/administrators", authenticate, adminOnly, async (req, res) => {
+  const email = String(req.body.email || "").toLowerCase().trim();
+  if (!/^[\w.!#$%&'*+/=?^`{|}~-]+@[\w-]+(?:\.[\w-]+)+$/.test(email))
+    return res.status(400).json({ error: "A valid administrator email is required" });
+
+  const existing = await AdminUser.findOne({ email });
+  if (existing) {
+    if (existing.active)
+      return res.status(409).json({ error: "This administrator already has access" });
+    existing.active = true;
+    existing.role = "ADMIN";
+    await existing.save();
+    return res.json({ administrator: { id: String(existing._id), email: existing.email, role: existing.role, active: existing.active } });
+  }
+
+  const administrator = await AdminUser.create({ email, role: "ADMIN", active: true });
+  res.status(201).json({ administrator: { id: String(administrator._id), email: administrator.email, role: administrator.role, active: administrator.active } });
+});
 
 router.get("/feedback", authenticate, adminOnly, async (req, res) => {
   const page = Math.max(1, Number(req.query.page) || 1);

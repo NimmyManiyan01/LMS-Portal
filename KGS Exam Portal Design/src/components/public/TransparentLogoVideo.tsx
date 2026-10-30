@@ -4,6 +4,7 @@ interface TransparentLogoVideoProps {
   src: string
   className?: string
   loop?: boolean
+  playbackRate?: number
   onEnded?: () => void
   onError?: () => void
 }
@@ -12,6 +13,7 @@ export function TransparentLogoVideo({
   src,
   className = "",
   loop = false,
+  playbackRate = 1,
   onEnded,
   onError,
 }: TransparentLogoVideoProps) {
@@ -63,6 +65,7 @@ export function TransparentLogoVideo({
       const aspectRatio = video.videoWidth / video.videoHeight || 16 / 9
       canvas.width = loop ? 320 : 800
       canvas.height = Math.round(canvas.width / aspectRatio)
+      video.playbackRate = playbackRate
       void video.play().then(drawFrame).catch(() => onError?.())
     }
 
@@ -71,7 +74,7 @@ export function TransparentLogoVideo({
       video.removeEventListener("loadeddata", prepareCanvas)
       if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current)
     }
-  }, [loop, onError, src])
+  }, [loop, onError, playbackRate, src])
 
   return (
     <>

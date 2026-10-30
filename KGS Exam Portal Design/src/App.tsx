@@ -28,6 +28,7 @@ import { ExaminationsPage } from "./components/admin/ExaminationsPage"
 import { LiveMonitoringPage } from "./components/admin/LiveMonitoringPage"
 import { ResultsPage } from "./components/admin/ResultsPage"
 import { FeedbackPage } from "./components/admin/FeedbackPage"
+import { AdministratorsPage } from "./components/admin/AdministratorsPage"
 
 type IconName =
   | "grid"
@@ -205,6 +206,7 @@ const adminNav = [
   ["review", "Question bank"],
   ["file", "Paper sets"],
   ["users", "Students"],
+  ["users", "Administrators"],
   ["pulse", "Live monitoring"],
   ["result", "Results"],
   ["help", "Feedback"],
@@ -1202,6 +1204,8 @@ export default function App() {
             <ResultsPage PageHead={PageHead} />
           ) : admin && active === "Feedback" && viewState === "DASHBOARD" ? (
             <FeedbackPage PageHead={PageHead} />
+          ) : admin && active === "Administrators" && viewState === "DASHBOARD" ? (
+            <AdministratorsPage PageHead={PageHead} />
           ) : active === "Overview" && viewState === "DASHBOARD" ? (
             admin ? (
               <AdminDashboard />

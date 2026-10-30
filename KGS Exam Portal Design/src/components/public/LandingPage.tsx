@@ -166,8 +166,12 @@ const PARTNERS = [
   { name: "Swiggy", icon: "security", color: "text-secondary-container" },
 ];
 
+const LANDING_LOADER_SESSION_KEY = "kgs-landing-loader-played";
+
 export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: LandingPageProps) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(
+    () => sessionStorage.getItem(LANDING_LOADER_SESSION_KEY) !== "true",
+  );
   const [isLoaderExiting, setIsLoaderExiting] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTrackFilter, setActiveTrackFilter] = useState<TrackCategory>("all");
@@ -183,6 +187,8 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
   };
 
   useEffect(() => {
+    if (!isLoading) return;
+    sessionStorage.setItem(LANDING_LOADER_SESSION_KEY, "true");
     const loadingTimer = window.setTimeout(finishLoading, 15000);
     return () => {
       window.clearTimeout(loadingTimer);
@@ -218,6 +224,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
           <TransparentLogoVideo
             className="h-auto max-h-[52vh] w-[76vw] max-w-[600px] object-contain sm:w-[58vw]"
             src={logoRevealVideo}
+            playbackRate={1.75}
             onEnded={finishLoading}
             onError={finishLoading}
           />
@@ -381,13 +388,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center relative z-10">
             {/* Left Copy & Metric Highlights */}
             <div className="lg:col-span-7 flex flex-col gap-space-md">
-              <div className="inline-flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-surface-container-lowest w-fit shadow-sm">
-                <span className="inline-block w-2.5 h-2.5 rounded-full bg-tertiary animate-ping" />
-                <span className="font-label-sm text-label-sm text-tertiary tracking-wide uppercase font-bold">
-                  Batch Q2 Admissions Active • Tier-1 Tech Guaranteed
-                </span>
-              </div>
-
               <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight leading-tight">
                 Launch Your Career in <span className="text-primary font-bold">High-Impact</span>{" "}
                 Software Engineering
