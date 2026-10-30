@@ -12,6 +12,7 @@ const SubmissionConfirmation = lazy(() =>
   })),
 )
 import { LandingPage } from "./components/public/LandingPage"
+import { AboutPage } from "./components/public/AboutPage"
 import {
   PolicyPage,
   monitoringSections,
@@ -26,6 +27,7 @@ import { PaperSetsPage } from "./components/admin/PaperSetsPage"
 import { ExaminationsPage } from "./components/admin/ExaminationsPage"
 import { LiveMonitoringPage } from "./components/admin/LiveMonitoringPage"
 import { ResultsPage } from "./components/admin/ResultsPage"
+import { FeedbackPage } from "./components/admin/FeedbackPage"
 
 type IconName =
   | "grid"
@@ -205,6 +207,7 @@ const adminNav = [
   ["users", "Students"],
   ["pulse", "Live monitoring"],
   ["result", "Results"],
+  ["help", "Feedback"],
   ["download", "Reports"],
   ["shield", "Security & audit"],
 ] as const
@@ -340,7 +343,7 @@ function Sidebar({
           </div>
         </div>
         <small className="text-[11px] font-medium text-slate-400 text-center">
-          © {new Date().getFullYear()} KGS Institute
+          © {new Date().getFullYear()} Kaizentrix Global Solutions
         </small>
       </div>
     </aside>
@@ -620,7 +623,7 @@ export default function App() {
   const [dashboardRefresh, setDashboardRefresh] = useState(0)
 
   const [viewState, setViewState] =
-    useState<"DASHBOARD" | "INSTRUCTIONS" | "SYSTEM_CHECK" | "EXAM_PLAYER" | "SUBMISSION_CONFIRM" | "SUBMISSION_SUCCESS" | "RESULTS">(
+    useState<"DASHBOARD" | "INSTRUCTIONS" | "SYSTEM_CHECK" | "EXAM_LOADING" | "EXAM_PLAYER" | "SUBMISSION_CONFIRM" | "SUBMISSION_SUCCESS" | "RESULTS">(
       "DASHBOARD",
     )
   const [selectedExam, setSelectedExam] = useState<Exam | null>(null)
@@ -755,10 +758,20 @@ export default function App() {
     return (
       <LandingPage
         onLogin={() => navigateEntry("/login")}
+        onAdminLogin={() => navigateEntry("/admin")}
         onRegister={() => navigateEntry("/register")}
+        onAbout={() => navigateEntry("/about")}
       />
     )
   }
+
+  if (entryRoute === "/about")
+    return (
+      <AboutPage
+        onBackToLanding={() => navigateEntry("/")}
+        onLogin={() => navigateEntry("/login")}
+      />
+    )
 
   if (entryRoute === "/privacy")
     return (
@@ -868,6 +881,7 @@ export default function App() {
     const exam = examOverride || selectedExam
     if (!exam) return
     setExamActionError("")
+    setViewState("EXAM_LOADING")
     const base = API_BASE_URL
     const activeAttempt = (exam as Exam & {
       activeAttempt?: { attemptId?: string }
@@ -949,6 +963,7 @@ export default function App() {
           ? error.message
           : "Unable to open the examination.",
       )
+      setViewState("DASHBOARD")
     }
   }
 
@@ -1025,6 +1040,24 @@ export default function App() {
     await submitAttempt(lastAnswers)
   }
 
+  if (viewState === "EXAM_LOADING" && selectedExam) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-slate-950 p-6 text-center font-sans text-white">
+        <div className="relative flex h-16 w-16 items-center justify-center">
+          <span className="absolute inset-0 rounded-full border-4 border-blue-400/20" />
+          <span className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-blue-400" />
+          <span className="text-sm font-black tracking-tight text-blue-300">KGS</span>
+        </div>
+        <div>
+          <h2 className="text-xl font-bold">Opening exam environment</h2>
+          <p className="mt-2 text-sm font-medium text-slate-400">
+            Loading your secure questions and active attempt…
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   if (viewState === "EXAM_PLAYER" && selectedExam) {
     return (
       <ExamPlayer
@@ -1053,6 +1086,7 @@ export default function App() {
       >
         <SubmissionConfirmation
           examTitle={selectedExam.title}
+          attemptId={activeAttemptId}
           submittedAt={new Date()}
           marksScored={
             submittedResult?.released ? submittedResult.marksScored : undefined
@@ -1062,6 +1096,7 @@ export default function App() {
           }
           resultsReleased={Boolean(submittedResult?.released)}
           onBackToDashboard={() => setViewState("DASHBOARD")}
+          onFeedbackSubmitted={() => void handleLogout()}
         />
       </Suspense>
     )
@@ -1165,6 +1200,8 @@ export default function App() {
             <LiveMonitoringPage PageHead={PageHead} />
           ) : admin && active === "Results" && viewState === "DASHBOARD" ? (
             <ResultsPage PageHead={PageHead} />
+          ) : admin && active === "Feedback" && viewState === "DASHBOARD" ? (
+            <FeedbackPage PageHead={PageHead} />
           ) : active === "Overview" && viewState === "DASHBOARD" ? (
             admin ? (
               <AdminDashboard />

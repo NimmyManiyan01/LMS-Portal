@@ -11,3 +11,4 @@ coverage/
 .idea/
 .figma/
 .playwright-cli/
+.browseract-data/

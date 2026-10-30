@@ -1,558 +1,1159 @@
-import { useEffect, useState, type ReactNode } from "react";
-import heroStudentImg from "../../assets/hero-student.png";
+import { useEffect, useRef, useState } from "react";
+import logo from "../../assets/Logo.png";
+import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4";
+import { TransparentLogoVideo } from "./TransparentLogoVideo";
 
 interface LandingPageProps {
   onLogin: () => void;
+  onAdminLogin: () => void;
   onRegister: () => void;
+  onAbout: () => void;
 }
 
-/* Tune the hero photo crop here (x% y%). Higher x = shows more of the RIGHT side of the photo. */
-const HERO_POSITION = "78% 28%";
+type TrackCategory = "all" | "fullstack" | "data" | "cloud";
 
-/* ------------------------------------------------------------------ */
-/* Theme tokens + keyframes (self-contained, no index.css needed)       */
-/* ------------------------------------------------------------------ */
-const themeCss = `
-.kgs-landing {
-  --page-bg: #F7FAFF;
-  --glass: rgba(255,255,255,.78);
-  --glass-border: rgba(255,255,255,.9);
-  --nav-bg: rgba(255,255,255,.82);
-  --card-bg: rgba(255,255,255,.78);
-  --btn-bg: #FFFFFF;
-  --bubble: #FFFFFF;
-  --foot-bg: rgba(255,255,255,.6);
-  --hairline: rgba(15,27,76,.08);
-  --heading: #0F1B4C;
-  --body: #5B6478;
-  --sub: #4B5675;
-  --brand: #315CF5;
-  --glow-a: rgba(37,99,235,.12);
-  --glow-b: rgba(124,58,237,.10);
-  --photo-filter: none;
-  color-scheme: light;
-  color: var(--heading);
-  background-color: var(--page-bg);
-  background-image:
-    radial-gradient(circle at 78% 8%, var(--glow-a) 0%, transparent 38%),
-    radial-gradient(circle at 92% 30%, var(--glow-b) 0%, transparent 36%);
+interface Achiever {
+  id: string;
+  name: string;
+  company: string;
+  role: string;
+  location: string;
+  quote: string;
+  college: string;
+  packageLpa: string;
+  image: string;
+  companyColor: string;
 }
-.kgs-grad-bg   { background-color: var(--brand); }
-.kgs-grad-text { color: var(--brand); }
-.landing-login-btn { position: relative; z-index: 1; overflow: hidden; }
-.landing-login-btn::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: -20%; right: -20%; top: 0; bottom: 0;
-  background: #fff;
-  transform: skewX(-45deg) scale(0, 1);
-  transition: transform 0.35s ease;
-}
-.landing-login-btn:hover { color: #111d4e; }
-.landing-login-btn:hover::after { transform: skewX(-45deg) scale(1, 1); }
-.kgs-glass {
-  background: rgba(255,255,255,.88);
-  border: 1px solid rgba(255,255,255,.7);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 12px 40px rgba(20,35,90,.10);
-}
-.kgs-photo {
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 35%), linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(to right, transparent 0%, #000 35%), linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
-  mask-composite: intersect;
-}
-.kgs-landing * { box-sizing: border-box; }
-.kgs-landing button, .kgs-landing a { -webkit-tap-highlight-color: transparent; }
-.kgs-landing img { max-width: 100%; }
-.kgs-photo img { filter: var(--photo-filter); }
-@keyframes kgs-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-.kgs-float { animation: kgs-float 6s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { .kgs-float { animation: none; } }
-`;
 
-/* ------------------------------------------------------------------ */
-/* Icons                                                                */
-/* ------------------------------------------------------------------ */
-type IconName =
-  | "arrow" | "bars" | "chart" | "check" | "clock" | "close" | "gear"
-  | "graduate" | "lock" | "login" | "menu" | "shield"
-  | "user" | "users";
+interface BatchTrack {
+  id: string;
+  category: "fullstack" | "data" | "cloud";
+  badge: string;
+  badgeIcon: string;
+  badgeColor: string;
+  seatsNotice: string;
+  seatsNoticeColor: string;
+  title: string;
+  description: string;
+  startDate: string;
+  duration: string;
+  format: string;
+  actionColor: string;
+}
 
-const iconPaths: Record<IconName, ReactNode> = {
-  arrow: (<><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></>),
-  bars: (<><path d="M4 19V9" /><path d="M10 19V5" /><path d="M16 19v-7" /><path d="M22 19V3" /></>),
-  chart: (<><path d="M3 3v18h18" /><path d="m7 15 4-4 3 3 5-7" /></>),
-  check: <path d="m5 12 4 4L19 6" />,
-  clock: (<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>),
-  close: (<><path d="m6 6 12 12" /><path d="m18 6-12 12" /></>),
-  gear: (
-    <>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19 15a2 2 0 0 0 .4 2l-2.5 2.5a2 2 0 0 0-2-.4 2 2 0 0 0-1.3 1.7H10A2 2 0 0 0 8.6 19a2 2 0 0 0-2 .4L4 17a2 2 0 0 0 .4-2A2 2 0 0 0 3 13.6V10a2 2 0 0 0 1.4-1.4 2 2 0 0 0-.4-2L6.5 4a2 2 0 0 0 2 .4A2 2 0 0 0 10 3h3.6A2 2 0 0 0 15 4.4a2 2 0 0 0 2-.4l2.5 2.5a2 2 0 0 0-.4 2 2 2 0 0 0 1.7 1.4v3.6A2 2 0 0 0 19 15Z" />
-    </>
-  ),
-  graduate: (<><path d="m2 10 10-5 10 5-10 5Z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></>),
-  lock: (<><rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></>),
-  login: (<><path d="M10 17l5-5-5-5" /><path d="M15 12H3" /><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /></>),
-  menu: <path d="M4 6h16M4 12h16M4 18h16" />,
-  shield: (<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /><path d="m9 12 2 2 4-4" /></>),
-  user: (<><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>),
-  users: (
-    <>
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />
-    </>
-  ),
-};
+const ACHIEVERS: Achiever[] = [
+  {
+    id: "sneha",
+    name: "Sneha Reddy",
+    company: "Amazon",
+    role: "Cloud Support Engineer II",
+    location: "Bangalore",
+    quote: "The continuous mock system-design rounds prepared me for unpredictable AWS distributed concurrency questions.",
+    college: "JNTU College of Engg",
+    packageLpa: "14.2 LPA",
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAmeaaPtq1dhypbl58MRgqSDeTMg1gdgWV2FwAyPwYNQYRzvkJOqsPmR0GpaWj5Ctt5G2flmQW27eMcNnYLFC88vFDEhzY-4LBTPrRKRDVAELeqg5DR8yHNhNZRzOSAuDWmobT83JEKYnMrWpkAS1QVjALOIh27yRPV_vT8zgCAMgD5mm4fhs0NlMC9n2CVrFCSj-Gaue8zBrZ74jmVNsyUt9UXGbwd39EmDojJKBoL",
+    companyColor: "text-primary",
+  },
+  {
+    id: "karthik",
+    name: "Karthik Varma",
+    company: "Cisco",
+    role: "Software Engineer (Networks)",
+    location: "Chennai",
+    quote: "KGS took me from non-CS background to cracking Cisco's 4-stage technical panel in just 5 months.",
+    college: "SRM University",
+    packageLpa: "11.5 LPA",
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCspzWi85JcgAKesUrDYW4ojNNWiReUgFFXQuHxJW18uIG-0bw1VXeEszgoqj3JhavplfmSRorP-KiGQWLb-UTru37ECrormcAPrn_i4dpPQschnBzvoNGkSuXnr6x3xYNRyV9j2u3fi79hYqJXKjBg4eW9JhreKxbHkBCgU-L3meYe3PNscBJI5UKZG-PxqnVAKKzRge0F7f-adFGMseq5kLuMvzzRnzta72Yn2Xu4",
+    companyColor: "text-secondary",
+  },
+  {
+    id: "divya",
+    name: "Divya Menon",
+    company: "Juspay",
+    role: "Backend Engineer (Haskell / FP)",
+    location: "Remote",
+    quote: "Pure functional programming and tree algorithms at KGS were identical to what Juspay interviewed me on.",
+    college: "PSG Tech Coimbatore",
+    packageLpa: "10.8 LPA",
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA_0N7O1aRvW8dZJl2K80HdUxlBQW7Qcgh3v-OOHDZm1MsdoIpYNZ83vfOFe_ffYvakxV-zvJnhNVdCz57mta1Lsj8su9cRyIs_hZgDN_mDl4c5a_F_W_PGtMK5UDlTjsrhVsoYz7P4qqSeA2Ie5XB1KO6zT9m8eV3qKjl6Bdnqf3Og_7l69AYfJfKZ5EyZZxlfZqLi7hHdOha6fOFsKhqZCS_eQ5RdKooc-fu68nhy",
+    companyColor: "text-tertiary",
+  },
+  {
+    id: "arun",
+    name: "Arun Prakash",
+    company: "Zoho Corp",
+    role: "Full Stack Engineer",
+    location: "Tenkasi Campus",
+    quote: "Cleared 3 rounds of Zoho coding tests in a single day thanks to 200+ timed module challenges.",
+    college: "Anna University",
+    packageLpa: "8.5 LPA",
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD42mZ8ZG0etUtujETK9LylUUtxTvUBS7lO8BC9PJu3fsPdpEusCyt5jGYU2W3rGQPzMGJRVALhqtcE3ev6X-y_4ghFQorcRx_NP3I5orkLlSbIS_vbGNKul7q3nY8wh9gP_9akh-uzh4iN5LTsfNKbJOQOvf4MOOm619lBOQhBsEX7_NllnQXVJ1p9y9894T9Zi0lAJ48uEZxNC7E0ERkNQoLiR7axIpyBXnZMiOA1",
+    companyColor: "text-primary",
+  },
+];
 
-function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
+const BATCH_TRACKS: BatchTrack[] = [
+  {
+    id: "mern",
+    category: "fullstack",
+    badge: "Full-Stack MERN Architecture",
+    badgeIcon: "code",
+    badgeColor: "text-primary",
+    seatsNotice: "Only 6 Seats Left",
+    seatsNoticeColor: "bg-error-container text-on-error-container animate-pulse",
+    title: "Modern Web, Next.js & Distributed Node Microservices",
+    description: "Deep dive into TypeScript, React 19, Node.js concurrency, Redis cache patterns, and Dockerized AWS deployment workflows.",
+    startDate: "May 15, 2025",
+    duration: "24 Weeks",
+    format: "Live + Lab",
+    actionColor: "bg-primary text-on-primary hover:bg-primary-container",
+  },
+  {
+    id: "java",
+    category: "fullstack",
+    badge: "Java Enterprise & Spring Cloud",
+    badgeIcon: "coffee",
+    badgeColor: "text-secondary",
+    seatsNotice: "8 Seats Left",
+    seatsNoticeColor: "bg-secondary-fixed text-on-secondary-fixed",
+    title: "Enterprise Java, Spring Boot 3 & High-Throughput Kafka",
+    description: "Designed for enterprise backend roles: Event-driven architecture, CQRS patterns, PostgreSQL optimization, and Kubernetes orchestration.",
+    startDate: "May 22, 2025",
+    duration: "26 Weeks",
+    format: "Live + Lab",
+    actionColor: "bg-secondary text-on-secondary hover:opacity-90",
+  },
+  {
+    id: "data-ai",
+    category: "data",
+    badge: "Data Engineering & LLM Systems",
+    badgeIcon: "psychology",
+    badgeColor: "text-tertiary",
+    seatsNotice: "12 Seats Left",
+    seatsNoticeColor: "bg-tertiary-fixed text-on-tertiary-fixed",
+    title: "PySpark, Vector Databases & Enterprise RAG Pipelines",
+    description: "Transform into an AI Systems Engineer. Build real data pipelines, query optimization on Snowflake, and fine-tune open-weights LLMs.",
+    startDate: "June 02, 2025",
+    duration: "22 Weeks",
+    format: "Live + Lab",
+    actionColor: "bg-tertiary text-on-tertiary hover:opacity-90",
+  },
+  {
+    id: "cloud-devops",
+    category: "cloud",
+    badge: "Cloud Architecture & SRE",
+    badgeIcon: "cloud_sync",
+    badgeColor: "text-primary",
+    seatsNotice: "Filling Fast",
+    seatsNoticeColor: "bg-primary-fixed text-on-primary-fixed",
+    title: "Terraform, Kubernetes (EKS), CI/CD & Observability",
+    description: "From bare metal infrastructure to multi-region cloud resilience. Automated deployments, Grafana monitoring, and security controls.",
+    startDate: "June 10, 2025",
+    duration: "20 Weeks",
+    format: "Live + Lab",
+    actionColor: "bg-primary text-on-primary hover:bg-primary-container",
+  },
+];
+
+const PARTNERS = [
+  { name: "Amazon AWS", icon: "cloud", color: "text-primary" },
+  { name: "Cisco Systems", icon: "hub", color: "text-secondary" },
+  { name: "Juspay", icon: "payments", color: "text-tertiary" },
+  { name: "Zoho Corp", icon: "database", color: "text-primary" },
+  { name: "TCS Digital", icon: "code_blocks", color: "text-secondary" },
+  { name: "Razorpay", icon: "rocket_launch", color: "text-primary-container" },
+  { name: "PhonePe", icon: "deployed_code", color: "text-tertiary-container" },
+  { name: "Swiggy", icon: "security", color: "text-secondary-container" },
+];
+
+export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: LandingPageProps) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoaderExiting, setIsLoaderExiting] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeTrackFilter, setActiveTrackFilter] = useState<TrackCategory>("all");
+  const achieverGridRef = useRef<HTMLDivElement>(null);
+  const loaderFinishedRef = useRef(false);
+  const loaderExitTimerRef = useRef<number | null>(null);
+
+  const finishLoading = () => {
+    if (loaderFinishedRef.current) return;
+    loaderFinishedRef.current = true;
+    setIsLoaderExiting(true);
+    loaderExitTimerRef.current = window.setTimeout(() => setIsLoading(false), 700);
+  };
+
+  useEffect(() => {
+    const loadingTimer = window.setTimeout(finishLoading, 15000);
+    return () => {
+      window.clearTimeout(loadingTimer);
+      if (loaderExitTimerRef.current !== null) {
+        window.clearTimeout(loaderExitTimerRef.current);
+      }
+    };
+  }, []);
+
+  const scrollAchievers = (direction: "left" | "right") => {
+    if (achieverGridRef.current) {
+      const scrollAmount = direction === "left" ? -340 : 340;
+      achieverGridRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  const filteredTracks = BATCH_TRACKS.filter((track) => {
+    if (activeTrackFilter === "all") return true;
+    return track.category === activeTrackFilter;
+  });
+
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {iconPaths[name]}
-    </svg>
-  );
-}
-
-function GradientIcon({ name, size = 32 }: { name: IconName; size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="url(#kgsIconGrad)"
-      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
-      {iconPaths[name]}
-    </svg>
-  );
-}
-
-function SvgGradients() {
-  return (
-    <svg width="0" height="0" className="absolute overflow-hidden" aria-hidden="true">
-      <defs>
-        {/* userSpaceOnUse so purely vertical/horizontal strokes (e.g. the bars icon) still render */}
-        <linearGradient id="kgsIconGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="24">
-          <stop offset="0%" stopColor="#2563EB" />
-          <stop offset="100%" stopColor="#315CF5" />
-        </linearGradient>
-        <linearGradient id="chartLineGrad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#2563EB" />
-          <stop offset="100%" stopColor="#315CF5" />
-        </linearGradient>
-        <linearGradient id="chartFillGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2563EB" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#315CF5" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Shared class strings                                                 */
-/* ------------------------------------------------------------------ */
-const container =
-  "mx-auto w-[calc(100%-32px)] sm:w-[calc(100%-40px)] md:w-[calc(100%-64px)] max-w-[1400px]";
-
-const btnSecondary =
-  "flex cursor-pointer items-center justify-center gap-2 border border-[color:var(--hairline)] bg-[color:var(--btn-bg)] text-[color:var(--heading)] shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-500/30";
-
-const btnPrimary =
-  "kgs-grad-bg flex cursor-pointer items-center justify-center gap-2 border-none text-white shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5 hover:shadow-blue-600/30";
-
-/* ------------------------------------------------------------------ */
-/* Brand + Navbar                                                       */
-/* ------------------------------------------------------------------ */
-function Brand() {
-  return (
-    <a className="group flex shrink-0 items-center gap-3 no-underline" href="#home" aria-label="KGS Exam Portal home">
-      <span className="kgs-grad-bg flex h-11 w-11 items-center justify-center rounded-xl text-2xl font-black text-white shadow-lg shadow-blue-600/30 transition-transform group-hover:scale-105">
-        K
-      </span>
-      <span className="flex flex-col">
-        <span className="text-xl font-black leading-none tracking-tight text-[color:var(--heading)]">KGS</span>
-        <span className="mt-0.5 text-[9.5px] font-extrabold leading-none tracking-[0.16em] text-blue-600">
-          EXAM PORTAL
-        </span>
-      </span>
-    </a>
-  );
-}
-
-function Navbar({ onLogin, onRegister }: LandingPageProps) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <header className="sticky top-0 z-50 min-h-[76px] border-b border-[color:var(--hairline)] bg-[color:var(--nav-bg)] backdrop-blur-xl transition-colors duration-300">
-      <div className={`${container} flex min-h-[76px] items-center justify-between gap-4 px-1 sm:gap-6 sm:px-0`}>
-        <Brand />
-
-        <div className="hidden shrink-0 items-center gap-3 lg:flex">
-          <button className={`${btnPrimary} landing-login-btn h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onLogin}>
-            <Icon name="login" size={18} /> Login
-          </button>
-          <button className={`${btnSecondary} h-11 rounded-xl px-5 text-sm font-semibold`} onClick={onRegister}>
-            Register
-          </button>
-        </div>
-
-        <button
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-[color:var(--glass-border)] bg-[color:var(--glass)] text-[color:var(--heading)] lg:hidden"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle navigation"
-          aria-expanded={open}
+    <div className="min-h-screen bg-surface font-sans text-on-surface antialiased selection:bg-primary selection:text-white">
+      {isLoading && (
+        <div
+          className={`fixed inset-0 z-[100] flex min-h-screen items-center justify-center overflow-hidden bg-surface font-sans transition-all duration-700 ease-in-out ${
+            isLoaderExiting ? "pointer-events-none scale-[1.03] opacity-0" : "scale-100 opacity-100"
+          }`}
+          role="status"
+          aria-label="Loading Kaizentrix Global Solutions"
+          aria-hidden={isLoaderExiting}
         >
-          <Icon name={open ? "close" : "menu"} size={22} />
-        </button>
-      </div>
-
-      {open && (
-        <div className="flex flex-col border-b border-[color:var(--hairline)] bg-[color:var(--bubble)] p-6 lg:hidden">
-          <div className="flex flex-col gap-2.5">
-            <button
-              className={`${btnSecondary} h-11 w-full rounded-xl px-5 text-sm font-semibold`}
-              onClick={() => { setOpen(false); onLogin(); }}
-            >
-              <Icon name="login" size={18} /> Login
-            </button>
-            <button
-              className={`${btnSecondary} h-11 w-full rounded-xl px-5 text-sm font-semibold`}
-              onClick={() => { setOpen(false); onRegister(); }}
-            >
-              Register
-            </button>
-          </div>
+          <TransparentLogoVideo
+            className="h-auto max-h-[52vh] w-[76vw] max-w-[600px] object-contain sm:w-[58vw]"
+            src={logoRevealVideo}
+            onEnded={finishLoading}
+            onError={finishLoading}
+          />
+          <span className="sr-only">Loading Kaizentrix Global Solutions</span>
         </div>
       )}
-    </header>
-  );
-}
 
-/* ------------------------------------------------------------------ */
-/* Hero floating glass cards                                            */
-/* ------------------------------------------------------------------ */
-function CardTitle({ icon, children }: { icon: IconName; children: ReactNode }) {
-  return (
-    <div className="mb-3 flex items-center gap-3">
-      <GradientIcon name={icon} size={32} />
-      <div className="text-base font-bold leading-snug text-[color:var(--heading)]">{children}</div>
-    </div>
-  );
-}
-
-function ProctorCard() {
-  return (
-    <div className="kgs-glass kgs-float pointer-events-auto absolute left-[-4%] top-[14%] z-10 w-[220px] rounded-2xl p-4 xl:left-[-2%] xl:top-[12%] xl:w-[240px] xl:p-5">
-      <CardTitle icon="shield">Proctored<br />Environment</CardTitle>
-      <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-        {["Camera Monitoring", "Tab Switch Detection", "Fullscreen Enforcement"].map((item) => (
-          <li key={item} className="flex items-center gap-2.5 text-xs font-semibold text-[color:var(--body)]">
-            <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
-              <Icon name="check" size={12} />
-            </span>
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-const barHeights = [14, 22, 34, 46, 30, 20, 36, 48, 40, 26, 16, 30, 44, 52, 42, 28, 18, 32, 48, 38, 22, 14, 30, 44, 50, 36, 20, 28, 42, 48, 34, 18, 26, 38, 44, 32, 20, 28, 36, 24];
-
-function MonitorCard() {
-  return (
-    <div className="kgs-glass kgs-float pointer-events-auto absolute right-[-2%] top-[2%] z-10 w-[195px] rounded-2xl p-4 xl:right-0 xl:w-[220px] xl:p-5 [animation-delay:-2s]">
-      <CardTitle icon="clock">Real-time<br />Monitoring</CardTitle>
-      <div className="mt-3 flex h-9 items-end justify-between gap-1">
-        {barHeights.filter((_, i) => i % 2 === 0).map((h, i) => (
-          <div key={i} className="w-[3px] rounded-full bg-blue-600" style={{ height: `${Math.min(h, 40)}px` }} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function EvaluationCard() {
-  return (
-    <div className="kgs-glass kgs-float pointer-events-auto absolute bottom-[4%] right-[-2%] z-10 w-[220px] rounded-2xl p-4 xl:right-0 xl:w-[240px] xl:p-5 [animation-delay:-4s]">
-      <CardTitle icon="chart">Secure<br />Evaluation</CardTitle>
-      <div className="mb-2 whitespace-nowrap text-[13px] font-medium text-[color:var(--sub)]">
-        Automated • Accurate • Auditable
-      </div>
-      <svg className="h-[52px] w-full overflow-visible" viewBox="0 0 240 60" preserveAspectRatio="none" aria-label="Evaluation accuracy chart">
-        <path d="M0,45 C30,48 50,22 80,32 C110,42 130,46 160,28 C190,10 215,14 240,6 L240,60 L0,60 Z" fill="url(#chartFillGrad)" />
-        <path d="M0,45 C30,48 50,22 80,32 C110,42 130,46 160,28 C190,10 215,14 240,6" fill="none" stroke="url(#chartLineGrad)" strokeWidth="3.2" strokeLinecap="round" />
-      </svg>
-    </div>
-  );
-}
-
-function ResponsiveHeroCards() {
-  return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:hidden">
-      <div className="relative min-h-[180px]"><ProctorCard /></div>
-      <div className="relative min-h-[150px]"><MonitorCard /></div>
-      <div className="relative min-h-[180px] sm:col-span-2"><EvaluationCard /></div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Feature strip                                                        */
-/* ------------------------------------------------------------------ */
-const featureItems: [IconName, string, string][] = [
-  ["shield", "Secure & Reliable", "Protected assessment data."],
-  ["users", "Fair Assessments", "Consistent, integrity-first testing."],
-  ["bars", "Real-time Insights", "Live monitoring and analytics."],
-  ["gear", "Easy Management", "Simple tools for every team."],
-  ["graduate", "Built for Scale", "Ready for every candidate volume."],
-];
-
-function FeatureStrip() {
-  return (
-    <section className="relative z-10 bg-transparent pb-4 pt-6 sm:pb-6 sm:pt-8" id="features">
-      <div className={`${container} grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-5 xl:grid-cols-5`}>
-        {featureItems.map(([icon, title, copy]) => (
-          <div
-            key={title}
-            className="relative flex min-h-[76px] items-center gap-4 rounded-2xl border border-[color:var(--hairline)] bg-[color:var(--card-bg)] px-4 py-3 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-500/20 hover:shadow-md xl:min-h-0 xl:rounded-none xl:border-0 xl:bg-transparent xl:px-0 xl:py-0 xl:shadow-none xl:hover:translate-y-0 xl:after:absolute xl:after:-right-3 xl:after:top-[15%] xl:after:block xl:after:h-[70%] xl:after:w-px xl:after:bg-[color:var(--hairline)] xl:after:content-[''] xl:last:after:hidden"
-          >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-[color:var(--bubble)] shadow-lg shadow-blue-600/10">
-              <GradientIcon name={icon} size={26} />
-            </div>
-            <div className="flex flex-col">
-              <h3 className="m-0 mb-1 text-lg font-bold text-[color:var(--heading)]">{title}</h3>
-              <p className="m-0 max-w-[200px] text-[15px] leading-normal text-[color:var(--body)] [text-wrap:balance]">{copy}</p>
-            </div>
+      {/* 1. STICKY GLOBAL HEADER */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+        <div className="h-16 w-full px-margin flex items-center justify-between gap-space-md">
+          {/* Logo & Status Badge */}
+          <div className="flex items-center gap-space-lg">
+            <a
+              href="/"
+              aria-label="Go to the Kaizentrix Global Solutions landing page"
+              className="flex items-center gap-space-sm no-underline group"
+            >
+              <TransparentLogoVideo
+                src={logoRevealVideo}
+                loop
+                className="h-9 w-24 object-contain transition-transform group-hover:scale-105"
+              />
+              <span className="font-headline-sm text-headline-sm text-primary font-bold tracking-tight">
+                Kaizentrix Global Solutions
+              </span>
+            </a>
           </div>
-        ))}
-      </div>
-      <div className="mt-7 text-center text-sm font-medium tracking-wide text-[color:var(--body)] sm:mt-9 sm:text-base">
-        Trusted by leading educational institutions and organizations
-      </div>
-    </section>
-  );
-}
 
-function SecurityDemo() {
-  const events = ["Camera permission verified", "Fullscreen mode enabled", "Tab switch detected · review queued", "Microphone signal healthy"];
-  const [eventIndex, setEventIndex] = useState(0);
-  useEffect(() => { const timer = window.setInterval(() => setEventIndex((current) => (current + 1) % events.length), 2600); return () => window.clearInterval(timer); }, []);
-  return (
-    <section id="security-demo" className="relative py-14 sm:py-20">
-      <div className={`${container} grid items-center gap-8 lg:grid-cols-[.82fr_1.18fr] lg:gap-14`}>
-        <div>
-          <span className="inline-flex rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[.16em] text-blue-700">Security &amp; proctoring</span>
-          <h2 className="mt-4 max-w-xl text-3xl font-extrabold leading-tight tracking-tight text-[color:var(--heading)] sm:text-4xl">Confidence at every checkpoint.</h2>
-          <p className="mt-4 max-w-lg text-base leading-relaxed text-[color:var(--body)]">Give every candidate a clear, consistent exam environment while your team gets the signals needed to protect assessment integrity.</p>
-          <div className="mt-6 grid grid-cols-2 gap-3 text-sm font-semibold text-slate-700">{[["Camera monitoring","shield"],["Tab-switch detection","bars"],["Fullscreen monitoring","lock"],["Incident reporting","chart"]].map(([label, icon]) => <div key={label} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white/75 px-3 py-3 shadow-sm"><GradientIcon name={icon as IconName} size={20} />{label}</div>)}</div>
-        </div>
-        <div className="rounded-[1.5rem] border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(20,35,90,.12)] sm:p-4">
-          <div className="flex items-center justify-between rounded-xl bg-slate-950 px-4 py-3 text-white"><div><p className="m-0 text-[10px] font-bold uppercase tracking-[.16em] text-blue-300">Demonstration mode</p><p className="m-0 mt-1 text-sm font-bold">Secure assessment session</p></div><span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-300"><span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" /> Simulated</span></div>
-          <div className="grid gap-3 p-2 pt-4 sm:grid-cols-[1.2fr_.8fr]">
-            <div className="relative flex min-h-[220px] items-end overflow-hidden rounded-xl bg-gradient-to-br from-blue-100 via-slate-100 to-indigo-100 p-4"><div className="absolute left-4 top-4 rounded-lg bg-white/80 px-2.5 py-1.5 text-[10px] font-bold text-slate-700 shadow-sm">Candidate preview · demo only</div><div className="mx-auto mb-2 flex h-36 w-28 items-end justify-center rounded-[3.5rem] bg-gradient-to-b from-slate-700 to-blue-800"><div className="mb-12 h-16 w-16 rounded-full bg-amber-200 shadow-inner" /></div><div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg bg-slate-950/85 px-3 py-2 text-[11px] font-semibold text-white"><span>EXAM-2026-0001</span><span className="text-emerald-300">In progress</span></div></div>
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4"><div className="flex items-center justify-between"><span className="text-xs font-bold text-slate-800">Session controls</span><span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-bold text-emerald-700">Healthy</span></div><div className="mt-4 flex items-center justify-between text-xs"><span className="text-slate-500">Time remaining</span><strong className="text-slate-900">42:18</strong></div><div className="mt-2 h-2 rounded-full bg-slate-200"><div className="h-full w-[68%] rounded-full bg-blue-600" /></div><div className="mt-5 space-y-2 text-[11px] font-semibold text-slate-600">{["Camera active","Microphone active","Fullscreen locked"].map((label) => <div key={label} className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500" />{label}</div>)}</div></div>
+          {/* Desktop Navigation */}
+          <nav className="hidden xl:flex items-center gap-space-lg">
+            <button
+              type="button"
+              onClick={onAbout}
+              className="public-nav-link cursor-pointer border-0 bg-transparent font-label-lg text-label-lg text-on-surface-variant"
+            >
+              About Us
+            </button>
+            <a
+              href="#batches"
+              className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
+            >
+              Batches
+            </a>
+            <a
+              href="#lms-preview"
+              className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
+            >
+              Placement Track
+            </a>
+            <a
+              href="#achievers"
+              className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
+            >
+              Achievers
+            </a>
+            <a
+              href="#lms-preview"
+              className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
+            >
+              LMS Gateway
+            </a>
+          </nav>
+
+          {/* Header Action Controls */}
+          <div className="flex items-center gap-space-md">
+            {/* Portal Login CTA */}
+            <button
+              onClick={onLogin}
+              className="hidden md:inline-flex items-center px-space-md py-1.5 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container transition-all shadow-[0_1px_3px_0_rgba(15,23,42,0.05)] cursor-pointer"
+            >
+              Portal Login
+            </button>
+
+            {/* Mobile Menu Toggle Button */}
+            <button
+              className="xl:hidden flex items-center justify-center w-9 h-9 rounded-xl bg-surface-container-lowest text-on-surface border border-surface-container-high shadow-sm cursor-pointer"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Navigation"
+            >
+              <span className="material-symbols-outlined text-[22px]">
+                {mobileMenuOpen ? "close" : "menu"}
+              </span>
+            </button>
           </div>
-          <div className="mx-2 mt-2 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-white">!</span><span><span className="mr-1 text-[10px] uppercase tracking-wider text-amber-600">Example event</span>{events[eventIndex]}</span></div>
         </div>
-      </div>
-    </section>
-  );
-}
 
-const journeySteps = [
-  ["Registration", "Create your candidate profile", "user"],
-  ["Email OTP", "Verify identity securely", "lock"],
-  ["Exam readiness", "Check browser, camera, and microphone", "shield"],
-  ["Examination", "Answer your assigned questions", "clock"],
-  ["Monitoring", "Protect integrity with live signals", "bars"],
-  ["Submission", "Finalize and securely record responses", "check"],
-  ["Results", "Publish auditable marks", "chart"],
-] as const;
-
-function ExaminationJourney() {
-  const [active, setActive] = useState(0);
-  const step = journeySteps[active];
-  return (
-    <section id="how-it-works" className="border-y border-slate-200/70 bg-white/45 py-16 sm:py-24">
-      <div className={`${container}`}>
-        <div className="mx-auto max-w-2xl text-center"><span className="text-[11px] font-extrabold uppercase tracking-[.18em] text-blue-700">One connected workflow</span><h2 className="mt-3 text-3xl font-extrabold tracking-tight text-[color:var(--heading)] sm:text-4xl">From registration to results.</h2><p className="mt-3 text-base leading-relaxed text-[color:var(--body)]">A calm, transparent journey for candidates and a complete operating picture for your team.</p></div>
-        <div className="mt-10 grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-start lg:gap-14">
-          <div className="lg:sticky lg:top-28"><div className="flex gap-2 overflow-x-auto pb-3 lg:block lg:space-y-2 lg:overflow-visible">{journeySteps.map(([label, description, icon], index) => <button key={label} onClick={() => setActive(index)} className={`group flex min-w-[150px] items-center gap-3 rounded-xl border px-3 py-3 text-left transition-all lg:w-full ${active === index ? "border-blue-200 bg-blue-50 shadow-sm" : "border-transparent hover:border-slate-200 hover:bg-white"}`}><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${active === index ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"}`}><Icon name={icon} size={18} /></span><span><strong className={`block text-xs ${active === index ? "text-blue-700" : "text-slate-700"}`}>{String(index + 1).padStart(2, "0")} · {label}</strong><small className="mt-0.5 block text-[11px] text-slate-500">{description}</small></span></button>)}</div></div>
-          <div className="relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(20,35,90,.12)] sm:p-5"><div className="rounded-xl bg-slate-950 px-4 py-3 text-white"><div className="flex items-center justify-between"><span className="text-xs font-bold">KGS secure workspace</span><span className="text-[10px] font-semibold text-blue-300">Stage {active + 1} of {journeySteps.length}</span></div><div className="mt-3 h-1.5 rounded-full bg-white/10"><div className="h-full rounded-full bg-blue-500 transition-all duration-500" style={{ width: `${((active + 1) / journeySteps.length) * 100}%` }} /></div></div><div className="relative mt-3 min-h-[300px] rounded-xl bg-gradient-to-br from-slate-50 to-blue-50 p-5 sm:p-8"><div className="absolute right-5 top-5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold text-emerald-700">Secure by design</div><div className="flex h-full flex-col justify-center transition-all duration-500" key={step[0]}><div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20"><Icon name={step[2]} size={28} /></div><p className="mb-0 mt-6 text-xs font-extrabold uppercase tracking-[.16em] text-blue-700">{step[0]}</p><h3 className="mb-0 mt-2 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">{step[1]}</h3><p className="mt-3 max-w-lg text-sm leading-relaxed text-slate-600">{active === 0 && "Candidates register once and keep their profile details in one trusted place."}{active === 1 && "A one-time code confirms the candidate before any assessment begins."}{active === 2 && "A guided system check confirms the environment is ready for a fair attempt."}{active === 3 && "Each candidate receives a randomized, category-balanced examination."}{active === 4 && "Camera, fullscreen, tab activity, and incidents are handled through configurable controls."}{active === 5 && "Responses are saved and the submission is recorded with an auditable timestamp."}{active === 6 && "Marks are calculated against the persisted answer key and released through the results workflow."}</p><div className="mt-7 flex items-center gap-2 text-xs font-bold text-slate-500"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Smooth transition to the next stage</div></div></div><div className="mt-3 flex justify-between"><button disabled={active === 0} onClick={() => setActive((value) => value - 1)} className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600 disabled:cursor-not-allowed disabled:opacity-40">Previous</button><button disabled={active === journeySteps.length - 1} onClick={() => setActive((value) => value + 1)} className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40">Next stage →</button></div></div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-const workflowSteps = [["Create Exam", "gear"], ["Assign Students", "users"], ["Conduct Exam", "clock"], ["Monitor", "shield"], ["Evaluate", "chart"], ["Publish Marks", "check"]] as const;
-function PlatformWorkflow() {
-  const [active, setActive] = useState(0);
-  useEffect(() => { const timer = window.setInterval(() => setActive((value) => (value + 1) % workflowSteps.length), 3200); return () => window.clearInterval(timer); }, []);
-  const descriptions = ["Configure the assessment once.", "Invite the right candidates.", "Deliver a calm, secure attempt.", "See integrity signals in real time.", "Review auditable submissions.", "Release results with confidence."];
-  return <section className="py-14 sm:py-20"><div className={container}><div className="mx-auto max-w-2xl text-center"><span className="text-[11px] font-extrabold uppercase tracking-[.18em] text-blue-700">Platform workflow</span><h2 className="mt-3 text-3xl font-extrabold tracking-tight text-[color:var(--heading)] sm:text-4xl">Every operation, one connected workspace.</h2></div><div className="relative mt-10"><div className="absolute left-[8%] right-[8%] top-6 hidden h-1 rounded-full bg-slate-200 md:block"><div className="h-full rounded-full bg-blue-600 transition-all duration-700" style={{ width: `${(active / (workflowSteps.length - 1)) * 100}%` }} /></div><div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6 md:gap-2">{workflowSteps.map(([label, icon], index) => <button key={label} onClick={() => setActive(index)} className="group relative z-10 flex flex-col items-center text-center"><span className={`flex h-12 w-12 items-center justify-center rounded-full border-4 border-[color:var(--page-bg)] shadow-sm transition-all duration-300 ${index <= active ? "bg-blue-600 text-white shadow-blue-600/25" : "bg-white text-slate-400"}`}><Icon name={icon} size={20} /></span><strong className={`mt-3 text-xs ${index === active ? "text-blue-700" : "text-slate-700"}`}>{label}</strong><small className="mt-1 hidden text-[10px] leading-tight text-slate-500 sm:block">{descriptions[index]}</small></button>)}</div></div><div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_18px_50px_rgba(20,35,90,.09)] sm:p-5"><div className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3"><span className="text-xs font-bold text-slate-800">KGS operations preview</span><span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">{workflowSteps[active][0]}</span></div><div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center"><div><h3 className="m-0 text-lg font-extrabold text-slate-950">{descriptions[active]}</h3><p className="mb-0 mt-2 text-sm text-slate-500">The workspace updates as your team moves through the assessment lifecycle.</p></div><div className="flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-3 text-xs font-bold text-blue-700"><span className="h-2 w-2 animate-pulse rounded-full bg-blue-600" /> Live workflow state</div></div></div></div></section>;
-}
-
-function FinalCta({ onLogin }: Pick<LandingPageProps, "onLogin">) {
-  return <section className="px-4 py-14 sm:px-6 sm:py-20"><div className={`${container} relative isolate overflow-hidden rounded-[2rem] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-6 py-12 shadow-[0_24px_80px_rgba(37,99,235,.12)] sm:px-12 lg:px-16`}><div className="pointer-events-none absolute -right-16 -top-20 -z-10 h-72 w-72 rounded-full bg-blue-200/40 blur-3xl" /><div className="grid items-center gap-10 lg:grid-cols-[1fr_.7fr]"><div><span className="text-[11px] font-extrabold uppercase tracking-[.18em] text-blue-700">Ready when you are</span><h2 className="mt-4 max-w-2xl text-3xl font-extrabold leading-tight tracking-tight text-[color:var(--heading)] sm:text-4xl">Ready to Modernize Your Examination Process?</h2><p className="mt-4 max-w-xl text-base leading-relaxed text-[color:var(--body)]">Manage your complete examination workflow through one secure and connected platform.</p><div className="mt-7 flex flex-wrap gap-3"><button onClick={onLogin} className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700">Get Started <span className="ml-2">→</span></button><a href="mailto:exams@kgs.edu" className="rounded-xl border border-blue-200 bg-white/80 px-6 py-3 text-sm font-bold text-slate-800 no-underline transition hover:-translate-y-0.5 hover:border-blue-400">Contact KGS</a></div></div><div className="relative mx-auto h-48 w-full max-w-[340px]" aria-hidden="true"><div className="absolute left-1/2 top-1/2 h-32 w-56 -translate-x-1/2 -translate-y-1/2 rotate-[-7deg] rounded-2xl border border-white/90 bg-white/80 shadow-[0_18px_40px_rgba(15,35,90,.14)] backdrop-blur-xl"><div className="m-4 h-2 w-20 rounded-full bg-blue-200" /><div className="m-4 mt-6 grid grid-cols-3 gap-2"><span className="h-12 rounded-lg bg-blue-50" /><span className="h-12 rounded-lg bg-indigo-50" /><span className="h-12 rounded-lg bg-emerald-50" /></div><div className="m-4 mt-4 h-2 w-32 rounded-full bg-slate-100" /></div><div className="absolute bottom-2 right-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-xl text-white shadow-lg shadow-blue-600/25">✓</div></div></div></div></section>;
-}
-
-/* ------------------------------------------------------------------ */
-/* Info sections                                                        */
-/* ------------------------------------------------------------------ */
-const infoSections: [string, string, string][] = [
-  ["about", "Purpose-built for trusted assessments", "Give every candidate a calm, consistent experience while your team retains full control and visibility."],
-  ["how-it-works", "From registration to results", "Create an examination, invite candidates, monitor sessions in real time, and publish auditable results from one workspace."],
-  ["security", "Integrity at every layer", "Identity-aware access, configurable proctoring, activity signals, and defensible audit records protect every assessment."],
-  ["contact", "Ready to modernize your examinations?", "Talk to the KGS team about your institution, candidate volume, and security requirements."],
-];
-
-function InfoSections() {
-  return (
-    <div className="mx-auto mt-4 mb-10 w-[calc(100%-32px)] max-w-[1120px] sm:mt-6 sm:mb-10 sm:w-[calc(100%-40px)] md:w-[calc(100%-64px)]">
-      <div className="mb-8 max-w-[680px]">
-        <h2 className="m-0 text-2xl font-extrabold tracking-tight text-[color:var(--heading)] sm:text-3xl">Everything You Need for Confident Assessments</h2>
-        <p className="mt-2 mb-0 text-sm leading-relaxed text-[color:var(--body)] sm:text-base">A secure, auditable workflow for every stage of your examination program.</p>
-      </div>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {infoSections.map(([id, title, copy], i) => (
-          <section
-            key={id}
-            id={id}
-            className={`group flex min-h-[260px] flex-col rounded-[18px] border p-6 shadow-lg backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${id === "contact" ? "border-blue-200 bg-blue-50/80 shadow-blue-600/[0.10] hover:border-blue-400" : "border-[#E6EBF5] bg-white shadow-blue-600/[0.07] hover:border-blue-300"}`}
-          >
-            <div className="mb-5 flex items-center justify-between">
-              <span className="text-xs font-extrabold tracking-[0.18em] text-blue-600">0{i + 1}</span>
-              <span className="h-2 w-2 rounded-full bg-blue-600/20 transition-colors group-hover:bg-blue-600" aria-hidden="true" />
-            </div>
-            <h2 className="m-0 min-h-[3.5rem] text-xl font-bold leading-snug tracking-tight text-[color:var(--heading)]">{title}</h2>
-            <p className="m-0 text-[15px] leading-relaxed text-[color:var(--body)]">{copy}</p>
-            {id === "contact" && (
-              <a
-                href="mailto:exams@kgs.edu"
-                className="mt-auto inline-flex cursor-pointer items-center gap-2 pt-5 text-sm font-bold text-blue-600 no-underline transition-all hover:translate-x-1 hover:text-blue-700"
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="xl:hidden bg-surface-container-lowest border-b border-surface-container px-margin py-4 space-y-3 shadow-xl">
+            <div className="flex flex-col gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onAbout();
+                }}
+                className="py-2 text-left text-on-surface-variant font-label-lg"
               >
-                exams@kgs.edu <Icon name="arrow" size={15} />
+                About Us
+              </button>
+              <a
+                href="#batches"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 text-on-surface-variant font-label-lg"
+              >
+                Batches
               </a>
-            )}
-          </section>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Page                                                                 */
-/* ------------------------------------------------------------------ */
-export function LandingPage(props: LandingPageProps) {
-  return (
-    <div className="kgs-landing relative min-h-screen overflow-x-hidden font-sans">
-      <style>{themeCss}</style>
-      <SvgGradients />
-      <Navbar {...props} />
-
-      <main>
-        {/* ---------------- HERO ---------------- */}
-        <section id="home" className="relative isolate pb-14 pt-8 sm:pb-16 sm:pt-10 lg:min-h-[600px] lg:pb-20 lg:pt-12">
-          {/* Photo layer: bleeds to the viewport's right edge, feathered on left + bottom */}
-          <div className="kgs-photo pointer-events-none absolute inset-y-0 right-0 z-0 hidden w-full opacity-30 sm:block lg:w-[58%] lg:opacity-100">
-            <img
-              src={heroStudentImg}
-              alt="Student taking an online examination with headphones at a laptop"
-              className="h-full w-full object-cover"
-              style={{ objectPosition: HERO_POSITION }}
-            />
+              <a
+                href="#lms-preview"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 text-on-surface-variant font-label-lg"
+              >
+                Placement Track
+              </a>
+              <a
+                href="#achievers"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 text-on-surface-variant font-label-lg"
+              >
+                Achievers
+              </a>
+              <a
+                href="#lms-preview"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 text-on-surface-variant font-label-lg"
+              >
+                LMS Gateway
+              </a>
+            </div>
+            <div className="pt-3 border-t border-surface-container flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onLogin();
+                }}
+                className="w-full py-2.5 rounded-xl bg-primary text-on-primary font-label-md text-center"
+              >
+                Student Portal Login
+              </button>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onAdminLogin();
+                }}
+                className="w-full py-2.5 rounded-xl bg-surface-container-high text-on-surface font-label-md text-center"
+              >
+                Campus Partner Portal
+              </button>
+            </div>
           </div>
+        )}
+      </header>
 
-          <div className={`${container} relative z-10 grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-[0.96fr_1.04fr]`}>
-            <div className="flex flex-col items-start">
-              <div className="inline-flex items-center gap-2.5 rounded-full border border-[color:var(--glass-border)] bg-[color:var(--glass)] px-[18px] py-2 text-xs font-extrabold uppercase tracking-wider text-[color:var(--heading)] shadow-sm backdrop-blur-md">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(34,197,94,0.2)]" />
-                SECURE • FAIR • AI-RESISTANT • ENTERPRISE GRADE
+      {/* MAIN BODY CONTENT */}
+      <main className="w-full pt-16 bg-surface">
+        {/* SECTION 1: HERO & LIVE WORKBENCH PREVIEW */}
+        <section className="relative overflow-hidden bg-surface-container-low pt-space-xl pb-24 px-margin">
+          <div className="absolute -top-32 right-10 w-96 h-96 bg-primary-fixed-dim/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 left-10 w-80 h-80 bg-tertiary-fixed/30 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center relative z-10">
+            {/* Left Copy & Metric Highlights */}
+            <div className="lg:col-span-7 flex flex-col gap-space-md">
+              <div className="inline-flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-surface-container-lowest w-fit shadow-sm">
+                <span className="inline-block w-2.5 h-2.5 rounded-full bg-tertiary animate-ping" />
+                <span className="font-label-sm text-label-sm text-tertiary tracking-wide uppercase font-bold">
+                  Batch Q2 Admissions Active • Tier-1 Tech Guaranteed
+                </span>
               </div>
 
-              <h1 className="my-5 max-w-[720px] text-[clamp(2.125rem,4.4vw,4.25rem)] font-extrabold leading-[1.09] tracking-[-0.035em] sm:my-6">
-                <span className="kgs-grad-text block">Next-Generation</span>
-                <span className="block text-[color:var(--heading)]">Online Examination</span>
-                <span className="block text-[color:var(--heading)]">Platform</span>
+              <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight leading-tight">
+                Launch Your Career in <span className="text-primary font-bold">High-Impact</span>{" "}
+                Software Engineering
               </h1>
 
-              <p className="mb-8 max-w-[600px] text-[15px] font-normal leading-[1.6] text-[color:var(--body)] sm:text-base lg:text-lg">
-                A secure, proctored, and intelligent examination platform designed for educational
-                institutions and organizations to conduct fair, scalable, and tamper-proof assessments.
+              <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
+                From algorithmic mastery to high-throughput distributed microservices. Kaizentrix
+                Global Solutions bridges the gap between academic theory and high-paying engineering roles at top
+                product companies.
               </p>
 
-              <div className="flex w-full flex-wrap items-center gap-3.5 sm:w-auto sm:gap-4">
-                <button
-                  className={`${btnSecondary} h-[54px] w-full gap-2.5 rounded-2xl px-7 text-base font-semibold sm:w-auto`}
-                  onClick={props.onRegister}
+              {/* Primary Call to Action Buttons */}
+              <div className="flex flex-wrap items-center gap-space-md pt-space-xs">
+                <a
+                  href="#batches"
+                  className="px-space-lg py-3 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-md hover:bg-primary-container hover:text-on-primary-container transition-all flex items-center gap-2 group cursor-pointer"
                 >
-                  <Icon name="user" size={19} />
-                  Register as Student
-                  <Icon name="arrow" size={19} />
-                </button>
+                  <span>Enroll in Next Batch</span>
+                  <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
+                    arrow_forward
+                  </span>
+                </a>
+
                 <button
-                  className={`${btnPrimary} landing-login-btn h-[54px] w-full gap-2.5 rounded-2xl px-7 text-base font-semibold sm:w-auto`}
-                  onClick={props.onLogin}
+                  onClick={onLogin}
+                  className="px-space-lg py-3 rounded-xl bg-surface-container-lowest text-on-surface font-label-lg text-label-lg shadow-sm hover:bg-surface-container-high transition-all flex items-center gap-2 cursor-pointer"
                 >
-                  <Icon name="login" size={19} />
-                  Login
+                  <span className="material-symbols-outlined text-primary text-[20px]">
+                    terminal
+                  </span>
+                  <span>Student Portal Login</span>
                 </button>
+
+                <button
+                  onClick={onAdminLogin}
+                  className="px-4 py-3 rounded-xl bg-surface-container-high text-on-secondary-container font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[18px]">account_balance</span>
+                  <span>Campus Partner</span>
+                </button>
+              </div>
+
+              {/* 4 Key Platform Metric Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-space-sm pt-space-lg">
+                <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex flex-col justify-center">
+                  <div className="font-headline-lg text-headline-lg text-primary font-bold">96%</div>
+                  <div className="font-label-md text-label-md text-on-surface-variant">
+                    Placement Rate
+                  </div>
+                  <div className="font-label-sm text-label-sm text-tertiary font-medium">
+                    In 90 Days post-grad
+                  </div>
+                </div>
+
+                <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex flex-col justify-center">
+                  <div className="font-headline-lg text-headline-lg text-on-surface font-bold">
+                    1,200+
+                  </div>
+                  <div className="font-label-md text-label-md text-on-surface-variant">
+                    Hiring Partners
+                  </div>
+                  <div className="font-label-sm text-label-sm text-on-surface-variant/80 font-medium">
+                    Startups &amp; MNCs
+                  </div>
+                </div>
+
+                <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex flex-col justify-center">
+                  <div className="font-headline-lg text-headline-lg text-tertiary font-bold">
+                    14.2 LPA
+                  </div>
+                  <div className="font-label-md text-label-md text-on-surface-variant">
+                    Highest Package
+                  </div>
+                  <div className="font-label-sm text-label-sm text-on-surface-variant/80 font-medium">
+                    Avg: 7.8 LPA
+                  </div>
+                </div>
+
+                <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex flex-col justify-center">
+                  <div className="flex items-center gap-1">
+                    <span className="font-headline-lg text-headline-lg text-on-surface font-bold">
+                      4.8
+                    </span>
+                    <span
+                      className="material-symbols-outlined text-amber-500 text-[24px]"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      star
+                    </span>
+                  </div>
+                  <div className="font-label-md text-label-md text-on-surface-variant">
+                    Student Rating
+                  </div>
+                  <div className="font-label-sm text-label-sm text-on-surface-variant/80 font-medium">
+                    5,400+ Alumni
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="pointer-events-none relative hidden min-h-[460px] w-full lg:block xl:min-h-[520px]">
-              <ProctorCard />
-              <MonitorCard />
-              <EvaluationCard />
+            {/* Right Visual: Terminal & Live Code Evaluation Workbench Preview */}
+            <div className="lg:col-span-5 flex flex-col gap-space-md">
+              <div className="bg-inverse-surface rounded-2xl shadow-xl overflow-hidden p-space-md text-inverse-on-surface flex flex-col">
+                <div className="flex items-center justify-between pb-3 border-b border-surface-variant/20">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-error inline-block" />
+                    <span className="w-3 h-3 rounded-full bg-amber-400 inline-block" />
+                    <span className="w-3 h-3 rounded-full bg-tertiary-fixed inline-block" />
+                    <span className="font-label-sm text-label-sm text-outline-variant font-mono ml-2">
+                      kgs-engine // distributed-cache.ts
+                    </span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-semibold">
+                    LIVE RUNNER
+                  </span>
+                </div>
+
+                <div className="py-space-md font-mono text-body-sm space-y-1.5 select-none overflow-x-auto text-surface-container-low">
+                  <div>
+                    <span className="text-tertiary-fixed font-bold">export class</span>{" "}
+                    <span className="text-secondary-fixed">LRUCacheCluster</span> &#123;
+                  </div>
+                  <div className="pl-4 text-outline-variant">
+                    <span className="text-primary-fixed-dim">private</span> capacity:{" "}
+                    <span className="text-amber-300">number</span>;
+                  </div>
+                  <div className="pl-4 text-outline-variant">
+                    <span className="text-primary-fixed-dim">private</span> nodeMap ={" "}
+                    <span className="text-tertiary-fixed">new</span> Map&lt;
+                    <span className="text-amber-300">string</span>,{" "}
+                    <span className="text-amber-300">Node</span>&gt;();
+                  </div>
+                  <div className="pl-4 pt-1">
+                    <span className="text-primary-fixed-dim">async</span>{" "}
+                    <span className="text-secondary-fixed">rebalanceShards</span>() &#123;
+                  </div>
+                  <div className="pl-8 text-tertiary-fixed">// Zero-downtime consensus hashing</div>
+                  <div className="pl-8">
+                    await <span className="text-secondary-fixed">ConsensusMesh</span>.sync();
+                  </div>
+                  <div className="pl-8 text-on-tertiary-container">
+                    return &#123; status: <span className="text-amber-300">"OPTIMAL"</span>,
+                    latencyMs: 1.4 &#125;;
+                  </div>
+                  <div className="pl-4">&#125;</div>
+                  <div>&#125;</div>
+                </div>
+
+                <div className="bg-surface-container-lowest/10 rounded-xl p-3 flex items-center justify-between mt-2">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-tertiary-fixed text-[20px]">
+                      check_circle
+                    </span>
+                    <span className="font-label-sm text-label-sm text-surface-bright">
+                      Test Suite Passed: 48/48 edge cases
+                    </span>
+                  </div>
+                  <span className="font-mono text-[11px] text-tertiary-fixed bg-tertiary-fixed/20 px-2 py-0.5 rounded">
+                    0.024s CPU
+                  </span>
+                </div>
+              </div>
+
+              {/* Student Interview Simulation Floating Card */}
+              <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-md flex items-center justify-between -mt-4 mx-4 z-20 border border-surface-container">
+                <div className="flex items-center gap-space-sm">
+                  <img
+                    className="w-12 h-12 rounded-xl object-cover"
+                    alt="Praveen K. Alumni"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxWumRUkZR-VvDWJiRwsrOeM2Y5ASn8KOnVuHDa9elg3rwAvRzdxFLzHoy2vZpUY1ketlfF4f7fjpbV2NDYWEU9PZoDAjj2A-IqpOwlTdRfEwIDZeX0OYm4cgVJuZCSP8GY2wSyiYAOGLdFyjFukkIfi76ZYDufh7wygWS5X9wA_kg5iV95XF_JneUeWHNOUPSXKhrFi8J4cq1h0hNhvpQSRlTxAdqtao3APxd4Llw"
+                  />
+                  <div>
+                    <div className="font-label-lg text-label-lg text-on-surface">
+                      Praveen K. (Alumni)
+                    </div>
+                    <div className="font-body-sm text-body-sm text-on-surface-variant">
+                      SDE-1 @ Amazon Web Services
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="font-headline-sm text-headline-sm text-tertiary font-bold">
+                    14.2 LPA
+                  </div>
+                  <div className="font-label-sm text-label-sm text-outline">Batch of Oct 2024</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 2: HIRING PARTNERS INFINITE MARQUEE */}
+        <section className="py-space-lg bg-surface-container-lowest overflow-hidden border-y border-surface-container-low">
+          <div className="max-w-7xl mx-auto px-margin mb-space-sm flex flex-col md:flex-row items-baseline justify-between">
+            <span className="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant font-bold">
+              Recruiting &amp; Strategic Engineering Partners
+            </span>
+            <span className="font-body-sm text-body-sm text-primary font-semibold">
+              1,200+ Active Enterprise Requisitions
+            </span>
+          </div>
+
+          {/* Scrolling Track */}
+          <div className="relative w-full overflow-hidden flex items-center py-space-sm">
+            <div className="flex items-center gap-12 whitespace-nowrap animate-[marquee_25s_linear_infinite]">
+              {[...PARTNERS, ...PARTNERS].map((partner, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 font-headline-sm text-headline-sm font-bold text-on-surface/80 tracking-tight"
+                >
+                  <span className={`material-symbols-outlined ${partner.color} text-[28px]`}>
+                    {partner.icon}
+                  </span>
+                  {partner.name}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3: ACHIEVER HALL OF FAME */}
+        <section id="achievers" className="py-space-xl px-margin max-w-7xl mx-auto w-full">
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-space-lg gap-space-sm">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm uppercase mb-2 font-semibold">
+                <span className="material-symbols-outlined text-[16px]">verified</span>
+                Verified Outcomes
+              </div>
+              <h2 className="font-headline-lg text-headline-lg text-on-surface">
+                Achiever Hall of Fame
+              </h2>
+              <p className="font-body-md text-body-md text-on-surface-variant">
+                Real offers, verified salaries, and actual interview breakthroughs by Kaizentrix Global Solutions
+                engineers.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => scrollAchievers("left")}
+                aria-label="Previous Stories"
+                className="p-2.5 rounded-xl bg-surface-container-high text-on-surface hover:bg-surface-container transition-colors shadow-sm cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+              </button>
+              <button
+                onClick={() => scrollAchievers("right")}
+                aria-label="Next Stories"
+                className="p-2.5 rounded-xl bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
+              </button>
             </div>
           </div>
 
-          <div className={`${container} relative z-10 mt-8 md:mt-10 lg:hidden`}>
-            <ResponsiveHeroCards />
-          </div>
-
-          {/* Full-width wave, always the same color as the page background */}
-          <svg
-            className="pointer-events-none absolute inset-x-0 -bottom-px z-20 block h-8 w-full sm:h-10"
-            viewBox="0 0 1440 80"
-            preserveAspectRatio="none"
-            aria-hidden="true"
+          {/* Achiever Cards Grid / Scrollable Mosaic */}
+          <div
+            ref={achieverGridRef}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-md overflow-x-auto pb-4 scroll-smooth"
           >
-            <path
-              d="M0,32 C360,80 720,0 1080,48 C1260,72 1380,56 1440,80 L1440,80 L0,80 Z"
-              style={{ fill: "var(--page-bg)" }}
-            />
-          </svg>
+            {ACHIEVERS.map((achiever) => (
+              <div
+                key={achiever.id}
+                className="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between group border border-surface-container-low min-w-[280px]"
+              >
+                <div>
+                  <div className="relative w-full h-48 rounded-xl overflow-hidden mb-space-sm">
+                    <img
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      alt={achiever.name}
+                      src={achiever.image}
+                    />
+                    <span className="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-inverse-surface/80 backdrop-blur-md text-inverse-on-surface font-label-sm text-label-sm flex items-center gap-1 font-semibold">
+                      <span className="material-symbols-outlined text-amber-400 text-[14px]">
+                        videocam
+                      </span>{" "}
+                      Watch Prep
+                    </span>
+                    <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-lg bg-surface-container-lowest/90 backdrop-blur-md font-label-md text-label-md text-primary font-bold">
+                      {achiever.packageLpa}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-headline-sm text-headline-sm text-on-surface">
+                      {achiever.name}
+                    </span>
+                    <span
+                      className={`font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container ${achiever.companyColor} font-semibold`}
+                    >
+                      {achiever.company}
+                    </span>
+                  </div>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                    {achiever.role} • {achiever.location}
+                  </p>
+                  <p className="font-body-sm text-body-sm text-outline mt-2 italic line-clamp-2">
+                    "{achiever.quote}"
+                  </p>
+                </div>
+                <div className="mt-space-md pt-3 bg-surface-container-low/50 rounded-xl p-2.5 flex items-center justify-between text-body-sm text-on-surface-variant font-label-sm">
+                  <span>{achiever.college}</span>
+                  <span className="text-tertiary font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-tertiary" />
+                    Offer Verified
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
-        <FeatureStrip />
-        <ExaminationJourney />
-        <PlatformWorkflow />
-        <SecurityDemo />
-        <FinalCta onLogin={props.onLogin} />
-        <InfoSections />
+        {/* SECTION 4: UPCOMING BATCHES & ENGINEERING TRACKS */}
+        <section id="batches" className="py-space-xl px-margin bg-surface-container-low">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-space-lg gap-space-sm">
+              <div>
+                <span className="font-label-sm text-label-sm uppercase tracking-widest text-primary font-bold">
+                  Accelerated Curriculum
+                </span>
+                <h2 className="font-headline-lg text-headline-lg text-on-surface mt-1">
+                  Upcoming Batches &amp; Engineering Tracks
+                </h2>
+                <p className="font-body-md text-body-md text-on-surface-variant">
+                  Live mentor-led classes, production grade capstones, and direct referral pipeline.
+                </p>
+              </div>
+
+              {/* Category Filter Tabs */}
+              <div className="flex items-center gap-space-xs bg-surface-container-lowest p-1 rounded-xl shadow-sm border border-surface-container-high">
+                {(
+                  [
+                    { key: "all", label: "All Tracks" },
+                    { key: "fullstack", label: "Full Stack" },
+                    { key: "data", label: "Data & AI" },
+                    { key: "cloud", label: "Cloud" },
+                  ] as const
+                ).map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setActiveTrackFilter(key)}
+                    className={`px-3 py-1.5 rounded-lg font-label-sm text-label-sm font-semibold transition-all cursor-pointer ${
+                      activeTrackFilter === key
+                        ? "bg-primary text-on-primary shadow-xs"
+                        : "text-on-surface-variant hover:text-on-surface"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Batch Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+              {filteredTracks.map((track) => (
+                <div
+                  key={track.id}
+                  className="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-surface-container"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-space-sm">
+                      <span
+                        className={`px-3 py-1 rounded-full bg-surface-container ${track.badgeColor} font-label-sm text-label-sm font-semibold flex items-center gap-1`}
+                      >
+                        <span className="material-symbols-outlined text-[16px]">
+                          {track.badgeIcon}
+                        </span>
+                        {track.badge}
+                      </span>
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-bold ${track.seatsNoticeColor}`}
+                      >
+                        {track.seatsNotice}
+                      </span>
+                    </div>
+
+                    <h3 className="font-headline-md text-headline-md text-on-surface">
+                      {track.title}
+                    </h3>
+                    <p className="font-body-md text-body-md text-on-surface-variant mt-2 leading-relaxed">
+                      {track.description}
+                    </p>
+
+                    <div className="grid grid-cols-3 gap-space-sm my-space-md py-space-sm bg-surface-container-low rounded-xl px-space-md text-center">
+                      <div>
+                        <div className="font-label-sm text-label-sm text-outline">Cohort Start</div>
+                        <div className="font-label-lg text-label-lg text-on-surface mt-0.5 font-bold">
+                          {track.startDate}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-label-sm text-label-sm text-outline">Duration</div>
+                        <div className="font-label-lg text-label-lg text-on-surface mt-0.5 font-bold">
+                          {track.duration}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-label-sm text-label-sm text-outline">Format</div>
+                        <div className="font-label-lg text-label-lg text-on-surface mt-0.5 font-bold">
+                          {track.format}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-space-xs">
+                    <a
+                      className="inline-flex items-center gap-1.5 text-primary font-label-md text-label-md hover:underline font-semibold"
+                      href="#batches"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">download</span>
+                      <span>Download Syllabus PDF</span>
+                    </a>
+                    <button
+                      onClick={onRegister}
+                      className={`px-space-md py-2.5 rounded-xl font-label-md text-label-md shadow transition-all cursor-pointer ${track.actionColor}`}
+                    >
+                      Apply For Track
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 5: INTERACTIVE STUDENT OPERATING SYSTEM / LMS */}
+        <section id="lms-preview" className="py-space-xl px-margin max-w-7xl mx-auto w-full">
+          <div className="bg-gradient-to-br from-surface-container-high via-surface-container to-surface-container-low rounded-3xl p-space-lg lg:p-space-xl relative overflow-hidden shadow-lg border border-surface-container-high">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center relative z-10">
+              <div className="lg:col-span-6 flex flex-col gap-space-md">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-lowest text-primary font-label-sm text-label-sm font-semibold w-fit shadow-xs">
+                  <span className="material-symbols-outlined text-[16px]">devices</span>
+                  The Student Operating System
+                </div>
+                <h2 className="font-headline-lg text-headline-lg text-on-surface">
+                  Code Anywhere. Track Every Placement Round in Real Time.
+                </h2>
+                <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                  Our multi-platform LMS &amp; Placement Gateway combines automated coding assessment
+                  grading, mock AI technical interviews, instant campus announcements, and one-tap
+                  interview scheduling.
+                </p>
+                <ul className="space-y-2.5 pt-space-xs font-body-sm text-body-sm text-on-surface">
+                  <li className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-tertiary text-[18px]">
+                      check_circle
+                    </span>
+                    <span>Integrated Web IDE supporting Java, C++, Python, TypeScript, and Go</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-tertiary text-[18px]">
+                      check_circle
+                    </span>
+                    <span>Push alerts for exclusive on-campus and virtual hiring drives</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-tertiary text-[18px]">
+                      check_circle
+                    </span>
+                    <span>
+                      Personalized DSA weakness diagnosis with curated leetcode-grade drills
+                    </span>
+                  </li>
+                </ul>
+
+                {/* App Store Download Badges */}
+                <div className="flex flex-wrap items-center gap-space-sm pt-space-md">
+                  <a
+                    className="inline-flex items-center gap-3 px-space-md py-2.5 rounded-xl bg-inverse-surface text-inverse-on-surface shadow hover:opacity-90 transition-opacity cursor-pointer"
+                    href="#lms-preview"
+                  >
+                    <span className="material-symbols-outlined text-[28px]">android</span>
+                    <div className="text-left">
+                      <div className="font-label-sm text-[10px] uppercase opacity-75">
+                        Get it on
+                      </div>
+                      <div className="font-label-lg text-label-lg font-bold leading-tight">
+                        Google Play
+                      </div>
+                    </div>
+                  </a>
+                  <a
+                    className="inline-flex items-center gap-3 px-space-md py-2.5 rounded-xl bg-inverse-surface text-inverse-on-surface shadow hover:opacity-90 transition-opacity cursor-pointer"
+                    href="#lms-preview"
+                  >
+                    <span className="material-symbols-outlined text-[28px]">phone_iphone</span>
+                    <div className="text-left">
+                      <div className="font-label-sm text-[10px] uppercase opacity-75">
+                        Download on the
+                      </div>
+                      <div className="font-label-lg text-label-lg font-bold leading-tight">
+                        Apple App Store
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              {/* Visual LMS Mockup Dashboard */}
+              <div className="lg:col-span-6 relative">
+                <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-xl flex flex-col gap-3 border border-surface-container">
+                  <div className="flex items-center justify-between pb-3 border-b border-surface-container">
+                    <div className="flex items-center gap-2">
+                      <span className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold font-headline-sm">
+                        D
+                      </span>
+                      <span className="font-label-lg text-label-lg text-on-surface font-bold">
+                        Student Portal Dashboard
+                      </span>
+                    </div>
+                    <span className="font-label-sm text-label-sm text-tertiary bg-surface-container px-2 py-1 rounded-full font-bold">
+                      ● 14 Streak Days
+                    </span>
+                  </div>
+
+                  {/* Dashboard Mini Widgets */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-surface-container-low p-3 rounded-xl border border-surface-container">
+                      <span className="font-label-sm text-label-sm text-outline">Upcoming Drive</span>
+                      <div className="font-label-lg text-label-lg text-on-surface mt-1 font-bold">
+                        Amazon SDET Round 2
+                      </div>
+                      <div className="font-body-sm text-[11px] text-tertiary mt-0.5 font-semibold">
+                        Tomorrow, 10:00 AM IST
+                      </div>
+                    </div>
+                    <div className="bg-surface-container-low p-3 rounded-xl border border-surface-container">
+                      <span className="font-label-sm text-label-sm text-outline">
+                        Algorithm Mastery
+                      </span>
+                      <div className="font-label-lg text-label-lg text-primary mt-1 font-bold">
+                        Tier: Diamond (Top 4%)
+                      </div>
+                      <div className="font-body-sm text-[11px] text-outline mt-0.5">
+                        342 Problems Solved
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mini Daily Task List */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-surface-container-low text-body-sm text-on-surface">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-tertiary text-[18px]">
+                          task_alt
+                        </span>
+                        <span>System Design: Distributed Rate Limiter</span>
+                      </div>
+                      <span className="font-label-sm text-label-sm text-outline">Submitted</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-surface-container-low text-body-sm text-on-surface">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary text-[18px]">
+                          play_circle
+                        </span>
+                        <span>Live Masterclass: Concurrency in Go</span>
+                      </div>
+                      <span className="font-label-sm text-label-sm text-primary font-bold">
+                        7:00 PM
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 6: DETAILED HEADQUARTERS & ACCREDITATION FOOTER SECTION */}
+        <section className="bg-surface-container-lowest pt-space-xl pb-space-lg px-margin border-t border-surface-container-low">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-lg pb-space-lg">
+            {/* Col 1: Brand & Certification */}
+            <div className="lg:col-span-2 flex flex-col gap-space-sm">
+              <div className="flex items-center gap-2">
+                <img
+                  alt="Kaizentrix Global Solutions"
+                  className="h-8 w-auto"
+                  src={logo}
+                />
+                <span className="font-headline-sm text-headline-sm text-primary font-bold">
+                  Kaizentrix Global Solutions
+                </span>
+              </div>
+              <p className="font-body-sm text-body-sm text-on-surface-variant max-w-sm mt-1 leading-relaxed">
+                India's leading specialized accelerator for algorithmic mastery, full-stack systems
+                engineering, and Tier-1 product placement training.
+              </p>
+
+              {/* Certifications */}
+              <div className="flex items-center gap-2 mt-2">
+                <span className="px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
+                  ISO 9001:2015 Certified
+                </span>
+                <span className="px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
+                  NASSCOM Partner
+                </span>
+              </div>
+
+              {/* Social Channels */}
+              <div className="flex items-center gap-space-xs mt-3 text-on-surface-variant">
+                <a
+                  aria-label="LinkedIn"
+                  className="p-2 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors"
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V8.98h3.42v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.29ZM5.32 7.41a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13ZM7.1 20.45H3.54V8.98H7.1v11.47Z" />
+                  </svg>
+                </a>
+                <a
+                  aria-label="GitHub"
+                  className="p-2 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors"
+                  href="https://github.com"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M12 2C6.48 2 2 6.58 2 12.23c0 4.52 2.87 8.35 6.84 9.71.5.1.68-.22.68-.49 0-.24-.01-1.05-.01-1.9-2.78.62-3.37-1.2-3.37-1.2-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.35 1.12 2.92.85.09-.66.35-1.12.64-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.35 9.35 0 0 1 12 6.96a9.3 9.3 0 0 1 2.5.35c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.35 4.8-4.58 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.59.69.49A10.23 10.23 0 0 0 22 12.23C22 6.58 17.52 2 12 2Z" clipRule="evenodd" />
+                  </svg>
+                </a>
+                <a
+                  aria-label="YouTube"
+                  className="p-2 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors"
+                  href="https://youtube.com"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M23.5 6.2a3 3 0 0 0-2.1-2.12C19.55 3.57 12 3.57 12 3.57s-7.55 0-9.4.51A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.12c1.85.51 9.4.51 9.4.51s7.55 0 9.4-.51a3 3 0 0 0 2.1-2.12A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8ZM9.6 15.57V8.43L15.82 12 9.6 15.57Z" />
+                  </svg>
+                </a>
+                <a
+                  aria-label="Discord"
+                  className="p-2 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors"
+                  href="https://discord.com"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M20.32 4.37A19.8 19.8 0 0 0 15.44 2.9l-.6 1.22a18.3 18.3 0 0 0-5.67 0L8.56 2.9A19.7 19.7 0 0 0 3.68 4.38C.6 8.96-.23 13.42.18 17.82a19.9 19.9 0 0 0 5.99 3.03l1.46-1.98a12.8 12.8 0 0 1-2.3-1.1l.57-.45c3.96 1.84 8.26 1.84 12.17 0l.58.45c-.74.43-1.5.8-2.3 1.1l1.46 1.98a19.8 19.8 0 0 0 6-3.03c.48-5.1-.83-9.51-3.49-13.45ZM8.02 15.13c-1.2 0-2.18-1.1-2.18-2.45s.96-2.45 2.18-2.45c1.21 0 2.2 1.1 2.18 2.45 0 1.35-.96 2.45-2.18 2.45Zm7.96 0c-1.2 0-2.18-1.1-2.18-2.45s.96-2.45 2.18-2.45c1.22 0 2.2 1.1 2.18 2.45 0 1.35-.96 2.45-2.18 2.45Z" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            {/* Col 2: Programs */}
+            <div className="flex flex-col gap-2">
+              <span className="font-label-lg text-label-lg text-on-surface font-bold">
+                Curriculum
+              </span>
+              <a
+                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
+                href="#batches"
+              >
+                Full-Stack MERN Track
+              </a>
+              <a
+                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
+                href="#batches"
+              >
+                Enterprise Java &amp; Spring Cloud
+              </a>
+              <a
+                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
+                href="#batches"
+              >
+                Data Engineering &amp; AI/LLMs
+              </a>
+              <a
+                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
+                href="#batches"
+              >
+                Cloud Architecture &amp; DevOps
+              </a>
+              <a
+                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
+                href="#batches"
+              >
+                DSA &amp; Problem Solving Clinic
+              </a>
+            </div>
+
+            {/* Col 3: Portal Gateways */}
+            <div className="flex flex-col gap-2">
+              <span className="font-label-lg text-label-lg text-on-surface font-bold">Portals</span>
+              <button
+                onClick={onLogin}
+                className="text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+              >
+                Student LMS Gateway
+              </button>
+              <a
+                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
+                href="#batches"
+              >
+                Placement Requisition Board
+              </a>
+              <button
+                onClick={onAdminLogin}
+                className="text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+              >
+                University Campus Portal
+              </button>
+              <button
+                onClick={onAdminLogin}
+                className="text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+              >
+                Hiring Partner Console
+              </button>
+              <a
+                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
+                href="#achievers"
+              >
+                Verify Alumni Credentials
+              </a>
+            </div>
+
+            {/* Col 4: KGS Headquarters & Direct Line */}
+            <div className="flex flex-col gap-2">
+              <span className="font-label-lg text-label-lg text-on-surface font-bold">
+                Headquarters
+              </span>
+              <div className="font-body-sm text-body-sm text-on-surface-variant flex items-start gap-2">
+                <span className="material-symbols-outlined text-outline text-[18px] mt-0.5">
+                  location_on
+                </span>
+                <span>
+                  Kaizentrix Global Solutions, Tech Zone II, OMR IT Corridor, Chennai, Tamil Nadu 600119
+                </span>
+              </div>
+              <div className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2 mt-1">
+                <span className="material-symbols-outlined text-outline text-[18px]">call</span>
+                <span>+91 (044) 4892-0900 / 0901</span>
+              </div>
+              <div className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2">
+                <span className="material-symbols-outlined text-outline text-[18px]">mail</span>
+                <span>admissions@kaizentrixglobal.com</span>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
-      <footer className="border-t border-[color:var(--hairline)] bg-[color:var(--foot-bg)] py-12 backdrop-blur-md sm:py-14">
-        <div className={`${container} mb-10 grid gap-10 border-b border-[color:var(--hairline)] pb-10 sm:grid-cols-2 lg:grid-cols-4`}>
-          <div><Brand /><p className="mt-5 max-w-xs text-sm leading-relaxed text-[color:var(--body)]">Secure examination infrastructure for fair, auditable assessments.</p></div>
-          <div><h3 className="text-xs font-extrabold uppercase tracking-[.16em] text-[color:var(--heading)]">Product</h3><div className="mt-4 flex flex-col gap-3 text-sm"><a href="#how-it-works" className="text-[color:var(--body)] no-underline hover:text-blue-600">How it works</a><a href="#security-demo" className="text-[color:var(--body)] no-underline hover:text-blue-600">Security &amp; proctoring</a><a href="#features" className="text-[color:var(--body)] no-underline hover:text-blue-600">Capabilities</a></div></div>
-          <div><h3 className="text-xs font-extrabold uppercase tracking-[.16em] text-[color:var(--heading)]">Support</h3><div className="mt-4 flex flex-col gap-3 text-sm"><a href="mailto:exams@kgs.edu" className="text-[color:var(--body)] no-underline hover:text-blue-600">Help &amp; support</a><a href="#contact" className="text-[color:var(--body)] no-underline hover:text-blue-600">Contact KGS</a><a href="#security" className="text-[color:var(--body)] no-underline hover:text-blue-600">Examination policy</a><a href="#privacy" className="text-[color:var(--body)] no-underline hover:text-blue-600">Privacy policy</a><a href="#terms" className="text-[color:var(--body)] no-underline hover:text-blue-600">Terms of use</a></div></div>
-          <div><h3 className="text-xs font-extrabold uppercase tracking-[.16em] text-[color:var(--heading)]">Contact</h3><p className="mt-4 text-sm leading-relaxed text-[color:var(--body)]">Questions about your examination program?</p><a href="mailto:exams@kgs.edu" className="text-sm font-bold text-blue-600 no-underline hover:text-blue-700">exams@kgs.edu</a></div>
-        </div>
-        <div className={`${container} flex flex-col items-center justify-between gap-6 text-sm text-[color:var(--body)] sm:flex-row`}>
-          <Brand />
-          <p className="m-0 text-center sm:text-left">
-            © {new Date().getFullYear()} KGS Institute. Secure examination infrastructure.
-          </p>
-          <a href="#home" className="text-[color:var(--body)] no-underline transition-colors hover:text-blue-600">
-            Back to top ↑
-          </a>
+      {/* GLOBAL FOOTER */}
+      <footer className="w-full bg-surface-container-low py-space-lg border-t border-surface-container">
+        <div className="max-w-7xl mx-auto px-margin flex flex-col md:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant">
+          <div className="flex items-center gap-space-md">
+            <span className="font-headline-sm text-headline-sm text-on-surface font-bold">
+              Kaizentrix Global Solutions
+            </span>
+            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline">Outcome-Driven Engineering Accelerator</span>
+          </div>
+          <div className="flex items-center gap-space-lg">
+            <a className="hover:text-on-surface transition-colors" href="mailto:admissions@kaizentrixglobal.com">
+              Campus Assistance
+            </a>
+            <a className="hover:text-on-surface transition-colors" href="#batches">
+              Placement Policy
+            </a>
+            <span className="font-label-sm text-label-sm text-tertiary bg-surface-container px-2 py-0.5 rounded-full font-bold">
+              Build v2.10-live
+            </span>
+          </div>
         </div>
       </footer>
     </div>

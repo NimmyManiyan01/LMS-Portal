@@ -1,0 +1,14 @@
+{
+  "title": "Kaizentrix Global Solutions",
+  "description": "A secure online exam platform for students and administrators to manage registrations, MCQ exams, live monitoring, results, reviews, and reports.",
+  "icons": {
+    "icon": "/kgs-favicon.svg"
+  },
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

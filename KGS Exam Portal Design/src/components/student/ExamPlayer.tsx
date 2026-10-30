@@ -78,8 +78,10 @@ export function ExamPlayer({
     null,
   )
   const [lastIntegrityType, setLastIntegrityType] =
-    useState<"TAB_HIDDEN" | "FULLSCREEN_EXIT">("TAB_HIDDEN")
+    useState<"TAB_HIDDEN" | "FULLSCREEN_EXIT" | "COPY" | "PASTE" | "SCREENSHOT" | "MULTIPLE_PERSON">("TAB_HIDDEN")
   const [showWarningModal, setShowWarningModal] = useState(false)
+  const [contentObscured, setContentObscured] = useState(false)
+  const [multiplePeopleDetected, setMultiplePeopleDetected] = useState(false)
   const [paletteOpen, setPaletteOpen] = useState(true)
   const [saveState, setSaveState] =
     useState<"saved" | "saving" | "failed" | "retrying">("saved")
@@ -103,10 +105,12 @@ export function ExamPlayer({
   const lastVisibilityIncident = useRef(0)
   const pendingIntegrityEvents = useRef(new Map<string, number>())
   const finalizingRef = useRef(false)
+  const consecutiveMultipleFacesRef = useRef(0)
+  const lastMultiplePersonIncidentRef = useRef(0)
 
   const recordIntegrityEvent = async (
     eventId: string,
-    eventType: "TAB_HIDDEN" | "FULLSCREEN_EXIT",
+    eventType: "TAB_HIDDEN" | "FULLSCREEN_EXIT" | "COPY" | "PASTE" | "SCREENSHOT" | "MULTIPLE_PERSON",
     attempt = 0,
   ): Promise<void> => {
     try {
@@ -255,6 +259,47 @@ export function ExamPlayer({
   }, [cameraStatus, exam.readinessRequirements?.camera])
 
   useEffect(() => {
+    if (!exam.readinessRequirements?.camera || cameraStatus !== "active") return
+    const FaceDetectorConstructor = (window as any).FaceDetector
+    if (!FaceDetectorConstructor) return
+
+    const detector = new FaceDetectorConstructor({ fastMode: true, maxDetectedFaces: 3 })
+    let detectionRunning = false
+    const detectFaces = async () => {
+      const video = cameraVideoRef.current
+      if (detectionRunning || !video || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return
+      detectionRunning = true
+      try {
+        const faces = await detector.detect(video)
+        if (faces.length > 1) {
+          consecutiveMultipleFacesRef.current += 1
+          const now = Date.now()
+          if (consecutiveMultipleFacesRef.current >= 2 && now - lastMultiplePersonIncidentRef.current > 10000) {
+            lastMultiplePersonIncidentRef.current = now
+            consecutiveMultipleFacesRef.current = 0
+            setMultiplePeopleDetected(true)
+            setLastIntegrityType("MULTIPLE_PERSON")
+            setShowWarningModal(true)
+            const eventId = `multiple-person-${attemptId}-${now}-${crypto.randomUUID()}`
+            pendingIntegrityEvents.current.set(eventId, 0)
+            void recordIntegrityEvent(eventId, "MULTIPLE_PERSON")
+          }
+        } else {
+          consecutiveMultipleFacesRef.current = 0
+        }
+      } catch {
+        // Face detection can temporarily fail while the camera frame changes.
+      } finally {
+        detectionRunning = false
+      }
+    }
+
+    const timer = window.setInterval(() => void detectFaces(), 1800)
+    void detectFaces()
+    return () => window.clearInterval(timer)
+  }, [attemptId, cameraStatus, exam.readinessRequirements?.camera])
+
+  useEffect(() => {
     if (!exam.readinessRequirements?.fullscreen) return
     const handleFullscreenChange = () => {
       const active = !!document.fullscreenElement
@@ -287,6 +332,51 @@ export function ExamPlayer({
           setFullscreenThreshold(result.rules.fullscreenExitThreshold)
       })
       .catch(() => undefined)
+  }, [attemptId])
+
+  useEffect(() => {
+    const protectContent = (eventType: "COPY" | "PASTE" | "SCREENSHOT") => {
+      const now = Date.now()
+      const eventId = `${eventType.toLowerCase()}-${attemptId}-${now}-${crypto.randomUUID()}`
+      setContentObscured(true)
+      setLastIntegrityType(eventType)
+      setShowWarningModal(true)
+      pendingIntegrityEvents.current.set(eventId, 0)
+      void recordIntegrityEvent(eventId, eventType)
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "PrintScreen") return
+      event.preventDefault()
+      protectContent("SCREENSHOT")
+      void navigator.clipboard?.writeText("").catch(() => undefined)
+    }
+    const handleCopy = (event: ClipboardEvent) => {
+      event.preventDefault()
+      protectContent("COPY")
+    }
+    const handleCut = (event: ClipboardEvent) => {
+      event.preventDefault()
+      protectContent("COPY")
+    }
+    const handlePaste = (event: ClipboardEvent) => {
+      event.preventDefault()
+      protectContent("PASTE")
+    }
+    const handleContextMenu = (event: MouseEvent) => event.preventDefault()
+
+    window.addEventListener("keydown", handleKeyDown, true)
+    document.addEventListener("copy", handleCopy, true)
+    document.addEventListener("cut", handleCut, true)
+    document.addEventListener("paste", handlePaste, true)
+    document.addEventListener("contextmenu", handleContextMenu, true)
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, true)
+      document.removeEventListener("copy", handleCopy, true)
+      document.removeEventListener("cut", handleCut, true)
+      document.removeEventListener("paste", handlePaste, true)
+      document.removeEventListener("contextmenu", handleContextMenu, true)
+    }
   }, [attemptId])
 
   useEffect(() => {
@@ -397,38 +487,42 @@ export function ExamPlayer({
   }
 
   const selectOption = (optId: string) => {
-    setAnswers((prev) => {
-      const next = {
-        ...prev,
-        [currentQ.id]: {
-          ...prev[currentQ.id],
-          selectedOptionId: optId,
-          visited: true,
-        },
-      }
-      void persistAnswer(next[currentQ.id])
-      return next
-    })
+    const previous = answers[currentQ.id]
+    const updated: AnswerState = {
+      questionId: currentQ.id,
+      selectedOptionId: optId,
+      isMarkedForReview: previous?.isMarkedForReview ?? false,
+      visited: true,
+      timeSpentSeconds: previous?.timeSpentSeconds ?? 0,
+    }
+    setAnswers((current) => ({ ...current, [currentQ.id]: updated }))
+    void persistAnswer(updated)
   }
 
   const clearResponse = () => {
-    setAnswers((prev) => ({
-      ...prev,
-      [currentQ.id]: {
-        ...prev[currentQ.id],
-        selectedOptionId: undefined,
-      },
-    }))
+    const previous = answers[currentQ.id]
+    const updated: AnswerState = {
+      questionId: currentQ.id,
+      selectedOptionId: undefined,
+      isMarkedForReview: previous?.isMarkedForReview ?? false,
+      visited: true,
+      timeSpentSeconds: previous?.timeSpentSeconds ?? 0,
+    }
+    setAnswers((current) => ({ ...current, [currentQ.id]: updated }))
+    void persistAnswer(updated)
   }
 
   const toggleMarkForReview = () => {
-    setAnswers((prev) => ({
-      ...prev,
-      [currentQ.id]: {
-        ...prev[currentQ.id],
-        isMarkedForReview: !prev[currentQ.id]?.isMarkedForReview,
-      },
-    }))
+    const previous = answers[currentQ.id]
+    const updated: AnswerState = {
+      questionId: currentQ.id,
+      selectedOptionId: previous?.selectedOptionId,
+      isMarkedForReview: !previous?.isMarkedForReview,
+      visited: true,
+      timeSpentSeconds: previous?.timeSpentSeconds ?? 0,
+    }
+    setAnswers((current) => ({ ...current, [currentQ.id]: updated }))
+    void persistAnswer(updated)
   }
 
   const goToQuestion = (idx: number) => {
@@ -500,7 +594,18 @@ export function ExamPlayer({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-3 sm:p-6 font-sans text-slate-900 flex flex-col gap-4">
+    <div className="relative min-h-screen select-none bg-slate-50 p-3 sm:p-6 font-sans text-slate-900 flex flex-col gap-4">
+      {contentObscured && (
+        <div className="fixed inset-0 z-[45] flex items-center justify-center bg-slate-950 p-6 text-center text-white" aria-live="assertive">
+          <div className="max-w-md">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/20 text-2xl">🔒</div>
+            <h2 className="text-xl font-bold">Exam content protected</h2>
+            <p className="mt-2 text-sm font-medium text-slate-300">
+              A capture or clipboard action was detected. Question content is hidden until the security warning is acknowledged.
+            </p>
+          </div>
+        </div>
+      )}
       {/* Offline Banner */}
       {!connectionOnline && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 px-5 bg-amber-500 text-slate-950 font-medium rounded-xl shadow-md z-30" role="alert">
@@ -553,7 +658,13 @@ export function ExamPlayer({
               A{" "}
               {lastIntegrityType === "FULLSCREEN_EXIT"
                 ? "fullscreen exit"
-                : "tab-switch or window-visibility"}{" "}
+                : lastIntegrityType === "MULTIPLE_PERSON"
+                  ? "multiple-person camera detection"
+                : lastIntegrityType === "SCREENSHOT"
+                  ? "screenshot attempt"
+                  : lastIntegrityType === "COPY" || lastIntegrityType === "PASTE"
+                    ? "clipboard action"
+                    : "tab-switch or window-visibility"}{" "}
               incident has been recorded.{" "}
               <strong className="text-slate-900 font-bold">
                 Recorded incidents:{" "}
@@ -569,7 +680,11 @@ export function ExamPlayer({
             </p>
             <button
               className="mt-2 h-11 w-full px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
-              onClick={() => setShowWarningModal(false)}
+              onClick={() => {
+                setShowWarningModal(false)
+                setContentObscured(false)
+                setMultiplePeopleDetected(false)
+              }}
             >
               I Understand & Resume Exam
             </button>
@@ -578,7 +693,7 @@ export function ExamPlayer({
       )}
 
       {/* Floating Camera Monitor Overlay */}
-      {exam.readinessRequirements?.camera && (
+      {false && exam.readinessRequirements?.camera && (
         <div
           className="fixed bottom-4 left-4 z-40 w-44 sm:w-48 bg-slate-900/90 backdrop-blur-md rounded-xl border border-slate-700/80 shadow-2xl p-2.5 flex flex-col gap-2 text-white"
           role="status"
@@ -826,6 +941,45 @@ export function ExamPlayer({
               <p className="text-xs text-slate-500 font-medium mt-0.5">
                 Candidate: <strong className="text-slate-800 font-semibold">{candidateName}</strong>
               </p>
+            </div>
+
+            {exam.readinessRequirements?.camera && (
+              <div className={`rounded-xl border bg-slate-900 p-2.5 text-white shadow-sm ${multiplePeopleDetected ? "border-red-500 ring-2 ring-red-500/40" : "border-slate-700"}`} role="status" aria-live="polite">
+                <div className="relative flex h-36 w-full items-center justify-center overflow-hidden rounded-lg bg-slate-950 text-center">
+                  <video ref={cameraVideoRef} muted playsInline aria-label="Live camera preview" className="h-full w-full object-cover" />
+                  {cameraStatus !== "active" && (
+                    <span className="absolute inset-0 flex items-center justify-center bg-slate-950/85 p-3 text-xs font-semibold text-slate-300">
+                      {cameraStatus === "starting" ? "Starting camera…" : cameraStatus === "denied" ? "Camera permission required" : "Camera interrupted"}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-2 flex items-center justify-between text-xs font-semibold">
+                  <strong className="flex items-center gap-1.5 text-[11px] text-slate-200">
+                    <span className={`h-2 w-2 rounded-full ${cameraStatus === "active" ? "bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : cameraStatus === "starting" ? "bg-amber-500" : "bg-red-500"}`} />
+                    {cameraStatus === "active" ? "Camera Active" : cameraStatus === "starting" ? "Connecting…" : "Unavailable"}
+                  </strong>
+                  {cameraStatus !== "active" && <button className="cursor-pointer border-none bg-transparent p-0 text-[10px] font-bold text-blue-400 underline" onClick={() => void startCamera()}>Retry</button>}
+                </div>
+                {multiplePeopleDetected && (
+                  <div className="mt-2 rounded-lg bg-red-600 px-2.5 py-2 text-center text-[11px] font-bold text-white">
+                    Multiple people detected — only the candidate may remain visible
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                <span>Question progress</span>
+                <span>{answeredCount} / {questions.length} answered</span>
+              </div>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-label="Answered question progress" aria-valuemin={0} aria-valuemax={questions.length} aria-valuenow={answeredCount}>
+                <span className="block h-full rounded-full bg-emerald-500 transition-all duration-300" style={{ width: `${questions.length ? (answeredCount / questions.length) * 100 : 0}%` }} />
+              </div>
+              <div className="mt-2 flex justify-between text-[11px] font-semibold text-slate-500">
+                <span>{questions.length - unvisitedCount} visited</span>
+                <span>{Math.round(questions.length ? (answeredCount / questions.length) * 100 : 0)}% complete</span>
+              </div>
             </div>
 
             {/* Legend */}

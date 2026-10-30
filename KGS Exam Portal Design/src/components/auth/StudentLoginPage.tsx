@@ -11,61 +11,12 @@ import { API_BASE_URL, setAuthToken } from "../../api";
 
 interface Props {
   initialEmail?: string;
+  initialAuthMode?: "STUDENT" | "ADMIN";
+  allowRegistration?: boolean;
   onBackToLanding: () => void;
   onRegister: () => void;
   onAuthenticated: (user: any) => void;
 }
-
-/* ------------------------------------------------------------------ */
-/* Theme tokens (same values as the landing page)                       */
-/* ------------------------------------------------------------------ */
-const themeCss = `
-.kgs-auth {
-  --page-bg: #F7FAFF;
-  --glass: rgba(255,255,255,.82);
-  --glass-border: rgba(255,255,255,.9);
-  --nav-bg: rgba(255,255,255,.82);
-  --field-bg: #FFFFFF;
-  --btn-bg: #FFFFFF;
-  --hairline: rgba(15,27,76,.10);
-  --heading: #0F1B4C;
-  --body: #5B6478;
-  --muted: #8A93A8;
-  --grad: linear-gradient(135deg, #2563EB, #7C3AED);
-  --glow-a: rgba(37,99,235,.14);
-  --glow-b: rgba(124,58,237,.12);
-  color-scheme: light;
-  color: var(--heading);
-  background-color: var(--page-bg);
-  background-image:
-    radial-gradient(circle at 85% 10%, var(--glow-a) 0%, transparent 40%),
-    radial-gradient(circle at 10% 90%, var(--glow-b) 0%, transparent 38%);
-}
-.kgs-auth[data-theme="dark"] {
-  --page-bg: #0B1020;
-  --glass: rgba(20,28,56,.78);
-  --glass-border: rgba(128,146,203,.25);
-  --nav-bg: rgba(11,16,32,.82);
-  --field-bg: rgba(11,16,32,.6);
-  --btn-bg: rgba(20,28,56,.72);
-  --hairline: rgba(182,196,235,.16);
-  --heading: #F3F6FF;
-  --body: #B4BDD4;
-  --muted: #8791AD;
-  --glow-a: rgba(37,99,235,.22);
-  --glow-b: rgba(124,58,237,.18);
-  color-scheme: dark;
-}
-.kgs-grad-bg   { background-image: var(--grad); }
-.kgs-grad-text { background-image: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.kgs-glass {
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 20px 50px rgba(37,99,235,.14);
-}
-`;
 
 /* ------------------------------------------------------------------ */
 /* Icons                                                                */
@@ -159,10 +110,10 @@ const formatClock = (total: number) =>
   `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
 
 const btnPrimary =
-  "kgs-grad-bg flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-none px-5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-all hover:-translate-y-0.5 hover:shadow-indigo-600/40 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50";
+  "flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-none bg-gradient-to-br from-blue-600 to-violet-600 px-5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-all hover:-translate-y-0.5 hover:shadow-indigo-600/40 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50";
 
 const btnSecondary =
-  "flex cursor-pointer items-center justify-center gap-2 border border-[color:var(--hairline)] bg-[color:var(--btn-bg)] text-[color:var(--heading)] shadow-sm transition-all hover:-translate-y-0.5";
+  "flex cursor-pointer items-center justify-center gap-2 border border-slate-900/10 bg-white text-[#0F1B4C] shadow-sm transition-all hover:-translate-y-0.5";
 
 const alertBox = "rounded-xl border px-4 py-3 text-sm font-semibold";
 
@@ -171,6 +122,8 @@ const alertBox = "rounded-xl border px-4 py-3 text-sm font-semibold";
 /* ------------------------------------------------------------------ */
 export function StudentLoginPage({
   initialEmail = "",
+  initialAuthMode = "STUDENT",
+  allowRegistration = true,
   onBackToLanding,
   onRegister,
   onAuthenticated,
@@ -178,7 +131,7 @@ export function StudentLoginPage({
   const [email, setEmail] = useState(initialEmail);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [step, setStep] = useState<"EMAIL" | "OTP">("EMAIL");
-  const [authMode, setAuthMode] = useState<"STUDENT" | "ADMIN">("STUDENT");
+  const [authMode] = useState<"STUDENT" | "ADMIN">(initialAuthMode);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -192,7 +145,7 @@ export function StudentLoginPage({
   /* Existing session check */
   useEffect(() => {
     let cancelled = false;
-    fetch(`${api}/api/auth/me`, {
+    fetch(`${api}/api/auth/${authMode === "ADMIN" ? "admin/me" : "me"}`, {
       credentials: "include",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("kgs_student_token") || localStorage.getItem("kgs_token") || ""}`,
@@ -201,7 +154,7 @@ export function StudentLoginPage({
       .then(async (response) => {
         if (!response.ok || cancelled) return;
         const data = await response.json();
-        if (data.user?.role === "STUDENT") onAuthenticated(data.user);
+        if (data.user?.role === authMode) onAuthenticated(data.user);
       })
       .catch(() => {
         /* No active session: show the OTP form. */
@@ -209,7 +162,7 @@ export function StudentLoginPage({
     return () => {
       cancelled = true;
     };
-  }, [api, onAuthenticated]);
+  }, [api, authMode, onAuthenticated]);
 
   /* 1s ticker while on the OTP step */
   useEffect(() => {
@@ -247,18 +200,6 @@ export function StudentLoginPage({
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
       const data = await response.json();
-      if (data.adminLogin) {
-        const adminResponse = await fetch(`${api}/api/auth/admin/request-otp`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ email: email.trim().toLowerCase() }) });
-        const adminData = await adminResponse.json();
-        if (!adminResponse.ok) throw new Error(adminData.error || "Unable to send verification code.");
-        setAuthMode("ADMIN");
-        setExpiresAt(adminData.expiresAt || null);
-        setResendAvailableAt(adminData.resendAvailableAt || null);
-        setOtp(["", "", "", "", "", ""]);
-        setMessage("Verification instructions have been sent.");
-        setStep("OTP");
-        return;
-      }
       if (!response.ok)
         throw new Error(data.error || "Unable to send verification code.");
       setExpiresAt(data.expiresAt || null);
@@ -346,28 +287,25 @@ export function StudentLoginPage({
   };
 
   const inputBase =
-    "w-full rounded-xl border border-[color:var(--hairline)] bg-[color:var(--field-bg)] text-[color:var(--heading)] placeholder:text-[color:var(--muted)] shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15";
+    "w-full rounded-xl border border-slate-900/10 bg-white text-[#0F1B4C] placeholder:text-slate-400 shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15";
 
   return (
     <div
-      className="kgs-auth relative flex min-h-screen flex-col overflow-x-hidden font-sans transition-colors duration-300"
-      data-theme="light"
+      className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#F7FAFF] bg-[radial-gradient(circle_at_85%_10%,rgba(37,99,235,.14)_0%,transparent_40%),radial-gradient(circle_at_10%_90%,rgba(124,58,237,.12)_0%,transparent_38%)] font-sans text-[#0F1B4C] transition-colors duration-300"
     >
-      <style>{themeCss}</style>
-
       {/* Header */}
-      <header className="sticky top-0 z-20 border-b border-[color:var(--hairline)] bg-[color:var(--nav-bg)] backdrop-blur-xl">
+      <header className="sticky top-0 z-20 border-b border-slate-900/10 bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex min-h-[72px] w-[calc(100%-32px)] max-w-[1200px] items-center justify-between gap-4 sm:w-[calc(100%-48px)]">
           <button
             className="group flex cursor-pointer items-center gap-3 border-none bg-transparent p-0 text-left focus:outline-none"
             onClick={onBackToLanding}
             aria-label="Back to KGS Exam Portal home"
           >
-            <span className="kgs-grad-bg flex h-11 w-11 items-center justify-center rounded-xl text-2xl font-black text-white shadow-lg shadow-blue-600/30 transition-transform group-hover:scale-105">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-2xl font-black text-white shadow-lg shadow-blue-600/30 transition-transform group-hover:scale-105">
               K
             </span>
             <span className="flex flex-col">
-              <strong className="text-xl font-black leading-none tracking-tight text-[color:var(--heading)]">
+              <strong className="text-xl font-black leading-none tracking-tight text-[#0F1B4C]">
                 KGS
               </strong>
               <small className="mt-0.5 text-[9.5px] font-extrabold leading-none tracking-[0.16em] text-blue-600">
@@ -376,7 +314,7 @@ export function StudentLoginPage({
             </span>
           </button>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          {allowRegistration && <div className="flex items-center gap-2 sm:gap-3">
             <button
               className={`${btnSecondary} h-10 rounded-xl px-4 text-sm font-semibold`}
               onClick={onRegister}
@@ -384,7 +322,7 @@ export function StudentLoginPage({
               <span className="hidden sm:inline">New student?&nbsp;</span>
               <span className="text-blue-600">Create account</span>
             </button>
-          </div>
+          </div>}
         </div>
       </header>
 
@@ -393,43 +331,43 @@ export function StudentLoginPage({
         {/* Intro column */}
         <section className="flex flex-col items-start">
           <button
-            className="mb-6 inline-flex cursor-pointer items-center gap-2 border-none bg-transparent p-0 text-sm font-semibold text-[color:var(--body)] transition-colors hover:text-blue-600"
+            className="mb-6 inline-flex cursor-pointer items-center gap-2 border-none bg-transparent p-0 text-sm font-semibold text-slate-600 transition-colors hover:text-blue-600"
             onClick={onBackToLanding}
           >
             <Icon name="back" size={16} /> Back to home
           </button>
 
-          <div className="inline-flex items-center gap-2.5 rounded-full border border-[color:var(--glass-border)] bg-[color:var(--glass)] px-[18px] py-2 text-xs font-extrabold uppercase tracking-wider text-[color:var(--heading)] shadow-sm backdrop-blur-md">
+          <div className="inline-flex items-center gap-2.5 rounded-full border border-white/90 bg-white/80 px-[18px] py-2 text-xs font-extrabold uppercase tracking-wider text-[#0F1B4C] shadow-sm backdrop-blur-md">
             <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(34,197,94,0.2)]" />
-            Student Authentication
+            {authMode === "ADMIN" ? "Administrator Authentication" : "Student Authentication"}
           </div>
 
           <h1 className="my-6 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-[64px]">
-            <span className="kgs-grad-text block">Welcome</span>
-            <span className="block text-[color:var(--heading)]">back</span>
+            <span className="block bg-gradient-to-br from-blue-600 to-violet-600 bg-clip-text text-transparent">Welcome</span>
+            <span className="block text-[#0F1B4C]">back</span>
           </h1>
 
-          <p className="mb-8 max-w-[520px] text-base leading-relaxed text-[color:var(--body)] sm:text-lg">
-            Sign in securely with your registered email address and a one-time
+          <p className="mb-8 max-w-[520px] text-base leading-relaxed text-slate-600 sm:text-lg">
+            Sign in securely with your authorised email address and a one-time
             verification code.
           </p>
 
-          <div className="glass-note kgs-glass flex w-full max-w-[520px] items-start gap-4 rounded-2xl p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-[color:var(--field-bg)] text-blue-600 shadow-md shadow-blue-600/10">
+          <div className="flex w-full max-w-[520px] items-start gap-4 rounded-2xl border border-white/90 bg-white/80 p-5 shadow-[0_20px_50px_rgba(37,99,235,.14)] backdrop-blur-2xl">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/90 bg-white text-blue-600 shadow-md shadow-blue-600/10">
               <Icon name="shield" size={22} />
             </span>
             <div className="flex flex-col gap-1">
-              <strong className="text-base font-bold text-[color:var(--heading)]">
+              <strong className="text-base font-bold text-[#0F1B4C]">
                 Passwordless access
               </strong>
-              <span className="text-sm leading-relaxed text-[color:var(--body)]">
+              <span className="text-sm leading-relaxed text-slate-600">
                 Your verification code is single-use and expires after a short
                 period.
               </span>
             </div>
           </div>
 
-          <ul className="m-0 mt-6 flex list-none flex-wrap gap-x-6 gap-y-2 p-0 text-sm font-semibold text-[color:var(--body)]">
+          <ul className="m-0 mt-6 flex list-none flex-wrap gap-x-6 gap-y-2 p-0 text-sm font-semibold text-slate-600">
             {[
               "Secure & Reliable",
               "AI-resistant proctoring",
@@ -446,7 +384,7 @@ export function StudentLoginPage({
         </section>
 
         {/* Form card */}
-        <section className="kgs-glass flex w-full flex-col gap-6 rounded-3xl p-6 sm:p-10 lg:ml-auto lg:max-w-[520px]">
+        <section className="flex w-full flex-col gap-6 rounded-3xl border border-white/90 bg-white/80 p-6 shadow-[0_20px_50px_rgba(37,99,235,.14)] backdrop-blur-2xl sm:p-10 lg:ml-auto lg:max-w-[520px]">
           {step === "EMAIL" ? (
             <form
               onSubmit={requestOtp}
@@ -454,10 +392,10 @@ export function StudentLoginPage({
               className="flex flex-col gap-5"
             >
               <div>
-                <h2 className="m-0 text-2xl font-bold tracking-tight text-[color:var(--heading)]">
-                  Student Login
+                <h2 className="m-0 text-2xl font-bold tracking-tight text-[#0F1B4C]">
+                  {authMode === "ADMIN" ? "Administrator Login" : "Student Login"}
                 </h2>
-                <p className="mt-1.5 text-sm text-[color:var(--body)]">
+                <p className="mt-1.5 text-sm text-slate-600">
                   Enter your email address to receive a verification code.
                 </p>
               </div>
@@ -471,12 +409,12 @@ export function StudentLoginPage({
                 </div>
               )}
 
-              <label className="flex flex-col gap-2 text-sm font-semibold text-[color:var(--heading)]">
+              <label className="flex flex-col gap-2 text-sm font-semibold text-[#0F1B4C]">
                 <span>
                   Email Address <b className="text-red-500">*</b>
                 </span>
                 <span className="relative block">
-                  <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[color:var(--muted)]">
+                  <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                     <Icon name="mail" size={18} />
                   </span>
                   <input
@@ -507,7 +445,7 @@ export function StudentLoginPage({
                 </p>
               )}
 
-              <p className="m-0 text-center text-sm text-[color:var(--body)]">
+              {allowRegistration && <p className="m-0 text-center text-sm text-slate-600">
                 New here?{" "}
                 <button
                   type="button"
@@ -516,7 +454,7 @@ export function StudentLoginPage({
                 >
                   Register as Student
                 </button>
-              </p>
+              </p>}
             </form>
           ) : (
             <form
@@ -525,12 +463,12 @@ export function StudentLoginPage({
               className="flex flex-col gap-5"
             >
               <div>
-                <h2 className="m-0 text-2xl font-bold tracking-tight text-[color:var(--heading)]">
+                <h2 className="m-0 text-2xl font-bold tracking-tight text-[#0F1B4C]">
                   Enter Verification Code
                 </h2>
-                <p className="mt-1.5 text-sm text-[color:var(--body)]">
+                <p className="mt-1.5 text-sm text-slate-600">
                   Enter the six-digit code sent to{" "}
-                  <strong className="break-all text-[color:var(--heading)]">
+                  <strong className="break-all text-[#0F1B4C]">
                     {email}
                   </strong>
                   .
@@ -565,14 +503,14 @@ export function StudentLoginPage({
               </div>
 
               <p
-                className="m-0 text-center text-xs font-medium text-[color:var(--body)]"
+                className="m-0 text-center text-xs font-medium text-slate-600"
                 aria-live="polite"
               >
                 {expiresAt ? (
                   expirySeconds > 0 ? (
                     <>
                       Code expires in{" "}
-                      <b className="text-[color:var(--heading)]">
+                      <b className="text-[#0F1B4C]">
                         {formatClock(expirySeconds)}
                       </b>
                     </>
@@ -602,10 +540,10 @@ export function StudentLoginPage({
                 </p>
               )}
 
-              <div className="flex items-center justify-between gap-3 border-t border-[color:var(--hairline)] pt-4">
+              <div className="flex items-center justify-between gap-3 border-t border-slate-900/10 pt-4">
                 <button
                   type="button"
-                  className="cursor-pointer border-none bg-transparent p-0 text-sm font-semibold text-[color:var(--body)] transition-colors hover:text-[color:var(--heading)]"
+                  className="cursor-pointer border-none bg-transparent p-0 text-sm font-semibold text-slate-600 transition-colors hover:text-[#0F1B4C]"
                   onClick={() => {
                     setStep("EMAIL");
                     setOtp(["", "", "", "", "", ""]);
@@ -633,8 +571,8 @@ export function StudentLoginPage({
         </section>
       </main>
 
-      <footer className="border-t border-[color:var(--hairline)] py-6 text-center text-xs text-[color:var(--body)]">
-        © {new Date().getFullYear()} KGS Institute. Secure examination
+      <footer className="border-t border-slate-900/10 py-6 text-center text-xs text-slate-600">
+        © {new Date().getFullYear()} Kaizentrix Global Solutions. Secure examination
         infrastructure.
       </footer>
     </div>

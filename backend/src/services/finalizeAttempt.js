@@ -78,7 +78,13 @@ async function finalizeAttempt({
           score += Number(scheme.correctMarks ?? q.marks ?? 0);
         } else {
           incorrectCount++;
-          score += Number(scheme.incorrectMarks ?? -(q.negativeMarks || 0));
+          const questionPenalty = Number(q.negativeMarks || 0);
+          const schemePenalty = Number(scheme.incorrectMarks || 0);
+          score += questionPenalty
+            ? -Math.abs(questionPenalty)
+            : schemePenalty > 0
+              ? -schemePenalty
+              : schemePenalty;
         }
       }
       if (scheme.floorNegativeScoreAtZero) score = Math.max(0, score);

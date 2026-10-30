@@ -1,28 +1,100 @@
 import { useState } from "react"
+import { API_BASE_URL, authFetch } from "../../api"
 
 interface Props {
   examTitle: string
+  attemptId: string
   submittedAt: Date
   marksScored?: number
   maximumMarks?: number
   resultsReleased?: boolean
   onBackToDashboard: () => void
+  onFeedbackSubmitted: () => void
   onViewMarks?: () => void
 }
 
 export function SubmissionConfirmation({
   examTitle,
+  attemptId,
   submittedAt,
   marksScored,
   maximumMarks,
   resultsReleased = false,
   onBackToDashboard,
+  onFeedbackSubmitted,
   onViewMarks,
 }: Props) {
   const [showToast, setShowToast] = useState(true)
+  const [showFeedback, setShowFeedback] = useState(true)
+  const [rating, setRating] = useState(0)
+  const [comment, setComment] = useState("")
+  const [feedbackSaving, setFeedbackSaving] = useState(false)
+  const [feedbackError, setFeedbackError] = useState("")
+
+  const saveFeedback = async () => {
+    if (!rating || feedbackSaving) return
+    setFeedbackSaving(true)
+    setFeedbackError("")
+    try {
+      const response = await authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating, comment }),
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(payload.error || "Unable to save feedback.")
+      setShowFeedback(false)
+      onFeedbackSubmitted()
+    } catch (error) {
+      setFeedbackError(error instanceof Error ? error.message : "Unable to save feedback.")
+    } finally {
+      setFeedbackSaving(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 font-sans text-slate-900">
+      {showFeedback && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-2xl sm:p-8">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-2xl">★</div>
+            <h2 className="mt-4 text-xl font-bold text-slate-900">Rate your examination experience</h2>
+            <p className="mt-2 text-sm font-medium text-slate-500">Your feedback helps KGS improve future assessments.</p>
+            <div className="mt-5 flex justify-center gap-2" role="radiogroup" aria-label="Rating">
+              {[1, 2, 3, 4, 5].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={rating === value}
+                  aria-label={`${value} star${value === 1 ? "" : "s"}`}
+                  onClick={() => setRating(value)}
+                  className={`cursor-pointer border-0 bg-transparent p-1 text-4xl transition-transform hover:scale-110 ${value <= rating ? "text-amber-400" : "text-slate-200"}`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+            <textarea
+              value={comment}
+              onChange={(event) => setComment(event.target.value)}
+              maxLength={1000}
+              rows={4}
+              placeholder="Tell us what worked well or what we can improve (optional)"
+              className="mt-5 w-full resize-none rounded-xl border border-slate-300 p-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            />
+            {feedbackError && <p className="mt-3 text-sm font-semibold text-red-600" role="alert">{feedbackError}</p>}
+            <button
+              type="button"
+              disabled={!rating || feedbackSaving}
+              onClick={() => void saveFeedback()}
+              className="mt-5 h-11 w-full cursor-pointer rounded-xl border-0 bg-blue-600 px-5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {feedbackSaving ? "Saving feedback…" : "Submit Feedback"}
+            </button>
+          </div>
+        </div>
+      )}
       <div className="relative w-full max-w-[560px] bg-white rounded-2xl shadow-xl border border-slate-200/80 p-6 sm:p-10 flex flex-col items-center text-center">
         {/* Sync Toast */}
         {showToast && (

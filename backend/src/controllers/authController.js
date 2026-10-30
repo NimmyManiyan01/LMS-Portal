@@ -1,13 +1,12 @@
 const crypto = require("node:crypto");
 const Student = require("../models/Student");
-const AdminUser = require("../models/AdminUser");
 const Counter = require("../models/Counter");
 const EmailVerification = require("../models/EmailVerification");
 const Session = require("../models/Session");
 const { otpSecret, sessionSecret } = require("../config/env");
 const { sendOtpEmail } = require("../services/auth/brevoEmail");
 const OTP_TTL = 5 * 60 * 1000;
-const RESEND_COOLDOWN = 60 * 1000;
+const RESEND_COOLDOWN = 30 * 1000;
 const SESSION_TTL = 8 * 60 * 60 * 1000;
 const hashOtp = (value) =>
   crypto.createHmac("sha256", otpSecret).update(value).digest("hex");
@@ -51,15 +50,11 @@ async function registerStudent(req, res) {
   const current = new Date().getFullYear();
   if (
     !/^[\w.!#$%&'*+/=?^`{|}~-]+@[\w-]+(?:\.[\w-]+)+$/.test(normalizedEmail) ||
-    !/^[6-9]\d{9}$/.test(String(phone || "")) ||
+    (phone && !/^[6-9]\d{9}$/.test(String(phone))) ||
     String(fullName || "").trim().length < 2 ||
     String(fullName).trim().length > 100 ||
-    String(college || "").trim().length < 2 ||
-    String(college).trim().length > 150 ||
-    !String(branch || "").trim() ||
-    !Number.isInteger(year) ||
-    year < current - 10 ||
-    year > current + 10 ||
+    (college && (String(college).trim().length < 2 || String(college).trim().length > 150)) ||
+    (passOutYear && (!Number.isInteger(year) || year < current - 10 || year > current + 10)) ||
     privacyAccepted !== true ||
     monitoringAccepted !== true
   )
@@ -77,10 +72,10 @@ async function registerStudent(req, res) {
       studentId: `KGS-STU-${String(counter.sequence).padStart(6, "0")}`,
       fullName: String(fullName).trim(),
       email: normalizedEmail,
-      phone,
-      college: String(college).trim(),
-      branch: String(branch).trim(),
-      passOutYear: year,
+      phone: String(phone || ""),
+      college: String(college || "Independent registration").trim(),
+      branch: String(branch || "Unspecified").trim(),
+      passOutYear: passOutYear ? year : current,
       privacyAcceptedAt: new Date(),
       monitoringAcceptedAt: new Date(),
       acknowledgementVersion: "1.0",
@@ -103,7 +98,12 @@ async function issueOtp(req, res) {
   if (!email || !email.includes("@"))
     return res.status(400).json({ error: "Valid email is required" });
   const student = await Student.findOne({ email });
-  if (!student) return res.status(404).json({ error: "Email not found. Please register before signing in." });
+  if (!student)
+    return res.status(202).json({
+      ...generic,
+      expiresAt: new Date(Date.now() + OTP_TTL),
+      resendAvailableAt: new Date(Date.now() + RESEND_COOLDOWN),
+    });
   const latest = await EmailVerification.findOne({
     studentId: student.id,
     consumedAt: null,
@@ -161,8 +161,6 @@ async function requestOtp(req, res) {
     return res
       .status(429)
       .json({ error: "Too many requests. Please try again later." });
-  if (await AdminUser.exists({ email, active: true }))
-    return res.status(409).json({ error: "Administrator email detected. Continue with administrator login.", adminLogin: true });
   return issueOtp(req, res);
 }
 async function resendOtp(req, res) {
@@ -177,8 +175,10 @@ async function verifyOtp(req, res) {
   const email = String(req.body.email || "")
     .toLowerCase()
     .trim();
+  const submittedOtp = String(req.body.otp || "");
   const verification = await EmailVerification.findOne({
     email,
+    studentId: { $exists: true },
     consumedAt: null,
   }).sort({ createdAt: -1 });
   if (!verification || verification.expiresAt < new Date())
@@ -189,7 +189,7 @@ async function verifyOtp(req, res) {
     return res
       .status(429)
       .json({ error: "Too many attempts. Please try again later." });
-  if (verification.otpHash !== hashOtp(String(req.body.otp || ""))) {
+  if (!/^\d{6}$/.test(submittedOtp) || verification.otpHash !== hashOtp(submittedOtp)) {
     await EmailVerification.updateOne(
       { _id: verification.id },
       { $inc: { attemptCount: 1 } },

@@ -155,6 +155,7 @@ export interface Exam {
     tabSwitchThreshold?: number
 
     copyPasteThreshold?: number
+    multiplePersonThreshold?: number
 
     gracePeriodSeconds?: number
   }

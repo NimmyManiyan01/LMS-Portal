@@ -12,6 +12,7 @@ const mongoose = require("mongoose");
 const Question = require("../models/Question");
 const PaperSet = require("../models/PaperSet");
 const FinalResult = require("../models/FinalResult");
+const ExamFeedback = require("../models/ExamFeedback");
 const { authenticate } = require("../middleware/auth");
 const adminOnly = (req, res, next) =>
   req.auth?.role === "ADMIN"
@@ -26,6 +27,22 @@ const effectiveExamStatus = (exam, now = new Date()) => {
   return exam.status;
 };
 const reserveExamCode = async () => { const year = new Date().getFullYear(); for (;;) { const counter = await Counter.findOneAndUpdate({ _id: `examCode:${year}` }, { $inc: { sequence: 1 } }, { upsert: true, new: true }); const code = `EXAM-${year}-${String(counter.sequence).padStart(4, "0")}`; if (!(await Exam.exists({ code }))) return code; } };
+
+router.get("/feedback", authenticate, adminOnly, async (req, res) => {
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 25));
+  const [rows, total, summary] = await Promise.all([
+    ExamFeedback.find().populate("studentId", "fullName email studentId college").populate("examId", "title code").sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+    ExamFeedback.countDocuments(),
+    ExamFeedback.aggregate([{ $group: { _id: null, average: { $avg: "$rating" }, count: { $sum: 1 } } }]),
+  ]);
+  res.set("Cache-Control", "no-store");
+  res.json({
+    rows: rows.map((row) => ({ id: String(row._id), rating: row.rating, comment: row.comment, createdAt: row.createdAt, student: row.studentId, exam: row.examId })),
+    summary: { total, average: Number((summary[0]?.average || 0).toFixed(1)) },
+    pagination: { page, limit, total, pages: Math.max(1, Math.ceil(total / limit)) },
+  });
+});
 
 router.get("/exams", authenticate, adminOnly, async (_req, res) => {
   const exams = await Exam.find({ status: { $ne: "CLOSED" } }).select("_id code title status scheduledAt closesAt totalMarks totalQuestions durationMinutes").sort({ createdAt: -1 }).lean();

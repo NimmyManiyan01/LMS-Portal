@@ -32,6 +32,7 @@ const examSchema = new mongoose.Schema(
       tabSwitchThreshold: { type: Number, default: 2 },
       fullscreenExitThreshold: { type: Number, default: 2 },
       copyPasteThreshold: { type: Number, default: 3 },
+      multiplePersonThreshold: { type: Number, default: 2 },
       gracePeriodSeconds: { type: Number, default: 3 },
     },
     markingScheme: {

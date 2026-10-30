@@ -45,12 +45,11 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
       !/^[\w.!#$%&'*+/=?^`{|}~-]+@[\w-]+(?:\.[\w-]+)+$/.test(form.email.trim())
     )
       next.email = "Enter a valid email address."
-    if (!/^[6-9]\d{9}$/.test(form.phone))
+    if (form.phone && !/^[6-9]\d{9}$/.test(form.phone))
       next.phone = "Enter a valid 10-digit Indian mobile number."
-    if (form.college.trim().length < 2 || form.college.trim().length > 150)
+    if (form.college && (form.college.trim().length < 2 || form.college.trim().length > 150))
       next.college = "Enter a college name between 2 and 150 characters."
-    if (!form.branch.trim()) next.branch = "Enter your branch."
-    if (!Number.isInteger(year) || year < current - 10 || year > current + 10)
+    if (form.passOutYear && (!Number.isInteger(year) || year < current - 10 || year > current + 10))
       next.passOutYear = "Select a valid pass-out year."
     if (!form.privacyAccepted)
       next.privacyAccepted = "Privacy acknowledgement is required."
@@ -71,12 +70,21 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          passOutYear: Number(form.passOutYear),
+          passOutYear: form.passOutYear ? Number(form.passOutYear) : undefined,
         }),
       })
       const data = await response.json()
       if (!response.ok)
         throw new Error(data.error || "Registration could not be completed.")
+      const otpResponse = await fetch(`${API_BASE_URL}/api/auth/request-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email.trim().toLowerCase() }),
+      })
+      if (!otpResponse.ok) {
+        const otpData = await otpResponse.json().catch(() => null)
+        throw new Error(otpData?.error || "Account created, but the verification code could not be sent. Try signing in again.")
+      }
       onRegistered(form.email.trim().toLowerCase())
     } catch (error) {
       setServerError(
@@ -207,7 +215,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
             </label>
 
             <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-700">
-              Phone Number <b className="text-red-500">*</b>
+              Phone Number <span className="font-normal text-slate-400">(optional)</span>
               <input
                 type="tel"
                 inputMode="numeric"
@@ -235,7 +243,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
             </label>
 
             <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-700">
-              College Name <b className="text-red-500">*</b>
+              Institution <span className="font-normal text-slate-400">(optional)</span>
               <input
                 value={form.college}
                 onChange={(e) => update("college", e.target.value)}
@@ -256,7 +264,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
             </label>
 
             <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-700">
-              Branch <b className="text-red-500">*</b>
+              Branch <span className="font-normal text-slate-400">(optional)</span>
               <input
                 value={form.branch}
                 onChange={(e) => update("branch", e.target.value)}
@@ -276,7 +284,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
             </label>
 
             <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-700">
-              Pass-out Year <b className="text-red-500">*</b>
+              Pass-out Year <span className="font-normal text-slate-400">(optional)</span>
               <select
                 value={form.passOutYear}
                 onChange={(e) => update("passOutYear", e.target.value)}

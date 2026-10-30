@@ -34,7 +34,8 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
     });
   const isCamera = eventType === "CAMERA_INTERRUPTED";
   const isTab = eventType === "TAB_HIDDEN" || eventType === "FULLSCREEN_EXIT";
-  const isCopyPaste = eventType === "COPY" || eventType === "PASTE";
+  const isCopyPaste = eventType === "COPY" || eventType === "PASTE" || eventType === "SCREENSHOT";
+  const isMultiplePerson = eventType === "MULTIPLE_PERSON";
   if (isCamera) {
     const event = await IntegrityEvent.create({ eventId, studentId: req.student.id, attemptId: attempt.id, eventType, action: "RECORDED", clientTimestamp });
     return res.status(201).json({ recorded: true, eventId: event.eventId, confirmedCount: 0, action: "RECORDED" });
@@ -48,6 +49,8 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
     return res.json({ recorded: false, action: "RECORDED", count: 0 });
   const field = isCopyPaste
     ? "integrityCounts.copyPaste"
+    : isMultiplePerson
+      ? "integrityCounts.multiplePerson"
     : eventType === "FULLSCREEN_EXIT"
       ? "integrityCounts.fullscreenExit"
       : isTab
@@ -57,9 +60,11 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
     return res
       .status(400)
       .json({ error: "Unsupported integrity event for this examination" });
-  const counterName = isCopyPaste ? "copyPaste" : eventType === "FULLSCREEN_EXIT" ? "fullscreenExit" : "tabSwitch";
+  const counterName = isCopyPaste ? "copyPaste" : isMultiplePerson ? "multiplePerson" : eventType === "FULLSCREEN_EXIT" ? "fullscreenExit" : "tabSwitch";
   const threshold = isCopyPaste
     ? exam.integrityRules?.copyPasteThreshold || 3
+    : isMultiplePerson
+      ? exam.integrityRules?.multiplePersonThreshold || 2
     : eventType === "FULLSCREEN_EXIT"
       ? exam.integrityRules?.fullscreenExitThreshold || 2
     : exam.integrityRules?.tabSwitchThreshold || 2;
@@ -102,7 +107,7 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
       attemptId: attempt.id,
       studentId: req.student.id,
       reason: "INTEGRITY",
-      reasonDetail: eventType === "TAB_HIDDEN" ? "TAB_SWITCH_THRESHOLD" : eventType === "FULLSCREEN_EXIT" ? "FULLSCREEN_EXIT_THRESHOLD" : "INTEGRITY_THRESHOLD",
+      reasonDetail: eventType === "TAB_HIDDEN" ? "TAB_SWITCH_THRESHOLD" : eventType === "FULLSCREEN_EXIT" ? "FULLSCREEN_EXIT_THRESHOLD" : eventType === "MULTIPLE_PERSON" ? "MULTIPLE_PERSON_THRESHOLD" : "INTEGRITY_THRESHOLD",
     });
   res
     .status(201)

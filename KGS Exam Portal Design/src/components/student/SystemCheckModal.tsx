@@ -144,6 +144,23 @@ export function SystemCheckModal({
     (key) => checks[key] === "PASSED" || checks[key] === "NOT_REQUIRED",
   )
 
+  useEffect(() => {
+    const currentState = checks[active]
+    if (currentState !== "PASSED" && currentState !== "NOT_REQUIRED") return
+
+    const nextStep: Partial<Record<Key, Key>> = {
+      browser: "network",
+      network: "camera",
+      camera: "microphone",
+      microphone: "fullscreen",
+    }
+    const next = nextStep[active]
+    if (!next) return
+
+    const advanceTimer = window.setTimeout(() => setActive(next), 550)
+    return () => window.clearTimeout(advanceTimer)
+  }, [active, checks])
+
   const items: { key: Key; label: string }[] = [
     { key: "browser", label: "Browser" },
     { key: "network", label: "Network" },
@@ -273,10 +290,7 @@ export function SystemCheckModal({
               </div>
               <button
                 className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none self-start mt-1"
-                onClick={() => {
-                  runBrowser()
-                  setActive("network")
-                }}
+                onClick={runBrowser}
               >
                 Run Browser Check →
               </button>
