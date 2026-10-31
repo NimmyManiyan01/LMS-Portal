@@ -644,11 +644,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                         </span>
                         {track.badge}
                       </span>
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-bold ${track.seatsNoticeColor}`}
-                      >
-                        {track.seatsNotice}
-                      </span>
                     </div>
 
                     <h3 className="font-headline-md text-headline-md text-on-surface">
