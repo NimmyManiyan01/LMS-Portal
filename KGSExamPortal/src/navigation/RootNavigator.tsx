@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
+import tw from 'twrnc';
 import { useAuth } from '../context/AuthContext';
 import { SplashScreen } from '../screens/auth/SplashScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
@@ -12,6 +13,7 @@ import { ReadinessScreen } from '../screens/exam/ReadinessScreen';
 import { ExamPlayerScreen } from '../screens/exam/ExamPlayerScreen';
 import { SubmissionConfirmationScreen } from '../screens/exam/SubmissionConfirmationScreen';
 import { ResultsScreen } from '../screens/results/ResultsScreen';
+import { FloatingBottomNavbar, TabName } from '../components/common/FloatingBottomNavbar';
 import { Exam } from '../types';
 
 type ScreenName =
@@ -59,65 +61,113 @@ export const RootNavigator: React.FC = () => {
     );
   }
 
-  // Authenticated Candidate Flow
-  switch (currentScreen) {
-    case 'PROFILE':
-      return <ProfileScreen onBack={() => setCurrentScreen('DASHBOARD')} />;
+  // Check if current screen is one of the main dashboard tabs
+  const isDashboardTab =
+    currentScreen === 'DASHBOARD' ||
+    currentScreen === 'RESULTS' ||
+    currentScreen === 'PROFILE';
 
-    case 'RESULTS':
-      return <ResultsScreen onBack={() => setCurrentScreen('DASHBOARD')} />;
+  const renderActiveScreen = () => {
+    switch (currentScreen) {
+      case 'PROFILE':
+        return <ProfileScreen onBack={() => setCurrentScreen('DASHBOARD')} />;
 
-    case 'EXAM_DETAILS':
-      if (!selectedExam) return <DashboardScreen onSelectExam={setSelectedExam} onNavigateProfile={() => setCurrentScreen('PROFILE')} onNavigateResults={() => setCurrentScreen('RESULTS')} />;
-      return (
-        <ExamDetailsScreen
-          exam={selectedExam}
-          onBack={() => {
-            setSelectedExam(null);
-            setCurrentScreen('DASHBOARD');
-          }}
-          onProceedReadiness={() => setCurrentScreen('READINESS')}
+      case 'RESULTS':
+        return <ResultsScreen onBack={() => setCurrentScreen('DASHBOARD')} />;
+
+      case 'EXAM_DETAILS':
+        if (!selectedExam) {
+          return (
+            <DashboardScreen
+              onSelectExam={setSelectedExam}
+              onNavigateProfile={() => setCurrentScreen('PROFILE')}
+              onNavigateResults={() => setCurrentScreen('RESULTS')}
+            />
+          );
+        }
+        return (
+          <ExamDetailsScreen
+            exam={selectedExam}
+            onBack={() => {
+              setSelectedExam(null);
+              setCurrentScreen('DASHBOARD');
+            }}
+            onProceedReadiness={() => setCurrentScreen('READINESS')}
+          />
+        );
+
+      case 'READINESS':
+        if (!selectedExam) {
+          return (
+            <DashboardScreen
+              onSelectExam={setSelectedExam}
+              onNavigateProfile={() => setCurrentScreen('PROFILE')}
+              onNavigateResults={() => setCurrentScreen('RESULTS')}
+            />
+          );
+        }
+        return (
+          <ReadinessScreen
+            exam={selectedExam}
+            onBack={() => setCurrentScreen('EXAM_DETAILS')}
+            onExamStarted={() => setCurrentScreen('EXAM_PLAYER')}
+          />
+        );
+
+      case 'EXAM_PLAYER':
+        return (
+          <ExamPlayerScreen
+            onExamSubmitted={() => setCurrentScreen('SUBMITTED')}
+          />
+        );
+
+      case 'SUBMITTED':
+        return (
+          <SubmissionConfirmationScreen
+            onReturnDashboard={() => {
+              setSelectedExam(null);
+              setCurrentScreen('DASHBOARD');
+            }}
+          />
+        );
+
+      case 'DASHBOARD':
+      default:
+        return (
+          <DashboardScreen
+            onSelectExam={(exam) => {
+              setSelectedExam(exam);
+              setCurrentScreen('EXAM_DETAILS');
+            }}
+            onNavigateProfile={() => setCurrentScreen('PROFILE')}
+            onNavigateResults={() => setCurrentScreen('RESULTS')}
+          />
+        );
+    }
+  };
+
+  const handleTabSelect = (tab: TabName) => {
+    setCurrentScreen(tab as ScreenName);
+  };
+
+  const currentTabName: TabName =
+    currentScreen === 'RESULTS'
+      ? 'RESULTS'
+      : currentScreen === 'PROFILE'
+      ? 'PROFILE'
+      : 'DASHBOARD';
+
+  return (
+    <View style={tw`flex-1 relative bg-slate-50`}>
+      {renderActiveScreen()}
+
+      {/* Floating Animated Bottom Navbar (Visible on Dashboard, Results, and Profile) */}
+      {isDashboardTab && (
+        <FloatingBottomNavbar
+          currentTab={currentTabName}
+          onSelectTab={handleTabSelect}
         />
-      );
-
-    case 'READINESS':
-      if (!selectedExam) return <DashboardScreen onSelectExam={setSelectedExam} onNavigateProfile={() => setCurrentScreen('PROFILE')} onNavigateResults={() => setCurrentScreen('RESULTS')} />;
-      return (
-        <ReadinessScreen
-          exam={selectedExam}
-          onBack={() => setCurrentScreen('EXAM_DETAILS')}
-          onExamStarted={() => setCurrentScreen('EXAM_PLAYER')}
-        />
-      );
-
-    case 'EXAM_PLAYER':
-      return (
-        <ExamPlayerScreen
-          onExamSubmitted={() => setCurrentScreen('SUBMITTED')}
-        />
-      );
-
-    case 'SUBMITTED':
-      return (
-        <SubmissionConfirmationScreen
-          onReturnDashboard={() => {
-            setSelectedExam(null);
-            setCurrentScreen('DASHBOARD');
-          }}
-        />
-      );
-
-    case 'DASHBOARD':
-    default:
-      return (
-        <DashboardScreen
-          onSelectExam={(exam) => {
-            setSelectedExam(exam);
-            setCurrentScreen('EXAM_DETAILS');
-          }}
-          onNavigateProfile={() => setCurrentScreen('PROFILE')}
-          onNavigateResults={() => setCurrentScreen('RESULTS')}
-        />
-      );
-  }
+      )}
+    </View>
+  );
 };
