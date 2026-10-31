@@ -93,7 +93,7 @@ const BATCH_TRACKS: BatchTrack[] = [
     id: "python-gen-ai",
     category: "fullstack",
     badge: "Python Full Stack with Gen AI",
-    badgeIcon: "code",
+    badgeIcon: "terminal",
     badgeColor: "text-primary",
     seatsNotice: "Only 6 Seats Left",
     seatsNoticeColor: "bg-error-container text-on-error-container animate-pulse",
