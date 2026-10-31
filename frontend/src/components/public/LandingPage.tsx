@@ -1005,16 +1005,16 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                   location_on
                 </span>
                 <span>
-                  Kaizentrix Global Solutions, Tech Zone II, OMR IT Corridor, Chennai, Tamil Nadu 600119
+                  SVG100 DC Complex, Chandra Layout, Vijayanagar, Bengaluru, Karnataka 560056
                 </span>
               </div>
               <div className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2 mt-1">
                 <span className="material-symbols-outlined text-outline text-[18px]">call</span>
-                <span>+91 (044) 4892-0900 / 0901</span>
+                <span>SVG080-23143355 / +91 91879 80031</span>
               </div>
               <div className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2">
                 <span className="material-symbols-outlined text-outline text-[18px]">mail</span>
-                <span>admissions@kaizentrixglobal.com</span>
+                <span>enquiry@kaizentrixglobal.com</span>
               </div>
             </div>
           </div>
