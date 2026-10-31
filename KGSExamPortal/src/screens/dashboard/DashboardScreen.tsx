@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   TouchableOpacity,
   RefreshControl,
@@ -11,6 +10,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
+import tw from 'twrnc';
 import { Exam } from '../../types';
 import * as examApi from '../../api/examApi';
 import { useAuth } from '../../context/AuthContext';
@@ -96,26 +96,22 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const getStatusBadge = (status?: string) => {
     switch (status) {
       case 'IN_PROGRESS':
-        return { label: 'IN PROGRESS', style: styles.progressBadge, textStyle: styles.progressText };
+        return { label: 'IN PROGRESS', style: tw`bg-blue-50 border border-blue-200 px-2 py-1 rounded-md`, textStyle: tw`text-blue-600 text-xs font-extrabold` };
       case 'AVAILABLE':
-        return { label: 'AVAILABLE', style: styles.availBadge, textStyle: styles.availText };
+        return { label: 'AVAILABLE', style: tw`bg-green-100 border border-green-300 px-2 py-1 rounded-md`, textStyle: tw`text-green-700 text-xs font-extrabold` };
       case 'UPCOMING':
-        return { label: 'UPCOMING', style: styles.upcomingBadge, textStyle: styles.upcomingText };
+        return { label: 'UPCOMING', style: tw`bg-amber-100 border border-amber-300 px-2 py-1 rounded-md`, textStyle: tw`text-amber-700 text-xs font-extrabold` };
       default:
-        return { label: 'AVAILABLE', style: styles.availBadge, textStyle: styles.availText };
+        return { label: 'AVAILABLE', style: tw`bg-green-100 border border-green-300 px-2 py-1 rounded-md`, textStyle: tw`text-green-700 text-xs font-extrabold` };
     }
   };
 
   return (
-    <View style={styles.container}>
-      {/* Soft Ambient Background Glows */}
-      <View style={styles.ambientOrbTop} />
-      <View style={styles.ambientOrbBottom} />
-
+    <View style={tw`flex-1 bg-slate-50`}>
       {/* Top Welcome Bar */}
       <Animated.View
         style={[
-          styles.topBar,
+          tw`bg-white p-5 pt-12 flex-row justify-between items-center border-b border-slate-200 shadow-sm`,
           {
             opacity: headerOpacity,
             transform: [{ translateY: headerTranslateY }],
@@ -123,45 +119,45 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         ]}
       >
         <View>
-          <Text style={styles.welcomeText}>Welcome back,</Text>
-          <Text style={styles.studentName}>{student?.fullName || 'Candidate'}</Text>
-          <View style={styles.idPill}>
-            <Text style={styles.studentIdBadge}>{student?.studentId || 'KGS-STUDENT'}</Text>
+          <Text style={tw`text-xs text-slate-500`}>Welcome back,</Text>
+          <Text style={tw`text-xl font-extrabold text-slate-900 tracking-wide`}>{student?.fullName || 'Candidate'}</Text>
+          <View style={tw`bg-blue-50 px-2 py-0.5 rounded border border-blue-200 self-start mt-1`}>
+            <Text style={tw`text-xs text-blue-600 font-extrabold`}>{student?.studentId || 'KGS-STUDENT'}</Text>
           </View>
         </View>
 
-        <View style={styles.topRightBtns}>
-          <TouchableOpacity style={styles.iconBtn} onPress={onNavigateResults} activeOpacity={0.8}>
-            <Text style={styles.iconBtnText}>📊 Marks</Text>
+        <View style={tw`flex-row`}>
+          <TouchableOpacity style={tw`bg-slate-50 px-3 py-2 rounded-xl ml-2 border border-slate-300`} onPress={onNavigateResults} activeOpacity={0.8}>
+            <Text style={tw`text-slate-800 text-xs font-bold`}>📊 Marks</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconBtn} onPress={onNavigateProfile} activeOpacity={0.8}>
-            <Text style={styles.iconBtnText}>👤 Profile</Text>
+          <TouchableOpacity style={tw`bg-slate-50 px-3 py-2 rounded-xl ml-2 border border-slate-300`} onPress={onNavigateProfile} activeOpacity={0.8}>
+            <Text style={tw`text-slate-800 text-xs font-bold`}>👤 Profile</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
 
-      <Text style={styles.sectionHeader}>My Examinations</Text>
+      <Text style={tw`text-lg font-extrabold text-slate-900 mx-4.5 mt-5 mb-2.5 tracking-wide`}>My Examinations</Text>
 
       {loading ? (
-        <View style={styles.centerContainer}>
+        <View style={tw`flex-1 justify-center items-center p-6`}>
           <ActivityIndicator size="large" color="#2563EB" />
-          <Text style={styles.loadingText}>Fetching assigned assessment papers...</Text>
+          <Text style={tw`text-slate-500 text-xs mt-3`}>Fetching assigned assessment papers...</Text>
         </View>
       ) : error ? (
-        <View style={styles.centerContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryBtn} onPress={fetchExams} activeOpacity={0.8}>
-            <Text style={styles.retryText}>Retry Connection</Text>
+        <View style={tw`flex-1 justify-center items-center p-6`}>
+          <Text style={tw`text-red-600 text-sm text-center mb-3.5`}>{error}</Text>
+          <TouchableOpacity style={tw`bg-blue-600 px-4.5 py-2.5 rounded-lg`} onPress={fetchExams} activeOpacity={0.8}>
+            <Text style={tw`text-white font-bold text-xs`}>Retry Connection</Text>
           </TouchableOpacity>
         </View>
       ) : exams.length === 0 ? (
-        <View style={styles.centerContainer}>
-          <Text style={styles.emptyText}>
+        <View style={tw`flex-1 justify-center items-center p-6`}>
+          <Text style={tw`text-slate-500 text-sm text-center leading-5`}>
             No active or assigned examinations found for your account.
           </Text>
         </View>
       ) : (
-        <Animated.View style={[{ flex: 1 }, { opacity: listOpacity }]}>
+        <Animated.View style={[tw`flex-1`, { opacity: listOpacity }]}>
           <FlatList
             data={exams}
             keyExtractor={(item) => item._id || item.code}
@@ -172,18 +168,18 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 tintColor="#2563EB"
               />
             }
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={tw`px-4 pb-7`}
             renderItem={({ item }) => {
               const badge = getStatusBadge((item as any).status);
               const isResume = (item as any).status === 'IN_PROGRESS';
 
               return (
-                <View style={styles.examCard}>
+                <View style={tw`bg-white rounded-2xl p-4.5 mb-3.5 border border-slate-200 shadow-sm`}>
                   {/* Card Header */}
-                  <View style={styles.cardHeader}>
-                    <View style={styles.titleCol}>
-                      <Text style={styles.examTitle}>{item.title}</Text>
-                      <Text style={styles.codeText}>Code: {item.code}</Text>
+                  <View style={tw`flex-row justify-between items-start mb-3.5`}>
+                    <View style={tw`flex-1 mr-2.5`}>
+                      <Text style={tw`text-base font-extrabold text-slate-900 mb-0.5`}>{item.title}</Text>
+                      <Text style={tw`text-xs text-slate-500 font-semibold`}>Code: {item.code}</Text>
                     </View>
                     <View style={badge.style}>
                       <Text style={badge.textStyle}>{badge.label}</Text>
@@ -191,30 +187,30 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   </View>
 
                   {/* Meta Stats Row */}
-                  <View style={styles.metaRow}>
-                    <View style={styles.metaItem}>
-                      <Text style={styles.metaLabel}>Duration</Text>
-                      <Text style={styles.metaValue}>{item.durationMinutes} Mins</Text>
+                  <View style={tw`flex-row justify-around items-center bg-slate-50 rounded-xl py-2.5 px-1.5 mb-4 border border-slate-200`}>
+                    <View style={tw`items-center flex-1`}>
+                      <Text style={tw`text-xs text-slate-500 font-semibold`}>Duration</Text>
+                      <Text style={tw`text-xs font-extrabold text-slate-900 mt-0.5`}>{item.durationMinutes} Mins</Text>
                     </View>
-                    <View style={styles.metaDivider} />
-                    <View style={styles.metaItem}>
-                      <Text style={styles.metaLabel}>Questions</Text>
-                      <Text style={styles.metaValue}>{item.totalQuestions}</Text>
+                    <View style={tw`w-px h-6 bg-slate-200`} />
+                    <View style={tw`items-center flex-1`}>
+                      <Text style={tw`text-xs text-slate-500 font-semibold`}>Questions</Text>
+                      <Text style={tw`text-xs font-extrabold text-slate-900 mt-0.5`}>{item.totalQuestions}</Text>
                     </View>
-                    <View style={styles.metaDivider} />
-                    <View style={styles.metaItem}>
-                      <Text style={styles.metaLabel}>Max Marks</Text>
-                      <Text style={styles.metaValue}>{item.totalMarks}</Text>
+                    <View style={tw`w-px h-6 bg-slate-200`} />
+                    <View style={tw`items-center flex-1`}>
+                      <Text style={tw`text-xs text-slate-500 font-semibold`}>Max Marks</Text>
+                      <Text style={tw`text-xs font-extrabold text-slate-900 mt-0.5`}>{item.totalMarks}</Text>
                     </View>
                   </View>
 
                   {/* Launch / Resume Button */}
                   <TouchableOpacity
-                    style={[styles.startBtn, isResume && styles.resumeBtn]}
+                    style={[tw`bg-blue-600 rounded-xl py-3 items-center`, isResume ? tw`bg-sky-600` : null]}
                     onPress={() => onSelectExam(item)}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.startBtnText}>
+                    <Text style={tw`text-white text-xs font-black tracking-wide`}>
                       {isResume ? 'RESUME EXAMINATION ➔' : 'START EXAMINATION ➔'}
                     </Text>
                   </TouchableOpacity>
@@ -227,250 +223,3 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  ambientOrbTop: {
-    position: 'absolute',
-    top: -80,
-    right: -60,
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    backgroundColor: 'rgba(37, 99, 235, 0.08)',
-  },
-  ambientOrbBottom: {
-    position: 'absolute',
-    bottom: -100,
-    left: -60,
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: 'rgba(14, 165, 233, 0.08)',
-  },
-  topBar: {
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    paddingTop: 48,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-  },
-  welcomeText: {
-    fontSize: 12,
-    color: '#64748B',
-  },
-  studentName: {
-    fontSize: 19,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: 0.5,
-  },
-  idPill: {
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-    marginTop: 4,
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  studentIdBadge: {
-    fontSize: 11,
-    color: '#2563EB',
-    fontWeight: '800',
-  },
-  topRightBtns: {
-    flexDirection: 'row',
-  },
-  iconBtn: {
-    backgroundColor: '#F8FAFC',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginLeft: 8,
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-  },
-  iconBtnText: {
-    color: '#1E293B',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  sectionHeader: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginHorizontal: 18,
-    marginTop: 20,
-    marginBottom: 10,
-    letterSpacing: 0.5,
-  },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 28,
-  },
-  examCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 14,
-  },
-  titleCol: {
-    flex: 1,
-    marginRight: 10,
-  },
-  examTitle: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 2,
-  },
-  codeText: {
-    fontSize: 12,
-    color: '#64748B',
-    fontWeight: '600',
-  },
-  availBadge: {
-    backgroundColor: '#DCFCE7',
-    borderWidth: 1,
-    borderColor: '#86EFAC',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  availText: {
-    color: '#15803D',
-    fontSize: 10,
-    fontWeight: '800',
-  },
-  progressBadge: {
-    backgroundColor: '#EFF6FF',
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  progressText: {
-    color: '#2563EB',
-    fontSize: 10,
-    fontWeight: '800',
-  },
-  upcomingBadge: {
-    backgroundColor: '#FEF3C7',
-    borderWidth: 1,
-    borderColor: '#FCD34D',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  upcomingText: {
-    color: '#B45309',
-    fontSize: 10,
-    fontWeight: '800',
-  },
-  metaRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 6,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  metaItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  metaDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: '#E2E8F0',
-  },
-  metaLabel: {
-    fontSize: 11,
-    color: '#64748B',
-    fontWeight: '600',
-  },
-  metaValue: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginTop: 2,
-  },
-  startBtn: {
-    backgroundColor: '#2563EB',
-    borderRadius: 10,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  resumeBtn: {
-    backgroundColor: '#0284C7',
-  },
-  startBtnText: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '900',
-    letterSpacing: 0.5,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  loadingText: {
-    color: '#64748B',
-    fontSize: 13,
-    marginTop: 12,
-  },
-  errorText: {
-    color: '#DC2626',
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 14,
-  },
-  retryBtn: {
-    backgroundColor: '#2563EB',
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  retryText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-});
