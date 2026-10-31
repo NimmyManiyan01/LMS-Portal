@@ -845,7 +845,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
         </section>
 
         {/* SECTION 6: DETAILED HEADQUARTERS & ACCREDITATION FOOTER SECTION */}
-        <section className="bg-surface-container-lowest pt-space-xl pb-space-lg px-margin border-t border-surface-container-low">
+        <section className="bg-surface-container-lowest pt-space-xl pb-space-lg px-margin">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-lg pb-space-lg">
             {/* Col 1: Brand & Certification */}
             <div className="lg:col-span-2 flex flex-col gap-space-sm">
@@ -1023,7 +1023,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
       </main>
 
       {/* GLOBAL FOOTER */}
-      <footer className="w-full bg-surface-container-low py-space-lg border-t border-surface-container">
+      <footer className="w-full bg-surface-container-lowest py-space-lg">
         <div className="max-w-7xl mx-auto px-margin flex flex-col gap-space-md font-body-sm text-body-sm text-on-surface-variant">
           <div className="flex flex-wrap items-center justify-center gap-x-space-lg gap-y-2">
             <a className="hover:text-on-surface transition-colors" href="mailto:enquiry@kaizentrixglobal.com">
@@ -1033,7 +1033,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               Placement Policy
             </a>
           </div>
-          <div className="w-full border-t border-surface-container pt-space-md text-center text-xs text-on-surface-variant">
+          <div className="w-full pt-space-md text-center text-xs text-on-surface-variant">
             © 2026 Kaizentrix Global Solutions Private Limited. All rights reserved.
           </div>
         </div>
