@@ -1026,7 +1026,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               Kaizentrix Global Solutions
             </span>
             <span className="hidden sm:inline">•</span>
-            <span className="hidden sm:inline">Outcome-Driven Engineering Accelerator</span>
           </div>
           <div className="flex items-center gap-space-lg">
             <a className="hover:text-on-surface transition-colors" href="mailto:admissions@kaizentrixglobal.com">
