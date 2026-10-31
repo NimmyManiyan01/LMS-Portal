@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   ScrollView,
   Animated,
@@ -10,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import tw from 'twrnc';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -129,31 +129,27 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
   return (
     <KeyboardAvoidingView
-      style={styles.flexContainer}
+      style={tw`flex-1 bg-slate-50`}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
+        style={tw`flex-1 bg-slate-50`}
+        contentContainerStyle={tw`p-5 pt-12 pb-10`}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Soft Ambient Glow Orbs */}
-        <View style={styles.ambientOrbTop} />
-        <View style={styles.ambientOrbBottom} />
-
         {/* Animated Header */}
         <Animated.View
           style={[
-            styles.header,
+            tw`items-center mb-6`,
             {
               opacity: headerOpacity,
               transform: [{ translateY: headerTranslateY }],
             },
           ]}
         >
-          <Text style={styles.title}>Student Registration</Text>
-          <View style={styles.glowLine} />
-          <Text style={styles.subtitle}>
+          <Text style={tw`text-2xl font-extrabold text-slate-900 tracking-wide`}>Student Registration</Text>
+          <View style={tw`w-12 h-1 bg-blue-600 rounded my-2`} />
+          <Text style={tw`text-xs text-slate-500 text-center leading-4 font-medium`}>
             Register to receive your unique Candidate Student ID (`KGS-STU-XXXXXX`).
           </Text>
         </Animated.View>
@@ -161,7 +157,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
         {/* Form Card */}
         <Animated.View
           style={[
-            styles.card,
+            tw`bg-white rounded-2xl p-5 border border-slate-200 shadow-lg`,
             {
               opacity: cardOpacity,
               transform: [{ translateY: cardTranslateY }],
@@ -169,8 +165,8 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           ]}
         >
           {error ? (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
+            <View style={tw`bg-red-50 border border-red-200 rounded-lg p-2.5 mb-4`}>
+              <Text style={tw`text-red-600 text-xs text-center font-semibold`}>{error}</Text>
             </View>
           ) : null}
 
@@ -226,28 +222,28 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
           {/* Policy Checkboxes */}
           <TouchableOpacity
-            style={styles.checkRow}
+            style={tw`flex-row items-center my-2`}
             onPress={() => setPrivacyAccepted(!privacyAccepted)}
             activeOpacity={0.8}
           >
-            <View style={[styles.checkbox, privacyAccepted && styles.checkedBox]}>
-              {privacyAccepted && <Text style={styles.checkMark}>✓</Text>}
+            <View style={[tw`w-5 h-5 rounded border-2 border-slate-400 items-center justify-center mr-2.5 bg-white`, privacyAccepted ? tw`bg-blue-600 border-blue-600` : null]}>
+              {privacyAccepted ? <Text style={tw`text-white text-xs font-bold`}>✓</Text> : null}
             </View>
-            <Text style={styles.checkText}>
-              I agree to the <Text style={styles.linkText}>Privacy Policy</Text> *
+            <Text style={tw`text-xs text-slate-700 flex-1`}>
+              I agree to the <Text style={tw`text-blue-600 font-bold`}>Privacy Policy</Text> *
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.checkRow}
+            style={tw`flex-row items-center my-2`}
             onPress={() => setMonitoringAccepted(!monitoringAccepted)}
             activeOpacity={0.8}
           >
-            <View style={[styles.checkbox, monitoringAccepted && styles.checkedBox]}>
-              {monitoringAccepted && <Text style={styles.checkMark}>✓</Text>}
+            <View style={[tw`w-5 h-5 rounded border-2 border-slate-400 items-center justify-center mr-2.5 bg-white`, monitoringAccepted ? tw`bg-blue-600 border-blue-600` : null]}>
+              {monitoringAccepted ? <Text style={tw`text-white text-xs font-bold`}>✓</Text> : null}
             </View>
-            <Text style={styles.checkText}>
-              I accept <Text style={styles.linkText}>Examination Integrity Rules</Text> *
+            <Text style={tw`text-xs text-slate-700 flex-1`}>
+              I accept <Text style={tw`text-blue-600 font-bold`}>Examination Integrity Rules</Text> *
             </Text>
           </TouchableOpacity>
 
@@ -255,154 +251,17 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             title="COMPLETE REGISTRATION & SEND OTP"
             onPress={handleRegister}
             loading={loading}
-            style={styles.submitBtn}
+            style={tw`mt-4.5`}
           />
         </Animated.View>
 
-        <View style={styles.loginRow}>
-          <Text style={styles.loginText}>Already registered?</Text>
+        <View style={tw`flex-row justify-center items-center mt-6`}>
+          <Text style={tw`text-sm text-slate-500 mr-1.5`}>Already registered?</Text>
           <TouchableOpacity onPress={onNavigateLogin} activeOpacity={0.8}>
-            <Text style={styles.loginLink}>Sign In Here</Text>
+            <Text style={tw`text-sm font-extrabold text-blue-600`}>Sign In Here</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  flexContainer: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  content: {
-    padding: 20,
-    paddingTop: 48,
-    paddingBottom: 40,
-  },
-  ambientOrbTop: {
-    position: 'absolute',
-    top: -80,
-    right: -60,
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    backgroundColor: 'rgba(37, 99, 235, 0.08)',
-  },
-  ambientOrbBottom: {
-    position: 'absolute',
-    bottom: -100,
-    left: -60,
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: 'rgba(14, 165, 233, 0.08)',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: 0.5,
-  },
-  glowLine: {
-    width: 50,
-    height: 2.5,
-    backgroundColor: '#2563EB',
-    borderRadius: 2,
-    marginVertical: 8,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 18,
-    fontWeight: '500',
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
-  },
-  errorBox: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FECACA',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 16,
-  },
-  errorText: {
-    color: '#DC2626',
-    fontSize: 13,
-    textAlign: 'center',
-  },
-  checkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 8,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#94A3B8',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-    backgroundColor: '#FFFFFF',
-  },
-  checkedBox: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
-  },
-  checkMark: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  checkText: {
-    fontSize: 13,
-    color: '#334155',
-    flex: 1,
-  },
-  linkText: {
-    color: '#2563EB',
-    fontWeight: '700',
-  },
-  submitBtn: {
-    marginTop: 18,
-    backgroundColor: '#2563EB',
-  },
-  loginRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  loginText: {
-    fontSize: 14,
-    color: '#64748B',
-    marginRight: 6,
-  },
-  loginLink: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#2563EB',
-  },
-});
