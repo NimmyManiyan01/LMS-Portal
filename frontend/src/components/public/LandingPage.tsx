@@ -901,76 +901,22 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               </div>
             </div>
 
-            {/* Col 2: Programs */}
+            {/* Col 2: Explore */}
             <div className="flex flex-col gap-2">
               <span className="font-label-lg text-label-lg text-on-surface font-bold">
-                Curriculum
+                Explore
               </span>
-              <a
-                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
-                href="#batches"
-              >
-                Full-Stack MERN Track
-              </a>
-              <a
-                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
-                href="#batches"
-              >
-                Enterprise Java &amp; Spring Cloud
-              </a>
-              <a
-                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
-                href="#batches"
-              >
-                Data Engineering &amp; AI/LLMs
-              </a>
-              <a
-                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
-                href="#batches"
-              >
-                Cloud Architecture &amp; DevOps
-              </a>
-              <a
-                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
-                href="#batches"
-              >
-                DSA &amp; Problem Solving Clinic
-              </a>
+              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/">About Us</a>
+              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/batches">Batches</a>
+              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/placement-track">Placement Track</a>
             </div>
 
-            {/* Col 3: Portal Gateways */}
+            {/* Col 3: Student Access */}
             <div className="flex flex-col gap-2">
-              <span className="font-label-lg text-label-lg text-on-surface font-bold">Portals</span>
-              <button
-                onClick={onLogin}
-                className="text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
-              >
-                Student LMS Gateway
-              </button>
-              <a
-                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
-                href="#batches"
-              >
-                Placement Requisition Board
-              </a>
-              <button
-                onClick={onAdminLogin}
-                className="text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
-              >
-                University Campus Portal
-              </button>
-              <button
-                onClick={onAdminLogin}
-                className="text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
-              >
-                Hiring Partner Console
-              </button>
-              <a
-                className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors"
-                href="#achievers"
-              >
-                Verify Alumni Credentials
-              </a>
+              <span className="font-label-lg text-label-lg text-on-surface font-bold">Student Access</span>
+              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/achievers">Achievers</a>
+              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/lms-gateway">LMS Gateway</a>
+              <button onClick={onLogin} className="text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Student Portal Login</button>
             </div>
 
             {/* Col 4: Contact */}
