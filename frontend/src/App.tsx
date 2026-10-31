@@ -14,6 +14,7 @@ const SubmissionConfirmation = lazy(() =>
 import { LandingPage } from "./components/public/LandingPage"
 import { AboutPage } from "./components/public/AboutPage"
 import { BatchesPage } from "./components/public/BatchesPage"
+import { PortalInfoPage } from "./components/public/PortalInfoPage"
 import {
   PolicyPage,
   monitoringSections,
@@ -732,6 +733,13 @@ export default function App() {
 
   if (entryRoute === "/batches")
     return <BatchesPage onBack={() => navigateEntry("/")} onRegister={() => navigateEntry("/register")} />
+
+  if (entryRoute === "/placement-track")
+    return <PortalInfoPage kind="placement" onBack={() => navigateEntry("/")} onLogin={() => navigateEntry("/login")} onRegister={() => navigateEntry("/register")} />
+  if (entryRoute === "/achievers")
+    return <PortalInfoPage kind="achievers" onBack={() => navigateEntry("/")} onLogin={() => navigateEntry("/login")} onRegister={() => navigateEntry("/register")} />
+  if (entryRoute === "/lms-gateway")
+    return <PortalInfoPage kind="lms" onBack={() => navigateEntry("/")} onLogin={() => navigateEntry("/login")} onRegister={() => navigateEntry("/register")} />
 
   if (entryRoute === "/privacy")
     return (

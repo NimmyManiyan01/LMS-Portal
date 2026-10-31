@@ -265,19 +265,19 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               Batches
             </a>
             <a
-              href="#lms-preview"
+              href="/placement-track"
               className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
             >
               Placement Track
             </a>
             <a
-              href="#achievers"
+              href="/achievers"
               className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
             >
               Achievers
             </a>
             <a
-              href="#lms-preview"
+              href="/lms-gateway"
               className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
             >
               LMS Gateway
