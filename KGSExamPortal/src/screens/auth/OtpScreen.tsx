@@ -3,6 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  TextInput,
   ScrollView,
   Animated,
   Easing,
@@ -10,7 +11,6 @@ import {
   Platform,
 } from 'react-native';
 import tw from 'twrnc';
-import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
 
@@ -24,6 +24,8 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ onBack }) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(45);
+
+  const inputRef = useRef<TextInput>(null);
 
   // Cinematic Animated Values
   const iconScale = useRef(new Animated.Value(0)).current;
@@ -71,7 +73,10 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ onBack }) => {
           useNativeDriver: true,
         }),
       ]),
-    ]).start();
+    ]).start(() => {
+      // Auto-focus the input after animation finishes
+      setTimeout(() => inputRef.current?.focus(), 100);
+    });
   }, []);
 
   const handleVerify = async () => {
@@ -101,7 +106,6 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ onBack }) => {
     }
   };
 
-  // Render 6 visual digit boxes based on typed code
   const codeChars = code.split('');
 
   return (
@@ -140,7 +144,7 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ onBack }) => {
           ]}
         >
           <Text style={tw`text-xl font-extrabold text-slate-900 mb-1.5 text-center tracking-wide`}>Verify Email</Text>
-          <Text style={tw`text-xs text-slate-500 leading-4 mb-5 text-center`}>
+          <Text style={tw`text-xs text-slate-500 leading-4 mb-6 text-center`}>
             Enter the 6-digit verification code sent to{' '}
             <Text style={tw`text-blue-600 font-bold`}>{loginEmail}</Text>.
           </Text>
@@ -151,48 +155,64 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ onBack }) => {
             </View>
           ) : null}
 
-          {/* 6 Digit Display Boxes */}
-          <View style={tw`flex-row justify-between mb-4.5`}>
-            {[0, 1, 2, 3, 4, 5].map((idx) => {
-              const char = codeChars[idx] || '';
-              const isFilled = char !== '';
-              return (
-                <View
-                  key={idx}
-                  style={[
-                    tw`w-11 h-12.5 rounded-xl bg-slate-50 border-1.5 border-slate-200 items-center justify-center`,
-                    isFilled ? tw`border-blue-600 bg-blue-50` : null,
-                  ]}
-                >
-                  <Text style={[tw`text-xl font-extrabold text-slate-400`, isFilled ? tw`text-slate-900` : null]}>
-                    {char || '•'}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
+          {/* Interactive 6-Digit OTP Box Grid (ONLY INPUT ON SCREEN) */}
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => inputRef.current?.focus()}
+            style={tw`relative mb-6`}
+          >
+            <View style={tw`flex-row justify-between`}>
+              {[0, 1, 2, 3, 4, 5].map((idx) => {
+                const char = codeChars[idx] || '';
+                const isFilled = char !== '';
+                const isCurrent = code.length === idx || (idx === 5 && code.length === 6);
 
-          {/* Actual Hidden/Focused Input */}
-          <Input
-            label="6-Digit Verification Code"
-            placeholder="Enter 6-digit code"
-            value={code}
-            onChangeText={(val) => {
-              setCode(val);
-              setError(null);
-            }}
-            keyboardType="number-pad"
-            maxLength={6}
-            autoFocus={true}
-            textContentType="oneTimeCode"
-            autoComplete="one-time-code"
-          />
+                return (
+                  <View
+                    key={idx}
+                    style={[
+                      tw`w-11 h-13 rounded-xl bg-slate-50 border-2 border-slate-200 items-center justify-center`,
+                      isFilled ? tw`border-blue-600 bg-blue-50` : null,
+                      isCurrent && !isFilled ? tw`border-blue-500 bg-blue-50/40` : null,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        tw`text-2xl font-black text-slate-400`,
+                        isFilled ? tw`text-blue-700` : null,
+                      ]}
+                    >
+                      {char || ''}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+
+            {/* Hidden Input overlaid on top of the 6 digit boxes */}
+            <TextInput
+              ref={inputRef}
+              value={code}
+              onChangeText={(val) => {
+                const cleaned = val.replace(/[^0-9]/g, '').slice(0, 6);
+                setCode(cleaned);
+                setError(null);
+              }}
+              keyboardType="number-pad"
+              maxLength={6}
+              autoFocus={true}
+              textContentType="oneTimeCode"
+              autoComplete="one-time-code"
+              style={tw`absolute inset-0 opacity-0`}
+            />
+          </TouchableOpacity>
 
           <Button
             title="VERIFY OTP & SIGN IN"
             onPress={handleVerify}
             loading={loading}
-            style={tw`mt-3.5`}
+            disabled={code.length !== 6}
+            style={tw`mt-2`}
           />
 
           {/* Resend Cooldown Section */}
