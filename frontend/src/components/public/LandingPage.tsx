@@ -3,6 +3,7 @@ import logo from "../../assets/Logo.png";
 import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4";
 import heroStudent from "../../assets/hero-student.png";
 import { TransparentLogoVideo } from "./TransparentLogoVideo";
+import { ContactModal } from "./ContactModal";
 
 interface LandingPageProps {
   onLogin: () => void;
@@ -170,6 +171,8 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
   );
   const [isLoaderExiting, setIsLoaderExiting] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [selectedTrack, setSelectedTrack] = useState<string>();
   const [activeTrackFilter, setActiveTrackFilter] = useState<TrackCategory>("all");
   const achieverGridRef = useRef<HTMLDivElement>(null);
   const loaderFinishedRef = useRef(false);
@@ -180,6 +183,11 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
     loaderFinishedRef.current = true;
     setIsLoaderExiting(true);
     loaderExitTimerRef.current = window.setTimeout(() => setIsLoading(false), 700);
+  };
+
+  const openContact = (track?: string) => {
+    setSelectedTrack(track);
+    setContactOpen(true);
   };
 
   useEffect(() => {
@@ -282,6 +290,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
             >
               LMS Gateway
             </a>
+            <button type="button" onClick={() => openContact()} className="public-nav-link border-0 bg-transparent font-label-lg text-label-lg text-on-surface-variant">Contact Us</button>
           </nav>
 
           {/* Header Action Controls */}
@@ -661,7 +670,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                       <span>Download Syllabus PDF</span>
                     </a>
                     <button
-                      onClick={onRegister}
+                      onClick={() => openContact(track.title)}
                       className={`px-space-md py-2.5 rounded-xl font-label-md text-label-md shadow transition-all cursor-pointer ${track.actionColor}`}
                     >
                       Apply For Track
@@ -909,6 +918,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/">About Us</a>
               <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/batches">Batches</a>
               <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/placement-track">Placement Track</a>
+              <button onClick={() => openContact()} className="cursor-pointer text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors">Contact Us</button>
             </div>
 
             {/* Col 3: Student Access */}
@@ -916,6 +926,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               <span className="font-label-lg text-label-lg text-on-surface font-bold">Student Access</span>
               <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/achievers">Achievers</a>
               <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/lms-gateway">LMS Gateway</a>
+              <button onClick={() => openContact()} className="cursor-pointer text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors">Contact Us</button>
               <button onClick={onLogin} className="text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Student Portal Login</button>
             </div>
 
@@ -965,6 +976,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
           </div>
         </div>
       </footer>
+      <ContactModal open={contactOpen} track={selectedTrack} onClose={() => setContactOpen(false)} />
     </div>
   );
 }
