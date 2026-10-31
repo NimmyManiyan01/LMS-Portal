@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
+import tw from 'twrnc';
 import { Header } from '../../components/common/Header';
 import { ReadinessChecklist } from '../../components/exam/ReadinessChecklist';
 import { Exam } from '../../types';
@@ -36,9 +37,9 @@ export const ReadinessScreen: React.FC<ReadinessScreenProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={tw`flex-1 bg-slate-50`}>
       <Header title="System Readiness Check" subtitle={exam.title} onBack={onBack} />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={tw`p-4 pb-10`}>
         <ReadinessChecklist
           cameraRequired={true}
           onProceed={handleLaunch}
@@ -48,13 +49,3 @@ export const ReadinessScreen: React.FC<ReadinessScreenProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  content: {
-    padding: 16,
-  },
-});
