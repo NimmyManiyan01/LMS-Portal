@@ -394,14 +394,6 @@ function Topbar({
       </div>
 
       <div className="flex items-center gap-3 ml-auto">
-        <button
-          className="relative flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer bg-white"
-          aria-label="Notifications"
-        >
-          <Icon name="bell" />
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-600"></span>
-        </button>
-
         {admin && adminUser ? (
           <button
             className="flex items-center gap-3 p-1.5 pl-2 pr-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer bg-white text-left group"
