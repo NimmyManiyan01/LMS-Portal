@@ -383,9 +383,9 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
           <img
             src={heroStudent}
             alt="Student preparing for a software engineering career"
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[68%_center] opacity-90 max-lg:object-[72%_center] max-md:object-[78%_center] max-md:opacity-35"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[68%_center] opacity-90 max-lg:object-[72%_center] max-md:object-[center_bottom] max-md:opacity-60"
           />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(250,248,255,.98)_0%,rgba(250,248,255,.93)_30%,rgba(250,248,255,.68)_56%,rgba(250,248,255,.2)_84%,rgba(250,248,255,0)_100%)] max-md:bg-[linear-gradient(180deg,rgba(250,248,255,.98)_0%,rgba(250,248,255,.9)_48%,rgba(250,248,255,.42)_100%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(250,248,255,.98)_0%,rgba(250,248,255,.93)_30%,rgba(250,248,255,.68)_56%,rgba(250,248,255,.2)_84%,rgba(250,248,255,0)_100%)] max-md:bg-[linear-gradient(180deg,rgba(250,248,255,.96)_0%,rgba(250,248,255,.78)_38%,rgba(250,248,255,.18)_78%,rgba(250,248,255,.04)_100%)]" />
           <div className="absolute -top-32 right-10 w-96 h-96 bg-primary-fixed-dim/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 left-10 w-80 h-80 bg-tertiary-fixed/30 rounded-full blur-3xl pointer-events-none" />
 
