@@ -384,7 +384,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
       </header>
 
       {/* MAIN BODY CONTENT */}
-      <main className="w-full pt-16 bg-surface">
+      <main className="w-full bg-surface">
         {/* SECTION 1: HERO & LIVE WORKBENCH PREVIEW */}
         <section
           className="relative isolate overflow-hidden bg-surface-container-low pt-space-xl pb-24 px-margin"
