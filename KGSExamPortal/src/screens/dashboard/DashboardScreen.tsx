@@ -168,7 +168,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 tintColor="#2563EB"
               />
             }
-            contentContainerStyle={tw`px-4 pb-7`}
+            contentContainerStyle={tw`px-4 pb-28`}
             renderItem={({ item }) => {
               const badge = getStatusBadge((item as any).status);
               const isResume = (item as any).status === 'IN_PROGRESS';

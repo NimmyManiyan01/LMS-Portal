@@ -61,11 +61,8 @@ export const RootNavigator: React.FC = () => {
     );
   }
 
-  // Check if current screen is one of the main dashboard tabs
-  const isDashboardTab =
-    currentScreen === 'DASHBOARD' ||
-    currentScreen === 'RESULTS' ||
-    currentScreen === 'PROFILE';
+  // Render floating navbar ONLY on the main Dashboard screen
+  const isDashboardOnly = currentScreen === 'DASHBOARD';
 
   const renderActiveScreen = () => {
     switch (currentScreen) {
@@ -150,21 +147,14 @@ export const RootNavigator: React.FC = () => {
     setCurrentScreen(tab as ScreenName);
   };
 
-  const currentTabName: TabName =
-    currentScreen === 'RESULTS'
-      ? 'RESULTS'
-      : currentScreen === 'PROFILE'
-      ? 'PROFILE'
-      : 'DASHBOARD';
-
   return (
     <View style={tw`flex-1 relative bg-slate-50`}>
       {renderActiveScreen()}
 
-      {/* Floating Animated Bottom Navbar (Visible on Dashboard, Results, and Profile) */}
-      {isDashboardTab && (
+      {/* Floating Animated Bottom Navbar (Visible ONLY on Main Dashboard Screen) */}
+      {isDashboardOnly && (
         <FloatingBottomNavbar
-          currentTab={currentTabName}
+          currentTab="DASHBOARD"
           onSelectTab={handleTabSelect}
         />
       )}
