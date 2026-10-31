@@ -1025,11 +1025,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
       {/* GLOBAL FOOTER */}
       <footer className="w-full bg-surface-container-low py-space-lg border-t border-surface-container">
         <div className="max-w-7xl mx-auto px-margin flex flex-col gap-space-md font-body-sm text-body-sm text-on-surface-variant">
-          <div className="flex w-full flex-col items-center justify-between gap-space-md md:flex-row">
-            <span className="font-headline-sm text-headline-sm text-on-surface font-bold">
-              Kaizentrix Global Solutions
-            </span>
-          </div>
           <div className="flex flex-wrap items-center justify-center gap-x-space-lg gap-y-2">
             <a className="hover:text-on-surface transition-colors" href="mailto:enquiry@kaizentrixglobal.com">
               Campus Assistance
