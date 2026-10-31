@@ -1031,7 +1031,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
             <a className="hover:text-on-surface transition-colors" href="mailto:admissions@kaizentrixglobal.com">
               Campus Assistance
             </a>
-            <a className="hover:text-on-surface transition-colors" href="#batches">
+            <a className="hover:text-on-surface transition-colors" href="/placement-policy">
               Placement Policy
             </a>
           </div>

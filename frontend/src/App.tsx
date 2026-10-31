@@ -16,6 +16,7 @@ import { AboutPage } from "./components/public/AboutPage"
 import {
   PolicyPage,
   monitoringSections,
+  placementPolicySections,
   privacySections,
 } from "./components/public/PolicyPage"
 import { RegistrationPage } from "./components/auth/RegistrationPage"
@@ -747,6 +748,18 @@ export default function App() {
         summary="This policy explains the monitoring signals that may be used during an assessment, candidate responsibilities, and how potential integrity events are reviewed."
         sections={monitoringSections}
         onBack={() => navigateEntry("/register")}
+      />
+    )
+
+  if (entryRoute === "/placement-policy")
+    return (
+      <PolicyPage
+        eyebrow="PLACEMENT SUPPORT"
+        title="Placement Policy"
+        summary="Learn how placement support works, what students are responsible for, and how employers make final selection decisions."
+        sections={placementPolicySections}
+        onBack={() => navigateEntry("/")}
+        backLabel="Back to home"
       />
     )
 

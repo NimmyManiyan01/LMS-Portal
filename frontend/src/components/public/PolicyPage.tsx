@@ -10,6 +10,7 @@ interface PolicyPageProps {
   summary: string
   sections: PolicySection[]
   onBack: () => void
+  backLabel?: string
 }
 
 export function PolicyPage({
@@ -18,6 +19,7 @@ export function PolicyPage({
   summary,
   sections,
   onBack,
+  backLabel = "Back to registration",
 }: PolicyPageProps) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -27,7 +29,7 @@ export function PolicyPage({
             type="button"
             onClick={onBack}
             className="flex cursor-pointer items-center gap-3 border-0 bg-transparent p-0 text-left"
-            aria-label="Back to student registration"
+            aria-label={backLabel}
           >
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 font-black text-white shadow-md shadow-blue-500/20">
               K
@@ -42,7 +44,7 @@ export function PolicyPage({
             onClick={onBack}
             className="h-9 cursor-pointer rounded-lg border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
           >
-            Back to registration
+            {backLabel}
           </button>
         </div>
       </header>
@@ -179,5 +181,43 @@ export const monitoringSections: PolicySection[] = [
   {
     title: "Technical issues and accommodations",
     paragraphs: ["If you cannot meet a monitoring requirement because of accessibility needs, device limitations, connectivity, or another legitimate constraint, contact the administering institution before the examination. Alternative arrangements are subject to institutional approval."],
+  },
+]
+
+export const placementPolicySections: PolicySection[] = [
+  {
+    title: "Placement support",
+    paragraphs: ["KGS supports eligible learners with structured preparation, employer connections, application guidance, and interview readiness activities. Placement support is designed to improve opportunity access and does not guarantee a job offer."],
+  },
+  {
+    title: "Eligibility",
+    items: [
+      "Maintain an accurate and complete student profile, including academic and contact details.",
+      "Complete the required learning, assessment, attendance, and profile-verification requirements for a drive.",
+      "Meet the role-specific academic, technical, location, experience, and availability criteria published with each opportunity.",
+      "Keep your resume, portfolio, and contact details current throughout the placement process.",
+    ],
+  },
+  {
+    title: "Applications and selection",
+    paragraphs: ["Students are responsible for reviewing each opportunity and applying only when they meet the stated requirements. Employers control their own screening, interview, selection, compensation, and joining decisions. KGS may coordinate communication and scheduling but does not control an employer’s final decision."],
+  },
+  {
+    title: "Student responsibilities",
+    items: [
+      "Provide truthful information and submit only your own work and credentials.",
+      "Attend scheduled assessments, interviews, and preparation sessions on time.",
+      "Communicate promptly about cancellations, conflicts, or changes in availability.",
+      "Follow employer, institution, and KGS conduct, confidentiality, and examination-integrity requirements.",
+      "Treat recruiters, mentors, staff, and other candidates respectfully.",
+    ],
+  },
+  {
+    title: "Offers and outcomes",
+    paragraphs: ["Any offer, compensation, joining date, role, location, and employment terms are determined by the hiring organization and must be reviewed directly by the student. Students should confirm offer details with the employer before accepting."],
+  },
+  {
+    title: "Questions and support",
+    paragraphs: ["For questions about a specific drive, eligibility decision, or application status, use the contact channel provided in the opportunity details or contact the KGS placement team."],
   },
 ]
