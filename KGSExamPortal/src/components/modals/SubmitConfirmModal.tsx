@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Modal } from 'react-native';
+import { View, Text, Modal } from 'react-native';
+import tw from 'twrnc';
 import { Button } from '../common/Button';
 import { Question, Answer } from '../../types';
 
@@ -37,53 +38,55 @@ export const SubmitConfirmModal: React.FC<SubmitConfirmModalProps> = ({
 
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.overlay}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Submit Examination?</Text>
-          <Text style={styles.subtitle}>
+      <View style={tw`flex-1 bg-slate-900/50 justify-center items-center p-5`}>
+        <View style={tw`bg-white rounded-2xl p-6 w-full shadow-xl`}>
+          <Text style={tw`text-xl font-extrabold text-slate-900 mb-1 text-center`}>
+            Submit Examination?
+          </Text>
+          <Text style={tw`text-xs text-slate-500 mb-4 text-center`}>
             Review your summary before final submission.
           </Text>
 
           {/* Stats Box */}
-          <View style={styles.statsContainer}>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Answered Questions:</Text>
-              <Text style={[styles.statValue, { color: '#16A34A' }]}>
+          <View style={tw`bg-slate-50 rounded-xl p-3.5 mb-3.5 border border-slate-200`}>
+            <View style={tw`flex-row justify-between py-1.5 border-b border-slate-100`}>
+              <Text style={tw`text-sm font-semibold text-slate-700`}>Answered Questions:</Text>
+              <Text style={tw`text-sm font-extrabold text-green-600`}>
                 {String(answered).padStart(2, '0')}
               </Text>
             </View>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Unanswered Questions:</Text>
-              <Text style={[styles.statValue, { color: '#DC2626' }]}>
+            <View style={tw`flex-row justify-between py-1.5 border-b border-slate-100`}>
+              <Text style={tw`text-sm font-semibold text-slate-700`}>Unanswered Questions:</Text>
+              <Text style={tw`text-sm font-extrabold text-red-600`}>
                 {String(unanswered).padStart(2, '0')}
               </Text>
             </View>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Marked for Review:</Text>
-              <Text style={[styles.statValue, { color: '#9333EA' }]}>
+            <View style={tw`flex-row justify-between py-1.5`}>
+              <Text style={tw`text-sm font-semibold text-slate-700`}>Marked for Review:</Text>
+              <Text style={tw`text-sm font-extrabold text-purple-600`}>
                 {String(marked).padStart(2, '0')}
               </Text>
             </View>
           </View>
 
-          <Text style={styles.warningText}>
+          <Text style={tw`text-xs text-red-600 font-semibold mb-4 text-center`}>
             You cannot change answers after final submission.
           </Text>
 
-          <View style={styles.btnRow}>
+          <View style={tw`flex-row justify-between`}>
             <Button
               title="CANCEL"
               onPress={onCancel}
               variant="outline"
               disabled={loading}
-              style={styles.cancelBtn}
+              style={tw`flex-1 mr-2`}
             />
             <Button
               title="SUBMIT EXAM"
               onPress={onConfirm}
               loading={loading}
               disabled={loading}
-              style={styles.confirmBtn}
+              style={tw`flex-1 ml-2`}
             />
           </View>
         </View>
@@ -91,81 +94,3 @@ export const SubmitConfirmModal: React.FC<SubmitConfirmModalProps> = ({
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  content: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 24,
-    width: '100%',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 20,
-    elevation: 8,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 13,
-    color: '#64748B',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  statsContainer: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  statRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#334155',
-    fontWeight: '600',
-  },
-  statValue: {
-    fontSize: 14,
-    fontWeight: '800',
-    fontVariant: ['tabular-nums'],
-  },
-  warningText: {
-    fontSize: 12,
-    color: '#DC2626',
-    fontWeight: '600',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  btnRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  cancelBtn: {
-    flex: 1,
-    marginRight: 8,
-  },
-  confirmBtn: {
-    flex: 1,
-    marginLeft: 8,
-  },
-});
