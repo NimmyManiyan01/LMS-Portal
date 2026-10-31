@@ -1,6 +1,7 @@
 import React from 'react';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import { StatusBar, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import tw from 'twrnc';
 import { AuthProvider } from './src/context/AuthContext';
 import { ExamProvider } from './src/context/ExamContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
@@ -10,10 +11,13 @@ function App() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="#0F172A" />
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor="#F8FAFC"
+      />
       <AuthProvider>
         <ExamProvider>
-          <View style={styles.container}>
+          <View style={tw`flex-1 bg-slate-50`}>
             <RootNavigator />
           </View>
         </ExamProvider>
@@ -21,12 +25,5 @@ function App() {
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0F172A',
-  },
-});
 
 export default App;
