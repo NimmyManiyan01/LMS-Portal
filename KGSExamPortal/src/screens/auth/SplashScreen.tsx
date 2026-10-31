@@ -130,8 +130,8 @@ export const SplashScreen: React.FC = () => {
     setChecking(true);
     setError(null);
 
-    // Minimum display timer of 10.0s so candidate can enjoy the cinematic sequence
-    const minDisplayTimer = new Promise((resolve) => setTimeout(resolve, 10000));
+    // Optimal 2.0s splash screen display duration
+    const minDisplayTimer = new Promise((resolve) => setTimeout(resolve, 2000));
 
     try {
       await Promise.all([checkAuth(), minDisplayTimer]);

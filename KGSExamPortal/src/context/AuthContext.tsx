@@ -49,8 +49,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuth = async () => {
     setIsLoading(true);
-    // Keep splash screen visible for 10 full seconds on app launch
-    const splashTimer = new Promise((resolve) => setTimeout(resolve, 10000));
+    // Smooth 2.0 second splash sequence on launch
+    const splashTimer = new Promise((resolve) => setTimeout(resolve, 2000));
     try {
       const [res] = await Promise.all([authApi.getMe(), splashTimer]);
       const st = extractStudent(res?.data);
