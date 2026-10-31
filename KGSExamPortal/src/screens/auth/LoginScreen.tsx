@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   ScrollView,
   Animated,
@@ -10,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import tw from 'twrnc';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -99,54 +99,50 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   return (
     <KeyboardAvoidingView
-      style={styles.flexContainer}
+      style={tw`flex-1 bg-slate-50`}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
+        style={tw`flex-1 bg-slate-50`}
+        contentContainerStyle={tw`p-5 pt-12 pb-10 min-h-full justify-center`}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Soft Ambient Glow Orbs */}
-        <View style={styles.ambientOrbTop} />
-        <View style={styles.ambientOrbBottom} />
-
         {/* Header Section */}
         <Animated.View
           style={[
-            styles.header,
+            tw`items-center mb-6`,
             {
               opacity: headerOpacity,
               transform: [{ translateY: headerTranslateY }],
             },
           ]}
         >
-          <View style={styles.capBadge}>
-            <Text style={styles.capIcon}>🎓</Text>
+          <View style={tw`w-16 h-16 rounded-full bg-white items-center justify-center mb-3 border-2 border-blue-600 shadow-md`}>
+            <Text style={tw`text-3xl`}>🎓</Text>
           </View>
-          <Text style={styles.appTitle}>KGS EXAM PORTAL</Text>
-          <View style={styles.glowLine} />
-          <Text style={styles.appSubtitle}>Candidate Mobile Authentication</Text>
+          <Text style={tw`text-2xl font-extrabold text-slate-900 tracking-wider`}>KGS EXAM PORTAL</Text>
+          <View style={tw`w-12 h-1 bg-blue-600 rounded my-2`} />
+          <Text style={tw`text-xs text-slate-500 font-medium tracking-wide`}>Candidate Mobile Authentication</Text>
         </Animated.View>
 
         {/* Light Glassmorphism Card */}
         <Animated.View
           style={[
-            styles.card,
+            tw`bg-white rounded-2xl p-5 border border-slate-200 shadow-lg`,
             {
               opacity: cardOpacity,
               transform: [{ translateY: cardTranslateY }],
             },
           ]}
         >
-          <Text style={styles.cardTitle}>Sign In with Email OTP</Text>
-          <Text style={styles.cardDesc}>
+          <Text style={tw`text-lg font-extrabold text-slate-900 mb-1`}>Sign In with Email OTP</Text>
+          <Text style={tw`text-xs text-slate-500 leading-4 mb-4.5`}>
             Enter your registered email address to receive a 6-digit verification code.
           </Text>
 
           {error ? (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
+            <View style={tw`bg-red-50 border border-red-200 rounded-lg p-2.5 mb-4`}>
+              <Text style={tw`text-red-600 text-xs text-center font-semibold`}>{error}</Text>
             </View>
           ) : null}
 
@@ -167,175 +163,24 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             title="SEND VERIFICATION OTP"
             onPress={handleRequestOtp}
             loading={loading}
-            style={styles.submitBtn}
+            style={tw`mt-4`}
           />
         </Animated.View>
 
         {/* Bottom Navigation & Security Badge */}
-        <Animated.View style={[styles.bottomSection, { opacity: badgeOpacity }]}>
-          <View style={styles.registerRow}>
-            <Text style={styles.registerText}>New candidate?</Text>
+        <Animated.View style={[tw`items-center mt-7`, { opacity: badgeOpacity }]}>
+          <View style={tw`flex-row items-center mb-4`}>
+            <Text style={tw`text-sm text-slate-500 mr-1.5`}>New candidate?</Text>
             <TouchableOpacity onPress={onNavigateRegister} activeOpacity={0.8}>
-              <Text style={styles.registerLink}>Register Student Account</Text>
+              <Text style={tw`text-sm font-extrabold text-blue-600`}>Register Student Account</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={styles.securityBadge}>
-            <Text style={styles.securityText}>🔒 End-to-End Encrypted Session</Text>
+          <View style={tw`bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200`}>
+            <Text style={tw`text-xs text-blue-700 font-bold`}>🔒 End-to-End Encrypted Session</Text>
           </View>
         </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  flexContainer: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  content: {
-    padding: 20,
-    paddingTop: 48,
-    paddingBottom: 40,
-    minHeight: '100%',
-    justifyContent: 'center',
-  },
-  ambientOrbTop: {
-    position: 'absolute',
-    top: -80,
-    right: -60,
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    backgroundColor: 'rgba(37, 99, 235, 0.08)',
-  },
-  ambientOrbBottom: {
-    position: 'absolute',
-    bottom: -100,
-    left: -60,
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: 'rgba(14, 165, 233, 0.08)',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  capBadge: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-    borderWidth: 2,
-    borderColor: '#2563EB',
-    shadowColor: '#2563EB',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  capIcon: {
-    fontSize: 32,
-  },
-  appTitle: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: 1,
-  },
-  glowLine: {
-    width: 50,
-    height: 2.5,
-    backgroundColor: '#2563EB',
-    borderRadius: 2,
-    marginVertical: 8,
-  },
-  appSubtitle: {
-    fontSize: 13,
-    color: '#64748B',
-    letterSpacing: 0.5,
-    fontWeight: '500',
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 4,
-  },
-  cardDesc: {
-    fontSize: 13,
-    color: '#64748B',
-    lineHeight: 18,
-    marginBottom: 18,
-  },
-  errorContainer: {
-    backgroundColor: '#FEF2F2',
-    borderWidth: 1,
-    borderColor: '#FECACA',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 16,
-  },
-  errorText: {
-    color: '#DC2626',
-    fontSize: 13,
-    textAlign: 'center',
-  },
-  submitBtn: {
-    marginTop: 16,
-    backgroundColor: '#2563EB',
-  },
-  bottomSection: {
-    alignItems: 'center',
-    marginTop: 28,
-  },
-  registerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  registerText: {
-    fontSize: 14,
-    color: '#64748B',
-    marginRight: 6,
-  },
-  registerLink: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#2563EB',
-  },
-  securityBadge: {
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  securityText: {
-    fontSize: 11,
-    color: '#1D4ED8',
-    fontWeight: '700',
-  },
-});
