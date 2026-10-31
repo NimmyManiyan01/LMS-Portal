@@ -992,26 +992,30 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               </a>
             </div>
 
-            {/* Col 4: KGS Headquarters & Direct Line */}
-            <div className="flex flex-col gap-2">
+            {/* Col 4: Contact */}
+            <div className="flex flex-col gap-4">
               <span className="font-label-lg text-label-lg text-on-surface font-bold">
-                Headquarters
+                Contact
               </span>
-              <div className="font-body-sm text-body-sm text-on-surface-variant flex items-start gap-2">
-                <span className="material-symbols-outlined text-outline text-[18px] mt-0.5">
-                  location_on
-                </span>
-                <span>
-                  SVG100 DC Complex, Chandra Layout, Vijayanagar, Bengaluru, Karnataka 560056
-                </span>
+              <div className="font-body-sm text-body-sm text-on-surface-variant flex items-start gap-3">
+                <span className="material-symbols-outlined text-primary text-[22px] mt-0.5">mail</span>
+                <a className="break-all hover:text-primary transition-colors" href="mailto:enquiry@kaizentrixglobal.com">
+                  enquiry@kaizentrixglobal.com
+                </a>
               </div>
-              <div className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2 mt-1">
-                <span className="material-symbols-outlined text-outline text-[18px]">call</span>
-                <span>SVG080-23143355 / +91 91879 80031</span>
+              <div className="font-body-sm text-body-sm text-on-surface-variant flex items-start gap-3">
+                <span className="material-symbols-outlined text-primary text-[22px] mt-0.5">call</span>
+                <a className="hover:text-primary transition-colors" href="tel:+919187980031">
+                  080-23143355 / +91 91879 80031
+                </a>
               </div>
-              <div className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2">
-                <span className="material-symbols-outlined text-outline text-[18px]">mail</span>
-                <span>enquiry@kaizentrixglobal.com</span>
+              <div className="font-body-sm text-body-sm text-on-surface-variant flex items-start gap-3">
+                <span className="material-symbols-outlined text-primary text-[22px] mt-0.5">location_on</span>
+                <span className="leading-relaxed">
+                  100 DC Complex, Chandra Layout,<br />
+                  Vijayanagar, Bengaluru,<br />
+                  Karnataka 560056
+                </span>
               </div>
             </div>
           </div>
