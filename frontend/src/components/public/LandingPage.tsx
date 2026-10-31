@@ -807,10 +807,10 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                         Algorithm Mastery
                       </span>
                       <div className="font-label-lg text-label-lg text-primary mt-1 font-bold">
-                        Tier: Diamond (Top 4%)
+                        Tier: GOLD (Top 35%)
                       </div>
                       <div className="font-body-sm text-[11px] text-outline mt-0.5">
-                        342 Problems Solved
+                        132 Problems Solved
                       </div>
                     </div>
                   </div>
