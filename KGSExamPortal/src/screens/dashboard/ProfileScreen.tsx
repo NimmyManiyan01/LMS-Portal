@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Animated, Easing } from 'react-native';
+import { View, Text, ScrollView, Animated, Easing } from 'react-native';
+import tw from 'twrnc';
 import { useAuth } from '../../context/AuthContext';
 import { Header } from '../../components/common/Header';
 import { Card } from '../../components/common/Card';
@@ -32,56 +33,58 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={tw`flex-1 bg-slate-50`}>
       <Header title="Candidate Profile" onBack={onBack} />
-      <ScrollView contentContainerStyle={styles.content}>
-        <Card style={styles.profileCard}>
+      <ScrollView contentContainerStyle={tw`p-4 pb-10`}>
+        <Card style={tw`items-center py-6 rounded-2xl mb-3`}>
           <Animated.View
             style={[
-              styles.avatarCircle,
+              tw`w-18 h-18 rounded-full bg-blue-600 items-center justify-center mb-3 shadow-md`,
               { transform: [{ scale: avatarScale }] },
             ]}
           >
-            <Text style={styles.avatarText}>
+            <Text style={tw`text-3xl font-extrabold text-white`}>
               {student?.fullName ? student.fullName.charAt(0).toUpperCase() : 'S'}
             </Text>
           </Animated.View>
-          <Text style={styles.name}>{student?.fullName}</Text>
-          <Text style={styles.studentIdBadge}>{student?.studentId}</Text>
+          <Text style={tw`text-xl font-extrabold text-slate-900`}>{student?.fullName}</Text>
+          <Text style={tw`text-xs text-blue-600 font-extrabold mt-1.5 bg-blue-50 px-3 py-1 rounded-md border border-blue-200`}>
+            {student?.studentId}
+          </Text>
         </Card>
 
-        <Animated.View style={[{ width: '100%' }, { opacity: cardOpacity }]}>
-          <Card style={styles.infoCard}>
-            <Text style={styles.sectionTitle}>Account Details</Text>
+        <Animated.View style={[tw`w-full`, { opacity: cardOpacity }]}>
+          <Card style={tw`p-4.5 rounded-2xl mb-3`}>
+            <Text style={tw`text-base font-extrabold text-slate-900 mb-3.5`}>Account Details</Text>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Email Address</Text>
-              <Text style={styles.value}>{student?.email}</Text>
+            <View style={tw`py-2.5 border-b border-slate-100`}>
+              <Text style={tw`text-xs text-slate-500 font-semibold mb-0.5`}>Email Address</Text>
+              <Text style={tw`text-sm font-bold text-slate-800`}>{student?.email}</Text>
             </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Phone Number</Text>
-              <Text style={styles.value}>{student?.phone || 'Not provided'}</Text>
+            <View style={tw`py-2.5 border-b border-slate-100`}>
+              <Text style={tw`text-xs text-slate-500 font-semibold mb-0.5`}>Phone Number</Text>
+              <Text style={tw`text-sm font-bold text-slate-800`}>{student?.phone || 'Not provided'}</Text>
             </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>College / Institution</Text>
-              <Text style={styles.value}>{student?.college || 'Independent'}</Text>
+            <View style={tw`py-2.5 border-b border-slate-100`}>
+              <Text style={tw`text-xs text-slate-500 font-semibold mb-0.5`}>College / Institution</Text>
+              <Text style={tw`text-sm font-bold text-slate-800`}>{student?.college || 'Independent'}</Text>
             </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Branch / Department</Text>
-              <Text style={styles.value}>{student?.branch || 'Unspecified'}</Text>
+            <View style={tw`py-2.5 border-b border-slate-100`}>
+              <Text style={tw`text-xs text-slate-500 font-semibold mb-0.5`}>Branch / Department</Text>
+              <Text style={tw`text-sm font-bold text-slate-800`}>{student?.branch || 'Unspecified'}</Text>
             </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Graduation Year</Text>
-              <Text style={styles.value}>{student?.passOutYear || 'N/A'}</Text>
+            <View style={tw`py-2.5 border-b border-slate-100`}>
+              <Text style={tw`text-xs text-slate-500 font-semibold mb-0.5`}>Graduation Year</Text>
+              <Text style={tw`text-sm font-bold text-slate-800`}>{student?.passOutYear || 'N/A'}</Text>
             </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Account Status</Text>
-              <Text style={[styles.value, { color: '#16A34A', fontWeight: '700' }]}>
+            <View style={tw`py-2.5`}>
+              <Text style={tw`text-xs text-slate-500 font-semibold mb-0.5`}>Account Status</Text>
+              <Text style={tw`text-sm font-bold text-green-600`}>
                 {student?.accountStatus || 'ACTIVE'}
               </Text>
             </View>
@@ -91,92 +94,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
             title="Log Out of Mobile App"
             onPress={logoutStudent}
             variant="danger"
-            style={styles.logoutBtn}
+            style={tw`mt-2 mb-6`}
           />
         </Animated.View>
       </ScrollView>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  content: {
-    padding: 16,
-  },
-  profileCard: {
-    alignItems: 'center',
-    paddingVertical: 24,
-    borderRadius: 16,
-    marginBottom: 12,
-  },
-  avatarCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: '#2563EB',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-    shadowColor: '#2563EB',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-  },
-  avatarText: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-  studentIdBadge: {
-    fontSize: 13,
-    color: '#2563EB',
-    fontWeight: '800',
-    marginTop: 6,
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  infoCard: {
-    padding: 18,
-    borderRadius: 16,
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 14,
-  },
-  infoRow: {
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
-  label: {
-    fontSize: 12,
-    color: '#64748B',
-    marginBottom: 2,
-    fontWeight: '600',
-  },
-  value: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  logoutBtn: {
-    marginTop: 8,
-    marginBottom: 24,
-  },
-});
