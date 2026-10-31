@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   ScrollView,
   Animated,
@@ -10,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import tw from 'twrnc';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -106,66 +106,65 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ onBack }) => {
 
   return (
     <KeyboardAvoidingView
-      style={styles.flexContainer}
+      style={tw`flex-1 bg-slate-50`}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
+        style={tw`flex-1 bg-slate-50`}
+        contentContainerStyle={tw`p-5 pt-12 pb-10 min-h-full justify-center`}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Soft Ambient Glow Orbs */}
-        <View style={styles.ambientOrbTop} />
-        <View style={styles.ambientOrbBottom} />
-
         {/* Top Mail Badge */}
         <Animated.View
           style={[
-            styles.iconContainer,
+            tw`items-center mb-5`,
             {
               opacity: iconOpacity,
               transform: [{ scale: iconScale }],
             },
           ]}
         >
-          <View style={styles.iconCircle}>
-            <Text style={styles.iconText}>📩</Text>
+          <View style={tw`w-17 h-17 rounded-full bg-white items-center justify-center border-2 border-blue-600 shadow-md`}>
+            <Text style={tw`text-3xl`}>📩</Text>
           </View>
         </Animated.View>
 
         {/* Light Glass Card */}
         <Animated.View
           style={[
-            styles.card,
+            tw`bg-white rounded-2xl p-5.5 border border-slate-200 shadow-lg`,
             {
               opacity: cardOpacity,
               transform: [{ translateY: cardTranslateY }],
             },
           ]}
         >
-          <Text style={styles.title}>Verify Email</Text>
-          <Text style={styles.subtitle}>
+          <Text style={tw`text-xl font-extrabold text-slate-900 mb-1.5 text-center tracking-wide`}>Verify Email</Text>
+          <Text style={tw`text-xs text-slate-500 leading-4 mb-5 text-center`}>
             Enter the 6-digit verification code sent to{' '}
-            <Text style={styles.emailHighlight}>{loginEmail}</Text>.
+            <Text style={tw`text-blue-600 font-bold`}>{loginEmail}</Text>.
           </Text>
 
           {error ? (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
+            <View style={tw`bg-red-50 border border-red-200 rounded-lg p-2.5 mb-4`}>
+              <Text style={tw`text-red-600 text-xs text-center font-semibold`}>{error}</Text>
             </View>
           ) : null}
 
           {/* 6 Digit Display Boxes */}
-          <View style={styles.digitBoxesRow}>
+          <View style={tw`flex-row justify-between mb-4.5`}>
             {[0, 1, 2, 3, 4, 5].map((idx) => {
               const char = codeChars[idx] || '';
               const isFilled = char !== '';
               return (
                 <View
                   key={idx}
-                  style={[styles.digitBox, isFilled && styles.filledDigitBox]}
+                  style={[
+                    tw`w-11 h-12.5 rounded-xl bg-slate-50 border-1.5 border-slate-200 items-center justify-center`,
+                    isFilled ? tw`border-blue-600 bg-blue-50` : null,
+                  ]}
                 >
-                  <Text style={[styles.digitText, isFilled && styles.filledDigitText]}>
+                  <Text style={[tw`text-xl font-extrabold text-slate-400`, isFilled ? tw`text-slate-900` : null]}>
                     {char || '•'}
                   </Text>
                 </View>
@@ -193,26 +192,26 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ onBack }) => {
             title="VERIFY OTP & SIGN IN"
             onPress={handleVerify}
             loading={loading}
-            style={styles.verifyBtn}
+            style={tw`mt-3.5`}
           />
 
           {/* Resend Cooldown Section */}
-          <View style={styles.resendContainer}>
+          <View style={tw`items-center mt-5`}>
             {resendCooldown > 0 ? (
-              <View style={styles.timerBadge}>
-                <Text style={styles.cooldownText}>
+              <View style={tw`bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200`}>
+                <Text style={tw`text-xs text-blue-700 font-bold`}>
                   ⏱ Resend available in {String(Math.floor(resendCooldown / 60)).padStart(2, '0')}:
                   {String(resendCooldown % 60).padStart(2, '0')}
                 </Text>
               </View>
             ) : (
-              <TouchableOpacity onPress={handleResend} style={styles.resendBtn} activeOpacity={0.8}>
-                <Text style={styles.resendLink}>Resend OTP Code</Text>
+              <TouchableOpacity onPress={handleResend} style={tw`py-1.5`} activeOpacity={0.8}>
+                <Text style={tw`text-sm text-blue-600 font-extrabold`}>Resend OTP Code</Text>
               </TouchableOpacity>
             )}
 
-            <TouchableOpacity style={styles.changeEmailBtn} onPress={onBack} activeOpacity={0.8}>
-              <Text style={styles.changeEmailText}>← Change Email Address</Text>
+            <TouchableOpacity style={tw`mt-4 p-1.5`} onPress={onBack} activeOpacity={0.8}>
+              <Text style={tw`text-xs text-slate-500 font-semibold`}>← Change Email Address</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -220,170 +219,3 @@ export const OtpScreen: React.FC<OtpScreenProps> = ({ onBack }) => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  flexContainer: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  content: {
-    padding: 20,
-    paddingTop: 48,
-    paddingBottom: 40,
-    minHeight: '100%',
-    justifyContent: 'center',
-  },
-  ambientOrbTop: {
-    position: 'absolute',
-    top: -80,
-    right: -60,
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    backgroundColor: 'rgba(37, 99, 235, 0.08)',
-  },
-  ambientOrbBottom: {
-    position: 'absolute',
-    bottom: -100,
-    left: -60,
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: 'rgba(14, 165, 233, 0.08)',
-  },
-  iconContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  iconCircle: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#2563EB',
-    shadowColor: '#2563EB',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  iconText: {
-    fontSize: 32,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#0F172A',
-    marginBottom: 6,
-    textAlign: 'center',
-    letterSpacing: 0.5,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: '#64748B',
-    lineHeight: 18,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  emailHighlight: {
-    color: '#2563EB',
-    fontWeight: '700',
-  },
-  errorBox: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FECACA',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 16,
-  },
-  errorText: {
-    color: '#DC2626',
-    fontSize: 13,
-    textAlign: 'center',
-  },
-  digitBoxesRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 18,
-  },
-  digitBox: {
-    width: 44,
-    height: 50,
-    borderRadius: 10,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  filledDigitBox: {
-    borderColor: '#2563EB',
-    backgroundColor: '#EFF6FF',
-  },
-  digitText: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#94A3B8',
-  },
-  filledDigitText: {
-    color: '#0F172A',
-  },
-  verifyBtn: {
-    marginTop: 14,
-    backgroundColor: '#2563EB',
-  },
-  resendContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  timerBadge: {
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  cooldownText: {
-    fontSize: 12,
-    color: '#1D4ED8',
-    fontWeight: '700',
-  },
-  resendBtn: {
-    paddingVertical: 6,
-  },
-  resendLink: {
-    fontSize: 14,
-    color: '#2563EB',
-    fontWeight: '800',
-  },
-  changeEmailBtn: {
-    marginTop: 16,
-    padding: 6,
-  },
-  changeEmailText: {
-    fontSize: 13,
-    color: '#64748B',
-    fontWeight: '600',
-  },
-});
