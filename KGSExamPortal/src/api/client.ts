@@ -1,14 +1,17 @@
 import { Platform } from 'react-native';
 
-// Default API URL for local development:
-// Android Emulator uses 10.0.2.2 to access host machine localhost
-// iOS Simulator uses localhost
-const DEFAULT_BASE_URL =
+// Production Azure Backend API URL for KGS Exam Portal Student Mobile App:
+const AZURE_PRODUCTION_BASE_URL =
+  'https://kgs-lms-backend-cafdhmc2gtdtfde4.centralindia-01.azurewebsites.net/api';
+
+// Local development fallback URL:
+const LOCAL_DEV_BASE_URL =
   Platform.OS === 'android'
     ? 'http://10.0.2.2:4000/api'
     : 'http://localhost:4000/api';
 
-let currentBaseUrl = DEFAULT_BASE_URL;
+// Set active base URL to Azure Production
+let currentBaseUrl = AZURE_PRODUCTION_BASE_URL;
 let sessionCookie: string | null = null;
 
 export const setBaseUrl = (url: string) => {
@@ -85,7 +88,7 @@ export async function apiRequest<T>(
     };
   } catch (err: any) {
     return {
-      error: err.message || 'Network connection failed. Please check if backend server is running on http://10.0.2.2:4000.',
+      error: err.message || 'Network connection failed. Please check internet connection or Azure backend server status.',
       status: 0,
     };
   }
