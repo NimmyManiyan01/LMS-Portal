@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Animated, Easing } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Animated, Easing } from 'react-native';
+import tw from 'twrnc';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { FeedbackModal } from '../../components/modals/FeedbackModal';
@@ -76,39 +77,39 @@ export const SubmissionConfirmationScreen: React.FC<
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+    <View style={tw`flex-1 bg-slate-50`}>
+      <ScrollView contentContainerStyle={tw`p-6 items-center pt-15`}>
         <Animated.View
           style={[
-            styles.iconCircle,
+            tw`w-19 h-19 rounded-full bg-green-100 border-2 border-green-600 items-center justify-center mb-4 shadow-md`,
             { transform: [{ scale: iconScale }] },
           ]}
         >
-          <Text style={styles.iconText}>✓</Text>
+          <Text style={tw`text-4xl text-green-700 font-bold`}>✓</Text>
         </Animated.View>
 
-        <Text style={styles.title}>Exam Submitted</Text>
-        <Text style={styles.subtitle}>
+        <Text style={tw`text-2xl font-extrabold text-slate-900 text-center mb-1.5`}>Exam Submitted</Text>
+        <Text style={tw`text-sm text-slate-500 text-center leading-5 mb-6`}>
           Your examination has been successfully submitted.
         </Text>
 
-        <Animated.View style={[{ width: '100%' }, { opacity: cardOpacity }]}>
+        <Animated.View style={[tw`w-full`, { opacity: cardOpacity }]}>
           {loading ? (
-            <ActivityIndicator size="large" color="#2563EB" style={styles.loader} />
+            <ActivityIndicator size="large" color="#2563EB" style={tw`my-5`} />
           ) : result?.releaseStatus === 'RELEASED' && result.marksScored !== null ? (
             /* Scenario 1 — Marks published */
-            <Card style={styles.statusCard}>
-              <Text style={styles.examNameText}>{result.examName}</Text>
-              <Text style={styles.marksLabel}>Your Marks</Text>
-              <Text style={styles.marksValue}>
+            <Card style={tw`w-full p-5.5 items-center mb-7`}>
+              <Text style={tw`text-base font-bold text-slate-900 mb-3`}>{result.examName}</Text>
+              <Text style={tw`text-xs text-slate-500 mb-1`}>Your Marks</Text>
+              <Text style={tw`text-3xl font-black text-green-700`}>
                 {result.marksScored} / {result.maximumMarks ?? 'N/A'}
               </Text>
             </Card>
           ) : (
             /* Scenario 2 — Marks not published */
-            <Card style={styles.statusCard}>
-              <Text style={styles.pendingHeading}>Results Pending</Text>
-              <Text style={styles.pendingInfo}>
+            <Card style={tw`w-full p-5.5 items-center mb-7`}>
+              <Text style={tw`text-lg font-extrabold text-amber-700 mb-2`}>Results Pending</Text>
+              <Text style={tw`text-xs text-slate-500 text-center leading-4.5`}>
                 Your marks will be available after the administrator publishes the results.
               </Text>
             </Card>
@@ -117,7 +118,7 @@ export const SubmissionConfirmationScreen: React.FC<
           <Button
             title="NEXT ➔"
             onPress={handleNext}
-            style={styles.nextBtn}
+            style={tw`w-full`}
           />
         </Animated.View>
       </ScrollView>
@@ -131,90 +132,3 @@ export const SubmissionConfirmationScreen: React.FC<
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  content: {
-    padding: 24,
-    alignItems: 'center',
-    paddingTop: 60,
-  },
-  loader: {
-    marginVertical: 20,
-  },
-  iconCircle: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: '#DCFCE7',
-    borderWidth: 2,
-    borderColor: '#16A34A',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-    shadowColor: '#16A34A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-  },
-  iconText: {
-    fontSize: 38,
-    color: '#15803D',
-    fontWeight: 'bold',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#0F172A',
-    textAlign: 'center',
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 24,
-  },
-  statusCard: {
-    width: '100%',
-    padding: 22,
-    alignItems: 'center',
-    marginBottom: 28,
-  },
-  examNameText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#0F172A',
-    marginBottom: 12,
-  },
-  marksLabel: {
-    fontSize: 13,
-    color: '#64748B',
-    marginBottom: 4,
-  },
-  marksValue: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: '#15803D',
-  },
-  pendingHeading: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#B45309',
-    marginBottom: 8,
-  },
-  pendingInfo: {
-    fontSize: 13,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  nextBtn: {
-    width: '100%',
-    backgroundColor: '#2563EB',
-  },
-});
