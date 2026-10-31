@@ -368,6 +368,14 @@ function Topbar({
   openMenu: () => void
   onLogout: () => void
 }) {
+  const studentInitials = student?.fullName
+    ?.split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase()
+
   return (
     <header className="h-16 px-4 sm:px-8 bg-white border-b border-slate-200/80 sticky top-0 z-20 flex items-center justify-between gap-4">
       {admin && (
@@ -418,12 +426,12 @@ function Topbar({
           </button>
         ) : student ? (
           <button
-            className="flex items-center gap-3 p-1.5 pl-2 pr-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer bg-white text-left group"
+            className="flex items-center gap-3 p-1.5 pl-2 pr-3 rounded-2xl border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer bg-white text-left group shadow-sm"
             onClick={onLogout}
             aria-label="Log out"
           >
-            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-              {admin ? "AM" : "AK"}
+            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+              {admin ? "AM" : studentInitials || "ST"}
             </div>
             <div className="hidden sm:flex flex-col">
               <b className="text-xs font-semibold text-slate-900 leading-tight">
