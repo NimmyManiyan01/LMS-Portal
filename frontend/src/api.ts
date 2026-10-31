@@ -2,9 +2,12 @@ export function getApiBaseUrl(): string {
   const envUrl = import.meta.env.VITE_API_URL
 
   if (!envUrl || envUrl === "." || envUrl === "./") {
-    return envUrl === "." || envUrl === "./"
-      ? "."
-      : "http://localhost:4000"
+    if (envUrl === "." || envUrl === "./") return "."
+
+    return window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+      ? "http://localhost:4000"
+      : "https://kgs-lms-backend.azurewebsites.net"
   }
 
   return envUrl.replace(/\/$/, "")

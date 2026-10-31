@@ -18,6 +18,7 @@ const allowedClientOrigins = new Set(
     ...clientOrigins,
     "http://localhost:8443",
     "http://localhost:5173",
+    "https://white-island-06c11b900.5.azurestaticapps.net",
   ]
     .map((origin) => origin.trim().replace(/\/$/, ""))
     .filter(Boolean),
@@ -62,7 +63,26 @@ app.use(
     ],
   }),
 );
-app.options("*", cors());
+app.options(
+  "*",
+  cors({
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        return callback(null, origin || true);
+      }
+      return callback(null, false);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+    ],
+  }),
+);
 app.use(express.json({ limit: "1mb" }));
 const health = (_req, res) => {
   const database = isDatabaseReady();

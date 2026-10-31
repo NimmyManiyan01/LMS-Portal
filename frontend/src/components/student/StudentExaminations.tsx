@@ -189,16 +189,21 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
       </nav>
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+      <div className="relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-gradient-to-br from-[#f8f7ff] via-white to-[#eef4ff] p-6 sm:p-8 rounded-[28px] border border-white shadow-[0_18px_50px_rgba(79,70,229,.12)]">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-violet-200/40 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-40 w-40 rounded-full bg-blue-200/30 blur-3xl" />
         <div>
-          <div className="text-[11px] font-extrabold uppercase tracking-wider text-blue-600 mb-1">STUDENT PORTAL</div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">My examinations</h1>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">View eligible examinations and track your participation.</p>
+          <div className="relative inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[.16em] text-blue-700 shadow-sm"><span className="h-2 w-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/10" /> Student workspace</div>
+          <h1 className="relative mt-4 text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">Your examination journey</h1>
+          <p className="relative text-sm text-slate-600 font-medium mt-2">Stay ready, track every assessment, and move confidently toward your next opportunity.</p>
+        </div>
+        <div className="relative grid grid-cols-3 gap-2 sm:min-w-[330px]">
+          {[["Available", "AVAILABLE"], ["Upcoming", "UPCOMING"], ["Completed", "COMPLETED"]].map(([name, value]) => <div className="rounded-2xl border border-white/80 bg-white/75 p-3 text-center shadow-sm" key={value}><b className="block text-xl font-black text-slate-950">{exams.filter((exam) => value === "COMPLETED" ? ["SUBMITTED", "RESULTS_RELEASED"].includes(exam.status) : exam.status === value).length}</b><span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{name}</span></div>)}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto p-1.5 bg-slate-100/80 rounded-xl border border-slate-200/60 scrollbar-thin">
+      <div className="flex items-center gap-2 overflow-x-auto p-1.5 bg-white/70 rounded-2xl border border-white shadow-sm scrollbar-thin">
         {tabs.map((value) => {
           const count = exams.filter((exam) =>
             value === "COMPLETED"
@@ -210,8 +215,8 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
             <button
               className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer border-none whitespace-nowrap ${
                 isActive
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                  ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-md shadow-blue-600/20"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               }`}
               onClick={() => setTab(value)}
               key={value}
@@ -220,8 +225,8 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
               <span
                 className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
                   isActive
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-slate-200/80 text-slate-600"
+                    ? "bg-white/20 text-white"
+                    : "bg-slate-100 text-slate-600"
                 }`}
               >
                 {count}
@@ -257,7 +262,7 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
         <div className="flex flex-col gap-4">
           {filtered.map((exam) => (
             <article
-              className="p-5 sm:p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-slate-300 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6"
+              className="group relative overflow-hidden p-5 sm:p-6 bg-white rounded-[24px] border border-white shadow-[0_10px_30px_rgba(79,70,229,.07)] hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(79,70,229,.12)] transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6"
               key={exam.id}
             >
               <div className="flex flex-col gap-3 min-w-0 flex-1">
@@ -301,14 +306,14 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
 
               <div className="flex flex-wrap sm:flex-nowrap lg:flex-col items-stretch justify-end gap-2.5 shrink-0 lg:min-w-[180px]">
                 <button
-                  className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
+                    className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-xl text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
                   onClick={() => setSelected(exam)}
                 >
                   Review details
                 </button>
                 {exam.nextAction === "RESUME_EXAM" && (
                   <button
-                    className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
+                    className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
                     onClick={() => onStartExam(exam)}
                   >
                     Resume Examination
@@ -316,7 +321,7 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
                 )}
                 {exam.nextAction === "VIEW_MARKS" && (
                   <button
-                    className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
+                    className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
                     onClick={() => onViewMarks(exam)}
                   >
                     View Marks
@@ -324,7 +329,7 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
                 )}
                 {exam.status === "AVAILABLE" && (
                   <button
-                    className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
+                    className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
                     onClick={() => onStartExam(exam)}
                   >
                     Start Examination

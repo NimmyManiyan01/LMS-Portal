@@ -287,17 +287,17 @@ export function StudentLoginPage({
 
   return (
     <div
-      className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#F7FAFF] bg-[radial-gradient(circle_at_85%_10%,rgba(37,99,235,.14)_0%,transparent_40%),radial-gradient(circle_at_10%_90%,rgba(124,58,237,.12)_0%,transparent_38%)] font-sans text-[#0F1B4C] transition-colors duration-300"
+      className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#faf8ff] bg-[radial-gradient(circle_at_82%_8%,rgba(124,58,237,.16)_0%,transparent_34%),radial-gradient(circle_at_8%_82%,rgba(37,99,235,.13)_0%,transparent_36%)] font-sans text-[#172044] transition-colors duration-300"
     >
       {/* Header */}
-      <header className="sticky top-0 z-20 border-b border-slate-900/10 bg-white/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-20 border-b border-white/80 bg-[#faf8ff]/80 backdrop-blur-xl">
         <div className="mx-auto flex min-h-[72px] w-[calc(100%-32px)] max-w-[1200px] items-center justify-between gap-4 sm:w-[calc(100%-48px)]">
           <button
             className="group flex cursor-pointer items-center gap-3 border-none bg-transparent p-0 text-left focus:outline-none"
             onClick={onBackToLanding}
             aria-label="Back to KGS Exam Portal home"
           >
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-2xl font-black text-white shadow-lg shadow-blue-600/30 transition-transform group-hover:scale-105">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-2xl font-black text-white shadow-lg shadow-violet-600/25 transition-transform group-hover:scale-105">
               K
             </span>
             <span className="flex flex-col">
@@ -380,7 +380,8 @@ export function StudentLoginPage({
         </section>
 
         {/* Form card */}
-        <section className="flex w-full flex-col gap-6 rounded-3xl border border-white/90 bg-white/80 p-6 shadow-[0_20px_50px_rgba(37,99,235,.14)] backdrop-blur-2xl sm:p-10 lg:ml-auto lg:max-w-[520px]">
+        <section className="relative flex w-full flex-col gap-6 overflow-hidden rounded-[28px] border border-white bg-white/90 p-6 shadow-[0_24px_70px_rgba(79,70,229,.16)] backdrop-blur-2xl sm:p-10 lg:ml-auto lg:max-w-[520px]">
+          <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-500" />
           {step === "EMAIL" ? (
             <form
               onSubmit={requestOtp}
