@@ -202,6 +202,24 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
         </div>
       </div>
 
+      {/* Student performance snapshot */}
+      <section className="flex flex-col gap-4 rounded-[24px] border border-indigo-100 bg-white p-5 shadow-[0_10px_30px_rgba(79,70,229,.08)] sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="flex items-center gap-4">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow-md shadow-orange-200">
+            <span className="material-symbols-outlined">military_tech</span>
+          </div>
+          <div>
+            <p className="m-0 text-[10px] font-extrabold uppercase tracking-[.16em] text-indigo-500">Performance snapshot</p>
+            <h2 className="mt-1 text-lg font-black text-slate-950">Algorithm Mastery</h2>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6">
+          <div><p className="m-0 text-[10px] font-bold uppercase tracking-wider text-slate-400">Tier</p><b className="text-sm font-black text-amber-600">GOLD <span className="font-semibold text-slate-500">(Top 35%)</span></b></div>
+          <div className="hidden h-8 w-px bg-slate-200 sm:block" />
+          <div><p className="m-0 text-[10px] font-bold uppercase tracking-wider text-slate-400">Progress</p><b className="text-sm font-black text-slate-900">132 Problems Solved</b></div>
+        </div>
+      </section>
+
       {/* Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto p-1.5 bg-white/70 rounded-2xl border border-white shadow-sm scrollbar-thin">
         {tabs.map((value) => {
