@@ -42,7 +42,7 @@ export const FloatingBottomNavbar: React.FC<FloatingBottomNavbarProps> = ({
   return (
     <Animated.View
       style={[
-        tw`absolute bottom-5 left-5 right-5 z-50 bg-white rounded-full p-2 flex-row justify-around items-center border border-slate-200 shadow-xl`,
+        tw`absolute bottom-5 left-6 right-6 z-50 bg-white/95 rounded-3xl py-2 px-3 flex-row justify-around items-center border border-slate-200 shadow-xl`,
         {
           opacity,
           transform: [{ translateY }],
@@ -58,15 +58,15 @@ export const FloatingBottomNavbar: React.FC<FloatingBottomNavbarProps> = ({
             onPress={() => onSelectTab(tab.id)}
             activeOpacity={0.8}
             style={[
-              tw`flex-row items-center px-4 py-2.5 rounded-full`,
-              isActive ? tw`bg-blue-600 shadow-md` : tw`bg-transparent`,
+              tw`items-center justify-center px-6 py-2 rounded-2xl`,
+              isActive ? tw`bg-blue-600 shadow-sm` : tw`bg-transparent`,
             ]}
           >
-            <Text style={tw`text-base mr-1.5`}>{tab.icon}</Text>
+            <Text style={tw`text-2xl mb-1`}>{tab.icon}</Text>
             <Text
               style={[
-                tw`text-xs font-extrabold`,
-                isActive ? tw`text-white` : tw`text-slate-600`,
+                tw`text-xs font-black tracking-wide`,
+                isActive ? tw`text-white` : tw`text-slate-500`,
               ]}
             >
               {tab.label}
