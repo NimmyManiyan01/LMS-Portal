@@ -88,7 +88,7 @@ const ACHIEVERS: Achiever[] = [
   },
 ];
 
-const BATCH_TRACKS: BatchTrack[] = [
+export const BATCH_TRACKS: BatchTrack[] = [
   {
     id: "python-gen-ai",
     category: "fullstack",
@@ -259,7 +259,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               About Us
             </button>
             <a
-              href="#batches"
+              href="/batches"
               className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
             >
               Batches

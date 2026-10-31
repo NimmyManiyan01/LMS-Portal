@@ -13,6 +13,7 @@ const SubmissionConfirmation = lazy(() =>
 )
 import { LandingPage } from "./components/public/LandingPage"
 import { AboutPage } from "./components/public/AboutPage"
+import { BatchesPage } from "./components/public/BatchesPage"
 import {
   PolicyPage,
   monitoringSections,
@@ -728,6 +729,9 @@ export default function App() {
         onLogin={() => navigateEntry("/login")}
       />
     )
+
+  if (entryRoute === "/batches")
+    return <BatchesPage onBack={() => navigateEntry("/")} onRegister={() => navigateEntry("/register")} />
 
   if (entryRoute === "/privacy")
     return (

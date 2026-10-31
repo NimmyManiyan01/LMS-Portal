@@ -113,7 +113,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
           <span className="hidden text-sm font-bold tracking-tight text-blue-700 sm:inline sm:text-base">Kaizentrix Global Solutions</span>
         </button>
         <nav className="hidden items-center gap-6 xl:flex">
-          {[['About Us', '/'], ['Batches', '/#batches'], ['Placement Track', '/#lms-preview'], ['Achievers', '/#achievers'], ['LMS Gateway', '/#lms-preview']].map(([name, href]) => <a key={name} href={href} className="text-sm font-semibold text-slate-600 no-underline transition-colors hover:text-blue-600">{name}</a>)}
+          {[['About Us', '/'], ['Batches', '/batches'], ['Placement Track', '/#lms-preview'], ['Achievers', '/#achievers'], ['LMS Gateway', '/#lms-preview']].map(([name, href]) => <a key={name} href={href} className="text-sm font-semibold text-slate-600 no-underline transition-colors hover:text-blue-600">{name}</a>)}
         </nav>
         <div className="flex items-center gap-2 sm:gap-3">
           <button type="button" onClick={onBackToLogin} className="hero-login-button portal-login-button hidden rounded-xl px-4 py-2 text-sm font-semibold shadow-sm md:inline-flex"><span>Portal Login</span></button>
@@ -121,7 +121,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
           <button className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm xl:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle navigation"><span className="text-[22px]">{mobileMenuOpen ? "×" : "☰"}</span></button>
         </div>
         </div>
-        {mobileMenuOpen && <div className="border-t border-slate-100 bg-white px-5 py-4 shadow-xl xl:hidden"><nav className="flex flex-col gap-1">{[['About Us', '/'], ['Batches', '/#batches'], ['Placement Track', '/#lms-preview'], ['Achievers', '/#achievers'], ['LMS Gateway', '/#lms-preview']].map(([name, href]) => <a key={name} href={href} onClick={() => setMobileMenuOpen(false)} className="border-b border-slate-100 py-3 text-sm font-semibold text-slate-600 no-underline">{name}</a>)}</nav></div>}
+        {mobileMenuOpen && <div className="border-t border-slate-100 bg-white px-5 py-4 shadow-xl xl:hidden"><nav className="flex flex-col gap-1">{[['About Us', '/'], ['Batches', '/batches'], ['Placement Track', '/#lms-preview'], ['Achievers', '/#achievers'], ['LMS Gateway', '/#lms-preview']].map(([name, href]) => <a key={name} href={href} onClick={() => setMobileMenuOpen(false)} className="border-b border-slate-100 py-3 text-sm font-semibold text-slate-600 no-underline">{name}</a>)}</nav></div>}
       </header>
 
       {/* Main Container */}
