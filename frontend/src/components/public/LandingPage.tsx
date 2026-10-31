@@ -22,7 +22,6 @@ interface Achiever {
   quote: string;
   college: string;
   packageLpa: string;
-  image: string;
   companyColor: string;
 }
 
@@ -52,7 +51,6 @@ const ACHIEVERS: Achiever[] = [
     quote: "The continuous mock system-design rounds prepared me for unpredictable AWS distributed concurrency questions.",
     college: "JNTU College of Engg",
     packageLpa: "14.2 LPA",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAmeaaPtq1dhypbl58MRgqSDeTMg1gdgWV2FwAyPwYNQYRzvkJOqsPmR0GpaWj5Ctt5G2flmQW27eMcNnYLFC88vFDEhzY-4LBTPrRKRDVAELeqg5DR8yHNhNZRzOSAuDWmobT83JEKYnMrWpkAS1QVjALOIh27yRPV_vT8zgCAMgD5mm4fhs0NlMC9n2CVrFCSj-Gaue8zBrZ74jmVNsyUt9UXGbwd39EmDojJKBoL",
     companyColor: "text-primary",
   },
   {
@@ -64,7 +62,6 @@ const ACHIEVERS: Achiever[] = [
     quote: "KGS took me from non-CS background to cracking Cisco's 4-stage technical panel in just 5 months.",
     college: "SRM University",
     packageLpa: "11.5 LPA",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCspzWi85JcgAKesUrDYW4ojNNWiReUgFFXQuHxJW18uIG-0bw1VXeEszgoqj3JhavplfmSRorP-KiGQWLb-UTru37ECrormcAPrn_i4dpPQschnBzvoNGkSuXnr6x3xYNRyV9j2u3fi79hYqJXKjBg4eW9JhreKxbHkBCgU-L3meYe3PNscBJI5UKZG-PxqnVAKKzRge0F7f-adFGMseq5kLuMvzzRnzta72Yn2Xu4",
     companyColor: "text-secondary",
   },
   {
@@ -76,7 +73,6 @@ const ACHIEVERS: Achiever[] = [
     quote: "Pure functional programming and tree algorithms at KGS were identical to what Juspay interviewed me on.",
     college: "PSG Tech Coimbatore",
     packageLpa: "10.8 LPA",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA_0N7O1aRvW8dZJl2K80HdUxlBQW7Qcgh3v-OOHDZm1MsdoIpYNZ83vfOFe_ffYvakxV-zvJnhNVdCz57mta1Lsj8su9cRyIs_hZgDN_mDl4c5a_F_W_PGtMK5UDlTjsrhVsoYz7P4qqSeA2Ie5XB1KO6zT9m8eV3qKjl6Bdnqf3Og_7l69AYfJfKZ5EyZZxlfZqLi7hHdOha6fOFsKhqZCS_eQ5RdKooc-fu68nhy",
     companyColor: "text-tertiary",
   },
   {
@@ -88,7 +84,6 @@ const ACHIEVERS: Achiever[] = [
     quote: "Cleared 3 rounds of Zoho coding tests in a single day thanks to 200+ timed module challenges.",
     college: "Anna University",
     packageLpa: "8.5 LPA",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD42mZ8ZG0etUtujETK9LylUUtxTvUBS7lO8BC9PJu3fsPdpEusCyt5jGYU2W3rGQPzMGJRVALhqtcE3ev6X-y_4ghFQorcRx_NP3I5orkLlSbIS_vbGNKul7q3nY8wh9gP_9akh-uzh4iN5LTsfNKbJOQOvf4MOOm619lBOQhBsEX7_NllnQXVJ1p9y9894T9Zi0lAJ48uEZxNC7E0ERkNQoLiR7axIpyBXnZMiOA1",
     companyColor: "text-primary",
   },
 ];
@@ -555,18 +550,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               >
                 <div>
                   <div className="relative w-full h-48 rounded-xl overflow-hidden mb-space-sm">
-                    <img
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      alt={achiever.name}
-                      src={achiever.image}
-                    />
-                    <span className="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-inverse-surface/80 backdrop-blur-md text-inverse-on-surface font-label-sm text-label-sm flex items-center gap-1 font-semibold">
-                      <span className="material-symbols-outlined text-amber-400 text-[14px]">
-                        videocam
-                      </span>{" "}
-                      Watch Prep
-                    </span>
-                    <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-lg bg-surface-container-lowest/90 backdrop-blur-md font-label-md text-label-md text-primary font-bold">
+                    <div className="px-2.5 py-1 rounded-lg bg-surface-container-lowest font-label-md text-label-md text-primary font-bold">
                       {achiever.packageLpa}
                     </div>
                   </div>
