@@ -796,10 +796,19 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                     <div className="bg-surface-container-low p-3 rounded-xl border border-surface-container">
                       <span className="font-label-sm text-label-sm text-outline">Upcoming Drive</span>
                       <div className="font-label-lg text-label-lg text-on-surface mt-1 font-bold">
-                        Amazon SDET Round 2
+                        Recruitment Drive
                       </div>
                       <div className="font-body-sm text-[11px] text-tertiary mt-0.5 font-semibold">
-                        Tomorrow, 10:00 AM IST
+                        2 November 2026 · 10:30 AM
+                      </div>
+                      <div className="font-body-sm text-[11px] text-outline mt-0.5">
+                        AI/ML Research Engineer · Full-Stack Web Developer
+                      </div>
+                      <div className="font-body-sm text-[11px] text-outline mt-0.5">
+                        BE, B.Tech, BCA, MCA, M.Tech · 3 Days / 4 Rounds
+                      </div>
+                      <div className="font-body-sm text-[11px] text-outline mt-0.5">
+                        Kaizentrix Global Solutions, Bengaluru
                       </div>
                     </div>
                     <div className="bg-surface-container-low p-3 rounded-xl border border-surface-container">
