@@ -3,9 +3,9 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
   TextInputProps,
 } from 'react-native';
+import tw from 'twrnc';
 
 interface InputProps extends TextInputProps {
   label: string;
@@ -21,49 +21,22 @@ export const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>
-        {label} {required && <Text style={styles.required}>*</Text>}
+    <View style={tw`my-2`}>
+      <Text style={tw`text-sm font-semibold text-slate-700 mb-1.5`}>
+        {label} {required && <Text style={tw`text-red-500`}>*</Text>}
       </Text>
       <TextInput
-        style={[styles.input, error && styles.inputError, style]}
+        style={[
+          tw`h-12 border border-slate-300 rounded-xl px-3.5 text-base text-slate-900 bg-white`,
+          error ? tw`border-red-500 bg-red-50` : null,
+          style,
+        ]}
         placeholderTextColor="#64748B"
         {...props}
       />
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error ? (
+        <Text style={tw`text-xs font-semibold text-red-500 mt-1`}>{error}</Text>
+      ) : null}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: 8,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#334155',
-    marginBottom: 6,
-  },
-  required: {
-    color: '#EF4444',
-  },
-  input: {
-    height: 48,
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    fontSize: 15,
-    color: '#0F172A',
-    backgroundColor: '#FFFFFF',
-  },
-  inputError: {
-    borderColor: '#EF4444',
-  },
-  errorText: {
-    color: '#EF4444',
-    fontSize: 12,
-    marginTop: 4,
-  },
-});
