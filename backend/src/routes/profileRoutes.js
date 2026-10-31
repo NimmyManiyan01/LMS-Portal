@@ -3,6 +3,7 @@ const Student = require("../models/Student");
 const { authenticate } = require("../middleware/auth");
 
 function publicProfile(student) {
+  if (!student) return null;
   return {
     studentId: student.studentId,
     fullName: student.fullName,
@@ -16,11 +17,17 @@ function publicProfile(student) {
   };
 }
 
-router.get("/", authenticate, async (req, res) =>
-  res.json({ profile: publicProfile(req.student) }),
-);
+router.get("/", authenticate, async (req, res) => {
+  if (!req.student) {
+    return res.status(403).json({ error: "Student account required" });
+  }
+  res.json({ profile: publicProfile(req.student) });
+});
 
 router.patch("/", authenticate, async (req, res) => {
+  if (!req.student) {
+    return res.status(403).json({ error: "Student account required" });
+  }
   const allowed = ["fullName", "phone", "college", "branch", "passOutYear"];
   if (Object.keys(req.body).some((key) => !allowed.includes(key)))
     return res
@@ -59,7 +66,9 @@ router.patch("/", authenticate, async (req, res) => {
       Number(updates.passOutYear) > new Date().getFullYear() + 10)
   )
     return res.status(400).json({ error: "Invalid pass-out year" });
-  const student = await Student.findByIdAndUpdate(req.student.id, updates, {
+
+  const studentId = req.student._id || req.student.id;
+  const student = await Student.findByIdAndUpdate(studentId, updates, {
     new: true,
     runValidators: true,
   });

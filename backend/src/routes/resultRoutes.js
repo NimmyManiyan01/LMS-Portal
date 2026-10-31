@@ -23,7 +23,11 @@ function publicResult(result, exam) {
 }
 
 router.get("/", authenticate, async (req, res) => {
-  const results = await FinalResult.find({ studentId: req.student.id }).lean();
+  if (!req.student) {
+    return res.status(403).json({ error: "Student account required" });
+  }
+  const studentId = req.student._id || req.student.id;
+  const results = await FinalResult.find({ studentId }).lean();
   const exams = await Exam.find({ _id: { $in: results.map((r) => r.examId) } })
     .select("title code totalMarks")
     .lean();
@@ -54,9 +58,13 @@ router.get("/", authenticate, async (req, res) => {
 });
 
 router.get("/:attemptId", authenticate, async (req, res) => {
+  if (!req.student) {
+    return res.status(403).json({ error: "Student account required" });
+  }
+  const studentId = req.student._id || req.student.id;
   const result = await FinalResult.findOne({
     attemptId: req.params.attemptId,
-    studentId: req.student.id,
+    studentId,
   }).lean();
   if (!result) return res.status(404).json({ error: "Result not found" });
   if (result.releaseStatus !== "RELEASED")

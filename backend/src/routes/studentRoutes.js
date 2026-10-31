@@ -7,6 +7,7 @@ const Question = require("../models/Question");
 const { authenticate } = require("../middleware/auth");
 
 function isEligible(exam, student) {
+  if (!student) return false;
   const rules = exam.eligibility || {};
   const explicit =
     !rules.studentIds?.length ||
@@ -31,19 +32,23 @@ function isEligible(exam, student) {
 }
 
 async function dashboard(req, res) {
+  if (!req.student) {
+    return res.status(403).json({ error: "Student account required" });
+  }
   const now = new Date();
   const exams = await Exam.find({
     status: {
       $in: ["SCHEDULED", "PUBLISHED", "LIVE", "ACTIVE", "CLOSED", "COMPLETED"],
     },
   }).lean();
+  const studentId = req.student._id || req.student.id;
   const attempts = await Attempt.find({
-    studentId: req.student._id || req.student.id,
+    studentId,
   })
     .sort({ createdAt: -1 })
     .lean();
   const releasedResults = await FinalResult.find({
-    studentId: req.student._id || req.student.id,
+    studentId,
     releaseStatus: "RELEASED",
   })
     .select("examId attemptId releaseStatus")
@@ -186,12 +191,16 @@ async function dashboard(req, res) {
 router.get("/dashboard", authenticate, dashboard);
 router.get("/exams", authenticate, dashboard);
 router.get("/exams/:examId", authenticate, async (req, res) => {
+  if (!req.student) {
+    return res.status(403).json({ error: "Student account required" });
+  }
   const exam = await Exam.findById(req.params.examId).lean();
   if (!exam || !isEligible(exam, req.student))
     return res.status(404).json({ error: "Exam not found" });
+  const studentId = req.student._id || req.student.id;
   const attempts = await Attempt.find({
     examId: exam._id,
-    studentId: req.student._id || req.student.id,
+    studentId,
   })
     .sort({ createdAt: -1 })
     .lean();

@@ -43,6 +43,7 @@ const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
 function eligible(exam, student) {
+  if (!student) return false;
   const rules = exam.eligibility || {};
   return (
     student.accountStatus === "ACTIVE" &&

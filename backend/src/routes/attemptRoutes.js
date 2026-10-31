@@ -52,7 +52,7 @@ router.get("/:attemptId", authenticate, async (req, res) => {
     .select("-_id -attemptId -__v")
     .lean();
   res.json({
-    attemptId: attempt.id,
+    attemptId: String(attempt.id || attempt._id),
     status: attempt.status,
     startedAt: attempt.startedAt,
     deadline: attempt.expiresAt,
@@ -114,7 +114,7 @@ router.get("/:attemptId/answers", authenticate, async (req, res) => {
   const attempt = await findOwnedAttempt(req, res);
   if (!attempt) return;
   res.json({
-    attemptId: attempt.id,
+    attemptId: String(attempt.id || attempt._id),
     answers: await Answer.find({ attemptId: attempt._id })
       .select("-_id -attemptId -__v")
       .lean(),
@@ -126,6 +126,9 @@ router.put(
   "/:attemptId/answers/:questionId",
   authenticate,
   async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.attemptId)) {
+      return res.status(400).json({ error: "Invalid attempt ID" });
+    }
     const attempt = await Attempt.findOne({
       _id: req.params.attemptId,
       studentId: studentMatch(req.student),
@@ -177,8 +180,7 @@ router.put(
 
     const doc = saved?.value || saved;
 
-    // Recalculate the aggregate on every saved answer. The score stays server-side
-    // during the live exam so candidates cannot infer the answer key.
+    // Recalculate aggregate live score on every saved answer
     const [allAnswers, questions, exam] = await Promise.all([
       Answer.find({ attemptId: attempt._id }).lean(),
       Question.find({ _id: { $in: attempt.assignedQuestionIds } }).lean(),
@@ -225,11 +227,18 @@ router.put(
 );
 
 router.post("/:attemptId/submit", authenticate, async (req, res) => {
+  if (!req.student) {
+    return res.status(403).json({ error: "Student account required" });
+  }
+  if (!mongoose.isValidObjectId(req.params.attemptId)) {
+    return res.status(400).json({ error: "Invalid attempt ID" });
+  }
+  const studentId = req.student._id || req.student.id;
   try {
     res.json(
       await finalizeAttempt({
         attemptId: req.params.attemptId,
-        studentId: req.student.id,
+        studentId,
         reason: "MANUAL",
         answers: req.body.answers,
       }),
@@ -243,11 +252,9 @@ router.post("/:attemptId/feedback", authenticate, async (req, res) => {
   const attempt = await findOwnedAttempt(req, res);
   if (!attempt) return;
   if (attempt.status === "IN_PROGRESS")
-    return res
-      .status(409)
-      .json({
-        error: "Feedback is available after the examination is submitted",
-      });
+    return res.status(409).json({
+      error: "Feedback is available after the examination is submitted",
+    });
 
   const rating = Number(req.body.rating);
   const comment = String(req.body.comment || "").trim();
@@ -263,12 +270,10 @@ router.post("/:attemptId/feedback", authenticate, async (req, res) => {
     { examId: attempt.examId, studentId: attempt.studentId, rating, comment },
     { upsert: true, new: true, runValidators: true },
   );
-  res
-    .status(201)
-    .json({
-      saved: true,
-      feedback: { id: String(feedback._id), rating: feedback.rating },
-    });
+  res.status(201).json({
+    saved: true,
+    feedback: { id: String(feedback._id), rating: feedback.rating },
+  });
 });
 
 module.exports = router;

@@ -6,12 +6,16 @@ const { authenticate } = require("../middleware/auth");
 const { finalizeAttempt } = require("../services/finalizeAttempt");
 
 router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
+  if (!req.student) {
+    return res.status(403).json({ error: "Student account required" });
+  }
+  const studentId = req.student._id || req.student.id;
   const { eventId, eventType, clientTimestamp } = req.body;
   if (!eventId || typeof eventId !== "string" || eventId.length > 160)
     return res.status(400).json({ error: "A valid event ID is required" });
   const attempt = await Attempt.findOne({
     _id: req.params.attemptId,
-    studentId: req.student.id,
+    studentId,
     status: "IN_PROGRESS",
   });
   if (!attempt)
@@ -40,7 +44,7 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
   if (isCamera) {
     const event = await IntegrityEvent.create({
       eventId,
-      studentId: req.student.id,
+      studentId,
       attemptId: attempt.id,
       eventType,
       action: "RECORDED",
@@ -93,7 +97,7 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
   try {
     event = await IntegrityEvent.create({
       eventId,
-      studentId: req.student.id,
+      studentId,
       attemptId: attempt.id,
       eventType,
       action: "RECORDED",
@@ -116,7 +120,7 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
     throw error;
   }
   const updatedAttempt = await Attempt.findOneAndUpdate(
-    { _id: attempt.id, studentId: req.student.id, status: "IN_PROGRESS" },
+    { _id: attempt.id, studentId, status: "IN_PROGRESS" },
     { $inc: { [field]: 1 } },
     { new: true },
   );
@@ -135,7 +139,7 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
   if (action === "AUTO_SUBMIT")
     await finalizeAttempt({
       attemptId: attempt.id,
-      studentId: req.student.id,
+      studentId,
       reason: "INTEGRITY",
       reasonDetail:
         eventType === "TAB_HIDDEN"
@@ -156,9 +160,13 @@ router.post("/:attemptId/integrity-events", authenticate, async (req, res) => {
 });
 
 router.get("/:attemptId/integrity-status", authenticate, async (req, res) => {
+  if (!req.student) {
+    return res.status(403).json({ error: "Student account required" });
+  }
+  const studentId = req.student._id || req.student.id;
   const attempt = await Attempt.findOne({
     _id: req.params.attemptId,
-    studentId: req.student.id,
+    studentId,
   }).select("status integrityCounts examId");
   if (!attempt) return res.status(404).json({ error: "Attempt not found" });
   const exam = await Exam.findById(attempt.examId).select(
