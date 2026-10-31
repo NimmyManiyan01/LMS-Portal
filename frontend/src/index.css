@@ -213,6 +213,15 @@
   transition: color 220ms ease;
 }
 
+.portal-login-button {
+  width: auto;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
 .hero-login-button::after {
   content: '';
   position: absolute;

@@ -312,7 +312,7 @@ export function StudentLoginPage({
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="hidden rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-600 md:inline-flex">Portal Login</button>
+            <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="hero-login-button portal-login-button hidden rounded-xl px-4 py-2 text-sm font-semibold shadow-sm md:inline-flex">Portal Login</button>
             {allowRegistration && <>
             <button
               className={`${btnSecondary} h-10 rounded-xl px-4 text-sm font-semibold`}

@@ -289,7 +289,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
             {/* Portal Login CTA */}
             <button
               onClick={onLogin}
-              className="hidden md:inline-flex items-center px-space-md py-1.5 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container transition-all shadow-[0_1px_3px_0_rgba(15,23,42,0.05)] cursor-pointer"
+              className="hero-login-button portal-login-button hidden md:inline-flex items-center px-space-md py-1.5 rounded-xl font-label-md text-label-md shadow-[0_1px_3px_0_rgba(15,23,42,0.05)] cursor-pointer"
             >
               Portal Login
             </button>
