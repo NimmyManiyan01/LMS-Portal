@@ -27,7 +27,7 @@ const values = [
 export function AboutPage({ onBackToLanding, onLogin }: AboutPageProps) {
   return (
     <div className="min-h-screen bg-surface font-sans text-on-surface">
-      <header className="sticky top-0 z-50 bg-surface/90 shadow-[0_1px_8px_rgba(0,0,0,0.04)] backdrop-blur-xl">
+      <header className="cinematic-navbar sticky top-0 z-50 bg-surface/90 shadow-[0_1px_8px_rgba(0,0,0,0.04)] backdrop-blur-xl">
         <div className="flex h-16 w-full items-center justify-between gap-space-md px-margin">
           <button
             type="button"

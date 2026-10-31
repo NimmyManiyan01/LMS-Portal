@@ -8,7 +8,7 @@ interface BatchesPageProps {
 export function BatchesPage({ onBack, onRegister }: BatchesPageProps) {
   return (
     <div className="min-h-screen bg-[#faf8ff] font-sans text-slate-900">
-      <header className="sticky top-0 z-20 border-b border-white/80 bg-[#faf8ff]/90 backdrop-blur-xl">
+      <header className="cinematic-navbar sticky top-0 z-20 border-b border-white/80 bg-[#faf8ff]/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-[calc(100%-32px)] max-w-7xl items-center justify-between gap-4 sm:w-[calc(100%-48px)]">
           <button onClick={onBack} className="border-0 bg-transparent text-left text-lg font-black text-blue-700">Kaizentrix Global Solutions</button>
           <nav className="hidden items-center gap-5 lg:flex"><a href="/" className="text-sm font-semibold text-slate-600 no-underline">About Us</a><a href="/batches" className="text-sm font-semibold text-blue-600 no-underline">Batches</a><a href="/placement-track" className="text-sm font-semibold text-slate-600 no-underline">Placement Track</a><a href="/achievers" className="text-sm font-semibold text-slate-600 no-underline">Achievers</a><a href="/lms-gateway" className="text-sm font-semibold text-slate-600 no-underline">LMS Gateway</a></nav>

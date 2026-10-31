@@ -296,7 +296,7 @@ export function StudentLoginPage({
       className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#faf8ff] bg-[radial-gradient(circle_at_82%_8%,rgba(124,58,237,.16)_0%,transparent_34%),radial-gradient(circle_at_8%_82%,rgba(37,99,235,.13)_0%,transparent_36%)] font-sans text-[#172044] transition-colors duration-300"
     >
       {/* Header */}
-      <header className="fixed left-0 right-0 top-0 z-50 bg-[#faf8ff]/90 shadow-[0_1px_8px_rgba(0,0,0,.04)] backdrop-blur-xl">
+      <header className="cinematic-navbar fixed left-0 right-0 top-0 z-50 bg-[#faf8ff]/90 shadow-[0_1px_8px_rgba(0,0,0,.04)] backdrop-blur-xl">
         <div className="flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-8 lg:px-12">
           <button
             className="group flex cursor-pointer items-center gap-2 border-none bg-transparent p-0 text-left focus:outline-none sm:gap-3"

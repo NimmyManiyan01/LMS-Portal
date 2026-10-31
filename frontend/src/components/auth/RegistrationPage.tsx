@@ -103,7 +103,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
   return (
     <div className="min-h-screen bg-[#faf8ff] flex flex-col font-sans text-slate-900">
       {/* Header */}
-      <header className="fixed left-0 right-0 top-0 z-50 bg-[#faf8ff]/90 shadow-[0_1px_8px_rgba(0,0,0,.04)] backdrop-blur-xl">
+      <header className="cinematic-navbar fixed left-0 right-0 top-0 z-50 bg-[#faf8ff]/90 shadow-[0_1px_8px_rgba(0,0,0,.04)] backdrop-blur-xl">
         <div className="flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-8 lg:px-12">
         <button
           className="group flex items-center gap-2 border-none bg-transparent cursor-pointer text-left focus:outline-none sm:gap-3"

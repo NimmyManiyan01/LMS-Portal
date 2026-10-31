@@ -229,7 +229,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
       )}
 
       {/* 1. STICKY GLOBAL HEADER */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+      <header className="cinematic-navbar fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
         <div className="h-16 w-full px-margin flex items-center justify-between gap-space-md">
           {/* Logo & Status Badge */}
           <div className="flex items-center gap-space-lg">
