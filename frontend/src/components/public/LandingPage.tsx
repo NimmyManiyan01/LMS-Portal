@@ -484,9 +484,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
             <span className="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant font-bold">
               Recruiting &amp; Strategic Engineering Partners
             </span>
-            <span className="font-body-sm text-body-sm text-primary font-semibold">
-              1,200+ Active Enterprise Requisitions
-            </span>
           </div>
 
           {/* Scrolling Track */}
