@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { API_BASE_URL } from "../../api"
+import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4"
+import { TransparentLogoVideo } from "../public/TransparentLogoVideo"
 
 interface Props {
   onBackToLogin: () => void
@@ -31,6 +33,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
   const [errors, setErrors] = useState<Errors>({})
   const [serverError, setServerError] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const update = (key: keyof Form, value: string | boolean) =>
     setForm((previous) => ({ ...previous, [key]: value }))
@@ -98,35 +101,31 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900">
+    <div className="min-h-screen bg-[#faf8ff] flex flex-col font-sans text-slate-900">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-slate-200/80 bg-white/80 backdrop-blur-sm sticky top-0 z-20">
+      <header className="fixed left-0 right-0 top-0 z-50 bg-[#faf8ff]/90 shadow-[0_1px_8px_rgba(0,0,0,.04)] backdrop-blur-xl">
+        <div className="flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-8 lg:px-12">
         <button
-          className="flex items-center gap-3 border-none bg-transparent cursor-pointer text-left focus:outline-none"
+          className="group flex items-center gap-2 border-none bg-transparent cursor-pointer text-left focus:outline-none sm:gap-3"
           onClick={onBackToLogin}
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black italic shadow-md shadow-blue-500/20">
-            <span>K</span>
-          </div>
-          <div className="flex flex-col">
-            <strong className="text-sm font-extrabold tracking-tight text-slate-900 leading-tight">
-              KGS
-            </strong>
-            <small className="text-[9px] font-bold tracking-[0.16em] text-blue-600 leading-none">
-              EXAM PORTAL
-            </small>
-          </div>
+          <TransparentLogoVideo src={logoRevealVideo} loop className="h-9 w-24 object-contain transition-transform group-hover:scale-105" />
+          <span className="hidden text-sm font-bold tracking-tight text-blue-700 sm:inline sm:text-base">Kaizentrix Global Solutions</span>
         </button>
-        <button
-          className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer border-none bg-transparent"
-          onClick={onBackToLogin}
-        >
-          Already registered? Sign in
-        </button>
+        <nav className="hidden items-center gap-6 xl:flex">
+          {[['About Us', '/'], ['Batches', '/#batches'], ['Placement Track', '/#lms-preview'], ['Achievers', '/#achievers'], ['LMS Gateway', '/#lms-preview']].map(([name, href]) => <a key={name} href={href} className="text-sm font-semibold text-slate-600 no-underline transition-colors hover:text-blue-600">{name}</a>)}
+        </nav>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button type="button" onClick={onBackToLogin} className="hidden rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-600 md:inline-flex">Portal Login</button>
+          <button className="rounded-xl border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-600 shadow-sm" onClick={onBackToLogin}>Already registered? <span className="hidden sm:inline">Sign in</span></button>
+          <button className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm xl:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle navigation"><span className="text-[22px]">{mobileMenuOpen ? "×" : "☰"}</span></button>
+        </div>
+        </div>
+        {mobileMenuOpen && <div className="border-t border-slate-100 bg-white px-5 py-4 shadow-xl xl:hidden"><nav className="flex flex-col gap-1">{[['About Us', '/'], ['Batches', '/#batches'], ['Placement Track', '/#lms-preview'], ['Achievers', '/#achievers'], ['LMS Gateway', '/#lms-preview']].map(([name, href]) => <a key={name} href={href} onClick={() => setMobileMenuOpen(false)} className="border-b border-slate-100 py-3 text-sm font-semibold text-slate-600 no-underline">{name}</a>)}</nav></div>}
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 grid grid-cols-1 lg:grid-cols-[1fr_1.35fr] gap-8 lg:gap-12 items-start">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pb-8 pt-28 sm:pb-12 sm:pt-32 grid grid-cols-1 lg:grid-cols-[1fr_1.35fr] gap-8 lg:gap-12 items-start">
         {/* Left Section: Intro */}
         <section className="flex flex-col gap-3 lg:pt-4">
           <span className="text-[11px] font-extrabold uppercase tracking-widest text-blue-600">
