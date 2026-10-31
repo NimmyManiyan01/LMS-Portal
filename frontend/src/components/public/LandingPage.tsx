@@ -869,9 +869,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                 <span className="px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
                   ISO 9001:2015 Certified
                 </span>
-                <span className="px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
-                  NASSCOM Partner
-                </span>
               </div>
 
               {/* Social Channels */}
