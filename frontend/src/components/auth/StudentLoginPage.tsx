@@ -8,6 +8,8 @@ import {
 } from "react";
 import { StudentProfile } from "../../types";
 import { API_BASE_URL, setAuthToken } from "../../api";
+import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4";
+import { TransparentLogoVideo } from "../public/TransparentLogoVideo";
 
 interface Props {
   initialEmail?: string;
@@ -137,6 +139,7 @@ export function StudentLoginPage({
     null,
   );
   const [now, setNow] = useState(Date.now());
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const api = API_BASE_URL;
 
   /* Existing session check */
@@ -290,27 +293,24 @@ export function StudentLoginPage({
       className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#faf8ff] bg-[radial-gradient(circle_at_82%_8%,rgba(124,58,237,.16)_0%,transparent_34%),radial-gradient(circle_at_8%_82%,rgba(37,99,235,.13)_0%,transparent_36%)] font-sans text-[#172044] transition-colors duration-300"
     >
       {/* Header */}
-      <header className="sticky top-0 z-20 border-b border-white/80 bg-[#faf8ff]/80 backdrop-blur-xl">
-        <div className="mx-auto flex min-h-[72px] w-[calc(100%-32px)] max-w-[1200px] items-center justify-between gap-4 sm:w-[calc(100%-48px)]">
+      <header className="fixed left-0 right-0 top-0 z-50 bg-[#faf8ff]/90 shadow-[0_1px_8px_rgba(0,0,0,.04)] backdrop-blur-xl">
+        <div className="flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-8 lg:px-12">
           <button
-            className="group flex cursor-pointer items-center gap-3 border-none bg-transparent p-0 text-left focus:outline-none"
+            className="group flex cursor-pointer items-center gap-2 border-none bg-transparent p-0 text-left focus:outline-none sm:gap-3"
             onClick={onBackToLanding}
-            aria-label="Back to KGS Exam Portal home"
+            aria-label="Back to the Kaizentrix Global Solutions landing page"
           >
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-2xl font-black text-white shadow-lg shadow-violet-600/25 transition-transform group-hover:scale-105">
-              K
-            </span>
-            <span className="flex flex-col">
-              <strong className="text-xl font-black leading-none tracking-tight text-[#0F1B4C]">
-                KGS
-              </strong>
-              <small className="mt-0.5 text-[9.5px] font-extrabold leading-none tracking-[0.16em] text-blue-600">
-                EXAM PORTAL
-              </small>
-            </span>
+            <TransparentLogoVideo src={logoRevealVideo} loop className="h-9 w-24 object-contain transition-transform group-hover:scale-105" />
+            <span className="hidden font-headline-sm text-sm font-bold tracking-tight text-primary sm:inline sm:text-base">Kaizentrix Global Solutions</span>
           </button>
 
-          {allowRegistration && <div className="flex items-center gap-2 sm:gap-3">
+          <nav className="hidden items-center gap-6 xl:flex">
+            {[["About Us", "/"], ["Batches", "/#batches"], ["Placement Track", "/#lms-preview"], ["Achievers", "/#achievers"], ["LMS Gateway", "/#lms-preview"]].map(([name, href]) => <a key={name} href={href} className="text-sm font-semibold text-slate-600 no-underline transition-colors hover:text-blue-600">{name}</a>)}
+          </nav>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="hidden rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-600 md:inline-flex">Portal Login</button>
+            {allowRegistration && <>
             <button
               className={`${btnSecondary} h-10 rounded-xl px-4 text-sm font-semibold`}
               onClick={onRegister}
@@ -318,12 +318,15 @@ export function StudentLoginPage({
               <span className="hidden sm:inline">New student?&nbsp;</span>
               <span className="text-blue-600">Create account</span>
             </button>
-          </div>}
+            </>}
+            <button className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm xl:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle navigation"><span className="text-[22px]">{mobileMenuOpen ? "×" : "☰"}</span></button>
+          </div>
         </div>
+        {mobileMenuOpen && <div className="border-t border-slate-100 bg-white px-5 py-4 shadow-xl xl:hidden"><nav className="flex flex-col gap-1">{[["About Us", "/"], ["Batches", "/#batches"], ["Placement Track", "/#lms-preview"], ["Achievers", "/#achievers"], ["LMS Gateway", "/#lms-preview"]].map(([name, href]) => <a key={name} href={href} onClick={() => setMobileMenuOpen(false)} className="border-b border-slate-100 py-3 text-sm font-semibold text-slate-600 no-underline">{name}</a>)}</nav></div>}
       </header>
 
       {/* Main */}
-      <main className="mx-auto grid w-[calc(100%-32px)] max-w-[1200px] flex-1 grid-cols-1 items-center gap-10 py-10 sm:w-[calc(100%-48px)] sm:py-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+      <main className="mx-auto grid w-[calc(100%-32px)] max-w-[1200px] flex-1 grid-cols-1 items-center gap-10 pb-10 pt-28 sm:w-[calc(100%-48px)] sm:pb-14 sm:pt-32 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
         {/* Intro column */}
         <section className="flex flex-col items-start">
           <button
