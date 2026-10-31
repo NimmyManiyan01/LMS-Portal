@@ -1023,14 +1023,13 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
 
       {/* GLOBAL FOOTER */}
       <footer className="w-full bg-surface-container-low py-space-lg border-t border-surface-container">
-        <div className="max-w-7xl mx-auto px-margin flex flex-col md:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant">
-          <div className="flex items-center gap-space-md">
+        <div className="max-w-7xl mx-auto px-margin flex flex-col gap-space-md font-body-sm text-body-sm text-on-surface-variant">
+          <div className="flex w-full flex-col items-center justify-between gap-space-sm md:flex-row">
             <span className="font-headline-sm text-headline-sm text-on-surface font-bold">
               Kaizentrix Global Solutions
             </span>
             <span className="hidden sm:inline">•</span>
             <span className="hidden sm:inline">Outcome-Driven Engineering Accelerator</span>
-            <span className="hidden lg:inline">© 2026 Kaizentrix Global Solutions Private Limited. All rights reserved.</span>
           </div>
           <div className="flex items-center gap-space-lg">
             <a className="hover:text-on-surface transition-colors" href="mailto:admissions@kaizentrixglobal.com">
@@ -1042,6 +1041,9 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
             <span className="font-label-sm text-label-sm text-tertiary bg-surface-container px-2 py-0.5 rounded-full font-bold">
               Build v2.10-live
             </span>
+          </div>
+          <div className="w-full border-t border-surface-container pt-space-md text-center text-xs text-on-surface-variant">
+            © 2026 Kaizentrix Global Solutions Private Limited. All rights reserved.
           </div>
         </div>
       </footer>
