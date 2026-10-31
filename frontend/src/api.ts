@@ -7,7 +7,7 @@ export function getApiBaseUrl(): string {
     return window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1"
       ? "http://localhost:4000"
-      : "https://kgs-lms-backend.azurewebsites.net"
+      : "https://kgs-lms-backend-cafdhmc2gtdtfde4.centralindia-01.azurewebsites.net"
   }
 
   return envUrl.replace(/\/$/, "")
