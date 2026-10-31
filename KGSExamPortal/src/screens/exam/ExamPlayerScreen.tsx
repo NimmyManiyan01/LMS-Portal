@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   AppState,
 } from 'react-native';
+import tw from 'twrnc';
 import { useExam } from '../../context/ExamContext';
 import { TimerHeader } from '../../components/exam/TimerHeader';
 import { QuestionCard } from '../../components/exam/QuestionCard';
@@ -64,8 +64,8 @@ export const ExamPlayerScreen: React.FC<ExamPlayerScreenProps> = ({
 
   if (!questions || questions.length === 0) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.loadingText}>Loading question paper...</Text>
+      <View style={tw`flex-1 justify-center items-center bg-slate-900`}>
+        <Text style={tw`text-sky-400 text-base font-bold`}>Loading question paper...</Text>
       </View>
     );
   }
@@ -96,7 +96,7 @@ export const ExamPlayerScreen: React.FC<ExamPlayerScreenProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={tw`flex-1 bg-slate-50`}>
       {/* Top Countdown Timer Header */}
       <TimerHeader
         remainingSeconds={remainingSeconds}
@@ -119,34 +119,37 @@ export const ExamPlayerScreen: React.FC<ExamPlayerScreenProps> = ({
       />
 
       {/* Bottom Floating Navigation Toolbar */}
-      <View style={styles.bottomToolbar}>
+      <View style={tw`h-15 bg-white border-t border-slate-200 flex-row items-center justify-between px-3 shadow-md`}>
         <TouchableOpacity
-          style={[styles.navBtn, currentQuestionIndex === 0 && styles.disabledNav]}
+          style={[
+            tw`bg-blue-600 px-4 py-2.5 rounded-xl`,
+            currentQuestionIndex === 0 ? tw`bg-slate-300` : null,
+          ]}
           onPress={handlePrev}
           disabled={currentQuestionIndex === 0}
         >
-          <Text style={styles.navBtnText}>← Prev</Text>
+          <Text style={tw`text-white text-sm font-bold`}>← Prev</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.paletteBtn}
+          style={tw`bg-slate-100 border border-slate-300 px-3.5 py-2.5 rounded-xl`}
           onPress={() => setPaletteVisible(true)}
         >
-          <Text style={styles.paletteBtnText}>
+          <Text style={tw`text-slate-800 text-xs font-bold`}>
             📋 Grid ({currentQuestionIndex + 1}/{questions.length})
           </Text>
         </TouchableOpacity>
 
         {currentQuestionIndex < questions.length - 1 ? (
-          <TouchableOpacity style={styles.navBtn} onPress={handleNext}>
-            <Text style={styles.navBtnText}>Next →</Text>
+          <TouchableOpacity style={tw`bg-blue-600 px-4 py-2.5 rounded-xl`} onPress={handleNext}>
+            <Text style={tw`text-white text-sm font-bold`}>Next →</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
-            style={styles.finalSubmitBtn}
+            style={tw`bg-green-600 px-4 py-2.5 rounded-xl`}
             onPress={() => setSubmitModalVisible(true)}
           >
-            <Text style={styles.finalSubmitText}>Submit Exam</Text>
+            <Text style={tw`text-white text-sm font-bold`}>Submit Exam</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -180,68 +183,3 @@ export const ExamPlayerScreen: React.FC<ExamPlayerScreenProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#0F172A',
-  },
-  loadingText: {
-    color: '#38BDF8',
-    fontSize: 16,
-  },
-  bottomToolbar: {
-    height: 60,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-  },
-  navBtn: {
-    backgroundColor: '#2563EB',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  disabledNav: {
-    backgroundColor: '#CBD5E1',
-  },
-  navBtnText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  paletteBtn: {
-    backgroundColor: '#F1F5F9',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  paletteBtnText: {
-    color: '#1E293B',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  finalSubmitBtn: {
-    backgroundColor: '#16A34A',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  finalSubmitText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-});
