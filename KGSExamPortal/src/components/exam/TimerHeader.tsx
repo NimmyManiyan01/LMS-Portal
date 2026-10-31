@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import tw from 'twrnc';
 
 interface TimerHeaderProps {
   remainingSeconds: number;
@@ -37,32 +38,34 @@ export const TimerHeader: React.FC<TimerHeaderProps> = ({
 
   const isLowTime = remainingSeconds <= 300; // Less than 5 mins
 
+  const getSyncTextClass = () => {
+    if (syncError) return 'text-red-600';
+    if (isSaving) return 'text-amber-600';
+    return 'text-green-600';
+  };
+
   return (
-    <View style={[styles.container, { paddingTop: Math.max(insets.top, 10) }]}>
-      <View style={styles.headerContentRow}>
-        <View style={styles.leftCol}>
-          <Text style={styles.title} numberOfLines={1}>
+    <View
+      style={[
+        tw`bg-white pb-2.5 px-3.5 border-b border-slate-200 shadow-sm`,
+        { paddingTop: Math.max(insets.top, 10) },
+      ]}
+    >
+      <View style={tw`flex-row items-center justify-between min-h-11`}>
+        <View style={tw`flex-1 mr-2`}>
+          <Text style={tw`text-slate-900 text-sm font-extrabold`} numberOfLines={1}>
             {examTitle}
           </Text>
-          <View style={styles.subRow}>
+          <View style={tw`flex-row items-center mt-0.5`}>
             {currentQuestionNum && totalQuestions ? (
-              <Text style={styles.questionCounter}>
+              <Text style={tw`text-blue-600 text-xs font-bold mr-1.5`}>
                 Q {currentQuestionNum} / {totalQuestions}
               </Text>
             ) : null}
 
             {/* Sync Status Badge */}
-            <View style={styles.syncBadge}>
-              <Text
-                style={[
-                  styles.syncText,
-                  syncError
-                    ? styles.syncErrorText
-                    : isSaving
-                    ? styles.savingText
-                    : styles.savedText,
-                ]}
-              >
+            <View style={tw`bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200`}>
+              <Text style={tw`text-xs font-bold ${getSyncTextClass()}`}>
                 {syncError
                   ? 'Not synced'
                   : isSaving
@@ -73,22 +76,32 @@ export const TimerHeader: React.FC<TimerHeaderProps> = ({
           </View>
         </View>
 
-        <View style={styles.rightCol}>
-          <View style={styles.statusBadges}>
-            <View style={styles.statusDotBox}>
-              <View style={styles.greenDot} />
-              <Text style={styles.statusText}>Network</Text>
+        <View style={tw`flex-row items-center`}>
+          <View style={tw`flex-row mr-1.5`}>
+            <View style={tw`flex-row items-center bg-slate-50 px-1.5 py-1 rounded ml-1 border border-slate-200`}>
+              <View style={tw`w-1.5 h-1.5 rounded-full bg-green-600 mr-1`} />
+              <Text style={tw`text-slate-600 text-xs font-semibold`}>Network</Text>
             </View>
-            {cameraActive && (
-              <View style={styles.statusDotBox}>
-                <View style={styles.greenDot} />
-                <Text style={styles.statusText}>Cam</Text>
+            {cameraActive ? (
+              <View style={tw`flex-row items-center bg-slate-50 px-1.5 py-1 rounded ml-1 border border-slate-200`}>
+                <View style={tw`w-1.5 h-1.5 rounded-full bg-green-600 mr-1`} />
+                <Text style={tw`text-slate-600 text-xs font-semibold`}>Cam</Text>
               </View>
-            )}
+            ) : null}
           </View>
 
-          <View style={[styles.timerBadge, isLowTime && styles.lowTimeBadge]}>
-            <Text style={[styles.timerText, isLowTime && styles.lowTimeText]}>
+          <View
+            style={[
+              tw`bg-blue-50 px-2 py-1.5 rounded-md border border-blue-200`,
+              isLowTime ? tw`bg-red-50 border-red-200` : null,
+            ]}
+          >
+            <Text
+              style={[
+                tw`text-blue-800 text-xs font-extrabold`,
+                isLowTime ? tw`text-red-600` : null,
+              ]}
+            >
               ⏱ {formatTime(remainingSeconds)}
             </Text>
           </View>
@@ -97,116 +110,3 @@ export const TimerHeader: React.FC<TimerHeaderProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FFFFFF',
-    paddingBottom: 10,
-    paddingHorizontal: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-  },
-  headerContentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 44,
-  },
-  leftCol: {
-    flex: 1,
-    marginRight: 8,
-  },
-  title: {
-    color: '#0F172A',
-    fontSize: 14,
-    fontWeight: '800',
-  },
-  subRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 2,
-  },
-  questionCounter: {
-    color: '#2563EB',
-    fontSize: 12,
-    fontWeight: '700',
-    marginRight: 6,
-  },
-  syncBadge: {
-    backgroundColor: '#F8FAFC',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  syncText: {
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  savingText: {
-    color: '#D97706',
-  },
-  savedText: {
-    color: '#16A34A',
-  },
-  syncErrorText: {
-    color: '#DC2626',
-  },
-  rightCol: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statusBadges: {
-    flexDirection: 'row',
-    marginRight: 6,
-  },
-  statusDotBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    paddingHorizontal: 5,
-    paddingVertical: 3,
-    borderRadius: 4,
-    marginLeft: 3,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  greenDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#16A34A',
-    marginRight: 3,
-  },
-  statusText: {
-    color: '#475569',
-    fontSize: 10,
-    fontWeight: '600',
-  },
-  timerBadge: {
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  lowTimeBadge: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FECACA',
-  },
-  timerText: {
-    color: '#1D4ED8',
-    fontSize: 12,
-    fontWeight: '800',
-    fontVariant: ['tabular-nums'],
-  },
-  lowTimeText: {
-    color: '#DC2626',
-  },
-});
