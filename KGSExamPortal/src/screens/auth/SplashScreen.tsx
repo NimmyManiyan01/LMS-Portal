@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   Animated,
   Easing,
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
+import tw from 'twrnc';
 import { useAuth } from '../../context/AuthContext';
 
 const { width } = Dimensions.get('window');
@@ -151,17 +151,13 @@ export const SplashScreen: React.FC = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      {/* Background Soft Glow Orbs */}
-      <View style={styles.bgGlowTop} />
-      <View style={styles.bgGlowBottom} />
-
+    <View style={tw`flex-1 bg-slate-50 items-center justify-between py-12 px-6`}>
       {/* Main Content */}
-      <View style={styles.mainContent}>
+      <View style={tw`flex-1 items-center justify-center`}>
         {/* Pulsing Outer Ring */}
         <Animated.View
           style={[
-            styles.pulseCircle,
+            tw`absolute w-28 h-28 rounded-full bg-blue-500/15 border border-blue-200`,
             {
               transform: [{ scale: pulseScale }],
               opacity: pulseOpacity,
@@ -172,206 +168,71 @@ export const SplashScreen: React.FC = () => {
         {/* Central Cap Badge */}
         <Animated.View
           style={[
-            styles.logoContainer,
+            tw`w-22.5 h-22.5 rounded-full bg-white items-center justify-center mb-5 border-2 border-blue-600 shadow-lg`,
             {
               opacity: logoOpacity,
               transform: [{ scale: logoScale }],
             },
           ]}
         >
-          <Text style={styles.logoCapIcon}>🎓</Text>
+          <Text style={tw`text-4xl`}>🎓</Text>
         </Animated.View>
 
         {/* Animated App Title */}
         <Animated.View
-          style={{
-            opacity: titleOpacity,
-            transform: [{ translateY: titleTranslateY }],
-            alignItems: 'center',
-          }}
+          style={[
+            tw`items-center`,
+            {
+              opacity: titleOpacity,
+              transform: [{ translateY: titleTranslateY }],
+            },
+          ]}
         >
-          <Text style={styles.brandTitle}>KGS EXAM PORTAL</Text>
-          <View style={styles.brandGlowLine} />
+          <Text style={tw`text-2xl font-black text-slate-900 tracking-wider text-center`}>
+            KGS EXAM PORTAL
+          </Text>
+          <View style={tw`w-12 h-1 bg-blue-600 rounded my-2.5`} />
         </Animated.View>
 
         {/* Subtitle */}
-        <Animated.View style={{ opacity: subtitleOpacity, alignItems: 'center' }}>
-          <Text style={styles.brandSubtitle}>
+        <Animated.View style={[{ opacity: subtitleOpacity }, tw`items-center`]}>
+          <Text style={tw`text-xs text-slate-500 tracking-wide text-center font-semibold`}>
             Secure Candidate Examination Platform
           </Text>
         </Animated.View>
       </View>
 
       {/* Footer Progress & Status */}
-      <View style={styles.footerSection}>
+      <View style={tw`w-full items-center`}>
         {checking ? (
-          <View style={styles.loadingWrapper}>
-            <View style={styles.shimmerTrack}>
+          <View style={tw`items-center w-full mb-5`}>
+            <View style={[tw`h-1 bg-slate-200 rounded-full overflow-hidden mb-3`, { width: width * 0.5 }]}>
               <Animated.View
                 style={[
-                  styles.shimmerBar,
+                  tw`h-full bg-blue-600 rounded-full`,
                   {
+                    width: width * 0.25,
                     transform: [{ translateX: shimmerTranslateX }],
                   },
                 ]}
               />
             </View>
 
-            <Animated.Text style={[styles.statusText, { opacity: statusOpacity }]}>
+            <Animated.Text style={[tw`text-blue-600 text-xs font-bold tracking-wide`, { opacity: statusOpacity }]}>
               Initializing Secure Assessment Session...
             </Animated.Text>
           </View>
         ) : error ? (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity style={styles.retryBtn} onPress={initSessionCheck} activeOpacity={0.8}>
-              <Text style={styles.retryText}>Retry Connection</Text>
+          <View style={tw`items-center mb-5 px-4`}>
+            <Text style={tw`text-red-600 text-xs text-center mb-3 leading-4`}>{error}</Text>
+            <TouchableOpacity style={tw`bg-blue-600 px-5 py-2.5 rounded-lg`} onPress={initSessionCheck} activeOpacity={0.8}>
+              <Text style={tw`text-white font-bold text-xs`}>Retry Connection</Text>
             </TouchableOpacity>
           </View>
         ) : null}
 
-        <Text style={styles.copyrightText}>KGS Assessment Engine v1.0 • Protected</Text>
+        <Text style={tw`text-slate-400 text-xs font-semibold`}>KGS Assessment Engine v1.0 • Protected</Text>
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 50,
-    paddingHorizontal: 24,
-  },
-  bgGlowTop: {
-    position: 'absolute',
-    top: -80,
-    right: -60,
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    backgroundColor: 'rgba(37, 99, 235, 0.08)',
-  },
-  bgGlowBottom: {
-    position: 'absolute',
-    bottom: -100,
-    left: -60,
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: 'rgba(14, 165, 233, 0.08)',
-  },
-  mainContent: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pulseCircle: {
-    position: 'absolute',
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    backgroundColor: 'rgba(37, 99, 235, 0.15)',
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  logoContainer: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: '#2563EB',
-    shadowColor: '#2563EB',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  logoCapIcon: {
-    fontSize: 44,
-  },
-  brandTitle: {
-    fontSize: 25,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: 1.5,
-    textAlign: 'center',
-  },
-  brandGlowLine: {
-    width: 50,
-    height: 3,
-    backgroundColor: '#2563EB',
-    borderRadius: 2,
-    marginVertical: 10,
-  },
-  brandSubtitle: {
-    fontSize: 13,
-    color: '#64748B',
-    letterSpacing: 0.5,
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  footerSection: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  loadingWrapper: {
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 20,
-  },
-  shimmerTrack: {
-    width: width * 0.5,
-    height: 4,
-    backgroundColor: '#E2E8F0',
-    borderRadius: 2,
-    overflow: 'hidden',
-    marginBottom: 12,
-  },
-  shimmerBar: {
-    width: width * 0.25,
-    height: '100%',
-    backgroundColor: '#2563EB',
-    borderRadius: 2,
-  },
-  statusText: {
-    color: '#2563EB',
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.3,
-  },
-  errorContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 16,
-  },
-  errorText: {
-    color: '#DC2626',
-    fontSize: 13,
-    textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 18,
-  },
-  retryBtn: {
-    backgroundColor: '#2563EB',
-    paddingHorizontal: 22,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  retryText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  copyrightText: {
-    color: '#94A3B8',
-    fontSize: 11,
-    fontWeight: '600',
-  },
-});
