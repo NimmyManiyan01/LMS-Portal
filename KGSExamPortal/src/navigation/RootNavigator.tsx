@@ -61,8 +61,11 @@ export const RootNavigator: React.FC = () => {
     );
   }
 
-  // Render floating navbar ONLY on the main Dashboard screen
-  const isDashboardOnly = currentScreen === 'DASHBOARD';
+  // Render floating navbar on Dashboard, Examination History (Results), and Profile
+  const showNavbar =
+    currentScreen === 'DASHBOARD' ||
+    currentScreen === 'RESULTS' ||
+    currentScreen === 'PROFILE';
 
   const renderActiveScreen = () => {
     switch (currentScreen) {
@@ -147,14 +150,21 @@ export const RootNavigator: React.FC = () => {
     setCurrentScreen(tab as ScreenName);
   };
 
+  const activeTab: TabName =
+    currentScreen === 'RESULTS'
+      ? 'RESULTS'
+      : currentScreen === 'PROFILE'
+      ? 'PROFILE'
+      : 'DASHBOARD';
+
   return (
     <View style={tw`flex-1 relative bg-slate-50`}>
       {renderActiveScreen()}
 
-      {/* Floating Animated Bottom Navbar (Visible ONLY on Main Dashboard Screen) */}
-      {isDashboardOnly && (
+      {/* Floating Animated Bottom Navbar */}
+      {showNavbar && (
         <FloatingBottomNavbar
-          currentTab="DASHBOARD"
+          currentTab={activeTab}
           onSelectTab={handleTabSelect}
         />
       )}

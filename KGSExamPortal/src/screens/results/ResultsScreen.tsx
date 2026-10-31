@@ -58,7 +58,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({ onBack }) => {
           <FlatList
             data={results}
             keyExtractor={(item) => item.attemptId}
-            contentContainerStyle={tw`p-4 pb-10`}
+            contentContainerStyle={tw`p-4 pb-28`}
             renderItem={({ item }) => {
               const isReleased = item.releaseStatus === 'RELEASED' && item.marksScored !== null;
               return (
