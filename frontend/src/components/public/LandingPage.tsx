@@ -410,7 +410,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                   className="hero-login-button px-space-lg py-3 rounded-xl font-label-lg text-label-lg shadow-md flex items-center gap-2 cursor-pointer border-0"
                 >
                   <span className="material-symbols-outlined text-primary text-[20px]">
-                    terminal
+                    person
                   </span>
                   <span>Student Portal Login</span>
                 </button>
