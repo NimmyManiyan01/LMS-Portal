@@ -2,11 +2,11 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   Modal,
   ScrollView,
 } from 'react-native';
+import tw from 'twrnc';
 import { Question, Answer } from '../../types';
 import { Button } from '../common/Button';
 
@@ -45,85 +45,78 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
     }
   });
 
-  const getQuestionStyle = (qId: string, index: number) => {
+  const getQuestionClasses = (qId: string, index: number) => {
     const isCurrent = index === currentIndex;
     const ans = answers.get(qId);
 
-    let bg = '#F8FAFC'; // Not Visited - Neutral Light
-    let border = '#CBD5E1';
-    let textColor = '#475569';
+    let containerClass = 'bg-slate-50 border-slate-300';
+    let textClass = 'text-slate-600';
 
     if (ans?.isMarkedForReview) {
-      bg = '#9333EA'; // Marked for Review - Purple
-      border = '#7E22CE';
-      textColor = '#FFFFFF';
+      containerClass = 'bg-purple-600 border-purple-700'; // Marked - Purple
+      textClass = 'text-white';
     } else if (ans?.selectedOptionId) {
-      bg = '#16A34A'; // Answered - Green
-      border = '#15803D';
-      textColor = '#FFFFFF';
+      containerClass = 'bg-green-600 border-green-700'; // Answered - Green
+      textClass = 'text-white';
     } else if (ans?.visited) {
-      bg = '#D97706'; // Visited Unanswered - Amber
-      border = '#B45309';
-      textColor = '#FFFFFF';
+      containerClass = 'bg-amber-600 border-amber-700'; // Visited Unanswered - Amber
+      textClass = 'text-white';
     }
 
     return {
-      style: [
-        styles.gridBox,
-        { backgroundColor: bg, borderColor: border },
-        isCurrent && styles.currentBox,
-      ],
-      textColor,
+      boxClass: `${containerClass} ${isCurrent ? 'border-2 border-blue-600' : ''}`,
+      textClass,
     };
   };
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
-      <View style={styles.overlay}>
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Questions Palette</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeIconBtn} activeOpacity={0.8}>
-              <Text style={styles.closeIconText}>✕</Text>
+      <View style={tw`flex-1 bg-slate-900/60 justify-end`}>
+        <View style={tw`bg-white rounded-t-3xl max-h-4/5 p-5 shadow-lg`}>
+          {/* Header */}
+          <View style={tw`flex-row justify-between items-center pb-3 border-b border-slate-200`}>
+            <Text style={tw`text-lg font-extrabold text-slate-900`}>Questions Palette</Text>
+            <TouchableOpacity onPress={onClose} style={tw`p-1.5`} activeOpacity={0.8}>
+              <Text style={tw`text-xl text-slate-500 font-bold`}>✕</Text>
             </TouchableOpacity>
           </View>
 
           {/* Legend Summary */}
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#16A34A' }]} />
-              <Text style={styles.legendLabel}>Answered: {answeredCount}</Text>
+          <View style={tw`flex-row flex-wrap justify-between py-3 border-b border-slate-100`}>
+            <View style={tw`flex-row items-center w-1/2 mb-2`}>
+              <View style={tw`w-3 h-3 rounded-full bg-green-600 mr-2`} />
+              <Text style={tw`text-xs text-slate-700 font-semibold`}>Answered: {answeredCount}</Text>
             </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#D97706' }]} />
-              <Text style={styles.legendLabel}>Not Answered: {unansweredCount}</Text>
+            <View style={tw`flex-row items-center w-1/2 mb-2`}>
+              <View style={tw`w-3 h-3 rounded-full bg-amber-600 mr-2`} />
+              <Text style={tw`text-xs text-slate-700 font-semibold`}>Not Answered: {unansweredCount}</Text>
             </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#9333EA' }]} />
-              <Text style={styles.legendLabel}>Marked for Review: {markedCount}</Text>
+            <View style={tw`flex-row items-center w-1/2 mb-2`}>
+              <View style={tw`w-3 h-3 rounded-full bg-purple-600 mr-2`} />
+              <Text style={tw`text-xs text-slate-700 font-semibold`}>Marked for Review: {markedCount}</Text>
             </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#CBD5E1' }]} />
-              <Text style={styles.legendLabel}>Not Visited: {unvisitedCount}</Text>
+            <View style={tw`flex-row items-center w-1/2 mb-2`}>
+              <View style={tw`w-3 h-3 rounded-full bg-slate-100 border border-slate-300 mr-2`} />
+              <Text style={tw`text-xs text-slate-700 font-semibold`}>Not Visited: {unvisitedCount}</Text>
             </View>
           </View>
 
           {/* Question Grid */}
-          <ScrollView contentContainerStyle={styles.gridContainer}>
+          <ScrollView contentContainerStyle={tw`flex-row flex-wrap py-3.5 justify-start`}>
             {questions.map((q, idx) => {
-              const { style, textColor } = getQuestionStyle(q.id, idx);
+              const { boxClass, textClass } = getQuestionClasses(q.id, idx);
               const numStr = String(idx + 1).padStart(2, '0');
               return (
                 <TouchableOpacity
                   key={q.id}
-                  style={style}
+                  style={tw`w-12 h-12 rounded-xl border-1.5 items-center justify-center m-1 ${boxClass}`}
                   onPress={() => {
                     onSelectQuestion(idx);
                     onClose();
                   }}
                   activeOpacity={0.8}
                 >
-                  <Text style={[styles.gridText, { color: textColor }]}>
+                  <Text style={tw`text-sm font-extrabold ${textClass}`}>
                     {numStr}
                   </Text>
                 </TouchableOpacity>
@@ -131,102 +124,9 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
             })}
           </ScrollView>
 
-          <Button title="CLOSE" onPress={onClose} variant="secondary" style={styles.closeBtn} />
+          <Button title="CLOSE" onPress={onClose} variant="secondary" style={tw`mt-2.5`} />
         </View>
       </View>
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-    justifyContent: 'flex-end',
-  },
-  content: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '82%',
-    padding: 20,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  headerTitle: {
-    fontSize: 19,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-  closeIconBtn: {
-    padding: 6,
-  },
-  closeIconText: {
-    fontSize: 20,
-    color: '#64748B',
-    fontWeight: 'bold',
-  },
-  legendContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '48%',
-    marginBottom: 8,
-  },
-  legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 8,
-  },
-  legendLabel: {
-    fontSize: 12,
-    color: '#334155',
-    fontWeight: '600',
-  },
-  gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingVertical: 14,
-    justifyContent: 'flex-start',
-  },
-  gridBox: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 5,
-  },
-  currentBox: {
-    borderWidth: 3,
-    borderColor: '#2563EB',
-  },
-  gridText: {
-    fontSize: 14,
-    fontWeight: '800',
-    fontVariant: ['tabular-nums'],
-  },
-  closeBtn: {
-    marginTop: 10,
-  },
-});
