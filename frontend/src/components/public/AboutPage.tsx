@@ -46,10 +46,10 @@ export function AboutPage({ onBackToLanding, onLogin }: AboutPageProps) {
           </button>
           <nav className="hidden items-center gap-space-lg xl:flex">
             <span className="font-label-lg text-label-lg font-bold text-primary">About Us</span>
-            <a href="/#batches" className="public-nav-link font-label-lg text-label-lg text-on-surface-variant">Batches</a>
-            <a href="/#lms-preview" className="public-nav-link font-label-lg text-label-lg text-on-surface-variant">Placement Track</a>
-            <a href="/#achievers" className="public-nav-link font-label-lg text-label-lg text-on-surface-variant">Achievers</a>
-            <a href="/#lms-preview" className="public-nav-link font-label-lg text-label-lg text-on-surface-variant">LMS Gateway</a>
+            <a href="/batches" className="public-nav-link font-label-lg text-label-lg text-on-surface-variant">Batches</a>
+            <a href="/placement-track" className="public-nav-link font-label-lg text-label-lg text-on-surface-variant">Placement Track</a>
+            <a href="/achievers" className="public-nav-link font-label-lg text-label-lg text-on-surface-variant">Achievers</a>
+            <a href="/lms-gateway" className="public-nav-link font-label-lg text-label-lg text-on-surface-variant">LMS Gateway</a>
           </nav>
           <div className="flex items-center gap-space-md">
             <button
