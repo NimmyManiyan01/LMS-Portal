@@ -17,8 +17,8 @@ import { useAuth } from '../../context/AuthContext';
 
 interface DashboardScreenProps {
   onSelectExam: (exam: Exam) => void;
-  onNavigateProfile: () => void;
-  onNavigateResults: () => void;
+  onNavigateProfile?: () => void;
+  onNavigateResults?: () => void;
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({
@@ -118,21 +118,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           },
         ]}
       >
-        <View>
+        <View style={tw`flex-1`}>
           <Text style={tw`text-xs text-slate-500`}>Welcome back,</Text>
           <Text style={tw`text-xl font-extrabold text-slate-900 tracking-wide`}>{student?.fullName || 'Candidate'}</Text>
           <View style={tw`bg-blue-50 px-2 py-0.5 rounded border border-blue-200 self-start mt-1`}>
             <Text style={tw`text-xs text-blue-600 font-extrabold`}>{student?.studentId || 'KGS-STUDENT'}</Text>
           </View>
-        </View>
-
-        <View style={tw`flex-row`}>
-          <TouchableOpacity style={tw`bg-slate-50 px-3 py-2 rounded-xl ml-2 border border-slate-300`} onPress={onNavigateResults} activeOpacity={0.8}>
-            <Text style={tw`text-slate-800 text-xs font-bold`}>📊 Marks</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={tw`bg-slate-50 px-3 py-2 rounded-xl ml-2 border border-slate-300`} onPress={onNavigateProfile} activeOpacity={0.8}>
-            <Text style={tw`text-slate-800 text-xs font-bold`}>👤 Profile</Text>
-          </TouchableOpacity>
         </View>
       </Animated.View>
 
