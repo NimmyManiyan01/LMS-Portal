@@ -1035,9 +1035,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
             <a className="hover:text-on-surface transition-colors" href="#batches">
               Placement Policy
             </a>
-            <span className="font-label-sm text-label-sm text-tertiary bg-surface-container px-2 py-0.5 rounded-full font-bold">
-              Build v2.10-live
-            </span>
           </div>
           <div className="w-full border-t border-surface-container pt-space-md text-center text-xs text-on-surface-variant">
             © 2026 Kaizentrix Global Solutions Private Limited. All rights reserved.
