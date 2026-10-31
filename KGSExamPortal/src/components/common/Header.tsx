@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import tw from 'twrnc';
 
 interface HeaderProps {
   title: string;
@@ -18,20 +19,29 @@ export const Header: React.FC<HeaderProps> = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, { paddingTop: Math.max(insets.top, 12) }]}>
-      <View style={styles.contentRow}>
-        <View style={styles.leftContainer}>
+    <View
+      style={[
+        tw`bg-white pb-3 px-4 border-b border-slate-200 shadow-sm`,
+        { paddingTop: Math.max(insets.top, 12) },
+      ]}
+    >
+      <View style={tw`flex-row items-center justify-between min-h-11`}>
+        <View style={tw`flex-row items-center flex-1 mr-2`}>
           {onBack && (
-            <TouchableOpacity onPress={onBack} style={styles.backButton} activeOpacity={0.8}>
-              <Text style={styles.backText}>←</Text>
+            <TouchableOpacity
+              onPress={onBack}
+              style={tw`mr-2.5 p-1.5`}
+              activeOpacity={0.8}
+            >
+              <Text style={tw`text-blue-600 text-2xl font-extrabold`}>←</Text>
             </TouchableOpacity>
           )}
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title} numberOfLines={1}>
+          <View style={tw`flex-1`}>
+            <Text style={tw`text-slate-900 text-lg font-extrabold`} numberOfLines={1}>
               {title}
             </Text>
             {subtitle ? (
-              <Text style={styles.subtitle} numberOfLines={1}>
+              <Text style={tw`text-slate-500 text-xs font-semibold mt-0.5`} numberOfLines={1}>
                 {subtitle}
               </Text>
             ) : null}
@@ -42,53 +52,3 @@ export const Header: React.FC<HeaderProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FFFFFF',
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  contentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 44,
-  },
-  leftContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    marginRight: 8,
-  },
-  backButton: {
-    marginRight: 10,
-    padding: 6,
-  },
-  backText: {
-    color: '#2563EB',
-    fontSize: 22,
-    fontWeight: '800',
-  },
-  titleWrapper: {
-    flex: 1,
-  },
-  title: {
-    color: '#0F172A',
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  subtitle: {
-    color: '#64748B',
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 1,
-  },
-});
