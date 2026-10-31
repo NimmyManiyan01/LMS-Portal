@@ -658,26 +658,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                       {track.description}
                     </p>
 
-                    <div className="grid grid-cols-3 gap-space-sm my-space-md py-space-sm bg-surface-container-low rounded-xl px-space-md text-center">
-                      <div>
-                        <div className="font-label-sm text-label-sm text-outline">Cohort Start</div>
-                        <div className="font-label-lg text-label-lg text-on-surface mt-0.5 font-bold">
-                          {track.startDate}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="font-label-sm text-label-sm text-outline">Duration</div>
-                        <div className="font-label-lg text-label-lg text-on-surface mt-0.5 font-bold">
-                          {track.duration}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="font-label-sm text-label-sm text-outline">Format</div>
-                        <div className="font-label-lg text-label-lg text-on-surface mt-0.5 font-bold">
-                          {track.format}
-                        </div>
-                      </div>
-                    </div>
                   </div>
 
                   <div className="flex items-center justify-between pt-space-xs">
