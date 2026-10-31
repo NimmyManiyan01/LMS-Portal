@@ -144,11 +144,14 @@ export function StudentLoginPage({
 
   /* Existing session check */
   useEffect(() => {
+    const token = localStorage.getItem("kgs_token");
+    if (!token) return;
+
     let cancelled = false;
     fetch(`${api}/api/auth/me`, {
       credentials: "include",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("kgs_token") || ""}`,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then(async (response) => {
