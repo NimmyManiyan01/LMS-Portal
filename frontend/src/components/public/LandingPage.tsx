@@ -291,7 +291,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               onClick={onLogin}
               className="hero-login-button portal-login-button hidden md:inline-flex items-center px-space-md py-1.5 rounded-xl font-label-md text-label-md shadow-[0_1px_3px_0_rgba(15,23,42,0.05)] cursor-pointer"
             >
-              Portal Login
+              <span>Portal Login</span>
             </button>
 
             {/* Mobile Menu Toggle Button */}
