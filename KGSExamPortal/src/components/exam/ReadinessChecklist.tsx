@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   Animated,
   Easing,
   ActivityIndicator,
@@ -10,6 +9,7 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
+import tw from 'twrnc';
 import { Button } from '../common/Button';
 import { apiRequest } from '../../api/client';
 
@@ -230,43 +230,45 @@ export const ReadinessChecklist: React.FC<ReadinessChecklistProps> = ({
   return (
     <Animated.View
       style={[
-        styles.container,
+        tw`bg-white rounded-2xl p-5 my-3 border border-slate-200 shadow-sm`,
         {
           opacity: fadeAnim,
           transform: [{ translateY: slideAnim }],
         },
       ]}
     >
-      <View style={styles.headerRow}>
-        <View style={styles.headerTextCol}>
-          <Text style={styles.heading}>System Readiness Verification</Text>
-          <Text style={styles.subheading}>
+      <View style={tw`flex-row justify-between items-start mb-3`}>
+        <View style={tw`flex-1 mr-2`}>
+          <Text style={tw`text-lg font-extrabold text-slate-900 mb-0.5`}>
+            System Readiness Verification
+          </Text>
+          <Text style={tw`text-xs text-slate-500 leading-4`}>
             Real-time hardware, camera, and network permission scanner.
           </Text>
         </View>
 
-        {!isDiagnosing && (
+        {!isDiagnosing ? (
           <TouchableOpacity
-            style={styles.reRunBtn}
+            style={tw`bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md`}
             onPress={runDiagnostics}
             activeOpacity={0.8}
           >
-            <Text style={styles.reRunText}>🔄 Test Again</Text>
+            <Text style={tw`text-xs font-extrabold text-blue-600`}>🔄 Test Again</Text>
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
 
       {/* Progress Bar */}
-      <View style={styles.progressContainer}>
-        <View style={styles.progressTrack}>
+      <View style={tw`mb-3.5`}>
+        <View style={tw`h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1.5`}>
           <View
             style={[
-              styles.progressBar,
+              tw`h-full bg-blue-600 rounded-full`,
               { width: `${Math.round((completedCount / checkList.length) * 100)}%` },
             ]}
           />
         </View>
-        <Text style={styles.progressText}>
+        <Text style={tw`text-xs text-slate-500 font-semibold`}>
           {isDiagnosing
             ? `Scanning real-time permissions... (${completedCount}/${checkList.length})`
             : `Diagnostics Complete (${completedCount}/${checkList.length})`}
@@ -274,37 +276,37 @@ export const ReadinessChecklist: React.FC<ReadinessChecklistProps> = ({
       </View>
 
       {/* Diagnostics Table */}
-      <View style={styles.checksTable}>
+      <View style={tw`bg-slate-50 rounded-xl p-3 border border-slate-200 mb-4`}>
         {checkList.map((item) => {
           return (
-            <View key={item.id} style={styles.checkRow}>
-              <View style={{ flex: 1, marginRight: 8 }}>
-                <Text style={styles.checkLabel}>{item.label}</Text>
+            <View key={item.id} style={tw`flex-row justify-between items-center py-2 border-b border-slate-100`}>
+              <View style={tw`flex-1 mr-2`}>
+                <Text style={tw`text-xs font-semibold text-slate-800`}>{item.label}</Text>
                 {item.errorDetail && item.status === 'FAIL' ? (
-                  <Text style={styles.failDetail}>{item.errorDetail}</Text>
+                  <Text style={tw`text-xs text-red-600 mt-0.5`}>{item.errorDetail}</Text>
                 ) : null}
               </View>
 
               {item.status === 'RUNNING' ? (
-                <View style={styles.runningBadge}>
-                  <ActivityIndicator size="small" color="#2563EB" style={styles.spinner} />
-                  <Text style={styles.runningText}>CHECKING...</Text>
+                <View style={tw`flex-row items-center bg-blue-50 border border-blue-200 px-2 py-1 rounded-md`}>
+                  <ActivityIndicator size="small" color="#2563EB" style={tw`mr-1.5`} />
+                  <Text style={tw`text-xs font-extrabold text-blue-600`}>CHECKING...</Text>
                 </View>
               ) : item.status === 'PASS' ? (
-                <View style={styles.passBadge}>
-                  <Text style={styles.passText}>✓ PASS</Text>
+                <View style={tw`bg-green-100 border border-green-300 px-2.5 py-1 rounded-md`}>
+                  <Text style={tw`text-xs font-extrabold text-green-700`}>✓ PASS</Text>
                 </View>
               ) : item.status === 'FAIL' ? (
-                <View style={styles.failBadge}>
-                  <Text style={styles.failBadgeText}>❌ FAIL</Text>
+                <View style={tw`bg-red-100 border border-red-300 px-2.5 py-1 rounded-md`}>
+                  <Text style={tw`text-xs font-extrabold text-red-600`}>❌ FAIL</Text>
                 </View>
               ) : item.status === 'SKIPPED' ? (
-                <View style={styles.skipBadge}>
-                  <Text style={styles.skipText}>SKIPPED</Text>
+                <View style={tw`bg-slate-100 border border-slate-300 px-2.5 py-1 rounded-md`}>
+                  <Text style={tw`text-xs font-extrabold text-slate-500`}>SKIPPED</Text>
                 </View>
               ) : (
-                <View style={styles.pendingBadge}>
-                  <Text style={styles.pendingText}>WAITING...</Text>
+                <View style={tw`bg-slate-100 px-2 py-1 rounded-md`}>
+                  <Text style={tw`text-xs font-bold text-slate-400`}>WAITING...</Text>
                 </View>
               )}
             </View>
@@ -314,23 +316,23 @@ export const ReadinessChecklist: React.FC<ReadinessChecklistProps> = ({
 
       {/* Final Banner */}
       {isDiagnosing ? (
-        <View style={styles.runningBanner}>
-          <ActivityIndicator size="small" color="#2563EB" style={{ marginRight: 8 }} />
-          <Text style={styles.runningBannerText}>Requesting permissions & scanning hardware...</Text>
+        <View style={tw`flex-row items-center justify-center bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4`}>
+          <ActivityIndicator size="small" color="#2563EB" style={tw`mr-2`} />
+          <Text style={tw`text-blue-600 text-xs font-extrabold`}>Requesting permissions & scanning hardware...</Text>
         </View>
       ) : allPassed ? (
-        <View style={styles.allPassedBanner}>
-          <Text style={styles.allPassedText}>✓ ALL SYSTEM CHECKS PASSED</Text>
+        <View style={tw`bg-blue-50 border border-blue-200 rounded-xl p-3 items-center mb-4`}>
+          <Text style={tw`text-blue-600 text-xs font-extrabold tracking-wide`}>✓ ALL SYSTEM CHECKS PASSED</Text>
         </View>
       ) : (
-        <View style={styles.failedBanner}>
-          <Text style={styles.failedText}>⚠️ GRANT REQUIRED CAMERA / AUDIO PERMISSIONS</Text>
+        <View style={tw`bg-red-50 border border-red-200 rounded-xl p-3 items-center mb-4`}>
+          <Text style={tw`text-red-600 text-xs font-extrabold mb-2`}>⚠️ GRANT REQUIRED CAMERA / AUDIO PERMISSIONS</Text>
           <TouchableOpacity
-            style={styles.grantBtn}
+            style={tw`bg-red-600 px-3.5 py-1.5 rounded-md`}
             onPress={runDiagnostics}
             activeOpacity={0.8}
           >
-            <Text style={styles.grantBtnText}>Prompt Permissions Again</Text>
+            <Text style={tw`text-white text-xs font-extrabold`}>Prompt Permissions Again</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -340,232 +342,8 @@ export const ReadinessChecklist: React.FC<ReadinessChecklistProps> = ({
         onPress={onProceed}
         disabled={!allPassed || isDiagnosing}
         loading={loading}
-        style={styles.startBtn}
+        style={tw`mt-1`}
       />
     </Animated.View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    marginVertical: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  headerTextCol: {
-    flex: 1,
-    marginRight: 8,
-  },
-  heading: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 2,
-  },
-  subheading: {
-    fontSize: 12,
-    color: '#64748B',
-    lineHeight: 16,
-  },
-  reRunBtn: {
-    backgroundColor: '#EFF6FF',
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 6,
-  },
-  reRunText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#2563EB',
-  },
-  progressContainer: {
-    marginBottom: 14,
-  },
-  progressTrack: {
-    height: 6,
-    backgroundColor: '#E2E8F0',
-    borderRadius: 3,
-    overflow: 'hidden',
-    marginBottom: 6,
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#2563EB',
-    borderRadius: 3,
-  },
-  progressText: {
-    fontSize: 11,
-    color: '#64748B',
-    fontWeight: '600',
-  },
-  checksTable: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 16,
-  },
-  checkRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 9,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
-  checkLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1E293B',
-  },
-  failDetail: {
-    fontSize: 11,
-    color: '#DC2626',
-    marginTop: 2,
-  },
-  runningBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#EFF6FF',
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  spinner: {
-    marginRight: 6,
-  },
-  runningText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#2563EB',
-  },
-  passBadge: {
-    backgroundColor: '#DCFCE7',
-    borderWidth: 1,
-    borderColor: '#86EFAC',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  passText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#15803D',
-  },
-  failBadge: {
-    backgroundColor: '#FEF2F2',
-    borderWidth: 1,
-    borderColor: '#FECACA',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  failBadgeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#DC2626',
-  },
-  skipBadge: {
-    backgroundColor: '#F1F5F9',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  skipText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#64748B',
-  },
-  pendingBadge: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  pendingText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#94A3B8',
-  },
-  runningBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#EFF6FF',
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
-  },
-  runningBannerText: {
-    color: '#2563EB',
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  allPassedBanner: {
-    backgroundColor: '#EFF6FF',
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-    borderRadius: 10,
-    padding: 12,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  allPassedText: {
-    color: '#2563EB',
-    fontSize: 13,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  failedBanner: {
-    backgroundColor: '#FEF2F2',
-    borderWidth: 1,
-    borderColor: '#FECACA',
-    borderRadius: 10,
-    padding: 12,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  failedText: {
-    color: '#DC2626',
-    fontSize: 12,
-    fontWeight: '800',
-    marginBottom: 8,
-  },
-  grantBtn: {
-    backgroundColor: '#DC2626',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  grantBtnText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  startBtn: {
-    marginTop: 4,
-    backgroundColor: '#2563EB',
-  },
-});
