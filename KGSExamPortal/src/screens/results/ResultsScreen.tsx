@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
   Animated,
 } from 'react-native';
+import tw from 'twrnc';
 import { Header } from '../../components/common/Header';
 import { Card } from '../../components/common/Card';
 import { FinalResult } from '../../types';
@@ -42,51 +42,51 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({ onBack }) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={tw`flex-1 bg-slate-50`}>
       <Header title="Examination History" onBack={onBack} />
 
       {loading ? (
-        <View style={styles.center}>
+        <View style={tw`flex-1 justify-center items-center p-6`}>
           <ActivityIndicator size="large" color="#2563EB" />
         </View>
       ) : results.length === 0 ? (
-        <View style={styles.center}>
-          <Text style={styles.emptyText}>No examination history found.</Text>
+        <View style={tw`flex-1 justify-center items-center p-6`}>
+          <Text style={tw`text-sm text-slate-500`}>No examination history found.</Text>
         </View>
       ) : (
-        <Animated.View style={[{ flex: 1 }, { opacity: fadeAnim }]}>
+        <Animated.View style={[tw`flex-1`, { opacity: fadeAnim }]}>
           <FlatList
             data={results}
             keyExtractor={(item) => item.attemptId}
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={tw`p-4 pb-10`}
             renderItem={({ item }) => {
               const isReleased = item.releaseStatus === 'RELEASED' && item.marksScored !== null;
               return (
-                <Card style={styles.resultCard}>
-                  <Text style={styles.examName}>{item.examName}</Text>
-                  <View style={styles.statusBadge}>
-                    <Text style={styles.statusText}>Submitted</Text>
+                <Card style={tw`p-4.5 mb-3 rounded-2xl`}>
+                  <Text style={tw`text-base font-extrabold text-slate-900 mb-1`}>{item.examName}</Text>
+                  <View style={tw`self-start bg-blue-50 border border-blue-200 px-2 py-0.5 rounded mb-1.5`}>
+                    <Text style={tw`text-xs font-bold text-blue-600`}>Submitted</Text>
                   </View>
-                  <Text style={styles.dateText}>
+                  <Text style={tw`text-xs text-slate-500 mb-3`}>
                     Submitted on: {new Date(item.submittedAt).toLocaleDateString()}
                   </Text>
 
                   {isReleased ? (
-                    <View style={styles.marksContainer}>
-                      <Text style={styles.marksValue}>
+                    <View style={tw`bg-green-50 border border-green-300 rounded-xl p-3 flex-row items-center justify-between`}>
+                      <Text style={tw`text-sm font-extrabold text-green-700`}>
                         Marks: {item.marksScored} / {item.maximumMarks ?? 'N/A'}
                       </Text>
-                      <TouchableOpacity style={styles.actionBtn} activeOpacity={0.8}>
-                        <Text style={styles.actionText}>VIEW DETAILS</Text>
+                      <TouchableOpacity style={tw`bg-green-600 px-3 py-1.5 rounded-lg`} activeOpacity={0.8}>
+                        <Text style={tw`text-white text-xs font-extrabold`}>VIEW DETAILS</Text>
                       </TouchableOpacity>
                     </View>
                   ) : (
-                    <View style={styles.pendingContainer}>
-                      <Text style={styles.pendingText}>
+                    <View style={tw`bg-amber-50 border border-amber-300 rounded-xl p-3 flex-row items-center justify-between`}>
+                      <Text style={tw`text-sm font-bold text-amber-800`}>
                         Results Pending
                       </Text>
-                      <TouchableOpacity style={styles.pendingBtn} activeOpacity={0.8}>
-                        <Text style={styles.actionText}>VIEW STATUS</Text>
+                      <TouchableOpacity style={tw`bg-amber-600 px-3 py-1.5 rounded-lg`} activeOpacity={0.8}>
+                        <Text style={tw`text-white text-xs font-extrabold`}>VIEW STATUS</Text>
                       </TouchableOpacity>
                     </View>
                   )}
@@ -99,101 +99,3 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({ onBack }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#64748B',
-  },
-  listContent: {
-    padding: 16,
-  },
-  resultCard: {
-    padding: 18,
-    marginBottom: 12,
-    borderRadius: 16,
-  },
-  examName: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 4,
-  },
-  statusBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#EFF6FF',
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginBottom: 6,
-  },
-  statusText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#2563EB',
-  },
-  dateText: {
-    fontSize: 12,
-    color: '#64748B',
-    marginBottom: 12,
-  },
-  marksContainer: {
-    backgroundColor: '#F0FDF4',
-    borderWidth: 1,
-    borderColor: '#86EFAC',
-    borderRadius: 10,
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  marksValue: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#15803D',
-  },
-  pendingContainer: {
-    backgroundColor: '#FEF3C7',
-    borderWidth: 1,
-    borderColor: '#FCD34D',
-    borderRadius: 10,
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  pendingText: {
-    fontSize: 14,
-    color: '#92400E',
-    fontWeight: '700',
-  },
-  actionBtn: {
-    backgroundColor: '#16A34A',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  pendingBtn: {
-    backgroundColor: '#D97706',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  actionText: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '800',
-  },
-});
