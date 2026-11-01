@@ -1,0 +1,60 @@
+name: Build iOS Application (.ipa)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    name: Build iOS App (.ipa)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: KGSExamPortal/package-lock.json
+
+      - name: Install npm dependencies
+        run: |
+          cd KGSExamPortal
+          npm ci || npm install
+
+      - name: Install CocoaPods
+        run: |
+          cd KGSExamPortal/ios
+          pod install
+
+      - name: Build iOS Release App
+        run: |
+          cd KGSExamPortal
+          xcodebuild -workspace ios/KGSExamPortal.xcworkspace \
+            -scheme KGSExamPortal \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath ios/build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            PROVISIONING_PROFILE_SPECIFIER=""
+
+      - name: Package App into .ipa File
+        run: |
+          cd KGSExamPortal/ios
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/KGSExamPortal.app Payload/
+          zip -r KGSExamPortal.ipa Payload
+
+      - name: Upload iOS .ipa Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: KGSExamPortal-iOS
+          path: KGSExamPortal/ios/KGSExamPortal.ipa
+          retention-days: 14
