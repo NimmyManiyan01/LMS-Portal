@@ -40,14 +40,22 @@ export function AssignStudentsModal({
   onAssign,
 }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
   const visible = useMemo(
-    () =>
-      students.filter((student) =>
-        `${student.studentId} ${student.fullName} ${student.email}`
+    () => {
+      const query = search.trim().toLowerCase()
+      const selectedCollege = college.trim().toLowerCase()
+      return students.filter((student) => {
+        const studentCollege = (student.college || "").trim().toLowerCase()
+        const matchesCollege =
+          !selectedCollege || studentCollege === selectedCollege
+        const searchable = `${student.studentId} ${student.fullName} ${student.email} ${student.college || ""} ${(student as Student & { branch?: string }).branch || ""} ${(student as Student & { passOutYear?: string | number }).passOutYear || ""}`
           .toLowerCase()
-          .includes(search.toLowerCase()),
-      ),
-    [students, search],
+        return matchesCollege && (!query || searchable.includes(query))
+      })
+    },
+    [students, search, college],
   )
   const groups = useMemo(
     () =>
@@ -80,16 +88,21 @@ export function AssignStudentsModal({
     setActiveCollege((current) => (current === name ? "" : name))
 
   useEffect(() => {
-    const previouslyFocused = document.activeElement as HTMLElement | null
     const dialog = dialogRef.current
     const focusableSelector =
       'button:not([disabled]), input:not([disabled]), select:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
     dialog?.querySelector<HTMLElement>(focusableSelector)?.focus()
+  }, [])
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    const focusableSelector =
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault()
-        onClose()
+        onCloseRef.current()
         return
       }
       if (event.key !== "Tab" || !dialog) return
@@ -112,9 +125,8 @@ export function AssignStudentsModal({
     document.addEventListener("keydown", handleKeyDown)
     return () => {
       document.removeEventListener("keydown", handleKeyDown)
-      previouslyFocused?.focus()
     }
-  }, [onClose])
+  }, [])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">

@@ -779,11 +779,11 @@ router.put(
   async (req, res) => {
     const exam = await Exam.findById(req.params.id);
     if (!exam) return res.status(404).json({ error: "Examination not found" });
-    if (exam.status !== "SCHEDULED")
+    if (!["SCHEDULED", "ACTIVE", "LIVE"].includes(exam.status))
       return res
         .status(409)
         .json({
-          error: "Students can only be assigned to scheduled examinations.",
+          error: "Students can only be assigned to scheduled or active examinations.",
         });
     const publishedSet = await PaperSet.findOne({
       examId: exam._id,
@@ -1124,10 +1124,45 @@ router.get(
         .send(Buffer.from(buffer));
     }
     if (format === "pdf") {
-      const text =
-        "KGS QUESTION IMPORT TEMPLATE\\n\\nQuestion 1: [Question Text]\\nA. [Option A]\\nB. [Option B]\\nC. [Option C]\\nD. [Option D]\\nCorrect Answer: A\\nCategory: [Category]\\nDifficulty: Easy\\nMarks: 1\\nExplanation: [Optional]\\nStatus: Draft";
-      const stream = `BT /F1 11 Tf 50 760 Td (${text.replace(/[()]/g, "")}) Tj ET`;
-      const pdf = `%PDF-1.4\\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\\n2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj\\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>endobj\\n4 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\\n5 0 obj<</Length ${stream.length}>>stream\\n${stream}\\nendstream endobj\\ntrailer<</Root 1 0 R>>\\n%%EOF`;
+      const lines = [
+        "KGS QUESTION IMPORT TEMPLATE",
+        "",
+        "Question 1: [Question Text]",
+        "A. [Option A]",
+        "B. [Option B]",
+        "C. [Option C]",
+        "D. [Option D]",
+        "Correct Answer: A",
+        "Category: [Category]",
+        "Difficulty: Easy",
+        "Marks: 1",
+        "Explanation: [Optional]",
+        "Status: Draft",
+      ];
+      const escapePdfText = (value) =>
+        String(value).replace(/[\\()]/g, (character) => `\\${character}`);
+      const stream = [
+        "BT",
+        "/F1 11 Tf",
+        "50 760 Td",
+        ...lines.flatMap((line, index) => [
+          index ? "0 -18 Td" : "",
+          `(${escapePdfText(line)}) Tj`,
+        ]),
+        "ET",
+      ].filter(Boolean).join("\n");
+      const pdf = [
+        "%PDF-1.4",
+        "1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj",
+        "2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj",
+        "3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>endobj",
+        "4 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj",
+        `5 0 obj<</Length ${Buffer.byteLength(stream, "latin1")}>>stream`,
+        stream,
+        "endstream endobj",
+        "trailer<</Root 1 0 R>>",
+        "%%EOF",
+      ].join("\n");
       return res
         .set(
           "Content-Disposition",

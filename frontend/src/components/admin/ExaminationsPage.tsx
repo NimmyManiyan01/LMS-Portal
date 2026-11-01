@@ -427,6 +427,7 @@ export function ExaminationsPage({
       setAssignmentColleges(data.colleges || [])
 
       setAssignmentCollege("")
+      setAssignmentSearch("")
       setAssignedIds(data.assignedStudentIds || [])
     } catch (cause) {
       setMessage(
@@ -675,7 +676,7 @@ export function ExaminationsPage({
                           Schedule
                         </button>
                       )}
-                      {e.status === "SCHEDULED" && (
+                      {["SCHEDULED", "ACTIVE", "LIVE"].includes(e.status) && (
                         <button
                           className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors bg-transparent border-none p-0"
                           onClick={() => void openAssignment(e)}
