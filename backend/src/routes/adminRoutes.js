@@ -299,8 +299,8 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
     attemptNumber: result.attemptNumber || null,
   }));
   const marksFilter = String(req.query.marksFilter || "").trim();
-  const minScore = req.query.minScore ? Number(req.query.minScore) : null;
-  const maxScore = req.query.maxScore ? Number(req.query.maxScore) : null;
+  const minScore = req.query.minScore !== undefined && req.query.minScore !== null && req.query.minScore !== "" ? Number(req.query.minScore) : null;
+  const maxScore = req.query.maxScore !== undefined && req.query.maxScore !== null && req.query.maxScore !== "" ? Number(req.query.maxScore) : null;
   const releaseStatusFilter = String(req.query.releaseStatus || "").trim();
 
   const filteredRows = allRows.filter((row) => {

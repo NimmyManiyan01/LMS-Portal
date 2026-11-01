@@ -37,38 +37,33 @@ async function buildWorkbook(filters = {}) {
     maxScore,
   } = filters;
 
-  const studentFilter = college ? { college } : {};
-  const resultFilter = {
-    ...(examId && mongoose.isValidObjectId(examId) ? { examId } : {}),
-  };
+  const query = {};
+  if (examId && mongoose.isValidObjectId(examId)) {
+    query.examId = examId;
+  }
 
-  const students = await Student.find(studentFilter).lean();
-  const scopedResultFilter = college
-    ? {
-        ...resultFilter,
-        studentId: { $in: students.map((student) => student._id) },
-      }
-    : resultFilter;
+  const results = await FinalResult.find(query)
+    .populate("examId", "title code totalMarks")
+    .populate("studentId", "studentId fullName email college branch passOutYear createdAt emailVerified phone")
+    .sort({ submittedAt: -1, finalizedAt: -1 })
+    .lean();
 
-  const [exams, results, attempts, sets] = await Promise.all([
-    Exam.find(examId && mongoose.isValidObjectId(examId) ? { _id: examId } : {}).lean(),
-    FinalResult.find(scopedResultFilter).lean(),
-    Attempt.find(examId && mongoose.isValidObjectId(examId) ? { examId } : {}).lean(),
-    PaperSet.find(examId && mongoose.isValidObjectId(examId) ? { examId } : {}).lean(),
-  ]);
-
+  const exams = await Exam.find({ status: { $ne: "CLOSED" } }).lean();
+  const sets = await PaperSet.find({}).lean();
+  const students = await Student.find({}).lean();
   const examMap = new Map(exams.map((e) => [String(e._id), e]));
-  const studentMap = new Map(students.map((s) => [String(s._id), s]));
-  const setMap = new Map(sets.map((s) => [String(s._id), s]));
+
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "KGS Exam Portal";
 
   // Build raw result rows
   let resultRows = results.map((r) => {
-    const student = studentMap.get(String(r.studentId));
-    const exam = examMap.get(String(r.examId));
+    const student = r.studentId || {};
+    const exam = r.examId || {};
     const scored = Number(r.marksScored || 0);
-    const maxMarks = Number(r.maximumMarks ?? r.maxMarks ?? exam?.totalMarks ?? 100);
+    const maxMarks = Number(
+      r.maximumMarks ?? r.maxMarks ?? exam?.totalMarks ?? 100,
+    );
     const percentage = maxMarks > 0 ? (scored / maxMarks) * 100 : 0;
     const performance =
       percentage >= 75
@@ -83,7 +78,7 @@ async function buildWorkbook(filters = {}) {
       Email: student?.email || "—",
       College: student?.college || "College Not Specified",
       "Exam Name": exam?.title || "—",
-      "Exam Code": exam?.code || String(r.examId),
+      "Exam Code": exam?.code || String(r.examId || "—"),
       "Attempt ID": r.attemptId,
       "Submission Date": r.submittedAt || r.finalizedAt
         ? new Date(r.submittedAt || r.finalizedAt).toLocaleString()
@@ -101,6 +96,7 @@ async function buildWorkbook(filters = {}) {
       _rawStudentName: student?.fullName || "",
       _rawStudentId: student?.studentId || "",
       _rawEmail: student?.email || "",
+      _rawCollege: student?.college || "",
       _rawExamTitle: exam?.title || "",
       _rawExamCode: exam?.code || "",
     };
@@ -108,7 +104,7 @@ async function buildWorkbook(filters = {}) {
 
   // Apply filters to resultRows matching the Results Page filters
   if (college) {
-    resultRows = resultRows.filter((r) => r.College === college);
+    resultRows = resultRows.filter((r) => r._rawCollege === college);
   }
 
   if (search && String(search).trim()) {
@@ -128,13 +124,20 @@ async function buildWorkbook(filters = {}) {
     }
   }
 
-  if (minScore !== undefined && minScore !== null && Number.isFinite(Number(minScore))) {
-    const minVal = Number(minScore);
+  const minVal =
+    minScore !== undefined && minScore !== null && String(minScore).trim() !== ""
+      ? Number(minScore)
+      : null;
+  const maxVal =
+    maxScore !== undefined && maxScore !== null && String(maxScore).trim() !== ""
+      ? Number(maxScore)
+      : null;
+
+  if (minVal !== null && Number.isFinite(minVal)) {
     resultRows = resultRows.filter((r) => r._rawScored >= minVal);
   }
 
-  if (maxScore !== undefined && maxScore !== null && Number.isFinite(Number(maxScore))) {
-    const maxVal = Number(maxScore);
+  if (maxVal !== null && Number.isFinite(maxVal)) {
     resultRows = resultRows.filter((r) => r._rawScored <= maxVal);
   }
 
