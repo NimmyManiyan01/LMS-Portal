@@ -28,17 +28,26 @@ router.get("/", authenticate, async (req, res) => {
   }
   const studentId = req.student._id || req.student.id;
   const results = await FinalResult.find({ studentId }).lean();
-  const exams = await Exam.find({ _id: { $in: results.map((r) => r.examId) } })
-    .select("title code totalMarks")
-    .lean();
+  const examIds = [
+    ...new Set(
+      results
+        .map((r) => r.examId)
+        .filter((id) => id && mongoose.isValidObjectId(id)),
+    ),
+  ];
+  const exams = examIds.length
+    ? await Exam.find({ _id: { $in: examIds } }).select("title code totalMarks").lean()
+    : [];
   const examMap = new Map(exams.map((exam) => [String(exam._id), exam]));
-  const sets = await PaperSet.find({
-    examId: { $in: results.map((r) => r.examId) },
-    status: "PUBLISHED",
-    active: true,
-  })
-    .select("examId totalMarks blueprint")
-    .lean();
+  const sets = examIds.length
+    ? await PaperSet.find({
+        examId: { $in: examIds },
+        status: "PUBLISHED",
+        active: true,
+      })
+        .select("examId totalMarks blueprint")
+        .lean()
+    : [];
   const setMarks = new Map(
     sets.map((set) => [
       String(set.examId),

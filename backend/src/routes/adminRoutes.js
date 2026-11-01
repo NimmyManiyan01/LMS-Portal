@@ -152,15 +152,19 @@ router.get("/exams", authenticate, adminOnly, async (_req, res) => {
     .sort({ createdAt: -1 })
     .lean();
 
-  const examIds = exams.map((e) => e._id);
-  const paperSets = await PaperSet.find({
-    examId: { $in: examIds },
-  })
-    .select(
-      "_id examId name code status durationMinutes totalMarks passingMarks questionIds active",
-    )
-    .sort({ createdAt: -1 })
-    .lean();
+  const examIds = exams
+    .map((e) => e._id)
+    .filter((id) => id && mongoose.isValidObjectId(id));
+  const paperSets = examIds.length
+    ? await PaperSet.find({
+        examId: { $in: examIds },
+      })
+        .select(
+          "_id examId name code status durationMinutes totalMarks passingMarks questionIds active",
+        )
+        .sort({ createdAt: -1 })
+        .lean()
+    : [];
 
   const setsByExam = new Map();
   paperSets.forEach((set) => {
@@ -238,17 +242,19 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
   const examIds = [
     ...new Set(
       results
-        .map((result) => String(result.examId?._id || result.examId))
-        .filter(Boolean),
+        .map((result) => result.examId?._id || result.examId)
+        .filter((id) => id && mongoose.isValidObjectId(id)),
     ),
   ];
-  const publishedSets = await PaperSet.find({
-    examId: { $in: examIds },
-    status: "PUBLISHED",
-    active: true,
-  })
-    .select("examId totalMarks")
-    .lean();
+  const publishedSets = examIds.length
+    ? await PaperSet.find({
+        examId: { $in: examIds },
+        status: "PUBLISHED",
+        active: true,
+      })
+        .select("examId totalMarks")
+        .lean()
+    : [];
   const paperMarks = new Map();
   publishedSets.forEach((set) => {
     const key = String(set.examId);
