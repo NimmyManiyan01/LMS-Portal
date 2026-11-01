@@ -126,6 +126,11 @@ export function ResultsPage({ PageHead }: Props) {
           body: JSON.stringify({
             examId: examId || undefined,
             college: college || undefined,
+            search: search.trim() || undefined,
+            marksFilter: marksFilter || undefined,
+            minScore: minScore.trim() ? Number(minScore) : undefined,
+            maxScore: maxScore.trim() ? Number(maxScore) : undefined,
+            releaseStatus: releaseStatus || undefined,
           }),
         },
         true,

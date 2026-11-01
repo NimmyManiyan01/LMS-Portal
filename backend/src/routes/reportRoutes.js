@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const mongoose = require("mongoose");
 const ExcelJS = require("exceljs");
 const Student = require("../models/Student");
 const Exam = require("../models/Exam");
@@ -26,12 +27,21 @@ function addRows(sheet, columns, rows) {
   sheet.views = [{ state: "frozen", ySplit: 1 }];
 }
 async function buildWorkbook(filters = {}) {
-  const { examId, college, releaseStatus } = filters;
+  const {
+    examId,
+    college,
+    releaseStatus,
+    search,
+    marksFilter,
+    minScore,
+    maxScore,
+  } = filters;
+
   const studentFilter = college ? { college } : {};
   const resultFilter = {
-    ...(examId ? { examId } : {}),
-    ...(releaseStatus ? { releaseStatus } : {}),
+    ...(examId && mongoose.isValidObjectId(examId) ? { examId } : {}),
   };
+
   const students = await Student.find(studentFilter).lean();
   const scopedResultFilter = college
     ? {
@@ -39,17 +49,107 @@ async function buildWorkbook(filters = {}) {
         studentId: { $in: students.map((student) => student._id) },
       }
     : resultFilter;
+
   const [exams, results, attempts, sets] = await Promise.all([
-    Exam.find(examId ? { _id: examId } : {}).lean(),
+    Exam.find(examId && mongoose.isValidObjectId(examId) ? { _id: examId } : {}).lean(),
     FinalResult.find(scopedResultFilter).lean(),
-    Attempt.find(examId ? { examId } : {}).lean(),
-    PaperSet.find(examId ? { examId } : {}).lean(),
+    Attempt.find(examId && mongoose.isValidObjectId(examId) ? { examId } : {}).lean(),
+    PaperSet.find(examId && mongoose.isValidObjectId(examId) ? { examId } : {}).lean(),
   ]);
+
   const examMap = new Map(exams.map((e) => [String(e._id), e]));
   const studentMap = new Map(students.map((s) => [String(s._id), s]));
   const setMap = new Map(sets.map((s) => [String(s._id), s]));
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "KGS Exam Portal";
+
+  // Build raw result rows
+  let resultRows = results.map((r) => {
+    const student = studentMap.get(String(r.studentId));
+    const exam = examMap.get(String(r.examId));
+    const scored = Number(r.marksScored || 0);
+    const maxMarks = Number(r.maximumMarks ?? r.maxMarks ?? exam?.totalMarks ?? 100);
+    const percentage = maxMarks > 0 ? (scored / maxMarks) * 100 : 0;
+    const performance =
+      percentage >= 75
+        ? "Top Scorer"
+        : percentage >= 35
+          ? "Passed"
+          : "Failed";
+
+    return {
+      "Student ID": student?.studentId || "—",
+      "Student Name": student?.fullName || "—",
+      Email: student?.email || "—",
+      College: student?.college || "College Not Specified",
+      "Exam Name": exam?.title || "—",
+      "Exam Code": exam?.code || String(r.examId),
+      "Attempt ID": r.attemptId,
+      "Submission Date": r.submittedAt || r.finalizedAt
+        ? new Date(r.submittedAt || r.finalizedAt).toLocaleString()
+        : "—",
+      "Marks Scored": scored,
+      "Maximum Marks": maxMarks,
+      Percentage: `${Math.round(percentage)}%`,
+      Performance: performance,
+      "Evaluation Status": "FINALIZED",
+      "Release Status": r.releaseStatus || "PENDING",
+      _rawScored: scored,
+      _rawMax: maxMarks,
+      _rawPercentage: percentage,
+      _rawReleaseStatus: r.releaseStatus || "PENDING",
+      _rawStudentName: student?.fullName || "",
+      _rawStudentId: student?.studentId || "",
+      _rawEmail: student?.email || "",
+      _rawExamTitle: exam?.title || "",
+      _rawExamCode: exam?.code || "",
+    };
+  });
+
+  // Apply filters to resultRows matching the Results Page filters
+  if (college) {
+    resultRows = resultRows.filter((r) => r.College === college);
+  }
+
+  if (search && String(search).trim()) {
+    const term = String(search).trim().toLowerCase();
+    resultRows = resultRows.filter((r) =>
+      `${r._rawStudentId} ${r._rawStudentName} ${r._rawEmail} ${r._rawExamTitle} ${r._rawExamCode}`
+        .toLowerCase()
+        .includes(term),
+    );
+  }
+
+  if (releaseStatus) {
+    if (releaseStatus === "RELEASED") {
+      resultRows = resultRows.filter((r) => r._rawReleaseStatus === "RELEASED");
+    } else if (releaseStatus === "AWAITING") {
+      resultRows = resultRows.filter((r) => r._rawReleaseStatus !== "RELEASED");
+    }
+  }
+
+  if (minScore !== undefined && minScore !== null && Number.isFinite(Number(minScore))) {
+    const minVal = Number(minScore);
+    resultRows = resultRows.filter((r) => r._rawScored >= minVal);
+  }
+
+  if (maxScore !== undefined && maxScore !== null && Number.isFinite(Number(maxScore))) {
+    const maxVal = Number(maxScore);
+    resultRows = resultRows.filter((r) => r._rawScored <= maxVal);
+  }
+
+  if (marksFilter) {
+    resultRows = resultRows.filter((r) => {
+      const pct = r._rawPercentage;
+      if (marksFilter === "PASSED") return pct >= 35;
+      if (marksFilter === "FAILED") return pct < 35;
+      if (marksFilter === "HIGH") return pct >= 75;
+      if (marksFilter === "AVERAGE") return pct >= 40 && pct < 75;
+      if (marksFilter === "LOW") return pct < 40;
+      return true;
+    });
+  }
+
   addRows(
     workbook.addWorksheet("Student Registration"),
     [
@@ -75,6 +175,7 @@ async function buildWorkbook(filters = {}) {
       "Registered At": s.createdAt,
     })),
   );
+
   addRows(
     workbook.addWorksheet("Examination Results"),
     [
@@ -88,26 +189,19 @@ async function buildWorkbook(filters = {}) {
       "Submission Date",
       "Marks Scored",
       "Maximum Marks",
+      "Percentage",
+      "Performance",
       "Evaluation Status",
       "Release Status",
     ],
-    results.map((r) => ({
-      "Student ID": studentMap.get(String(r.studentId))?.studentId,
-      "Student Name": studentMap.get(String(r.studentId))?.fullName,
-      Email: studentMap.get(String(r.studentId))?.email,
-      College: studentMap.get(String(r.studentId))?.college,
-      "Exam Name": examMap.get(String(r.examId))?.title,
-      "Exam Code": examMap.get(String(r.examId))?.code || String(r.examId),
-      "Attempt ID": r.attemptId,
-      "Submission Date": r.submittedAt || r.finalizedAt,
-      "Marks Scored": r.marksScored,
-      "Maximum Marks": r.maximumMarks,
-      "Evaluation Status": "FINALIZED",
-      "Release Status": r.releaseStatus || "PENDING",
-    })),
+    resultRows,
   );
+
+  const filteredAttemptIds = new Set(resultRows.map((r) => r["Attempt ID"]));
+  const filteredResults = results.filter((r) => filteredAttemptIds.has(r.attemptId));
+
   const summary = sets.map((set) => {
-    const marks = results
+    const marks = filteredResults
       .filter((r) => String(r.assignedSetId) === String(set._id))
       .map((r) => Number(r.marksScored));
     return {
@@ -115,12 +209,13 @@ async function buildWorkbook(filters = {}) {
       "Set ID": set.code,
       Candidates: marks.length,
       "Mean Marks": marks.length
-        ? marks.reduce((a, b) => a + b, 0) / marks.length
+        ? (marks.reduce((a, b) => a + b, 0) / marks.length).toFixed(1)
         : 0,
       "Lowest Marks": marks.length ? Math.min(...marks) : 0,
       "Highest Marks": marks.length ? Math.max(...marks) : 0,
     };
   });
+
   addRows(
     workbook.addWorksheet("Set Summary"),
     [
@@ -133,6 +228,7 @@ async function buildWorkbook(filters = {}) {
     ],
     summary,
   );
+
   return workbook;
 }
 router.post(
