@@ -42,15 +42,33 @@ async function finalizeAttempt({
           status: 409,
         });
       if (answers && typeof answers === "object") {
-        for (const [questionId, selectedOptionId] of Object.entries(answers))
+        const entries = Array.isArray(answers)
+          ? answers.map((a) => [
+              a.questionId || a.id || a._id,
+              typeof a.selectedOptionId !== "undefined"
+                ? a.selectedOptionId
+                : typeof a === "string"
+                  ? a
+                  : a.value,
+            ])
+          : Object.entries(answers).map(([qId, val]) => [
+              qId,
+              typeof val === "object" && val !== null
+                ? val.selectedOptionId
+                : val,
+            ]);
+
+        for (const [questionId, selectedOptionId] of entries) {
+          if (!questionId || !mongoose.isValidObjectId(questionId)) continue;
           await Answer.updateOne(
             { attemptId, questionId },
             {
-              $set: { selectedOptionId, savedAt: new Date() },
+              $set: { selectedOptionId: selectedOptionId || null, savedAt: new Date() },
               $setOnInsert: { attemptId, questionId, version: 1 },
             },
             { upsert: true, session },
           );
+        }
       }
       const saved = await Answer.find({ attemptId }).session(session).lean();
       const questions = await Question.find({

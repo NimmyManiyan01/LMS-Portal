@@ -657,6 +657,7 @@ export default function App() {
           const data = await response.json()
           setAdminUser(data.user)
           setAdmin(true)
+          setActive("Overview")
         })
         .catch(() => navigateEntry("/login"))
       return
@@ -800,6 +801,7 @@ export default function App() {
             if (user.role === "ADMIN") {
               setAdminUser(user)
               setAdmin(true)
+              setActive("Overview")
               navigateEntry("/admin/dashboard")
             } else {
               setStudent(user)
@@ -2277,7 +2279,7 @@ function AdminDashboard() {
 
   return (
     <>
-      <PageHead admin student={null} />
+      <PageHead admin student={null} showCreateAction={false} />
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 p-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm">

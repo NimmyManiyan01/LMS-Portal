@@ -41,6 +41,7 @@ export const ExamPlayerScreen: React.FC<ExamPlayerScreenProps> = ({
   const [paletteVisible, setPaletteVisible] = useState(false);
   const [submitModalVisible, setSubmitModalVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // App state listener for detecting app backgrounding / tab switching
   useEffect(() => {
@@ -85,13 +86,21 @@ export const ExamPlayerScreen: React.FC<ExamPlayerScreenProps> = ({
     }
   };
 
+  const handleOpenSubmitModal = () => {
+    setSubmitError(null);
+    setSubmitModalVisible(true);
+  };
+
   const handleConfirmSubmit = async () => {
     setSubmitting(true);
-    const success = await submitExam(true);
+    setSubmitError(null);
+    const res = await submitExam(true);
     setSubmitting(false);
-    if (success) {
+    if (res.success) {
       setSubmitModalVisible(false);
       onExamSubmitted();
+    } else {
+      setSubmitError(res.error || 'Unable to submit examination. Please verify connection.');
     }
   };
 
@@ -147,7 +156,7 @@ export const ExamPlayerScreen: React.FC<ExamPlayerScreenProps> = ({
         ) : (
           <TouchableOpacity
             style={tw`bg-green-600 px-4 py-2.5 rounded-xl`}
-            onPress={() => setSubmitModalVisible(true)}
+            onPress={handleOpenSubmitModal}
           >
             <Text style={tw`text-white text-sm font-bold`}>Submit Exam</Text>
           </TouchableOpacity>
@@ -177,8 +186,12 @@ export const ExamPlayerScreen: React.FC<ExamPlayerScreenProps> = ({
         questions={questions}
         answers={answers}
         onConfirm={handleConfirmSubmit}
-        onCancel={() => setSubmitModalVisible(false)}
+        onCancel={() => {
+          setSubmitModalVisible(false);
+          setSubmitError(null);
+        }}
         loading={submitting}
+        error={submitError}
       />
     </View>
   );

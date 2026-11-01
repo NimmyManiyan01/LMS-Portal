@@ -19,7 +19,7 @@ interface ExamContextType {
   clearSelection: (questionId: string) => Promise<void>;
   toggleMarkForReview: (questionId: string) => Promise<void>;
   reportViolation: (eventType: 'TAB_HIDDEN' | 'FULLSCREEN_EXIT' | 'COPY' | 'PASTE' | 'SCREENSHOT' | 'CAMERA_INTERRUPTED' | 'MULTIPLE_PERSON') => Promise<void>;
-  submitExam: (manual?: boolean) => Promise<boolean>;
+  submitExam: (manual?: boolean) => Promise<{ success: boolean; error?: string }>;
   submitFeedback: (rating: number, comment?: string) => Promise<boolean>;
   resetExamState: () => void;
 }
@@ -40,7 +40,7 @@ const ExamContext = createContext<ExamContextType>({
   clearSelection: async () => {},
   toggleMarkForReview: async () => {},
   reportViolation: async () => {},
-  submitExam: async () => false,
+  submitExam: async () => ({ success: false }),
   submitFeedback: async () => false,
   resetExamState: () => {},
 });
@@ -236,26 +236,45 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const submitExam = async (manual: boolean = true) => {
-    const currentAttemptId = String(attempt?.attemptId || (attempt as any)?._id || '');
-    if (!currentAttemptId || currentAttemptId === 'undefined' || isSubmitted) return false;
+  const submitExam = async (
+    manual: boolean = true
+  ): Promise<{ success: boolean; error?: string }> => {
+    const currentAttemptId = String(
+      attempt?.attemptId || (attempt as any)?._id || (attempt as any)?.id || ''
+    );
+    if (!currentAttemptId || currentAttemptId === 'undefined') {
+      return { success: false, error: 'Invalid examination session. Please reload.' };
+    }
+
+    if (isSubmitted) {
+      return { success: true };
+    }
 
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
 
-    const currentAnswersArray = Array.from(answers.values());
+    const answersMap: Record<string, string> = {};
+    answers.forEach((ans, qId) => {
+      if (ans.selectedOptionId) {
+        answersMap[qId] = ans.selectedOptionId;
+      }
+    });
+
     const res = await attemptApi.submitAttempt(
       currentAttemptId,
-      currentAnswersArray
+      answersMap
     );
 
     if (res.data) {
       setIsSubmitted(true);
-      return true;
+      return { success: true };
     }
-    return false;
+    return {
+      success: false,
+      error: res.error || 'Failed to submit examination. Please verify connection and try again.',
+    };
   };
 
   const submitFeedback = async (rating: number, comment?: string) => {

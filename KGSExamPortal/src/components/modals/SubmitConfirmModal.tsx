@@ -11,6 +11,7 @@ interface SubmitConfirmModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   loading?: boolean;
+  error?: string | null;
 }
 
 export const SubmitConfirmModal: React.FC<SubmitConfirmModalProps> = ({
@@ -20,6 +21,7 @@ export const SubmitConfirmModal: React.FC<SubmitConfirmModalProps> = ({
   onConfirm,
   onCancel,
   loading = false,
+  error = null,
 }) => {
   let answered = 0;
   let marked = 0;
@@ -69,9 +71,17 @@ export const SubmitConfirmModal: React.FC<SubmitConfirmModalProps> = ({
             </View>
           </View>
 
-          <Text style={tw`text-xs text-red-600 font-semibold mb-4 text-center`}>
-            You cannot change answers after final submission.
-          </Text>
+          {error ? (
+            <View style={tw`bg-red-50 border border-red-200 p-3 rounded-xl mb-3.5`}>
+              <Text style={tw`text-xs text-red-600 font-bold text-center leading-4`}>
+                {error}
+              </Text>
+            </View>
+          ) : (
+            <Text style={tw`text-xs text-red-600 font-semibold mb-4 text-center`}>
+              You cannot change answers after final submission.
+            </Text>
+          )}
 
           <View style={tw`flex-row justify-between`}>
             <Button

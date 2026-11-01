@@ -50,7 +50,7 @@ export const saveAnswer = (
 
 export const submitAttempt = (
   attemptId: string,
-  answers?: Answer[]
+  answers?: Record<string, string> | Answer[]
 ) =>
   apiRequest<SubmitAttemptResponse>(`/attempts/${attemptId}/submit`, {
     method: 'POST',
