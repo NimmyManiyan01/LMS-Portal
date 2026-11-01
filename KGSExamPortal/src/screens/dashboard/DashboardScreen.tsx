@@ -125,6 +125,28 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <Text style={tw`text-xs text-blue-600 font-extrabold`}>{student?.studentId || 'KGS-STUDENT'}</Text>
           </View>
         </View>
+
+        {/* Quick Navigation Action Buttons */}
+        <View style={tw`flex-row items-center gap-2`}>
+          {onNavigateResults && (
+            <TouchableOpacity
+              style={tw`w-10 h-10 rounded-xl bg-slate-100 items-center justify-center border border-slate-200`}
+              onPress={onNavigateResults}
+              activeOpacity={0.7}
+            >
+              <Text style={tw`text-lg`}>📊</Text>
+            </TouchableOpacity>
+          )}
+          {onNavigateProfile && (
+            <TouchableOpacity
+              style={tw`w-10 h-10 rounded-xl bg-slate-100 items-center justify-center border border-slate-200`}
+              onPress={onNavigateProfile}
+              activeOpacity={0.7}
+            >
+              <Text style={tw`text-lg`}>👤</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </Animated.View>
 
       <Text style={tw`text-lg font-extrabold text-slate-900 mx-4.5 mt-5 mb-2.5 tracking-wide`}>My Examinations</Text>

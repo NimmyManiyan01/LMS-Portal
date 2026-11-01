@@ -146,28 +146,9 @@ export const RootNavigator: React.FC = () => {
     }
   };
 
-  const handleTabSelect = (tab: TabName) => {
-    setCurrentScreen(tab as ScreenName);
-  };
-
-  const activeTab: TabName =
-    currentScreen === 'RESULTS'
-      ? 'RESULTS'
-      : currentScreen === 'PROFILE'
-      ? 'PROFILE'
-      : 'DASHBOARD';
-
   return (
     <View style={tw`flex-1 relative bg-slate-50`}>
       {renderActiveScreen()}
-
-      {/* Floating Animated Bottom Navbar */}
-      {showNavbar && (
-        <FloatingBottomNavbar
-          currentTab={activeTab}
-          onSelectTab={handleTabSelect}
-        />
-      )}
     </View>
   );
 };
