@@ -298,14 +298,39 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
     releaseStatus: result.releaseStatus || "PENDING",
     attemptNumber: result.attemptNumber || null,
   }));
-  const filteredRows = allRows.filter(
-    (row) =>
-      (!college || row.student?.college === college) &&
-      (!search ||
-        `${row.student?.studentId || ""} ${row.student?.fullName || ""} ${row.student?.email || ""} ${row.exam?.title || ""} ${row.exam?.code || ""}`
-          .toLowerCase()
-          .includes(search)),
-  );
+  const marksFilter = String(req.query.marksFilter || "").trim();
+  const minScore = req.query.minScore ? Number(req.query.minScore) : null;
+  const maxScore = req.query.maxScore ? Number(req.query.maxScore) : null;
+  const releaseStatusFilter = String(req.query.releaseStatus || "").trim();
+
+  const filteredRows = allRows.filter((row) => {
+    if (college && row.student?.college !== college) return false;
+    if (
+      search &&
+      !`${row.student?.studentId || ""} ${row.student?.fullName || ""} ${row.student?.email || ""} ${row.exam?.title || ""} ${row.exam?.code || ""}`
+        .toLowerCase()
+        .includes(search)
+    )
+      return false;
+
+    if (releaseStatusFilter === "RELEASED" && row.releaseStatus !== "RELEASED") return false;
+    if (releaseStatusFilter === "AWAITING" && row.releaseStatus === "RELEASED") return false;
+
+    const scored = Number(row.marksScored || 0);
+    const maxMarks = Number(row.maximumMarks || 100);
+    const percentage = maxMarks > 0 ? (scored / maxMarks) * 100 : 0;
+
+    if (minScore !== null && Number.isFinite(minScore) && scored < minScore) return false;
+    if (maxScore !== null && Number.isFinite(maxScore) && scored > maxScore) return false;
+
+    if (marksFilter === "PASSED" && percentage < 35) return false;
+    if (marksFilter === "FAILED" && percentage >= 35) return false;
+    if (marksFilter === "HIGH" && percentage < 75) return false;
+    if (marksFilter === "AVERAGE" && (percentage < 40 || percentage >= 75)) return false;
+    if (marksFilter === "LOW" && percentage >= 40) return false;
+
+    return true;
+  });
   const selectedExam = examId
     ? exams.find((exam) => String(exam._id) === String(examId))
     : null;

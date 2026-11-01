@@ -13,6 +13,10 @@ export function ResultsPage({ PageHead }: Props) {
   const [examId, setExamId] = useState("")
   const [college, setCollege] = useState("")
   const [search, setSearch] = useState("")
+  const [marksFilter, setMarksFilter] = useState("")
+  const [minScore, setMinScore] = useState("")
+  const [maxScore, setMaxScore] = useState("")
+  const [releaseStatus, setReleaseStatus] = useState("")
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -30,6 +34,11 @@ export function ResultsPage({ PageHead }: Props) {
       if (examId) params.set("examId", examId)
       if (college) params.set("college", college)
       if (search.trim()) params.set("search", search.trim())
+      if (marksFilter) params.set("marksFilter", marksFilter)
+      if (minScore.trim()) params.set("minScore", minScore.trim())
+      if (maxScore.trim()) params.set("maxScore", maxScore.trim())
+      if (releaseStatus) params.set("releaseStatus", releaseStatus)
+
       const response = await authFetch(
         `${API_BASE_URL}/api/admin/results?${params}`,
         {},
@@ -46,7 +55,7 @@ export function ResultsPage({ PageHead }: Props) {
     } finally {
       setLoading(false)
     }
-  }, [examId, college, search, page])
+  }, [examId, college, search, marksFilter, minScore, maxScore, releaseStatus, page])
 
   useEffect(() => {
     void load()
@@ -176,15 +185,16 @@ export function ResultsPage({ PageHead }: Props) {
       </section>
 
       {/* Toolbar & Filters */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 mb-6 bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
-        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-center">
+      <div className="flex flex-col gap-3.5 mb-6 bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
+        {/* Row 1: General Filters */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
           <input
             value={search}
             onChange={(event) => {
               setSearch(event.target.value)
               setPage(1)
             }}
-            placeholder="Search student, ID, email, or examination"
+            placeholder="Search student, ID, email, or exam..."
             className="h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
           />
           <select
@@ -215,20 +225,95 @@ export function ResultsPage({ PageHead }: Props) {
               <option key={name}>{name}</option>
             ))}
           </select>
-          <button
-            className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer shadow-sm"
-            onClick={() => void load()}
+          <select
+            value={releaseStatus}
+            onChange={(event) => {
+              setReleaseStatus(event.target.value)
+              setPage(1)
+            }}
+            className="h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
           >
-            Refresh
-          </button>
+            <option value="">All Release Statuses</option>
+            <option value="RELEASED">Released Only</option>
+            <option value="AWAITING">Awaiting Release Only</option>
+          </select>
         </div>
-        <button
-          className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer shadow-sm disabled:opacity-50 whitespace-nowrap self-end md:self-auto"
-          disabled={busy === "export"}
-          onClick={() => void exportResults()}
-        >
-          {busy === "export" ? "Exporting..." : "Export Excel"}
-        </button>
+
+        {/* Row 2: Marks & Performance Filters */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-100">
+          <div className="w-full sm:w-auto flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+            <select
+              value={marksFilter}
+              onChange={(event) => {
+                setMarksFilter(event.target.value)
+                setPage(1)
+              }}
+              className="h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 font-medium focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+            >
+              <option value="">All Marks / Performance</option>
+              <option value="PASSED">Passed (≥ 35%)</option>
+              <option value="FAILED">Failed (&lt; 35%)</option>
+              <option value="HIGH">Top Performers (≥ 75%)</option>
+              <option value="AVERAGE">Average Performers (40% - 74%)</option>
+              <option value="LOW">Low Performers (&lt; 40%)</option>
+            </select>
+            <input
+              type="number"
+              min="0"
+              value={minScore}
+              onChange={(e) => {
+                setMinScore(e.target.value)
+                setPage(1)
+              }}
+              placeholder="Min Marks (e.g. 50)"
+              className="h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
+            />
+            <input
+              type="number"
+              min="0"
+              value={maxScore}
+              onChange={(e) => {
+                setMaxScore(e.target.value)
+                setPage(1)
+              }}
+              placeholder="Max Marks (e.g. 100)"
+              className="h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            {(marksFilter || minScore || maxScore || examId || college || releaseStatus || search) ? (
+              <button
+                className="h-10 px-3 text-xs font-semibold rounded-lg text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
+                onClick={() => {
+                  setSearch("")
+                  setExamId("")
+                  setCollege("")
+                  setMarksFilter("")
+                  setMinScore("")
+                  setMaxScore("")
+                  setReleaseStatus("")
+                  setPage(1)
+                }}
+              >
+                Reset Filters
+              </button>
+            ) : null}
+            <button
+              className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer shadow-sm"
+              onClick={() => void load()}
+            >
+              Refresh
+            </button>
+            <button
+              className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-sm shadow-blue-500/20 disabled:opacity-50 whitespace-nowrap"
+              disabled={busy === "export"}
+              onClick={() => void exportResults()}
+            >
+              {busy === "export" ? "Exporting..." : "Export Excel"}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Notice Banner */}
@@ -295,10 +380,32 @@ export function ResultsPage({ PageHead }: Props) {
                       </div>
                     </td>
                     <td className="px-4 py-3.5 font-mono text-xs text-slate-600 font-semibold">{row.attemptNumber || row.attemptId.slice(-8)}</td>
-                    <td className="px-4 py-3.5 font-bold text-slate-900">
-                      {row.maximumMarks === null
-                        ? "Unavailable"
-                        : `${row.marksScored} / ${row.maximumMarks}`}
+                    <td className="px-4 py-3.5">
+                      <div className="flex flex-col">
+                        <strong className="font-bold text-slate-900">
+                          {row.maximumMarks === null
+                            ? "Unavailable"
+                            : `${row.marksScored} / ${row.maximumMarks}`}
+                        </strong>
+                        {row.maximumMarks && row.maximumMarks > 0 ? (
+                          <span
+                            className={`inline-flex items-center self-start px-2 py-0.5 mt-1 rounded text-[10px] font-extrabold ${
+                              (row.marksScored / row.maximumMarks) * 100 >= 75
+                                ? "bg-purple-100 text-purple-800 border border-purple-200"
+                                : (row.marksScored / row.maximumMarks) * 100 >= 35
+                                  ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                                  : "bg-red-100 text-red-800 border border-red-200"
+                            }`}
+                          >
+                            {Math.round((row.marksScored / row.maximumMarks) * 100)}% •{" "}
+                            {(row.marksScored / row.maximumMarks) * 100 >= 75
+                              ? "Top Scorer"
+                              : (row.marksScored / row.maximumMarks) * 100 >= 35
+                                ? "Passed"
+                                : "Failed"}
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="px-4 py-3.5 text-slate-600 text-xs">
                       {row.submittedAt
