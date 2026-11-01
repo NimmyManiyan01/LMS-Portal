@@ -48,6 +48,20 @@ export function ExaminationsPage({
   const [assignmentSaving, setAssignmentSaving] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
   const [message, setMessage] = useState("")
+
+  // Paper Set Management Modal States
+  const [paperModalTarget, setPaperModalTarget] = useState<any>(null)
+  const [paperModalLoading, setPaperModalLoading] = useState(false)
+  const [paperModalMessage, setPaperModalMessage] = useState("")
+  const [paperModalSuccess, setPaperModalSuccess] = useState("")
+  const [paperForm, setPaperForm] = useState({
+    name: "",
+    passingMarks: "35",
+    totalMarks: "100",
+    durationMinutes: "60",
+    instructions: "Read all questions carefully before submitting.",
+  })
+
   const [form, setForm] = useState<any>({
     name: "",
     code: "",
@@ -246,6 +260,117 @@ export function ExaminationsPage({
           ? cause.message
           : "Unable to verify published paper sets.",
       )
+    }
+  }
+
+  const openPaperModal = (exam: any) => {
+    setMessage("")
+    setSuccessMessage("")
+    setPaperModalMessage("")
+    setPaperModalSuccess("")
+    setPaperModalTarget(exam)
+    const existing = exam.paperSet || (exam.paperSets && exam.paperSets[0])
+    setPaperForm({
+      name: existing?.name || `Question Paper - ${exam.title || exam.name}`,
+      passingMarks: String(existing?.passingMarks || 35),
+      totalMarks: String(existing?.totalMarks || exam.totalMarks || 100),
+      durationMinutes: String(exam.durationMinutes || 60),
+      instructions: "Read all questions carefully before submitting.",
+    })
+  }
+
+  const handleCreateAndPublishPaper = async (shouldPublish: boolean) => {
+    if (!paperModalTarget || paperModalLoading) return
+    setPaperModalLoading(true)
+    setPaperModalMessage("")
+    setPaperModalSuccess("")
+
+    const passing = Number(paperForm.passingMarks || 35)
+    const total = Number(paperForm.totalMarks || 100)
+    const duration = Number(paperForm.durationMinutes || paperModalTarget.durationMinutes || 60)
+
+    if (passing <= 0 || total <= 0 || passing > total) {
+      setPaperModalLoading(false)
+      return setPaperModalMessage("Passing marks must be > 0 and <= total marks.")
+    }
+
+    try {
+      // 1. Create Paper Set for this specific exam
+      const createRes = await authFetch(
+        `${API}/api/admin/paper-sets`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: paperForm.name.trim() || `Question Paper - ${paperModalTarget.title}`,
+            examId: paperModalTarget.id,
+            description: `Primary paper set for ${paperModalTarget.title}`,
+            durationMinutes: duration,
+            totalMarks: total,
+            passingMarks: passing,
+            instructions: [paperForm.instructions],
+            automaticRandomization: true,
+          }),
+        },
+        true,
+      )
+      const createData = await createRes.json()
+      if (!createRes.ok) throw new Error(createData.error || "Unable to create paper set.")
+
+      const paperSetId = createData.paperSet?.id || createData.paperSet?._id
+
+      // 2. Publish Paper Set if requested
+      if (shouldPublish && paperSetId) {
+        const pubRes = await authFetch(
+          `${API}/api/admin/paper-sets/${paperSetId}/publish`,
+          { method: "POST" },
+          true,
+        )
+        const pubData = await pubRes.json()
+        if (!pubRes.ok) throw new Error(pubData.error || "Created paper set, but publishing failed.")
+        setPaperModalSuccess("Paper set created and published successfully for this examination!")
+      } else {
+        setPaperModalSuccess("Draft paper set created successfully for this examination.")
+      }
+
+      await load()
+      setTimeout(() => {
+        setPaperModalTarget(null)
+      }, 1200)
+    } catch (cause) {
+      setPaperModalMessage(
+        cause instanceof Error ? cause.message : "Failed to set paper for this examination.",
+      )
+    } finally {
+      setPaperModalLoading(false)
+    }
+  }
+
+  const handlePublishExistingPaper = async (paperSetId: string) => {
+    if (!paperSetId || paperModalLoading) return
+    setPaperModalLoading(true)
+    setPaperModalMessage("")
+    setPaperModalSuccess("")
+    try {
+      const pubRes = await authFetch(
+        `${API}/api/admin/paper-sets/${paperSetId}/publish`,
+        { method: "POST" },
+        true,
+      )
+      const pubData = await pubRes.json()
+      if (!pubRes.ok) throw new Error(pubData.error || "Unable to publish paper set.")
+
+      setPaperModalSuccess("Paper set published successfully for this examination!")
+      await load()
+      setTimeout(() => {
+        setPaperModalTarget(null)
+      }, 1200)
+    } catch (cause) {
+      setPaperModalMessage(
+        cause instanceof Error ? cause.message : "Unable to publish paper set.",
+      )
+    } finally {
+      setPaperModalLoading(false)
     }
   }
 
@@ -476,6 +601,7 @@ export function ExaminationsPage({
                 <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Code</th>
                 <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Name</th>
                 <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Type</th>
+                <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Paper Set</th>
                 <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Start</th>
                 <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Duration</th>
                 <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Status</th>
@@ -483,58 +609,84 @@ export function ExaminationsPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {exams.map((e) => (
-                <tr key={e.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-4 py-3.5 font-mono text-xs font-semibold text-slate-600">{e.code}</td>
-                  <td className="px-4 py-3.5 font-semibold text-slate-900">{e.title || e.name}</td>
-                  <td className="px-4 py-3.5 text-slate-600">{e.examinationType || "MCQ"}</td>
-                  <td className="px-4 py-3.5 text-slate-600">
-                    {e.scheduledAt ? new Date(e.scheduledAt).toLocaleString() : "—"}
-                  </td>
-                  <td className="px-4 py-3.5 text-slate-600">
-                    {e.durationMinutes ? `${e.durationMinutes} min` : "—"}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide ${
-                        e.status === "DRAFT"
-                          ? "bg-slate-100 text-slate-600 border border-slate-200"
-                          : e.status === "SCHEDULED"
-                            ? "bg-blue-100 text-blue-700 border border-blue-200"
-                            : ["ACTIVE", "LIVE"].includes(e.status)
-                              ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                              : "bg-slate-100 text-slate-700 border border-slate-200"
-                      }`}
-                    >
-                      {e.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5 whitespace-nowrap">
-                    <button
-                      className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors bg-transparent border-none p-0 mr-3.5"
-                      onClick={() => edit(e)}
-                    >
-                      Edit
-                    </button>
-                    {e.status === "DRAFT" && (
+              {exams.map((e) => {
+                const activeSet = e.paperSet || (e.paperSets && e.paperSets[0])
+                return (
+                  <tr key={e.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-4 py-3.5 font-mono text-xs font-semibold text-slate-600">{e.code}</td>
+                    <td className="px-4 py-3.5 font-semibold text-slate-900">{e.title || e.name}</td>
+                    <td className="px-4 py-3.5 text-slate-600">{e.examinationType || "MCQ"}</td>
+                    <td className="px-4 py-3.5">
+                      {activeSet ? (
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide ${
+                            activeSet.status === "PUBLISHED"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-amber-50 text-amber-700 border border-amber-200"
+                          }`}
+                        >
+                          📄 {activeSet.name || activeSet.code} ({activeSet.status})
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-red-600 bg-red-50 border border-red-200">
+                          ⚠️ No Paper Set
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3.5 text-slate-600">
+                      {e.scheduledAt ? new Date(e.scheduledAt).toLocaleString() : "—"}
+                    </td>
+                    <td className="px-4 py-3.5 text-slate-600">
+                      {e.durationMinutes ? `${e.durationMinutes} min` : "—"}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide ${
+                          e.status === "DRAFT"
+                            ? "bg-slate-100 text-slate-600 border border-slate-200"
+                            : e.status === "SCHEDULED"
+                              ? "bg-blue-100 text-blue-700 border border-blue-200"
+                              : ["ACTIVE", "LIVE"].includes(e.status)
+                                ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                                : "bg-slate-100 text-slate-700 border border-slate-200"
+                        }`}
+                      >
+                        {e.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 whitespace-nowrap">
                       <button
                         className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors bg-transparent border-none p-0 mr-3.5"
-                        onClick={() => void openSchedule(e)}
+                        onClick={() => edit(e)}
                       >
-                        Schedule
+                        Edit
                       </button>
-                    )}
-                    {e.status === "SCHEDULED" && (
                       <button
-                        className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors bg-transparent border-none p-0"
-                        onClick={() => void openAssignment(e)}
+                        className="text-xs font-bold text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors bg-transparent border-none p-0 mr-3.5"
+                        onClick={() => openPaperModal(e)}
                       >
-                        Assign Students
+                        Set Paper
                       </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                      {e.status === "DRAFT" && (
+                        <button
+                          className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors bg-transparent border-none p-0 mr-3.5"
+                          onClick={() => void openSchedule(e)}
+                        >
+                          Schedule
+                        </button>
+                      )}
+                      {e.status === "SCHEDULED" && (
+                        <button
+                          className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors bg-transparent border-none p-0"
+                          onClick={() => void openAssignment(e)}
+                        >
+                          Assign Students
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -868,6 +1020,173 @@ export function ExaminationsPage({
                 onClick={() => void schedule()}
               >
                 {scheduling ? "Scheduling..." : "Schedule Examination"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Set Paper Modal */}
+      {paperModalTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
+          <div className="relative w-full max-w-[620px] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
+            {/* Modal Header */}
+            <div className="flex-none flex items-start justify-between gap-4 p-5 sm:px-7 sm:py-6 border-b border-slate-100 bg-slate-50/50">
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900">
+                  Set Paper for Examination
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+                  Configure and publish the question paper set for <strong className="text-slate-900">{paperModalTarget.title || paperModalTarget.name}</strong> ({paperModalTarget.code})
+                </p>
+              </div>
+              <button
+                className="flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors text-xl font-medium leading-none cursor-pointer focus:outline-none disabled:opacity-50"
+                disabled={paperModalLoading}
+                onClick={() => setPaperModalTarget(null)}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 sm:px-7 sm:py-6 overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm">
+              {paperModalMessage && (
+                <div className="p-3.5 px-4 text-xs sm:text-sm font-semibold rounded-xl border text-red-800 bg-red-50 border-red-200/80">
+                  {paperModalMessage}
+                </div>
+              )}
+              {paperModalSuccess && (
+                <div className="p-3.5 px-4 text-xs sm:text-sm font-semibold rounded-xl border text-emerald-800 bg-emerald-50 border-emerald-200/80">
+                  {paperModalSuccess}
+                </div>
+              )}
+
+              {/* Active / Existing Paper Set Details */}
+              {(paperModalTarget.paperSet || (paperModalTarget.paperSets && paperModalTarget.paperSets.length > 0)) ? (
+                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Associated Question Paper</span>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                        (paperModalTarget.paperSet?.status || paperModalTarget.paperSets?.[0]?.status) === "PUBLISHED"
+                          ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                          : "bg-amber-100 text-amber-700 border border-amber-200"
+                      }`}
+                    >
+                      {paperModalTarget.paperSet?.status || paperModalTarget.paperSets?.[0]?.status}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <small className="text-slate-500 font-medium block">Paper Name</small>
+                      <b className="text-slate-900 font-bold">{paperModalTarget.paperSet?.name || paperModalTarget.paperSets?.[0]?.name}</b>
+                    </div>
+                    <div>
+                      <small className="text-slate-500 font-medium block">Paper Code</small>
+                      <b className="text-slate-900 font-mono font-bold">{paperModalTarget.paperSet?.code || paperModalTarget.paperSets?.[0]?.code}</b>
+                    </div>
+                    <div>
+                      <small className="text-slate-500 font-medium block">Total Marks</small>
+                      <b className="text-slate-900 font-bold">{paperModalTarget.paperSet?.totalMarks || paperModalTarget.paperSets?.[0]?.totalMarks || paperModalTarget.totalMarks || "100"} Marks</b>
+                    </div>
+                    <div>
+                      <small className="text-slate-500 font-medium block">Passing Marks</small>
+                      <b className="text-slate-900 font-bold">{paperModalTarget.paperSet?.passingMarks || paperModalTarget.paperSets?.[0]?.passingMarks || "35"} Marks</b>
+                    </div>
+                  </div>
+
+                  {(paperModalTarget.paperSet?.status || paperModalTarget.paperSets?.[0]?.status) !== "PUBLISHED" && (
+                    <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between gap-3">
+                      <p className="text-xs text-slate-500 m-0 font-medium">This paper set is currently in DRAFT status. Publish it to enable examination scheduling.</p>
+                      <button
+                        className="h-9 px-4 text-xs font-semibold rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 transition-all cursor-pointer shadow-sm flex-shrink-0 border-none"
+                        disabled={paperModalLoading}
+                        onClick={() => handlePublishExistingPaper(paperModalTarget.paperSet?.id || paperModalTarget.paperSets?.[0]?.id)}
+                      >
+                        {paperModalLoading ? "Publishing..." : "Publish Paper Set"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+
+              {/* Form to Create/Configure Paper Set for this Examination */}
+              <div className="flex flex-col gap-3.5 pt-2">
+                <h3 className="text-sm font-bold text-slate-900 m-0">
+                  {(paperModalTarget.paperSet || (paperModalTarget.paperSets && paperModalTarget.paperSets.length > 0))
+                    ? "Or Configure New Paper Set for this Examination"
+                    : "Configure Question Paper Set for this Examination"}
+                </h3>
+
+                <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+                  Paper Set Title / Name
+                  <input
+                    value={paperForm.name}
+                    onChange={(e) => setPaperForm({ ...paperForm, name: e.target.value })}
+                    className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                    placeholder="e.g. Question Paper Set A"
+                  />
+                </label>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+                    Total Marks
+                    <input
+                      type="number"
+                      min="1"
+                      value={paperForm.totalMarks}
+                      onChange={(e) => setPaperForm({ ...paperForm, totalMarks: e.target.value })}
+                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+                    Passing Marks
+                    <input
+                      type="number"
+                      min="1"
+                      value={paperForm.passingMarks}
+                      onChange={(e) => setPaperForm({ ...paperForm, passingMarks: e.target.value })}
+                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                    />
+                  </label>
+                </div>
+
+                <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+                  Candidate Instructions
+                  <textarea
+                    rows={2}
+                    value={paperForm.instructions}
+                    onChange={(e) => setPaperForm({ ...paperForm, instructions: e.target.value })}
+                    className="w-full p-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm resize-y"
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex-none flex flex-col sm:flex-row items-center justify-end gap-3 p-4 sm:px-7 sm:py-4 border-t border-slate-100 bg-slate-50/50">
+              <button
+                className="w-full sm:w-auto h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:opacity-50 cursor-pointer transition-all shadow-sm"
+                disabled={paperModalLoading}
+                onClick={() => setPaperModalTarget(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="w-full sm:w-auto h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-slate-100 border border-slate-300 hover:bg-slate-200 focus:outline-none disabled:opacity-50 cursor-pointer transition-all shadow-sm"
+                disabled={paperModalLoading}
+                onClick={() => handleCreateAndPublishPaper(false)}
+              >
+                {paperModalLoading ? "Saving..." : "Save Draft Paper"}
+              </button>
+              <button
+                className="w-full sm:w-auto h-10 px-5 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:opacity-50 cursor-pointer transition-all shadow-sm shadow-blue-500/20"
+                disabled={paperModalLoading}
+                onClick={() => handleCreateAndPublishPaper(true)}
+              >
+                {paperModalLoading ? "Setting Paper..." : "Create & Publish Paper Set"}
               </button>
             </div>
           </div>

@@ -147,24 +147,66 @@ router.get("/feedback", authenticate, adminOnly, async (req, res) => {
 router.get("/exams", authenticate, adminOnly, async (_req, res) => {
   const exams = await Exam.find({ status: { $ne: "CLOSED" } })
     .select(
-      "_id code title status scheduledAt closesAt totalMarks totalQuestions durationMinutes",
+      "_id code title status scheduledAt closesAt totalMarks totalQuestions durationMinutes examinationType maxAttempts readinessRequirements integrityProfile integrityRules resultReleasePolicy instructions description",
     )
     .sort({ createdAt: -1 })
     .lean();
+
+  const examIds = exams.map((e) => e._id);
+  const paperSets = await PaperSet.find({
+    examId: { $in: examIds },
+  })
+    .select(
+      "_id examId name code status durationMinutes totalMarks passingMarks questionIds active",
+    )
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const setsByExam = new Map();
+  paperSets.forEach((set) => {
+    const key = String(set.examId);
+    if (!setsByExam.has(key)) setsByExam.set(key, []);
+    setsByExam.get(key).push({
+      id: String(set._id),
+      _id: String(set._id),
+      name: set.name,
+      code: set.code,
+      status: set.status,
+      questionCount: set.questionIds ? set.questionIds.length : 0,
+      totalMarks: set.totalMarks,
+      passingMarks: set.passingMarks,
+      durationMinutes: set.durationMinutes,
+    });
+  });
+
   res.set("Cache-Control", "no-store");
   res.json({
-    exams: exams.map((exam) => ({
-      id: String(exam._id),
-      code: exam.code,
-      title: exam.title,
-      status: effectiveExamStatus(exam),
-      storedStatus: exam.status,
-      scheduledAt: exam.scheduledAt,
-      closesAt: exam.closesAt,
-      totalMarks: exam.totalMarks,
-      totalQuestions: exam.totalQuestions,
-      durationMinutes: exam.durationMinutes,
-    })),
+    exams: exams.map((exam) => {
+      const sets = setsByExam.get(String(exam._id)) || [];
+      const publishedSet = sets.find((s) => s.status === "PUBLISHED") || null;
+      return {
+        id: String(exam._id),
+        code: exam.code,
+        title: exam.title,
+        status: effectiveExamStatus(exam),
+        storedStatus: exam.status,
+        scheduledAt: exam.scheduledAt,
+        closesAt: exam.closesAt,
+        totalMarks: exam.totalMarks,
+        totalQuestions: exam.totalQuestions,
+        durationMinutes: exam.durationMinutes,
+        examinationType: exam.examinationType,
+        maxAttempts: exam.maxAttempts,
+        description: exam.description,
+        instructions: exam.instructions,
+        readinessRequirements: exam.readinessRequirements,
+        integrityProfile: exam.integrityProfile,
+        integrityRules: exam.integrityRules,
+        resultReleasePolicy: exam.resultReleasePolicy,
+        paperSets: sets,
+        paperSet: publishedSet || sets[0] || null,
+      };
+    }),
   });
 });
 router.get("/results", authenticate, adminOnly, async (req, res) => {
