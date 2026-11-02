@@ -163,6 +163,31 @@ const PARTNERS = [
   { name: "Swiggy", icon: "security", color: "text-secondary-container" },
 ];
 
+const PROFILE_COMPETENCIES = [
+  ["Software / Product Development", "code_blocks", "text-primary"],
+  ["Artificial Intelligence & Machine Learning", "psychology", "text-secondary"],
+  ["Data Engineering", "database", "text-tertiary"],
+  ["Cloud Competencies & DevOps", "cloud_sync", "text-primary"],
+  ["Cybersecurity", "security", "text-secondary"],
+  ["IT Infrastructure Management", "lan", "text-tertiary"],
+  ["IT Consulting Services", "consultant", "text-primary"],
+  ["Talent Acquisition & Placement", "groups", "text-secondary"],
+  ["Corporate Learning & Development", "school", "text-tertiary"],
+] as const;
+
+const ACTIVE_PRODUCTS = [
+  ["Kaizen Defense", "See threats earlier. Secure smarter with unified visibility and threat detection.", "shield_lock"],
+  ["Cloud Posture Management", "Multi-cloud strategy, smart assessment, cloud readiness, and compliance security.", "cloud_done"],
+  ["AI Gateway", "One gateway for unified model access, smart routing, guardrails, and cost visibility.", "hub"],
+  ["WMS Application", "Every item tracked, every move connected, with inventory visibility and workflow control.", "inventory_2"],
+] as const;
+
+const TALENT_SERVICES = [
+  ["Contract Employment", "Work on customer assignments while employed under KGS payroll."],
+  ["Contract-to-Hire", "Start on contract with the opportunity to transition to permanent employment."],
+  ["Permanent Hiring & Referrals", "Access suitable permanent opportunities through customer hiring and referrals."],
+] as const;
+
 const LANDING_LOADER_SESSION_KEY = "kgs-landing-loader-played";
 
 export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: LandingPageProps) {
@@ -509,6 +534,113 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                   {partner.name}
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* COMPANY PROFILE */}
+        <section id="company-profile" className="relative overflow-hidden bg-[#07152f] px-margin py-space-xl text-white">
+          <div className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl animate-[float_8s_ease-in-out_infinite]" />
+          <div className="pointer-events-none absolute -left-24 bottom-0 h-80 w-80 rounded-full bg-violet-500/20 blur-3xl animate-[float_10s_ease-in-out_infinite_reverse]" />
+          <div className="relative z-10 mx-auto max-w-7xl">
+            <div className="grid items-end gap-space-lg lg:grid-cols-[1.05fr_.95fr]">
+              <div>
+                <span className="font-label-sm text-label-sm uppercase tracking-[.2em] text-blue-300">Company profile · 11+ years of technology expertise</span>
+                <h2 className="mt-4 max-w-4xl font-headline-lg text-headline-lg leading-tight">Learn. Build. Innovate. Deploy.</h2>
+                <p className="mt-5 max-w-3xl font-body-lg text-body-lg leading-relaxed text-blue-100/75">
+                  Kaizentrix Global Solutions, InfyStrat, and StratNex collaborate with industry partners to develop customer-centric products and innovative solutions globally. Our group also extends into power infrastructure and data-center setup through GTV Power Pvt. Ltd. across India.
+                </p>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-md shadow-2xl shadow-black/20">
+                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                  <span className="font-label-sm uppercase tracking-widest text-blue-200">Our promise</span>
+                  <span className="material-symbols-outlined text-amber-300">auto_awesome</span>
+                </div>
+                <p className="mt-5 text-xl font-semibold leading-relaxed text-white">Driven by collaboration and continuous improvement, we evolve with customer needs to deliver lasting value through technology and engineering excellence.</p>
+              </div>
+            </div>
+
+            <div className="mt-space-xl grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {PROFILE_COMPETENCIES.map(([name, icon, color], index) => (
+                <article key={name} className="group rounded-2xl border border-white/10 bg-white/[.07] p-5 transition duration-500 hover:-translate-y-2 hover:border-blue-300/60 hover:bg-white/[.13]" style={{ animationDelay: `${index * 70}ms` }}>
+                  <span className={`material-symbols-outlined ${color} text-[30px] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6`}>{icon}</span>
+                  <h3 className="mt-5 text-base font-bold text-white">{name}</h3>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-surface-container-low px-margin py-space-xl">
+          <div className="mx-auto max-w-7xl">
+            <div className="max-w-2xl">
+              <span className="font-label-sm text-label-sm uppercase tracking-widest text-primary font-bold">Product development</span>
+              <h2 className="mt-3 font-headline-lg text-headline-lg text-on-surface">Active products built for real operations.</h2>
+              <p className="mt-3 font-body-md text-body-md leading-relaxed text-on-surface-variant">From security and cloud readiness to warehouse visibility and responsible AI access, our products connect complex work into clearer decisions.</p>
+            </div>
+            <div className="mt-space-lg grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {ACTIVE_PRODUCTS.map(([name, copy, icon], index) => (
+                <article key={name} className="group relative overflow-hidden rounded-3xl border border-surface-container bg-surface-container-lowest p-6 shadow-sm transition duration-500 hover:-translate-y-2 hover:shadow-xl">
+                  <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/10 transition duration-500 group-hover:scale-[2.5]" />
+                  <span className="relative material-symbols-outlined text-[32px] text-primary transition-transform duration-500 group-hover:rotate-12">{icon}</span>
+                  <span className="relative mt-6 block text-[11px] font-extrabold uppercase tracking-widest text-outline">0{index + 1}</span>
+                  <h3 className="relative mt-2 text-xl font-bold text-on-surface">{name}</h3>
+                  <p className="relative mt-3 text-sm leading-6 text-on-surface-variant">{copy}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-surface px-margin py-space-xl">
+          <div className="mx-auto grid max-w-7xl gap-space-xl lg:grid-cols-[.9fr_1.1fr] lg:items-start">
+            <div>
+              <span className="font-label-sm text-label-sm uppercase tracking-widest text-secondary font-bold">Corporate learning & development</span>
+              <h2 className="mt-3 font-headline-lg text-headline-lg text-on-surface">A structured pathway from capability to confidence.</h2>
+              <p className="mt-4 max-w-xl font-body-md text-body-md leading-relaxed text-on-surface-variant">KGS combines customer projects, intensive in-house development, and career acceleration to build stronger technical foundations and job readiness.</p>
+              <button onClick={() => openContact("Corporate Learning & Development")} className="mt-7 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-md transition hover:-translate-y-1 hover:bg-primary-container">Talk to our team</button>
+            </div>
+            <div className="relative grid gap-4 sm:grid-cols-3">
+              {[["CWDP", "Corporate Workforce Development Program", "6 Months"], ["CSAP", "Corporate Skill Accelerator Program", "1 Month"], ["Customer Projects", "In-house project experience", "Hands-on"]].map(([short, title, duration], index) => (
+                <article key={short} className="relative rounded-2xl border border-surface-container bg-surface-container-lowest p-5 shadow-sm transition duration-500 hover:-translate-y-2">
+                  {index < 2 && <span className="absolute -right-3 top-1/2 hidden h-px w-6 bg-primary/30 sm:block" />}
+                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-sm font-black text-primary">{short}</span>
+                  <h3 className="mt-5 text-base font-bold text-on-surface">{title}</h3>
+                  <span className="mt-3 inline-block rounded-full bg-surface-container px-2.5 py-1 text-[11px] font-bold text-primary">{duration}</span>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-surface-container-low px-margin py-space-xl">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-space-xl lg:grid-cols-[1fr_1.2fr] lg:items-end">
+              <div>
+                <span className="font-label-sm text-label-sm uppercase tracking-widest text-tertiary font-bold">Talent acquisition & placement services</span>
+                <h2 className="mt-3 font-headline-lg text-headline-lg text-on-surface">Bridging talent and industry needs.</h2>
+                <p className="mt-4 font-body-md text-body-md leading-relaxed text-on-surface-variant">Flexible staffing models, customer engagements, and managed technology services that create practical pathways into the teams where people can do their best work.</p>
+              </div>
+              <div className="grid gap-3 md:grid-cols-3">
+                {TALENT_SERVICES.map(([name, copy]) => (
+                  <article key={name} className="rounded-2xl border border-surface-container bg-surface-container-lowest p-5 transition duration-500 hover:-translate-y-1 hover:shadow-lg">
+                    <span className="material-symbols-outlined text-tertiary">work_history</span>
+                    <h3 className="mt-4 text-base font-bold text-on-surface">{name}</h3>
+                    <p className="mt-2 text-sm leading-6 text-on-surface-variant">{copy}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <div className="mt-space-xl grid gap-5 rounded-3xl bg-[#07152f] p-6 text-white shadow-xl md:grid-cols-[.7fr_1.3fr] md:p-8">
+              <div>
+                <span className="font-label-sm uppercase tracking-widest text-blue-300">Our global presence</span>
+                <div className="mt-5 text-4xl font-black text-white">+896</div>
+                <div className="mt-1 text-sm font-semibold text-blue-100/70">clients served across industries</div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-white/[.07] p-5"><span className="material-symbols-outlined text-blue-300">location_on</span><p className="mt-3 text-sm leading-6 text-blue-100/80">100, DC Complex, 80 Feet Road, Nagarbhavi 1st Stage, Chandra Layout, Vijayanagar, Bengaluru, Karnataka 560040</p></div>
+                <div className="rounded-2xl border border-white/10 bg-white/[.07] p-5"><span className="material-symbols-outlined text-blue-300">contact_phone</span><p className="mt-3 text-sm leading-6 text-blue-100/80">+91 9187980031<br />080-23143355<br /><a className="text-blue-200 hover:text-white" href="mailto:enquiry@kaizentrixglobal.com">enquiry@kaizentrixglobal.com</a></p></div>
+              </div>
             </div>
           </div>
         </section>
