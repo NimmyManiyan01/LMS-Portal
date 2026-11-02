@@ -50,7 +50,22 @@ async function buildWorkbook(filters = {}) {
 
   const exams = await Exam.find({ status: { $ne: "CLOSED" } }).lean();
   const sets = await PaperSet.find({}).lean();
-  const students = await Student.find({}).lean();
+  const selectedColleges = Array.isArray(college)
+    ? college.map(String).map((value) => value.trim()).filter(Boolean)
+    : college
+      ? [String(college).trim()]
+      : [];
+  const students = await Student.find(
+    selectedColleges.length
+      ? {
+          college: {
+            $in: selectedColleges.map(
+              (value) => new RegExp(`^${value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i"),
+            ),
+          },
+        }
+      : {},
+  ).lean();
   const examMap = new Map(exams.map((e) => [String(e._id), e]));
 
   const workbook = new ExcelJS.Workbook();
@@ -103,8 +118,9 @@ async function buildWorkbook(filters = {}) {
   });
 
   // Apply filters to resultRows matching the Results Page filters
-  if (college) {
-    resultRows = resultRows.filter((r) => r._rawCollege === college);
+  if (selectedColleges.length) {
+    const selected = new Set(selectedColleges.map((value) => value.toLowerCase()));
+    resultRows = resultRows.filter((r) => selected.has(r._rawCollege.toLowerCase()));
   }
 
   if (search && String(search).trim()) {

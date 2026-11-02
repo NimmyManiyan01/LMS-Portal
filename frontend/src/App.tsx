@@ -454,7 +454,7 @@ function Topbar({
   )
 }
 
-function StudentExportAction({ college = "" }: { college?: string }) {
+function StudentExportAction({ college = [] }: { college?: string[] }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const exportRegister = async () => {
@@ -467,7 +467,7 @@ function StudentExportAction({ college = "" }: { college?: string }) {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(college ? { college } : {}),
+          body: JSON.stringify(college.length ? { college } : {}),
         },
         true,
       )
@@ -519,14 +519,14 @@ function PageHead({
   title,
   description,
   showCreateAction = true,
-  selectedCollege = "",
+  selectedCollege = [],
 }: {
   admin: boolean
   student: StudentProfile | null
   title?: string
   description?: string
   showCreateAction?: boolean
-  selectedCollege?: string
+  selectedCollege?: string[]
 }) {
   const current = new Date()
   const greeting =
@@ -1388,7 +1388,7 @@ function AdminStudents() {
         title="Student Management"
         description="Manage registered students and account activation."
         showCreateAction={false}
-        selectedCollege={college.join(",")}
+        selectedCollege={college}
       />
 
       {/* Header */}
