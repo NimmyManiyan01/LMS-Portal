@@ -445,6 +445,19 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
           </div>
         </section>
 
+        <section className="overflow-hidden border-y border-surface-container-low bg-[#07152f] px-margin py-10">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-5 text-center sm:flex-row sm:gap-10">
+            <span className="font-label-sm text-label-sm uppercase tracking-[.2em] text-blue-200/70">Strategic engineering partner</span>
+            <div className="group rounded-2xl border border-white/10 bg-white/[.08] px-8 py-4 shadow-xl transition duration-500 hover:-translate-y-1 hover:bg-white/[.14]">
+              <img
+                src="https://www.tcs.com/content/dam/global-tcs/en/images/who-we-are/media-kit/tcs-light-logo.png"
+                alt="TCS"
+                className="h-8 w-auto object-contain opacity-90 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
+              />
+            </div>
+          </div>
+        </section>
+
         {/* COMPANY PROFILE */}
         <section id="company-profile" className="relative overflow-hidden bg-[#07152f] px-margin py-space-xl text-white">
           <div className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl animate-[float_8s_ease-in-out_infinite]" />
