@@ -458,12 +458,12 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                   <img
                     src="https://www.tcs.com/content/dam/global-tcs/en/images/who-we-are/media-kit/tcs-light-logo.png"
                     alt="TCS"
-                    className="h-10 w-auto max-w-40 rounded-lg bg-[#07152f] px-4 py-2 object-contain opacity-80 transition hover:opacity-100"
+                    className="h-10 w-auto max-w-40 object-contain opacity-80 transition hover:opacity-100"
                   />
                   <img
                     src="https://www.drupal.org/files/infosys-logo-PNG.png"
                     alt="Infosys"
-                    className="h-10 w-auto max-w-40 rounded-lg bg-white px-4 py-2 object-contain opacity-80 transition hover:opacity-100"
+                    className="h-10 w-auto max-w-40 object-contain opacity-80 transition hover:opacity-100"
                   />
                 </div>
               ))}
