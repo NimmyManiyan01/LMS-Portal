@@ -223,19 +223,6 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
   const search = String(req.query.search || "")
     .trim()
     .toLowerCase();
-  let queryColleges = [];
-  try {
-    const rawCollege = String(req.query.college || "").trim();
-    const parsedCollege = rawCollege ? JSON.parse(rawCollege) : [];
-    queryColleges = Array.isArray(parsedCollege)
-      ? parsedCollege.map(String).map((value) => value.trim()).filter(Boolean)
-      : [];
-  } catch {
-    queryColleges = String(req.query.college || "")
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean);
-  }
   const query = examId ? { examId } : {};
   const results = await FinalResult.find(query)
     .populate(
@@ -1890,7 +1877,19 @@ router.get("/students", authenticate, adminOnly, async (req, res) => {
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
   const search = String(req.query.search || "").trim();
   const status = String(req.query.status || "").toUpperCase();
-  const college = String(req.query.college || "").trim();
+  let queryColleges = [];
+  try {
+    const rawCollege = String(req.query.college || "").trim();
+    const parsedCollege = rawCollege ? JSON.parse(rawCollege) : [];
+    queryColleges = Array.isArray(parsedCollege)
+      ? parsedCollege.map(String).map((value) => value.trim()).filter(Boolean)
+      : [];
+  } catch {
+    queryColleges = String(req.query.college || "")
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+  }
   const filter = {};
   if (search)
     filter.$or = [
