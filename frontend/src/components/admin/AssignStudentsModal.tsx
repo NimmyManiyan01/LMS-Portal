@@ -347,7 +347,11 @@ export function AssignStudentsModal({
             disabled={saving || !assignedIds.length}
             onClick={onAssign}
           >
-            {saving ? "Assigning..." : "Assign Students"}
+            {saving
+              ? "Assigning..."
+              : assignedIds.length
+                ? "Assign / Reset Students"
+                : "Assign Students"}
           </button>
         </div>
       </div>

@@ -817,6 +817,35 @@ router.put(
       return res
         .status(400)
         .json({ error: "Only active students can be assigned." });
+
+    // Re-assignment is a deliberate reset: completed attempts and their
+    // published results are removed so the student can start this exam over.
+    // Never remove an exam that is currently in progress.
+    const inProgress = await Attempt.findOne({
+      examId: exam._id,
+      studentId: { $in: ids },
+      status: "IN_PROGRESS",
+    })
+      .select("studentId")
+      .lean();
+    if (inProgress)
+      return res.status(409).json({
+        error: "An assigned student currently has an exam in progress. Submit or end that attempt before re-assigning.",
+      });
+
+    const resetAttempts = await Attempt.find({
+      examId: exam._id,
+      studentId: { $in: ids },
+      status: { $in: ["SUBMITTED", "AUTO_SUBMITTED", "TERMINATED"] },
+    }).select("_id");
+    const resetAttemptIds = resetAttempts.map((attempt) => attempt._id);
+    if (resetAttemptIds.length) {
+      await Promise.all([
+        FinalResult.deleteMany({ attemptId: { $in: resetAttemptIds } }),
+        IntegrityEvent.deleteMany({ attemptId: { $in: resetAttemptIds } }),
+        Attempt.deleteMany({ _id: { $in: resetAttemptIds } }),
+      ]);
+    }
     exam.eligibility = {
       ...(exam.eligibility?.toObject?.() || exam.eligibility || {}),
       studentIds: ids,
