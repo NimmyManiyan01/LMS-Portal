@@ -72,21 +72,47 @@ export function AboutPage({ onBackToLanding, onLogin }: AboutPageProps) {
                 About KGS
               </span>
               <h1 className="mt-5 max-w-3xl font-headline-xl text-headline-xl leading-tight tracking-tight text-on-surface">
-                Technology that turns potential into measurable progress.
+                Customer-centric technology, built with engineering excellence.
               </h1>
               <p className="mt-6 max-w-2xl font-body-lg text-body-lg leading-relaxed text-on-surface-variant">
-                Kaizentrix Global Solutions creates dependable digital platforms for learning,
-                assessment, and career development. We help institutions run better programs while
-                giving every candidate a clear, fair path to demonstrate their ability.
+                As a group of companies with over 11 years of technology expertise, Kaizentrix
+                Global Solutions, InfyStrat, and StratNex collaborate with industry partners to
+                develop customer-centric products and innovative solutions globally.
+              </p>
+              <p className="mt-4 max-w-2xl font-body-md text-body-md leading-relaxed text-on-surface-variant">
+                Driven by collaboration and continuous improvement, we evolve with customer needs
+                to deliver lasting value through technology and engineering excellence.
               </p>
             </div>
             <div className="rounded-3xl border border-surface-container bg-surface-container-lowest p-8 shadow-xl sm:p-10">
               <span className="material-symbols-outlined text-[44px] text-primary">track_changes</span>
-              <h2 className="mt-5 font-headline-lg text-headline-lg text-on-surface">Our mission</h2>
+              <h2 className="mt-5 font-headline-lg text-headline-lg text-on-surface">Learn. Build. Innovate. Deploy.</h2>
               <p className="mt-4 font-body-md text-body-md leading-relaxed text-on-surface-variant">
-                Make high-quality education and trustworthy assessment more accessible through
-                secure technology, practical experiences, and outcome-focused design.
+                Our capabilities span product development, artificial intelligence and machine
+                learning, data engineering, cloud, cybersecurity, IT infrastructure, consulting,
+                talent services, and corporate learning.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-margin py-16 sm:py-20">
+          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
+            <div>
+              <span className="font-label-sm font-bold uppercase tracking-wider text-primary">Our wider group</span>
+              <h2 className="mt-3 font-headline-lg text-headline-lg text-on-surface">Technology and infrastructure for a connected future.</h2>
+              <p className="mt-4 font-body-md text-body-md leading-relaxed text-on-surface-variant">
+                Beyond software and digital products, our group’s capabilities extend to power
+                infrastructure and data-center setup through GTV Power Pvt. Ltd. across India.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {["Customer-centric products", "Innovative global solutions", "Power & data-center infrastructure"].map((item, index) => (
+                <article key={item} className="rounded-2xl border border-surface-container bg-surface-container-lowest p-6 shadow-sm transition duration-500 hover:-translate-y-2 hover:shadow-xl" style={{ animationDelay: `${index * 100}ms` }}>
+                  <span className="material-symbols-outlined text-[32px] text-primary">{index === 0 ? "devices" : index === 1 ? "public" : "electric_bolt"}</span>
+                  <h3 className="mt-5 font-headline-sm text-headline-sm font-bold text-on-surface">{item}</h3>
+                </article>
+              ))}
             </div>
           </div>
         </section>
