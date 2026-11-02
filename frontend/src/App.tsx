@@ -454,7 +454,15 @@ function Topbar({
   )
 }
 
-function StudentExportAction({ college = [] }: { college?: string[] }) {
+function StudentExportAction({
+  college = [],
+  search = "",
+  status = "",
+}: {
+  college?: string[]
+  search?: string
+  status?: string
+}) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const exportRegister = async () => {
@@ -467,7 +475,11 @@ function StudentExportAction({ college = [] }: { college?: string[] }) {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(college.length ? { college } : {}),
+          body: JSON.stringify({
+            ...(college.length ? { college } : {}),
+            ...(search.trim() ? { search: search.trim() } : {}),
+            ...(status ? { status } : {}),
+          }),
         },
         true,
       )
@@ -520,6 +532,8 @@ function PageHead({
   description,
   showCreateAction = true,
   selectedCollege = [],
+  selectedSearch = "",
+  selectedStatus = "",
 }: {
   admin: boolean
   student: StudentProfile | null
@@ -527,6 +541,8 @@ function PageHead({
   description?: string
   showCreateAction?: boolean
   selectedCollege?: string[]
+  selectedSearch?: string
+  selectedStatus?: string
 }) {
   const current = new Date()
   const greeting =
@@ -562,7 +578,11 @@ function PageHead({
         </p>
       </div>
       {admin && title === "Student Management" ? (
-        <StudentExportAction college={selectedCollege} />
+        <StudentExportAction
+          college={selectedCollege}
+          search={selectedSearch}
+          status={selectedStatus}
+        />
       ) : admin && showCreateAction ? (
         <button className="inline-flex items-center justify-center gap-2 h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-all cursor-pointer shadow-sm shadow-blue-500/20 flex-shrink-0 border-none">
           <Icon name="plus" />
@@ -1389,6 +1409,8 @@ function AdminStudents() {
         description="Manage registered students and account activation."
         showCreateAction={false}
         selectedCollege={college}
+        selectedSearch={search}
+        selectedStatus={status}
       />
 
       {/* Header */}

@@ -9,6 +9,9 @@ const PaperSet = require("../models/PaperSet");
 const ReportExport = require("../models/ReportExport");
 const { requirePermission } = require("../middleware/auth");
 
+const escapeRegex = (value) =>
+  String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 function safeCell(value) {
   if (value === null || value === undefined) return "";
   const text = String(value);
@@ -32,6 +35,7 @@ async function buildWorkbook(filters = {}) {
     college,
     releaseStatus,
     search,
+    status,
     marksFilter,
     minScore,
     maxScore,
@@ -55,17 +59,27 @@ async function buildWorkbook(filters = {}) {
     : college
       ? [String(college).trim()]
       : [];
-  const students = await Student.find(
-    selectedColleges.length
-      ? {
-          college: {
-            $in: selectedColleges.map(
-              (value) => new RegExp(`^${value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i"),
-            ),
-          },
-        }
-      : {},
-  ).lean();
+  const studentFilter = {};
+  if (selectedColleges.length) {
+    studentFilter.college = {
+      $in: selectedColleges.map(
+        (value) => new RegExp(`^${escapeRegex(value)}$`, "i"),
+      ),
+    };
+  }
+  const normalizedStatus = String(status || "").toUpperCase();
+  if (["ACTIVE", "SUSPENDED"].includes(normalizedStatus)) {
+    studentFilter.accountStatus = normalizedStatus;
+  }
+  if (search && String(search).trim()) {
+    const term = new RegExp(escapeRegex(String(search).trim()), "i");
+    studentFilter.$or = [
+      { studentId: term },
+      { fullName: term },
+      { email: term },
+    ];
+  }
+  const students = await Student.find(studentFilter).lean();
   const examMap = new Map(exams.map((e) => [String(e._id), e]));
 
   const workbook = new ExcelJS.Workbook();
