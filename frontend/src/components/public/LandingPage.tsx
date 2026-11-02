@@ -408,11 +408,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
             alt="Student preparing for a software engineering career"
             className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[68%_center] opacity-90 max-lg:object-[72%_center] max-md:object-[center_bottom] max-md:opacity-60"
           />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[.12] mix-blend-multiply"
-            style={{ backgroundImage: "url('https://wallpaperaccess.com/full/1953091.jpg')" }}
-          />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(250,248,255,.98)_0%,rgba(250,248,255,.93)_30%,rgba(250,248,255,.68)_56%,rgba(250,248,255,.2)_84%,rgba(250,248,255,0)_100%)] max-md:bg-[linear-gradient(180deg,rgba(250,248,255,.96)_0%,rgba(250,248,255,.78)_38%,rgba(250,248,255,.18)_78%,rgba(250,248,255,.04)_100%)]" />
           <div className="absolute -top-32 right-10 w-96 h-96 bg-primary-fixed-dim/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 left-10 w-80 h-80 bg-tertiary-fixed/30 rounded-full blur-3xl pointer-events-none" />
@@ -479,11 +474,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                     src="https://logos-world.net/wp-content/uploads/2020/10/IBM-Logo-1962.png"
                     alt="IBM"
                     className="h-10 w-auto max-w-40 object-contain opacity-80 transition hover:opacity-100"
-                  />
-                  <img
-                    src="https://wallpaperaccess.com/full/1953091.jpg"
-                    alt="Technology partner visual"
-                    className="h-10 w-24 rounded-lg object-cover opacity-80 transition hover:opacity-100"
                   />
                 </div>
               ))}
