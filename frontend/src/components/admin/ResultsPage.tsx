@@ -124,6 +124,7 @@ export function ResultsPage({ PageHead }: Props) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            reportType: "RESULTS",
             examId: examId || undefined,
             college: college || undefined,
             search: search.trim() || undefined,

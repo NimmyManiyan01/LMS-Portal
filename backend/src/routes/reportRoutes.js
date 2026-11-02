@@ -32,6 +32,7 @@ function addRows(sheet, columns, rows) {
 async function buildWorkbook(filters = {}) {
   const {
     examId,
+    reportType,
     college,
     releaseStatus,
     search,
@@ -183,7 +184,7 @@ async function buildWorkbook(filters = {}) {
     });
   }
 
-  addRows(
+  if (reportType !== "RESULTS") addRows(
     workbook.addWorksheet("Student Registration"),
     [
       "Student ID",
@@ -249,7 +250,7 @@ async function buildWorkbook(filters = {}) {
     };
   });
 
-  addRows(
+  if (reportType !== "RESULTS") addRows(
     workbook.addWorksheet("Set Summary"),
     [
       "Exam ID",
