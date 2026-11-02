@@ -1269,7 +1269,7 @@ function AdminStudents() {
     setError("")
     try {
       const response = await authFetch(
-        `${api}/api/admin/students?page=${page}&search=${encodeURIComponent(search)}&status=${status}&college=${encodeURIComponent(college.join(","))}`,
+        `${api}/api/admin/students?page=${page}&search=${encodeURIComponent(search)}&status=${status}&college=${encodeURIComponent(JSON.stringify(college))}`,
         {},
         true,
       )

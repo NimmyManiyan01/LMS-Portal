@@ -223,10 +223,19 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
   const search = String(req.query.search || "")
     .trim()
     .toLowerCase();
-  const queryColleges = String(req.query.college || "")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
+  let queryColleges = [];
+  try {
+    const rawCollege = String(req.query.college || "").trim();
+    const parsedCollege = rawCollege ? JSON.parse(rawCollege) : [];
+    queryColleges = Array.isArray(parsedCollege)
+      ? parsedCollege.map(String).map((value) => value.trim()).filter(Boolean)
+      : [];
+  } catch {
+    queryColleges = String(req.query.college || "")
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+  }
   const query = examId ? { examId } : {};
   const results = await FinalResult.find(query)
     .populate(
