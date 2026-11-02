@@ -451,62 +451,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
 
               </div>
 
-              {/* 4 Key Platform Metric Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-space-sm pt-space-lg">
-                <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex flex-col justify-center">
-                  <div className="font-headline-lg text-headline-lg text-primary font-bold">96%</div>
-                  <div className="font-label-md text-label-md text-on-surface-variant">
-                    Placement Rate
-                  </div>
-                  <div className="font-label-sm text-label-sm text-tertiary font-medium">
-                    In 90 Days post-grad
-                  </div>
-                </div>
-
-                <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex flex-col justify-center">
-                  <div className="font-headline-lg text-headline-lg text-on-surface font-bold">
-                    1,200+
-                  </div>
-                  <div className="font-label-md text-label-md text-on-surface-variant">
-                    Hiring Partners
-                  </div>
-                  <div className="font-label-sm text-label-sm text-on-surface-variant/80 font-medium">
-                    Startups &amp; MNCs
-                  </div>
-                </div>
-
-                <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex flex-col justify-center">
-                  <div className="font-headline-lg text-headline-lg text-tertiary font-bold">
-                    14.2 LPA
-                  </div>
-                  <div className="font-label-md text-label-md text-on-surface-variant">
-                    Highest Package
-                  </div>
-                  <div className="font-label-sm text-label-sm text-on-surface-variant/80 font-medium">
-                    Avg: 7.8 LPA
-                  </div>
-                </div>
-
-                <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex flex-col justify-center">
-                  <div className="flex items-center gap-1">
-                    <span className="font-headline-lg text-headline-lg text-on-surface font-bold">
-                      4.8
-                    </span>
-                    <span
-                      className="material-symbols-outlined text-amber-500 text-[24px]"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      star
-                    </span>
-                  </div>
-                  <div className="font-label-md text-label-md text-on-surface-variant">
-                    Student Rating
-                  </div>
-                  <div className="font-label-sm text-label-sm text-on-surface-variant/80 font-medium">
-                    5,400+ Alumni
-                  </div>
-                </div>
-              </div>
             </div>
 
           </div>
