@@ -405,10 +405,19 @@ export function StudentLoginPage({
 
               {error && (
                 <div
-                  className={`${alertBox} border-red-300/70 bg-red-500/10 text-red-600`}
+                  className={`${alertBox} border-red-300/70 bg-red-500/10 text-red-600 flex flex-col gap-1.5`}
                   role="alert"
                 >
-                  {error}
+                  <div>{error}</div>
+                  {error.toLowerCase().includes("register") && allowRegistration && (
+                    <button
+                      type="button"
+                      className="text-xs font-bold text-blue-600 underline hover:text-blue-700 cursor-pointer text-left border-none bg-transparent p-0"
+                      onClick={onRegister}
+                    >
+                      Click here to Register ➔
+                    </button>
+                  )}
                 </div>
               )}
 

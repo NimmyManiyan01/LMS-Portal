@@ -141,8 +141,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </Text>
 
           {error ? (
-            <View style={tw`bg-red-50 border border-red-200 rounded-lg p-2.5 mb-4`}>
-              <Text style={tw`text-red-600 text-xs text-center font-semibold`}>{error}</Text>
+            <View style={tw`bg-red-50 border border-red-200 rounded-xl p-3 mb-4`}>
+              <Text style={tw`text-red-600 text-xs text-center font-bold mb-1.5`}>{error}</Text>
+              {error.toLowerCase().includes('register') ? (
+                <TouchableOpacity
+                  onPress={onNavigateRegister}
+                  activeOpacity={0.8}
+                  style={tw`self-center bg-blue-600 px-3.5 py-1.5 rounded-lg mt-1`}
+                >
+                  <Text style={tw`text-white text-xs font-bold`}>Click here to Register ➔</Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
           ) : null}
 

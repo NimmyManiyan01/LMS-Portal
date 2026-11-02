@@ -109,10 +109,9 @@ async function issueOtp(req, res) {
   ]);
   const account = administrator || student;
   if (!account)
-    return res.status(202).json({
-      ...generic,
-      expiresAt: new Date(Date.now() + OTP_TTL),
-      resendAvailableAt: new Date(Date.now() + RESEND_COOLDOWN),
+    return res.status(404).json({
+      error: "Unregistered email address. Please register.",
+      unregistered: true,
     });
   const latest = await EmailVerification.findOne({
     ...(administrator
