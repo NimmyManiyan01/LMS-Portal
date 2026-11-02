@@ -152,17 +152,6 @@ export const BATCH_TRACKS: BatchTrack[] = [
   },
 ];
 
-const PARTNERS = [
-  { name: "Amazon AWS", icon: "cloud", color: "text-primary" },
-  { name: "Cisco Systems", icon: "hub", color: "text-secondary" },
-  { name: "Juspay", icon: "payments", color: "text-tertiary" },
-  { name: "Zoho Corp", icon: "database", color: "text-primary" },
-  { name: "TCS Digital", icon: "code_blocks", color: "text-secondary" },
-  { name: "Razorpay", icon: "rocket_launch", color: "text-primary-container" },
-  { name: "PhonePe", icon: "deployed_code", color: "text-tertiary-container" },
-  { name: "Swiggy", icon: "security", color: "text-secondary-container" },
-];
-
 const PROFILE_COMPETENCIES = [
   ["Software / Product Development", "code_blocks", "text-primary"],
   ["Artificial Intelligence & Machine Learning", "psychology", "text-secondary"],
@@ -453,32 +442,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
 
             </div>
 
-          </div>
-        </section>
-
-        {/* SECTION 2: HIRING PARTNERS INFINITE MARQUEE */}
-        <section className="py-space-lg bg-surface-container-lowest overflow-hidden border-y border-surface-container-low">
-          <div className="max-w-7xl mx-auto px-margin mb-space-sm flex flex-col md:flex-row items-baseline justify-between">
-            <span className="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant font-bold">
-              Recruiting &amp; Strategic Engineering Partners
-            </span>
-          </div>
-
-          {/* Scrolling Track */}
-          <div className="relative w-full overflow-hidden flex items-center py-space-sm">
-            <div className="flex items-center gap-12 whitespace-nowrap animate-[marquee_25s_linear_infinite]">
-              {[...PARTNERS, ...PARTNERS].map((partner, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-2 font-headline-sm text-headline-sm font-bold text-on-surface/80 tracking-tight"
-                >
-                  <span className={`material-symbols-outlined ${partner.color} text-[28px]`}>
-                    {partner.icon}
-                  </span>
-                  {partner.name}
-                </div>
-              ))}
-            </div>
           </div>
         </section>
 
