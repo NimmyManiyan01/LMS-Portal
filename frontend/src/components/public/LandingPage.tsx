@@ -445,20 +445,28 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
           </div>
         </section>
 
-        <section className="overflow-hidden border-y border-surface-container-low bg-[#07152f] px-margin py-10">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-5 text-center sm:flex-row sm:gap-10">
-            <span className="font-label-sm text-label-sm uppercase tracking-[.2em] text-blue-200/70">Strategic engineering partner</span>
-            <div className="group flex items-center gap-8 rounded-2xl border border-white/10 bg-white/[.08] px-8 py-4 shadow-xl transition duration-500 hover:-translate-y-1 hover:bg-white/[.14]">
-              <img
-                src="https://www.tcs.com/content/dam/global-tcs/en/images/who-we-are/media-kit/tcs-light-logo.png"
-                alt="TCS"
-                className="h-8 w-auto object-contain opacity-90 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
-              />
-              <img
-                src="https://www.drupal.org/files/infosys-logo-PNG.png"
-                alt="Infosys"
-                className="h-8 w-auto max-w-32 object-contain opacity-90 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
-              />
+        <section className="overflow-hidden border-y border-surface-container-low bg-surface-container-lowest py-space-lg">
+          <div className="mx-auto mb-space-sm flex max-w-7xl flex-col items-baseline justify-between px-margin md:flex-row">
+            <span className="font-label-sm text-label-sm font-bold uppercase tracking-widest text-on-surface-variant">
+              Recruiting &amp; Strategic Engineering Partners
+            </span>
+          </div>
+          <div className="relative flex w-full items-center overflow-hidden py-space-sm">
+            <div className="flex items-center gap-16 whitespace-nowrap animate-[marquee_25s_linear_infinite]">
+              {[1, 2, 3, 4].map((item) => (
+                <div key={item} className="flex items-center gap-16">
+                  <img
+                    src="https://www.tcs.com/content/dam/global-tcs/en/images/who-we-are/media-kit/tcs-light-logo.png"
+                    alt="TCS"
+                    className="h-10 w-auto max-w-40 rounded-lg bg-[#07152f] px-4 py-2 object-contain opacity-80 transition hover:opacity-100"
+                  />
+                  <img
+                    src="https://www.drupal.org/files/infosys-logo-PNG.png"
+                    alt="Infosys"
+                    className="h-10 w-auto max-w-40 rounded-lg bg-white px-4 py-2 object-contain opacity-80 transition hover:opacity-100"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </section>
