@@ -223,6 +223,7 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
   const search = String(req.query.search || "")
     .trim()
     .toLowerCase();
+  const college = String(req.query.college || "").trim();
   const query = examId ? { examId } : {};
   const results = await FinalResult.find(query)
     .populate(
