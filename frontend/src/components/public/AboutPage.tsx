@@ -76,12 +76,12 @@ export function AboutPage({ onBackToLanding, onLogin }: AboutPageProps) {
               </h1>
               <p className="mt-6 max-w-2xl font-body-lg text-body-lg leading-relaxed text-on-surface-variant">
                 As a group of companies with over 11 years of technology expertise, Kaizentrix
-                Global Solutions, InfyStrat, and StratNex collaborate with industry partners to
-                develop customer-centric products and innovative solutions globally.
-              </p>
-              <p className="mt-4 max-w-2xl font-body-md text-body-md leading-relaxed text-on-surface-variant">
-                Driven by collaboration and continuous improvement, we evolve with customer needs
-                to deliver lasting value through technology and engineering excellence.
+                Global Solutions, InfyStrat and StratNex collaborate with industry partners to
+                develop customer-centric products and innovative solutions globally. Additionally,
+                our group’s capabilities also extend to Power Infrastructure and Data-Center Setup
+                through GTV Power Pvt. Ltd., across India. Driven by collaboration and continuous
+                improvement, we evolve with customer needs to deliver lasting value through
+                technology and engineering excellence.
               </p>
             </div>
             <div className="rounded-3xl border border-surface-container bg-surface-container-lowest p-8 shadow-xl sm:p-10">
