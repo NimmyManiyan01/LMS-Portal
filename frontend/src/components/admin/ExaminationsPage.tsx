@@ -729,16 +729,6 @@ export function ExaminationsPage({
               </label>
 
               <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
-                Description
-                <textarea
-                  value={form.description}
-                  rows={3}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full p-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm resize-y"
-                />
-              </label>
-
-              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
                 Examination Type
                 <select
                   value={form.examinationType}

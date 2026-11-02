@@ -129,16 +129,16 @@ export function AssignStudentsModal({
   }, [])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-50">
       <div
         ref={dialogRef}
-        className="relative w-full max-w-[900px] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900"
+        className="mx-auto flex min-h-screen w-full max-w-7xl flex-col bg-white text-slate-900 shadow-sm"
         role="dialog"
         aria-modal="true"
         aria-labelledby="assign-students-title"
       >
         {/* Modal Header */}
-        <div className="flex-none flex items-start justify-between gap-4 p-5 sm:px-7 sm:py-6 border-b border-slate-100 bg-slate-50/50">
+        <div className="flex-none flex items-start justify-between gap-4 border-b border-slate-100 bg-white p-5 sm:px-10 sm:py-7">
           <div>
             <div className="text-[11px] font-extrabold uppercase tracking-wider text-blue-600 mb-1">
               EXAMINATION ASSIGNMENT
@@ -164,7 +164,7 @@ export function AssignStudentsModal({
         </div>
 
         {/* Modal Body */}
-        <div className="min-h-0 flex-1 flex flex-col gap-4 p-5 sm:px-7 sm:pb-6 overflow-hidden">
+        <div className="min-h-0 flex-1 flex flex-col gap-5 p-5 sm:px-10 sm:pb-8">
           {/* Filters */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 flex-none">
             <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-700">
@@ -218,15 +218,18 @@ export function AssignStudentsModal({
           </div>
 
           {/* College & Student List */}
-          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden flex flex-col gap-3 pr-1.5">
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden grid gap-4 pr-1.5 md:grid-cols-2">
             {!names.length ? (
               <div className="py-12 text-center text-xs sm:text-sm text-slate-500 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
                 No eligible students match the selected filters.
               </div>
             ) : (
-              names.map((name) => {
+              names.map((name, groupIndex) => {
                 const list = groups[name]
-                const open = activeCollege === name
+                // Keep the first group visible while the accordion state is
+                // being initialised. This also prevents a filtered refresh
+                // from leaving the list looking like empty border rows.
+                const open = activeCollege === name || (!activeCollege && groupIndex === 0)
                 const available = eligible(list)
                 const selectedInGroup = list.filter((student) =>
                   assignedIds.includes(student.id),

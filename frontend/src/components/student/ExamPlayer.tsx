@@ -496,6 +496,7 @@ export function ExamPlayer({
   }, [attemptId])
 
   const persistAnswer = async (answer: AnswerState, retry = false) => {
+    if (!answer?.questionId) return false
     const version = (answerVersions[answer.questionId] || 0) + 1
     setSaveState(retry ? "retrying" : "saving")
     try {
@@ -510,9 +511,17 @@ export function ExamPlayer({
       if (!response.ok) throw new Error("save failed")
       setAnswerVersions((prev) => ({ ...prev, [answer.questionId]: version }))
       setSaveState("saved")
+      return true
     } catch {
       setSaveState("failed")
+      return false
     }
+  }
+
+  const saveAndNext = async () => {
+    if (currentIdx >= questions.length - 1) return
+    const saved = await persistAnswer(currentAns)
+    if (saved) goToQuestion(currentIdx + 1)
   }
 
   const selectOption = (optId: string) => {
@@ -964,10 +973,7 @@ export function ExamPlayer({
               </button>
               <button
                 className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-sm shadow-blue-500/20 border-none flex-1 sm:flex-initial"
-                onClick={() => {
-                  if (currentIdx < questions.length - 1)
-                    goToQuestion(currentIdx + 1)
-                }}
+                onClick={() => void saveAndNext()}
               >
                 Save & Next →
               </button>
