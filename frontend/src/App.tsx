@@ -1244,6 +1244,7 @@ function AdminStudents() {
   const [search, setSearch] = useState("")
   const [status, setStatus] = useState("")
   const [college, setCollege] = useState<string[]>([])
+  const [collegeMenuOpen, setCollegeMenuOpen] = useState(false)
   const [colleges, setColleges] = useState<any[]>([])
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
@@ -1445,24 +1446,54 @@ function AdminStudents() {
           placeholder="Search ID, name, or email"
           className="flex-1 min-w-[200px] h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
         />
-        <select
-          multiple
-          value={college}
-          onChange={(event) => {
-            setCollege(
-              Array.from(event.target.selectedOptions, (option) => option.value),
-            )
-            setPage(1)
-          }}
-          className="min-h-10 max-w-xs px-3 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
-        >
-          <option value="">All colleges (hold Ctrl/Cmd to select multiple)</option>
-          {colleges.map((item) => (
-            <option key={item.name} value={item.name}>
-              {item.name} ({item.count})
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setCollegeMenuOpen((open) => !open)}
+            className="flex h-10 min-w-[250px] max-w-xs items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 text-left text-xs text-slate-900 shadow-sm transition hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          >
+            <span className="truncate">
+              {college.length ? `${college.length} colleges selected` : "All colleges"}
+            </span>
+            <span className="text-slate-400">⌄</span>
+          </button>
+          {collegeMenuOpen && (
+            <div className="absolute left-0 top-11 z-30 max-h-72 w-[320px] overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+              <button
+                type="button"
+                onClick={() => {
+                  setCollege([])
+                  setPage(1)
+                }}
+                className="mb-1 w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-blue-600 hover:bg-blue-50"
+              >
+                Clear selection / All colleges
+              </button>
+              {colleges.map((item) => {
+                const checked = college.includes(item.name)
+                return (
+                  <label key={item.name} className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-700 hover:bg-slate-50">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        setCollege((current) =>
+                          checked
+                            ? current.filter((value) => value !== item.name)
+                            : [...current, item.name],
+                        )
+                        setPage(1)
+                      }}
+                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="flex-1">{item.name}</span>
+                    <span className="text-slate-400">{item.count}</span>
+                  </label>
+                )
+              })}
+            </div>
+          )}
+        </div>
         <select
           value={status}
           onChange={(event) => {
