@@ -472,6 +472,10 @@ export function ExamPlayer({
     }
 
     const handleWindowBlur = () => {
+      // A window blur is not necessarily a tab switch. Browsers can emit it
+      // during ordinary focus changes, so only record it when the document is
+      // actually hidden. The visibilitychange handler records real switches.
+      if (document.visibilityState !== "hidden") return
       setContentObscured(true)
       setLastIntegrityType("TAB_HIDDEN")
       const now = Date.now()
