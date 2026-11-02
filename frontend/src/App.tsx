@@ -1218,6 +1218,20 @@ export default function App() {
   )
 }
 
+const ADMIN_BRANCH_OPTIONS = [
+  "Computer Science",
+  "Information Science",
+  "Information Technology",
+  "Electronics and Communication",
+  "Electrical and Electronics",
+  "Mechanical Engineering",
+  "Civil Engineering",
+  "Artificial Intelligence and Machine Learning",
+  "Data Science",
+  "Master of Computer Applications",
+  "Other",
+]
+
 function AdminStudents() {
   const importPreviewDuplicates = useRef({ count: 0, invalid: 0 })
   const api = API_BASE_URL
@@ -1681,26 +1695,44 @@ function AdminStudents() {
 
                   <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
                     College Name
-                    <input
+                    <select
                       required
                       value={form.college}
                       onChange={(event) =>
                         setForm({ ...form, college: event.target.value })
                       }
-                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
-                    />
+                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+                    >
+                      <option value="">Select college</option>
+                      {form.college && !colleges.some((item) => item.name === form.college) && (
+                        <option value={form.college}>{form.college}</option>
+                      )}
+                      {colleges.map((item) => (
+                        <option key={item.name} value={item.name}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
                   </label>
 
                   <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
                     Branch
-                    <input
+                    <select
                       required
                       value={form.branch}
                       onChange={(event) =>
                         setForm({ ...form, branch: event.target.value })
                       }
-                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
-                    />
+                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+                    >
+                      <option value="">Select branch</option>
+                      {form.branch && !ADMIN_BRANCH_OPTIONS.includes(form.branch) && (
+                        <option value={form.branch}>{form.branch}</option>
+                      )}
+                      {ADMIN_BRANCH_OPTIONS.map((branch) => (
+                        <option key={branch} value={branch}>{branch}</option>
+                      ))}
+                    </select>
                   </label>
 
                   <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
