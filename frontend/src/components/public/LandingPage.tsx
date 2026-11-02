@@ -470,6 +470,11 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                     alt="HCL Technologies"
                     className="h-10 w-auto max-w-40 object-contain opacity-80 transition hover:opacity-100"
                   />
+                  <img
+                    src="https://logos-world.net/wp-content/uploads/2020/10/IBM-Logo-1962.png"
+                    alt="IBM"
+                    className="h-10 w-auto max-w-40 object-contain opacity-80 transition hover:opacity-100"
+                  />
                 </div>
               ))}
             </div>
