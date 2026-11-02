@@ -1243,7 +1243,7 @@ function AdminStudents() {
   })
   const [search, setSearch] = useState("")
   const [status, setStatus] = useState("")
-  const [college, setCollege] = useState("")
+  const [college, setCollege] = useState<string[]>([])
   const [colleges, setColleges] = useState<any[]>([])
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
@@ -1268,7 +1268,7 @@ function AdminStudents() {
     setError("")
     try {
       const response = await authFetch(
-        `${api}/api/admin/students?page=${page}&search=${encodeURIComponent(search)}&status=${status}&college=${encodeURIComponent(college)}`,
+        `${api}/api/admin/students?page=${page}&search=${encodeURIComponent(search)}&status=${status}&college=${encodeURIComponent(college.join(","))}`,
         {},
         true,
       )
@@ -1387,7 +1387,7 @@ function AdminStudents() {
         title="Student Management"
         description="Manage registered students and account activation."
         showCreateAction={false}
-        selectedCollege={college}
+        selectedCollege={college.join(",")}
       />
 
       {/* Header */}
@@ -1446,14 +1446,17 @@ function AdminStudents() {
           className="flex-1 min-w-[200px] h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
         />
         <select
+          multiple
           value={college}
           onChange={(event) => {
-            setCollege(event.target.value)
+            setCollege(
+              Array.from(event.target.selectedOptions, (option) => option.value),
+            )
             setPage(1)
           }}
-          className="h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+          className="min-h-10 max-w-xs px-3 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
         >
-          <option value="">All colleges</option>
+          <option value="">All colleges (hold Ctrl/Cmd to select multiple)</option>
           {colleges.map((item) => (
             <option key={item.name} value={item.name}>
               {item.name} ({item.count})

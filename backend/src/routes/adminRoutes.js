@@ -223,7 +223,10 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
   const search = String(req.query.search || "")
     .trim()
     .toLowerCase();
-  const college = String(req.query.college || "").trim();
+  const queryColleges = String(req.query.college || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
   const query = examId ? { examId } : {};
   const results = await FinalResult.find(query)
     .populate(
@@ -1887,8 +1890,21 @@ router.get("/students", authenticate, adminOnly, async (req, res) => {
       { email: { $regex: search, $options: "i" } },
     ];
   if (["ACTIVE", "SUSPENDED"].includes(status)) filter.accountStatus = status;
-  if (college)
-    filter.college = { $regex: `^${escapeRegex(college)}$`, $options: "i" };
+  if (queryColleges.length) {
+    const collegeClause = {
+      college: {
+        $in: queryColleges.map(
+          (value) => new RegExp(`^${escapeRegex(value)}$`, "i"),
+        ),
+      },
+    };
+    if (filter.$or) {
+      filter.$and = [{ $or: filter.$or }, collegeClause];
+      delete filter.$or;
+    } else {
+      Object.assign(filter, collegeClause);
+    }
+  }
   const [students, total] = await Promise.all([
     Student.find(filter)
       .sort({ createdAt: -1 })
