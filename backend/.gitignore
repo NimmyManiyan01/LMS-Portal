@@ -1,4 +1,6 @@
 .env
+.env.*
+!.env.example
 dist
 .tmp-test
 node_modules
