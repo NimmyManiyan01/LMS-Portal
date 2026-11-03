@@ -401,7 +401,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
       <main className="w-full bg-surface">
         {/* SECTION 1: HERO & LIVE WORKBENCH PREVIEW */}
         <section
-          className="relative isolate min-h-[720px] overflow-hidden bg-surface-container-low px-margin pb-28 pt-32 lg:min-h-[860px] lg:pb-36 lg:pt-40"
+          className="relative isolate min-h-[calc(100svh-4rem)] overflow-hidden bg-surface-container-low px-margin py-16 lg:min-h-[calc(100svh-4rem)] lg:py-20"
         >
           <img
             src={heroStudent}
@@ -412,7 +412,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
           <div className="absolute -top-32 right-10 w-96 h-96 bg-primary-fixed-dim/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 left-10 w-80 h-80 bg-tertiary-fixed/30 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 mx-auto grid min-h-[560px] max-w-7xl grid-cols-1 items-center gap-space-xl lg:min-h-[660px] lg:grid-cols-12">
+          <div className="relative z-10 mx-auto grid min-h-[calc(100svh-8rem)] max-w-7xl grid-cols-1 items-center gap-space-xl lg:min-h-[calc(100svh-8rem)] lg:grid-cols-12">
             {/* Left Copy & Metric Highlights */}
             <div className="flex max-w-3xl flex-col gap-space-md lg:col-span-7">
               <h1 className="font-headline-xl text-headline-xl text-on-surface leading-[1.04] tracking-tight lg:text-[clamp(3.6rem,6vw,6.4rem)]">

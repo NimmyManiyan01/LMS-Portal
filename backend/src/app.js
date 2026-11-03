@@ -92,6 +92,7 @@ app.use(
     allowedHeaders: [
       "Content-Type",
       "Authorization",
+      "X-CSRF-Token",
       "X-Requested-With",
       "Accept",
       "Origin",
@@ -112,6 +113,7 @@ app.options(
     allowedHeaders: [
       "Content-Type",
       "Authorization",
+      "X-CSRF-Token",
       "X-Requested-With",
       "Accept",
       "Origin",
