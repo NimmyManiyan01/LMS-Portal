@@ -291,7 +291,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
           {/* Header Action Controls */}
           <div className="flex items-center gap-space-md">
             <a
-              href="https://www.linkedin.com/"
+              href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/"
               target="_blank"
               rel="noreferrer"
               aria-label="Kaizentrix Global Solutions on LinkedIn"
@@ -892,7 +892,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 lg:col-span-2">
               <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="https://www.kaizentrixglobal.com/">About Us</a>
               <button onClick={() => openContact()} className="cursor-pointer border-0 bg-transparent p-0 text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors">Contact Us</button>
-              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="https://www.linkedin.com/" target="_blank" rel="noreferrer">LinkedIn</a>
+              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/" target="_blank" rel="noreferrer">LinkedIn</a>
               <button onClick={onLogin} className="cursor-pointer border-0 bg-transparent p-0 text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors">Portal Login</button>
             </div>
 
