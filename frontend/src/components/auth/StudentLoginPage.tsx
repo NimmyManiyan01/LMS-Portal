@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { StudentProfile } from "../../types";
-import { API_BASE_URL, setAuthToken } from "../../api";
+import { API_BASE_URL, getCsrfHeaders, setAuthToken } from "../../api";
 import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4";
 import { TransparentLogoVideo } from "../public/TransparentLogoVideo";
 
@@ -197,7 +197,7 @@ export function StudentLoginPage({
     try {
       const response = await fetch(`${api}/api/auth/${endpoint}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getCsrfHeaders() },
         credentials: "include",
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
@@ -234,7 +234,7 @@ export function StudentLoginPage({
     try {
       const response = await fetch(`${api}/api/auth/verify-otp`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getCsrfHeaders() },
         credentials: "include",
         body: JSON.stringify({
           email: email.trim().toLowerCase(),

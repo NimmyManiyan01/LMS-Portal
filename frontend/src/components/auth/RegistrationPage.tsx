@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { API_BASE_URL } from "../../api"
+import { API_BASE_URL, getCsrfHeaders } from "../../api"
 import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4"
 import { TransparentLogoVideo } from "../public/TransparentLogoVideo"
 
@@ -70,7 +70,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getCsrfHeaders() },
         body: JSON.stringify({
           ...form,
           passOutYear: form.passOutYear ? Number(form.passOutYear) : undefined,
@@ -81,7 +81,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
         throw new Error(data.error || "Registration could not be completed.")
       const otpResponse = await fetch(`${API_BASE_URL}/api/auth/request-otp`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getCsrfHeaders() },
         body: JSON.stringify({ email: form.email.trim().toLowerCase() }),
       })
       if (!otpResponse.ok) {

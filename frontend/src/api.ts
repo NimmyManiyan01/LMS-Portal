@@ -55,6 +55,15 @@ export function getAuthHeaders(isAdmin = false): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
+export function getCsrfHeaders(): Record<string, string> {
+  const csrf = document.cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith("kgs_csrf="))
+    ?.slice("kgs_csrf=".length)
+  return csrf ? { "X-CSRF-Token": decodeURIComponent(csrf) } : {}
+}
+
 export async function authFetch(
   url: string,
 
@@ -67,14 +76,7 @@ export async function authFetch(
   const headers = {
     ...authHeaders,
 
-    ...(() => {
-      const csrf = document.cookie
-        .split(";")
-        .map((part) => part.trim())
-        .find((part) => part.startsWith("kgs_csrf="))
-        ?.slice("kgs_csrf=".length)
-      return csrf ? { "X-CSRF-Token": decodeURIComponent(csrf) } : {}
-    })(),
+    ...getCsrfHeaders(),
 
     ...(options.headers || {}),
   }
