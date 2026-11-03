@@ -56,16 +56,16 @@ async function registerStudent(req, res) {
   const current = new Date().getFullYear();
   if (
     !/^[\w.!#$%&'*+/=?^`{|}~-]+@[\w-]+(?:\.[\w-]+)+$/.test(normalizedEmail) ||
-    (phone && !/^[6-9]\d{9}$/.test(String(phone))) ||
+    !/^[6-9]\d{9}$/.test(String(phone)) ||
     String(fullName || "").trim().length < 2 ||
     String(fullName).trim().length > 100 ||
-    (college &&
-      (String(college).trim().length < 2 ||
-        String(college).trim().length > 150)) ||
-    (passOutYear &&
-      (!Number.isInteger(year) ||
-        year < current - 10 ||
-        year > current + 10)) ||
+    String(college).trim().length < 2 ||
+    String(college).trim().length > 150 ||
+    String(branch).trim().length < 2 ||
+    String(branch).trim().length > 100 ||
+    !Number.isInteger(year) ||
+    year < current - 10 ||
+    year > current + 10 ||
     privacyAccepted !== true ||
     monitoringAccepted !== true
   )
@@ -86,7 +86,7 @@ async function registerStudent(req, res) {
       phone: String(phone || ""),
       college: String(college || "Independent registration").trim(),
       branch: String(branch || "Unspecified").trim(),
-      passOutYear: passOutYear ? year : current,
+      passOutYear: year,
       privacyAcceptedAt: new Date(),
       monitoringAcceptedAt: new Date(),
       acknowledgementVersion: "1.0",

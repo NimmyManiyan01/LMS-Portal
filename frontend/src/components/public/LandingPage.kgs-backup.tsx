@@ -1,41 +1,1028 @@
 import { useEffect, useState, type ReactNode } from "react";
 import heroStudentImg from "../../assets/hero-student.png";
 
-interface LandingPageProps { onLogin:()=>void; onAdminLogin:()=>void; onRegister:()=>void }
-type IconName="arrow"|"bars"|"book"|"briefcase"|"check"|"left"|"right"|"close"|"document"|"eye"|"graduate"|"grid"|"laptop"|"lock"|"mail"|"menu"|"monitor"|"play"|"shield"|"user"|"wifi";
-const paths:Record<IconName,ReactNode>={
-  arrow:<><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></>,bars:<path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/>,book:<><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15Z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20"/></>,briefcase:<><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></>,check:<path d="m5 12 4 4L19 6"/>,left:<path d="m15 18-6-6 6-6"/>,right:<path d="m9 18 6-6-6-6"/>,close:<path d="m6 6 12 12M18 6 6 18"/>,document:<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></>,eye:<><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></>,graduate:<><path d="m2 10 10-5 10 5-10 5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></>,grid:<><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></>,laptop:<><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M2 20h20M9 16v4M15 16v4"/></>,lock:<><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></>,mail:<><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></>,menu:<path d="M4 6h16M4 12h16M4 18h16"/>,monitor:<><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></>,play:<><circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4Z"/></>,shield:<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></>,user:<><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></>,wifi:<><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></>
+interface LandingPageProps {
+  onLogin: () => void;
+  onAdminLogin: () => void;
+  onRegister: () => void;
+}
+type IconName =
+  | "arrow"
+  | "bars"
+  | "book"
+  | "briefcase"
+  | "check"
+  | "left"
+  | "right"
+  | "close"
+  | "document"
+  | "eye"
+  | "graduate"
+  | "grid"
+  | "laptop"
+  | "lock"
+  | "mail"
+  | "menu"
+  | "monitor"
+  | "play"
+  | "shield"
+  | "user"
+  | "wifi";
+const paths: Record<IconName, ReactNode> = {
+  arrow: (
+    <>
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
+    </>
+  ),
+  bars: <path d="M4 19V9M10 19V5M16 19v-7M22 19V3" />,
+  book: (
+    <>
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15Z" />
+      <path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20" />
+    </>
+  ),
+  briefcase: (
+    <>
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18" />
+    </>
+  ),
+  check: <path d="m5 12 4 4L19 6" />,
+  left: <path d="m15 18-6-6 6-6" />,
+  right: <path d="m9 18 6-6-6-6" />,
+  close: <path d="m6 6 12 12M18 6 6 18" />,
+  document: (
+    <>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+      <path d="M14 2v6h6M8 13h8M8 17h6" />
+    </>
+  ),
+  eye: (
+    <>
+      <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+      <circle cx="12" cy="12" r="2.5" />
+    </>
+  ),
+  graduate: (
+    <>
+      <path d="m2 10 10-5 10 5-10 5Z" />
+      <path d="M6 12v5c3 2 9 2 12 0v-5" />
+    </>
+  ),
+  grid: (
+    <>
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+    </>
+  ),
+  laptop: (
+    <>
+      <rect x="4" y="4" width="16" height="12" rx="2" />
+      <path d="M2 20h20M9 16v4M15 16v4" />
+    </>
+  ),
+  lock: (
+    <>
+      <rect x="4" y="10" width="16" height="11" rx="2" />
+      <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+    </>
+  ),
+  mail: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3 7 9 6 9-6" />
+    </>
+  ),
+  menu: <path d="M4 6h16M4 12h16M4 18h16" />,
+  monitor: (
+    <>
+      <rect x="3" y="4" width="18" height="13" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </>
+  ),
+  play: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="m10 8 6 4-6 4Z" />
+    </>
+  ),
+  shield: (
+    <>
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+      <path d="m9 12 2 2 4-4" />
+    </>
+  ),
+  user: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
+    </>
+  ),
+  wifi: (
+    <>
+      <path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0" />
+      <circle cx="12" cy="19" r="1" />
+    </>
+  ),
 };
-function Icon({name,size=20}:{name:IconName;size?:number}){return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>{paths[name]}</svg>}
+function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {paths[name]}
+    </svg>
+  );
+}
 
-const stages=[
-  ["Create Profile","Profile","user","Your verified candidate record","Build one trusted profile with your identity, education, skills, and assessment history.","Profile 86% complete","Secure record"],
-  ["Verify Identity","Verify","shield","Identity before access","Confirm your account through one-time verification before an assessment session begins.","OTP verified","Identity matched"],
-  ["Check System","System","laptop","Ready before the timer starts","Test camera, microphone, network, browser permissions, and fullscreen readiness in one guided check.","All checks passed","Connection stable"],
-  ["Read Instructions","Instructions","book","Rules made clear","Review duration, marking, integrity expectations, privacy information, and submission rules.","Instructions reviewed","60 minute exam"],
-  ["Take Assessment","Assessment","monitor","A calm, focused workspace","Navigate questions, autosave answers, mark items for review, and follow a server-synchronised timer.","18 of 30 answered","42:18 remaining"],
-  ["Submit Securely","Submit","lock","One defensible submission","Confirm answered and unanswered counts, then receive an auditable submission receipt.","Submission recorded","Receipt generated"],
-  ["View Published Results","Results","bars","Results when they are ready","Access scores and permitted feedback only after authorised review and publication.","Result published","Actionable insight"],
+const stages = [
+  [
+    "Create Profile",
+    "Profile",
+    "user",
+    "Your verified candidate record",
+    "Build one trusted profile with your identity, education, skills, and assessment history.",
+    "Profile 86% complete",
+    "Secure record",
+  ],
+  [
+    "Verify Identity",
+    "Verify",
+    "shield",
+    "Identity before access",
+    "Confirm your account through one-time verification before an assessment session begins.",
+    "OTP verified",
+    "Identity matched",
+  ],
+  [
+    "Check System",
+    "System",
+    "laptop",
+    "Ready before the timer starts",
+    "Test camera, microphone, network, browser permissions, and fullscreen readiness in one guided check.",
+    "All checks passed",
+    "Connection stable",
+  ],
+  [
+    "Read Instructions",
+    "Instructions",
+    "book",
+    "Rules made clear",
+    "Review duration, marking, integrity expectations, privacy information, and submission rules.",
+    "Instructions reviewed",
+    "60 minute exam",
+  ],
+  [
+    "Take Assessment",
+    "Assessment",
+    "monitor",
+    "A calm, focused workspace",
+    "Navigate questions, autosave answers, mark items for review, and follow a server-synchronised timer.",
+    "18 of 30 answered",
+    "42:18 remaining",
+  ],
+  [
+    "Submit Securely",
+    "Submit",
+    "lock",
+    "One defensible submission",
+    "Confirm answered and unanswered counts, then receive an auditable submission receipt.",
+    "Submission recorded",
+    "Receipt generated",
+  ],
+  [
+    "View Published Results",
+    "Results",
+    "bars",
+    "Results when they are ready",
+    "Access scores and permitted feedback only after authorised review and publication.",
+    "Result published",
+    "Actionable insight",
+  ],
 ] as const;
-const solutions=[["briefcase","Campus Hiring Tests","Screen large candidate pools with consistent rules, secure attempts, and structured reports."],["laptop","Technical Screening","Evaluate role-specific knowledge with reusable question banks and controlled paper versions."],["graduate","Academic Examinations","Schedule institution assessments with eligibility, autosave, monitoring, and publication controls."],["document","Certification Assessments","Deliver auditable certification journeys with identity checks and defensible result records."],["grid","Custom Programs","Configure duration, marks, integrity policies, candidate groups, and result visibility."]] as const;
-const wrap="mx-auto w-[calc(100%-40px)] max-w-[1180px] max-sm:w-[calc(100%-28px)]";
-const btn="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl px-[18px] text-xs font-extrabold transition hover:-translate-y-0.5 focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-blue-300";
-const iconBox="grid size-10 shrink-0 place-items-center rounded-xl bg-indigo-50 text-blue-600";
-const label="text-[10px] font-extrabold uppercase tracking-[.16em] text-blue-600";
+const solutions = [
+  [
+    "briefcase",
+    "Campus Hiring Tests",
+    "Screen large candidate pools with consistent rules, secure attempts, and structured reports.",
+  ],
+  [
+    "laptop",
+    "Technical Screening",
+    "Evaluate role-specific knowledge with reusable question banks and controlled paper versions.",
+  ],
+  [
+    "graduate",
+    "Academic Examinations",
+    "Schedule institution assessments with eligibility, autosave, monitoring, and publication controls.",
+  ],
+  [
+    "document",
+    "Certification Assessments",
+    "Deliver auditable certification journeys with identity checks and defensible result records.",
+  ],
+  [
+    "grid",
+    "Custom Programs",
+    "Configure duration, marks, integrity policies, candidate groups, and result visibility.",
+  ],
+] as const;
+const wrap =
+  "mx-auto w-[calc(100%-40px)] max-w-[1180px] max-sm:w-[calc(100%-28px)]";
+const btn =
+  "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl px-[18px] text-xs font-extrabold transition hover:-translate-y-0.5 focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-blue-300";
+const iconBox =
+  "grid size-10 shrink-0 place-items-center rounded-xl bg-indigo-50 text-blue-600";
+const label =
+  "text-[10px] font-extrabold uppercase tracking-[.16em] text-blue-600";
 
-function Brand(){return <a className="flex shrink-0 items-center gap-2.5 text-inherit no-underline" href="#home"><span className="grid size-[42px] place-items-center rounded-[13px] bg-gradient-to-br from-blue-600 to-violet-600 font-black text-white shadow-lg shadow-blue-600/20">K</span><b className="flex flex-col text-lg leading-none">KGS<small className="mt-1 text-[8px] tracking-[.17em] text-blue-600">EXAM PORTAL</small></b></a>}
-function Header({onLogin,onAdminLogin}:Pick<LandingPageProps,"onLogin"|"onAdminLogin">){const[open,setOpen]=useState(false);const links=[["Home","#home"],["How It Works","#journey"],["Security","#security"],["For Institutions","#institutions"],["Candidate Journey","#candidate-journey"],["Policies","#policies"]];return <header className="sticky top-0 z-50 h-[78px] border-b border-slate-200/80 bg-white/90 backdrop-blur-xl max-sm:h-[68px]"><div className={`${wrap} flex h-full items-center gap-6`}><Brand/><nav className="ml-auto flex gap-5 max-[1060px]:hidden">{links.map(([x,h])=><a className="text-[11px] font-bold text-slate-600 no-underline hover:text-blue-600" href={h} key={x}>{x}</a>)}</nav><div className="flex gap-2 max-[1060px]:ml-auto max-sm:hidden"><button className={`${btn} border border-slate-200 bg-white`} onClick={onLogin}>Student Login</button><button className={`${btn} bg-slate-950 text-white`} onClick={onAdminLogin}>Admin Login <Icon name="arrow" size={15}/></button></div><button className="ml-auto hidden size-11 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white max-[1060px]:grid" aria-label="Toggle navigation" aria-expanded={open} onClick={()=>setOpen(!open)}><Icon name={open?"close":"menu"}/></button></div>{open&&<div className="absolute left-5 right-5 top-[78px] flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl max-sm:top-[68px]"><nav className="flex flex-col">{links.map(([x,h])=><a className="border-b border-slate-100 p-3 text-xs font-bold text-slate-600 no-underline" href={h} key={x} onClick={()=>setOpen(false)}>{x}</a>)}</nav><button className={`${btn} border border-slate-200 bg-white`} onClick={onLogin}>Student Login</button><button className={`${btn} bg-slate-950 text-white`} onClick={onAdminLogin}>Admin Login</button></div>}</header>}
+function Brand() {
+  return (
+    <a
+      className="flex shrink-0 items-center gap-2.5 text-inherit no-underline"
+      href="#home"
+    >
+      <span className="grid size-[42px] place-items-center rounded-[13px] bg-gradient-to-br from-blue-600 to-violet-600 font-black text-white shadow-lg shadow-blue-600/20">
+        K
+      </span>
+      <b className="flex flex-col text-lg leading-none">
+        KGS
+        <small className="mt-1 text-[8px] tracking-[.17em] text-blue-600">
+          EXAM PORTAL
+        </small>
+      </b>
+    </a>
+  );
+}
+function Header({
+  onLogin,
+  onAdminLogin,
+}: Pick<LandingPageProps, "onLogin" | "onAdminLogin">) {
+  const [open, setOpen] = useState(false);
+  const links = [
+    ["Home", "#home"],
+    ["How It Works", "#journey"],
+    ["Security", "#security"],
+    ["For Institutions", "#institutions"],
+    ["Candidate Journey", "#candidate-journey"],
+    ["Policies", "#policies"],
+  ];
+  return (
+    <header className="sticky top-0 z-50 h-[78px] border-b border-slate-200/80 bg-white/90 backdrop-blur-xl max-sm:h-[68px]">
+      <div className={`${wrap} flex h-full items-center gap-6`}>
+        <Brand />
+        <nav className="ml-auto flex gap-5 max-[1060px]:hidden">
+          {links.map(([x, h]) => (
+            <a
+              className="text-[11px] font-bold text-slate-600 no-underline hover:text-blue-600"
+              href={h}
+              key={x}
+            >
+              {x}
+            </a>
+          ))}
+        </nav>
+        <div className="flex gap-2 max-[1060px]:ml-auto max-sm:hidden">
+          <button
+            className={`${btn} border border-slate-200 bg-white`}
+            onClick={onLogin}
+          >
+            Student Login
+          </button>
+          <button
+            className={`${btn} bg-slate-950 text-white`}
+            onClick={onAdminLogin}
+          >
+            Admin Login <Icon name="arrow" size={15} />
+          </button>
+        </div>
+        <button
+          className="ml-auto hidden size-11 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white max-[1060px]:grid"
+          aria-label="Toggle navigation"
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+        >
+          <Icon name={open ? "close" : "menu"} />
+        </button>
+      </div>
+      {open && (
+        <div className="absolute left-5 right-5 top-[78px] flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl max-sm:top-[68px]">
+          <nav className="flex flex-col">
+            {links.map(([x, h]) => (
+              <a
+                className="border-b border-slate-100 p-3 text-xs font-bold text-slate-600 no-underline"
+                href={h}
+                key={x}
+                onClick={() => setOpen(false)}
+              >
+                {x}
+              </a>
+            ))}
+          </nav>
+          <button
+            className={`${btn} border border-slate-200 bg-white`}
+            onClick={onLogin}
+          >
+            Student Login
+          </button>
+          <button
+            className={`${btn} bg-slate-950 text-white`}
+            onClick={onAdminLogin}
+          >
+            Admin Login
+          </button>
+        </div>
+      )}
+    </header>
+  );
+}
 
-function Visual({active}:{active:number}){const s=stages[active];return <div className="relative h-[465px] overflow-hidden rounded-[30px] border border-white bg-gradient-to-br from-blue-50 to-blue-200 shadow-2xl shadow-slate-900/15 max-sm:h-[385px]"><div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.22)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.22)_1px,transparent_1px)] bg-[size:32px_32px]"/><img className="absolute bottom-0 left-0 h-[82%] w-1/2 object-cover object-[67%_center] [mask-image:linear-gradient(to_right,#000_60%,transparent),linear-gradient(to_top,#000_76%,transparent)] [mask-composite:intersect] max-sm:w-[61%] max-sm:opacity-70" src={heroStudentImg} alt="Candidate preparing for an assessment"/><div className="absolute right-[5%] top-[15%] h-[61%] w-[68%] overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-2xl [transform:perspective(900px)_rotateY(-4deg)] max-sm:right-[3%] max-sm:top-[11%] max-sm:w-[86%]"><div className="flex h-[34px] items-center gap-1.5 bg-slate-950 px-3"><i className="size-[7px] rounded-full bg-red-400"/><i className="size-[7px] rounded-full bg-amber-300"/><i className="size-[7px] rounded-full bg-emerald-400"/><small className="ml-auto text-[7px] uppercase tracking-widest text-blue-200">KGS secure workspace</small></div><div className="grid h-[calc(100%-34px)] grid-cols-[35px_1fr]"><aside className="flex flex-col gap-2 bg-slate-100 p-2">{[0,1,2,3].map(x=><i className={`h-[17px] rounded ${x?"bg-slate-300":"bg-blue-600"}`} key={x}/>)}</aside><div className="p-[18px]"><header className="flex justify-between"><span className="flex flex-col gap-1"><small className="text-[7px] uppercase text-slate-400">{s[3]}</small><b className="text-[13px]">{s[0]}</b></span><em className="h-max rounded-full bg-emerald-50 px-2 py-1 text-[7px] not-italic text-emerald-700">LIVE</em></header><div className="mt-5 space-y-2">{["w-full","w-full","w-[58%]"].map((w,i)=><p className={`h-1.5 rounded bg-slate-200 ${w}`} key={i}/>)}</div><section className="mt-6 grid grid-cols-2 gap-2">{[0,1,2,3].map(x=><i className="h-7 rounded-lg border border-slate-200 bg-slate-50" key={x}/>)}</section><footer className="mt-5 h-1 overflow-hidden rounded bg-slate-200"><span className="block h-full bg-gradient-to-r from-blue-600 to-violet-600 transition-all" style={{width:`${25+active*11}%`}}/></footer></div></div></div><div className="absolute right-[2%] top-[7%] z-10 flex animate-float items-center gap-2 rounded-[14px] border border-white bg-white/95 px-3 py-2.5 shadow-xl"><span className={iconBox}><Icon name={s[2]}/></span><b className="flex flex-col text-[10px]"><small className="text-[7px] uppercase tracking-widest text-slate-400">Current stage</small>{s[5]}</b></div><div className="absolute bottom-[7%] left-[9%] z-10 flex animate-float items-center gap-2 rounded-[14px] border border-white bg-white/95 px-3 py-2.5 shadow-xl max-sm:left-[3%]"><i className="size-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/10"/><b className="flex flex-col text-[10px]"><small className="text-[7px] uppercase tracking-widest text-slate-400">Session signal</small>{s[6]}</b></div></div>}
-function Hero({onLogin,onRegister}:Pick<LandingPageProps,"onLogin"|"onRegister">){const[active,setActive]=useState(0);const[paused,setPaused]=useState(false);useEffect(()=>{if(paused)return;const t=setInterval(()=>setActive(v=>(v+1)%stages.length),5200);return()=>clearInterval(t)},[paused]);return <section id="home" className="bg-[radial-gradient(circle_at_80%_20%,#dce8ff,transparent_31%),radial-gradient(circle_at_14%_10%,#eef3ff,transparent_27%),linear-gradient(#fafcff,#fff)] pb-8 pt-[70px] max-sm:pt-12"><div className={`${wrap} grid grid-cols-[.88fr_1.12fr] items-center gap-[54px] max-[1060px]:grid-cols-1`}><div className="max-[1060px]:mx-auto max-[1060px]:max-w-[740px] max-[1060px]:text-center"><span className={`${label} inline-flex items-center gap-2`}><i className="size-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/10"/>Secure assessment infrastructure</span><h1 className="my-5 text-[clamp(44px,5vw,72px)] font-extrabold leading-none tracking-[-.055em]">Every assessment.<br/><em className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text not-italic text-transparent">Clear, fair, trusted.</em></h1><p className="text-[17px] leading-7 text-slate-600 max-[1060px]:mx-auto max-[1060px]:max-w-[600px]">One connected platform for candidate onboarding, secure delivery, live operational visibility, and auditable results.</p><div className="mt-7 flex gap-3 max-[1060px]:justify-center max-sm:flex-col"><button className={`${btn} bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-xl shadow-blue-600/20`} onClick={onRegister}>Create Candidate Profile <Icon name="arrow" size={16}/></button><button className={`${btn} border border-slate-200 bg-white`} onClick={onLogin}><Icon name="play" size={16}/> Candidate Login</button></div><div className="mt-5 flex gap-5 text-[11px] font-bold text-slate-600 max-[1060px]:justify-center max-sm:flex-col max-sm:items-center"><span className="flex gap-1.5"><Icon name="shield" size={16}/> Server-authoritative timing</span><span className="flex gap-1.5"><Icon name="check" size={16}/> Autosaved responses</span></div></div><Visual active={active}/></div><div id="candidate-journey" className={`${wrap} relative mt-12 grid grid-cols-7 gap-2 overflow-x-auto rounded-[21px] border border-slate-200 bg-white px-5 py-4 shadow-xl max-sm:mt-7 max-sm:flex`} onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}><div className="absolute left-[8%] right-[8%] top-[36px] h-0.5 bg-slate-200 max-sm:hidden"><span className="block h-full bg-blue-600 transition-all" style={{width:`${active/6*100}%`}}/></div>{stages.map((s,i)=><button className={`relative flex cursor-pointer flex-col items-center gap-2 border-0 bg-transparent text-[9px] font-extrabold ${i===active?"text-blue-600":"text-slate-500"} max-sm:min-w-[72px]`} key={s[0]} onClick={()=>{setActive(i);setPaused(true)}}><span className={`z-10 grid size-10 place-items-center rounded-full border-2 transition ${i===active?"border-blue-600 bg-blue-600 text-white ring-4 ring-blue-600/10":i<active?"border-blue-600 bg-white text-blue-600":"border-slate-200 bg-white"}`}><Icon name={s[2]} size={17}/></span><small>{s[1]}</small></button>)}</div></section>}
+function Visual({ active }: { active: number }) {
+  const s = stages[active];
+  return (
+    <div className="relative h-[465px] overflow-hidden rounded-[30px] border border-white bg-gradient-to-br from-blue-50 to-blue-200 shadow-2xl shadow-slate-900/15 max-sm:h-[385px]">
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.22)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.22)_1px,transparent_1px)] bg-[size:32px_32px]" />
+      <img
+        className="absolute bottom-0 left-0 h-[82%] w-1/2 object-cover object-[67%_center] [mask-image:linear-gradient(to_right,#000_60%,transparent),linear-gradient(to_top,#000_76%,transparent)] [mask-composite:intersect] max-sm:w-[61%] max-sm:opacity-70"
+        src={heroStudentImg}
+        alt="Candidate preparing for an assessment"
+      />
+      <div className="absolute right-[5%] top-[15%] h-[61%] w-[68%] overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-2xl [transform:perspective(900px)_rotateY(-4deg)] max-sm:right-[3%] max-sm:top-[11%] max-sm:w-[86%]">
+        <div className="flex h-[34px] items-center gap-1.5 bg-slate-950 px-3">
+          <i className="size-[7px] rounded-full bg-red-400" />
+          <i className="size-[7px] rounded-full bg-amber-300" />
+          <i className="size-[7px] rounded-full bg-emerald-400" />
+          <small className="ml-auto text-[7px] uppercase tracking-widest text-blue-200">
+            KGS secure workspace
+          </small>
+        </div>
+        <div className="grid h-[calc(100%-34px)] grid-cols-[35px_1fr]">
+          <aside className="flex flex-col gap-2 bg-slate-100 p-2">
+            {[0, 1, 2, 3].map((x) => (
+              <i
+                className={`h-[17px] rounded ${x ? "bg-slate-300" : "bg-blue-600"}`}
+                key={x}
+              />
+            ))}
+          </aside>
+          <div className="p-[18px]">
+            <header className="flex justify-between">
+              <span className="flex flex-col gap-1">
+                <small className="text-[7px] uppercase text-slate-400">
+                  {s[3]}
+                </small>
+                <b className="text-[13px]">{s[0]}</b>
+              </span>
+              <em className="h-max rounded-full bg-emerald-50 px-2 py-1 text-[7px] not-italic text-emerald-700">
+                LIVE
+              </em>
+            </header>
+            <div className="mt-5 space-y-2">
+              {["w-full", "w-full", "w-[58%]"].map((w, i) => (
+                <p className={`h-1.5 rounded bg-slate-200 ${w}`} key={i} />
+              ))}
+            </div>
+            <section className="mt-6 grid grid-cols-2 gap-2">
+              {[0, 1, 2, 3].map((x) => (
+                <i
+                  className="h-7 rounded-lg border border-slate-200 bg-slate-50"
+                  key={x}
+                />
+              ))}
+            </section>
+            <footer className="mt-5 h-1 overflow-hidden rounded bg-slate-200">
+              <span
+                className="block h-full bg-gradient-to-r from-blue-600 to-violet-600 transition-all"
+                style={{ width: `${25 + active * 11}%` }}
+              />
+            </footer>
+          </div>
+        </div>
+      </div>
+      <div className="absolute right-[2%] top-[7%] z-10 flex animate-float items-center gap-2 rounded-[14px] border border-white bg-white/95 px-3 py-2.5 shadow-xl">
+        <span className={iconBox}>
+          <Icon name={s[2]} />
+        </span>
+        <b className="flex flex-col text-[10px]">
+          <small className="text-[7px] uppercase tracking-widest text-slate-400">
+            Current stage
+          </small>
+          {s[5]}
+        </b>
+      </div>
+      <div className="absolute bottom-[7%] left-[9%] z-10 flex animate-float items-center gap-2 rounded-[14px] border border-white bg-white/95 px-3 py-2.5 shadow-xl max-sm:left-[3%]">
+        <i className="size-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/10" />
+        <b className="flex flex-col text-[10px]">
+          <small className="text-[7px] uppercase tracking-widest text-slate-400">
+            Session signal
+          </small>
+          {s[6]}
+        </b>
+      </div>
+    </div>
+  );
+}
+function Hero({
+  onLogin,
+  onRegister,
+}: Pick<LandingPageProps, "onLogin" | "onRegister">) {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (paused) return;
+    const t = setInterval(
+      () => setActive((v) => (v + 1) % stages.length),
+      5200,
+    );
+    return () => clearInterval(t);
+  }, [paused]);
+  return (
+    <section
+      id="home"
+      className="bg-[radial-gradient(circle_at_80%_20%,#dce8ff,transparent_31%),radial-gradient(circle_at_14%_10%,#eef3ff,transparent_27%),linear-gradient(#fafcff,#fff)] pb-8 pt-[70px] max-sm:pt-12"
+    >
+      <div
+        className={`${wrap} grid grid-cols-[.88fr_1.12fr] items-center gap-[54px] max-[1060px]:grid-cols-1`}
+      >
+        <div className="max-[1060px]:mx-auto max-[1060px]:max-w-[740px] max-[1060px]:text-center">
+          <span className={`${label} inline-flex items-center gap-2`}>
+            <i className="size-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/10" />
+            Secure assessment infrastructure
+          </span>
+          <h1 className="my-5 text-[clamp(44px,5vw,72px)] font-extrabold leading-none tracking-[-.055em]">
+            Every assessment.
+            <br />
+            <em className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text not-italic text-transparent">
+              Clear, fair, trusted.
+            </em>
+          </h1>
+          <p className="text-[17px] leading-7 text-slate-600 max-[1060px]:mx-auto max-[1060px]:max-w-[600px]">
+            One connected platform for candidate onboarding, secure delivery,
+            live operational visibility, and auditable results.
+          </p>
+          <div className="mt-7 flex gap-3 max-[1060px]:justify-center max-sm:flex-col">
+            <button
+              className={`${btn} bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-xl shadow-blue-600/20`}
+              onClick={onRegister}
+            >
+              Create Candidate Profile <Icon name="arrow" size={16} />
+            </button>
+            <button
+              className={`${btn} border border-slate-200 bg-white`}
+              onClick={onLogin}
+            >
+              <Icon name="play" size={16} /> Candidate Login
+            </button>
+          </div>
+          <div className="mt-5 flex gap-5 text-[11px] font-bold text-slate-600 max-[1060px]:justify-center max-sm:flex-col max-sm:items-center">
+            <span className="flex gap-1.5">
+              <Icon name="shield" size={16} /> Server-authoritative timing
+            </span>
+            <span className="flex gap-1.5">
+              <Icon name="check" size={16} /> Autosaved responses
+            </span>
+          </div>
+        </div>
+        <Visual active={active} />
+      </div>
+      <div
+        id="candidate-journey"
+        className={`${wrap} relative mt-12 grid grid-cols-7 gap-2 overflow-x-auto rounded-[21px] border border-slate-200 bg-white px-5 py-4 shadow-xl max-sm:mt-7 max-sm:flex`}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        <div className="absolute left-[8%] right-[8%] top-[36px] h-0.5 bg-slate-200 max-sm:hidden">
+          <span
+            className="block h-full bg-blue-600 transition-all"
+            style={{ width: `${(active / 6) * 100}%` }}
+          />
+        </div>
+        {stages.map((s, i) => (
+          <button
+            className={`relative flex cursor-pointer flex-col items-center gap-2 border-0 bg-transparent text-[9px] font-extrabold ${i === active ? "text-blue-600" : "text-slate-500"} max-sm:min-w-[72px]`}
+            key={s[0]}
+            onClick={() => {
+              setActive(i);
+              setPaused(true);
+            }}
+          >
+            <span
+              className={`z-10 grid size-10 place-items-center rounded-full border-2 transition ${i === active ? "border-blue-600 bg-blue-600 text-white ring-4 ring-blue-600/10" : i < active ? "border-blue-600 bg-white text-blue-600" : "border-slate-200 bg-white"}`}
+            >
+              <Icon name={s[2]} size={17} />
+            </span>
+            <small>{s[1]}</small>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-function Heading({name,title,copy,center=false}:{name:string;title:string;copy?:string;center?:boolean}){return <div className={center?"mx-auto max-w-[750px] text-center":"grid grid-cols-[1.15fr_.85fr] items-end gap-16 max-sm:grid-cols-1 max-sm:gap-4"}><div><span className={label}>{name}</span><h2 className="my-3 text-[clamp(34px,4vw,53px)] font-extrabold leading-[1.07] tracking-[-.045em]">{title}</h2></div>{copy&&<p className="leading-7 text-slate-600">{copy}</p>}</div>}
-function Benefits(){const items=[["shield","Identity-aware access","Verify candidate access before an assessment begins."],["monitor","Reliable exam delivery","Server timing, autosave, resume, and idempotent submission."],["eye","Operational visibility","Understand progress and integrity signals while sessions run."],["bars","Auditable outcomes","Publish controlled results backed by immutable records."]] as const;return <section className="bg-slate-50 py-24 max-sm:py-[70px]"><div className={wrap}><Heading name="Platform benefits" title="Confidence at every checkpoint." copy="Purpose-built controls connect candidate experience with the evidence institutions need to operate responsibly."/><div className="mt-12 grid grid-cols-4 gap-3.5 max-[1060px]:grid-cols-2 max-sm:grid-cols-1">{items.map(([i,t,c],n)=><article className="relative rounded-[19px] border border-slate-200 bg-white p-6 transition hover:-translate-y-1 hover:shadow-xl" key={t}><em className="absolute right-4 top-4 text-[11px] font-extrabold not-italic text-slate-300">0{n+1}</em><span className={iconBox}><Icon name={i}/></span><h3 className="mb-2 mt-6 text-[17px] font-bold">{t}</h3><p className="text-xs leading-5 text-slate-600">{c}</p></article>)}</div></div></section>}
-function Solutions(){return <section className="py-24 max-sm:py-[70px]"><div className={wrap}><Heading center name="Assessment solutions" title="One platform, many assessment programs." copy="Configure the experience around your examination policy without rebuilding the operational foundation."/><div className="mt-12 grid grid-cols-5 gap-3 max-[1060px]:grid-cols-3 max-sm:grid-cols-1">{solutions.map(([i,t,c])=><article className="flex min-h-[285px] flex-col rounded-[19px] border border-slate-200 bg-white p-6 transition hover:-translate-y-1 hover:shadow-xl max-sm:min-h-[220px]" key={t}><span className={iconBox}><Icon name={i}/></span><h3 className="mb-2 mt-6 text-[17px] font-bold">{t}</h3><p className="text-xs leading-5 text-slate-600">{c}</p><a className="mt-auto flex items-center gap-1.5 text-[11px] font-extrabold text-blue-600 no-underline" href="#contact">Explore solution <Icon name="arrow" size={14}/></a></article>)}</div></div></section>}
-function Journey(){const[active,setActive]=useState(0);const s=stages[active];return <section id="journey" className="bg-slate-50 py-24 max-sm:py-[70px]"><div className={wrap}><Heading center name="How it works" title="A guided journey from profile to published result."/><div className="mx-auto mt-12 grid max-w-[990px] grid-cols-[.9fr_1.1fr] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/5 max-sm:grid-cols-1"><div className="border-r border-slate-200 bg-slate-100 p-4 max-sm:flex max-sm:overflow-x-auto max-sm:border-b">{stages.map((x,i)=><button className={`grid w-full cursor-pointer grid-cols-[32px_1fr_auto] items-center gap-2.5 rounded-xl border-0 p-3 text-left ${active===i?"bg-white shadow-lg":"bg-transparent text-slate-600"} max-sm:min-w-[205px]`} key={x[0]} onClick={()=>setActive(i)}><span className={`grid size-7 place-items-center rounded-lg border text-[10px] ${active===i?"border-blue-600 bg-blue-600 text-white":"border-slate-200 bg-white"}`}>{i+1}</span><b className="flex flex-col text-xs">{x[0]}<small className="mt-1 text-[9px] font-medium text-slate-400">{x[3]}</small></b><Icon name="right" size={16}/></button>)}</div><div className="p-12 max-sm:p-6"><header className="flex items-center justify-between text-[10px] uppercase tracking-widest text-slate-500"><span className={`${iconBox} !size-14 !rounded-2xl`}><Icon name={s[2]} size={27}/></span><small>Stage {active+1} of 7</small></header><h3 className="mb-3 mt-8 text-[33px] font-extrabold">{s[0]}</h3><p className="leading-7 text-slate-600">{s[4]}</p><div className="mt-7 flex items-center gap-3.5 rounded-[14px] bg-slate-100 p-4"><i className="size-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/10"/><b className="flex flex-col text-[10px]"><small className="uppercase tracking-widest text-slate-400">Expected state</small>{s[5]}</b></div><footer className="mt-8 grid grid-cols-[40px_1fr_40px] items-center gap-3"><button className="grid h-10 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white" onClick={()=>setActive((active+6)%7)} aria-label="Previous stage"><Icon name="left"/></button><div className="h-1 overflow-hidden rounded bg-slate-200"><span className="block h-full bg-blue-600" style={{width:`${(active+1)/7*100}%`}}/></div><button className="grid h-10 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white" onClick={()=>setActive((active+1)%7)} aria-label="Next stage"><Icon name="right"/></button></footer></div></div></div></section>}
+function Heading({
+  name,
+  title,
+  copy,
+  center = false,
+}: {
+  name: string;
+  title: string;
+  copy?: string;
+  center?: boolean;
+}) {
+  return (
+    <div
+      className={
+        center
+          ? "mx-auto max-w-[750px] text-center"
+          : "grid grid-cols-[1.15fr_.85fr] items-end gap-16 max-sm:grid-cols-1 max-sm:gap-4"
+      }
+    >
+      <div>
+        <span className={label}>{name}</span>
+        <h2 className="my-3 text-[clamp(34px,4vw,53px)] font-extrabold leading-[1.07] tracking-[-.045em]">
+          {title}
+        </h2>
+      </div>
+      {copy && <p className="leading-7 text-slate-600">{copy}</p>}
+    </div>
+  );
+}
+function Benefits() {
+  const items = [
+    [
+      "shield",
+      "Identity-aware access",
+      "Verify candidate access before an assessment begins.",
+    ],
+    [
+      "monitor",
+      "Reliable exam delivery",
+      "Server timing, autosave, resume, and idempotent submission.",
+    ],
+    [
+      "eye",
+      "Operational visibility",
+      "Understand progress and integrity signals while sessions run.",
+    ],
+    [
+      "bars",
+      "Auditable outcomes",
+      "Publish controlled results backed by immutable records.",
+    ],
+  ] as const;
+  return (
+    <section className="bg-slate-50 py-24 max-sm:py-[70px]">
+      <div className={wrap}>
+        <Heading
+          name="Platform benefits"
+          title="Confidence at every checkpoint."
+          copy="Purpose-built controls connect candidate experience with the evidence institutions need to operate responsibly."
+        />
+        <div className="mt-12 grid grid-cols-4 gap-3.5 max-[1060px]:grid-cols-2 max-sm:grid-cols-1">
+          {items.map(([i, t, c], n) => (
+            <article
+              className="relative rounded-[19px] border border-slate-200 bg-white p-6 transition hover:-translate-y-1 hover:shadow-xl"
+              key={t}
+            >
+              <em className="absolute right-4 top-4 text-[11px] font-extrabold not-italic text-slate-300">
+                0{n + 1}
+              </em>
+              <span className={iconBox}>
+                <Icon name={i} />
+              </span>
+              <h3 className="mb-2 mt-6 text-[17px] font-bold">{t}</h3>
+              <p className="text-xs leading-5 text-slate-600">{c}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+function Solutions() {
+  return (
+    <section className="py-24 max-sm:py-[70px]">
+      <div className={wrap}>
+        <Heading
+          center
+          name="Assessment solutions"
+          title="One platform, many assessment programs."
+          copy="Configure the experience around your examination policy without rebuilding the operational foundation."
+        />
+        <div className="mt-12 grid grid-cols-5 gap-3 max-[1060px]:grid-cols-3 max-sm:grid-cols-1">
+          {solutions.map(([i, t, c]) => (
+            <article
+              className="flex min-h-[285px] flex-col rounded-[19px] border border-slate-200 bg-white p-6 transition hover:-translate-y-1 hover:shadow-xl max-sm:min-h-[220px]"
+              key={t}
+            >
+              <span className={iconBox}>
+                <Icon name={i} />
+              </span>
+              <h3 className="mb-2 mt-6 text-[17px] font-bold">{t}</h3>
+              <p className="text-xs leading-5 text-slate-600">{c}</p>
+              <a
+                className="mt-auto flex items-center gap-1.5 text-[11px] font-extrabold text-blue-600 no-underline"
+                href="#contact"
+              >
+                Explore solution <Icon name="arrow" size={14} />
+              </a>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+function Journey() {
+  const [active, setActive] = useState(0);
+  const s = stages[active];
+  return (
+    <section id="journey" className="bg-slate-50 py-24 max-sm:py-[70px]">
+      <div className={wrap}>
+        <Heading
+          center
+          name="How it works"
+          title="A guided journey from profile to published result."
+        />
+        <div className="mx-auto mt-12 grid max-w-[990px] grid-cols-[.9fr_1.1fr] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/5 max-sm:grid-cols-1">
+          <div className="border-r border-slate-200 bg-slate-100 p-4 max-sm:flex max-sm:overflow-x-auto max-sm:border-b">
+            {stages.map((x, i) => (
+              <button
+                className={`grid w-full cursor-pointer grid-cols-[32px_1fr_auto] items-center gap-2.5 rounded-xl border-0 p-3 text-left ${active === i ? "bg-white shadow-lg" : "bg-transparent text-slate-600"} max-sm:min-w-[205px]`}
+                key={x[0]}
+                onClick={() => setActive(i)}
+              >
+                <span
+                  className={`grid size-7 place-items-center rounded-lg border text-[10px] ${active === i ? "border-blue-600 bg-blue-600 text-white" : "border-slate-200 bg-white"}`}
+                >
+                  {i + 1}
+                </span>
+                <b className="flex flex-col text-xs">
+                  {x[0]}
+                  <small className="mt-1 text-[9px] font-medium text-slate-400">
+                    {x[3]}
+                  </small>
+                </b>
+                <Icon name="right" size={16} />
+              </button>
+            ))}
+          </div>
+          <div className="p-12 max-sm:p-6">
+            <header className="flex items-center justify-between text-[10px] uppercase tracking-widest text-slate-500">
+              <span className={`${iconBox} !size-14 !rounded-2xl`}>
+                <Icon name={s[2]} size={27} />
+              </span>
+              <small>Stage {active + 1} of 7</small>
+            </header>
+            <h3 className="mb-3 mt-8 text-[33px] font-extrabold">{s[0]}</h3>
+            <p className="leading-7 text-slate-600">{s[4]}</p>
+            <div className="mt-7 flex items-center gap-3.5 rounded-[14px] bg-slate-100 p-4">
+              <i className="size-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/10" />
+              <b className="flex flex-col text-[10px]">
+                <small className="uppercase tracking-widest text-slate-400">
+                  Expected state
+                </small>
+                {s[5]}
+              </b>
+            </div>
+            <footer className="mt-8 grid grid-cols-[40px_1fr_40px] items-center gap-3">
+              <button
+                className="grid h-10 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white"
+                onClick={() => setActive((active + 6) % 7)}
+                aria-label="Previous stage"
+              >
+                <Icon name="left" />
+              </button>
+              <div className="h-1 overflow-hidden rounded bg-slate-200">
+                <span
+                  className="block h-full bg-blue-600"
+                  style={{ width: `${((active + 1) / 7) * 100}%` }}
+                />
+              </div>
+              <button
+                className="grid h-10 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white"
+                onClick={() => setActive((active + 1) % 7)}
+                aria-label="Next stage"
+              >
+                <Icon name="right" />
+              </button>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-function Security(){const signals=[["shield","Camera readiness","Verified"],["eye","Browser focus","Active"],["wifi","Network quality","Stable"],["check","Autosave","Just now"]] as const;const[active,setActive]=useState(0);useEffect(()=>{const t=setInterval(()=>setActive(v=>(v+1)%4),2400);return()=>clearInterval(t)},[]);return <section id="security" className="bg-[#07152f] py-24 text-white max-sm:py-[70px]"><div className={`${wrap} grid grid-cols-[.78fr_1.22fr] items-center gap-[75px] max-[1060px]:grid-cols-1`}><div><span className={`${label} !text-blue-300`}>Security demonstration</span><h2 className="my-4 text-[clamp(38px,4.5vw,60px)] font-extrabold leading-none tracking-[-.05em]">Useful signals.<br/>Human decisions.</h2><p className="leading-7 text-blue-100/70">Monitoring supports a fair process without turning browser events into automatic verdicts. Policy, context, and authorised review remain essential.</p><ul className="my-7 grid list-none grid-cols-2 gap-3 p-0 text-[11px] max-sm:grid-cols-1">{["Configurable integrity thresholds","Server-synchronised deadlines","Append-only incident history","Privacy-aware candidate notices"].map(x=><li className="flex items-center gap-2" key={x}><span className="text-emerald-400"><Icon name="check" size={15}/></span>{x}</li>)}</ul><a className="flex items-center gap-2 text-[11px] font-extrabold text-blue-300 no-underline" href="#policies">Read monitoring principles <Icon name="arrow" size={15}/></a></div><div className="rounded-[22px] border border-white/10 bg-[#101f3b] p-3.5 shadow-2xl shadow-black/40"><header className="flex justify-between px-2 pb-4 pt-2 text-[10px]"><b className="flex items-center gap-2"><i className="size-2 rounded-full bg-emerald-400 ring-4 ring-emerald-400/10"/> Secure session demo</b><small>Illustrative preview</small></header><div className="grid grid-cols-[1.15fr_.85fr] gap-3 max-sm:grid-cols-1"><div className="relative flex min-h-[270px] items-end justify-center overflow-hidden rounded-[15px] bg-gradient-to-br from-blue-100 to-blue-400"><span className="relative h-[185px] w-[140px] rounded-t-full rounded-b-[18px] bg-gradient-to-b from-blue-900 to-slate-950 before:absolute before:-top-[30px] before:left-[29px] before:size-[82px] before:rounded-full before:bg-[#efc7a8]"/><small className="absolute bottom-3 left-3 rounded-lg bg-slate-950/90 px-2 py-1.5 text-[7px]">Candidate preview</small></div><div className="flex flex-col gap-2">{signals.map(([i,l,v],n)=><article className={`grid grid-cols-[32px_1fr_6px] items-center gap-2 rounded-xl border p-2 ${active===n?"border-blue-500 bg-blue-900/50":"border-white/5 bg-slate-950/30 opacity-60"}`} key={l}><span className="grid size-8 place-items-center rounded-lg bg-white/5 text-blue-300"><Icon name={i} size={16}/></span><b className="flex flex-col text-[10px]"><small className="text-[7px] uppercase tracking-widest text-slate-400">{l}</small>{v}</b><i className="size-1.5 rounded-full bg-emerald-400"/></article>)}</div></div><footer className="mt-3 flex items-center gap-3 rounded-[13px] bg-slate-950/40 p-3"><i className="size-2.5 rounded-full bg-emerald-400 ring-4 ring-emerald-400/10"/><b className="flex flex-1 flex-col text-[10px]"><small className="text-[7px] uppercase tracking-widest text-slate-400">Latest activity</small>{signals[active][1]} · {signals[active][2]}</b><time className="text-[8px] text-slate-400">Now</time></footer></div></div></section>}
-function Institutions(){const data=[["01","Create and schedule","Configure windows, duration, marks, eligibility, and integrity policy."],["02","Assign and operate","Invite candidates, observe progress, and handle exceptions consistently."],["03","Review and publish","Score server-side, review incidents, publish outcomes, and export reports."]];return <section id="institutions" className="bg-slate-50 py-24 max-sm:py-[70px]"><div className={`${wrap} grid grid-cols-[.9fr_1.1fr] gap-16 rounded-[26px] border border-slate-200 bg-white p-13 shadow-2xl max-sm:grid-cols-1 max-sm:p-7`}><div><span className={label}>For institutions</span><h2 className="my-3 text-[clamp(34px,4vw,53px)] font-extrabold leading-[1.07] tracking-[-.045em]">Every operation in one connected workspace.</h2><p className="mb-7 leading-7 text-slate-600">Administrators move through a controlled lifecycle while candidates receive a calm, consistent experience.</p><a className={`${btn} bg-gradient-to-br from-blue-600 to-violet-600 text-white`} href="mailto:exams@kgs.edu">Request a walkthrough <Icon name="arrow" size={16}/></a></div><div>{data.map(([n,t,c])=><article className="grid grid-cols-[50px_1fr] gap-4 border-b border-slate-200 py-5 last:border-0" key={n}><span className="text-[11px] font-extrabold text-blue-600">{n}</span><div><h3 className="font-bold">{t}</h3><p className="mt-1.5 text-[11px] leading-5 text-slate-600">{c}</p></div></article>)}</div></div></section>}
-function Footer(){const cols=[["Product",["How it works","Security","For institutions"],["#journey","#security","#institutions"]],["Candidate",["Student login","Create profile","Candidate journey"],["/login","/register","#candidate-journey"]],["Policies",["Privacy","Monitoring","Support"],["/privacy","/monitoring-policy","mailto:exams@kgs.edu"]]] as const;return <footer id="policies" className="bg-[#061126] pb-6 pt-16 text-white"><div className={`${wrap} grid grid-cols-[1.5fr_repeat(3,1fr)] gap-14 border-b border-white/10 pb-12 max-sm:grid-cols-1`}><div className="flex flex-col items-start gap-2.5"><Brand/><p className="max-w-[280px] text-[11px] leading-5 text-slate-400">Secure examination infrastructure for fair, accessible, and auditable assessments.</p><a className="flex gap-1.5 text-[11px] text-slate-300 no-underline" href="mailto:exams@kgs.edu"><Icon name="mail" size={15}/> exams@kgs.edu</a></div>{cols.map(([title,links,hrefs])=><div className="flex flex-col items-start gap-2.5" key={title}><h3 className="text-[10px] font-extrabold uppercase tracking-[.14em] text-blue-300">{title}</h3>{links.map((x,i)=><a className="text-[11px] text-slate-300 no-underline" href={hrefs[i]} key={x}>{x}</a>)}</div>)}</div><div className={`${wrap} flex justify-between pt-5 text-[10px] text-slate-400 max-sm:flex-col`}><p>© {new Date().getFullYear()} KGS Institute. All rights reserved.</p><a className="text-blue-200 no-underline" href="#home">Back to top ↑</a></div></footer>}
+function Security() {
+  const signals = [
+    ["shield", "Camera readiness", "Verified"],
+    ["eye", "Browser focus", "Active"],
+    ["wifi", "Network quality", "Stable"],
+    ["check", "Autosave", "Just now"],
+  ] as const;
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setActive((v) => (v + 1) % 4), 2400);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <section
+      id="security"
+      className="bg-[#07152f] py-24 text-white max-sm:py-[70px]"
+    >
+      <div
+        className={`${wrap} grid grid-cols-[.78fr_1.22fr] items-center gap-[75px] max-[1060px]:grid-cols-1`}
+      >
+        <div>
+          <span className={`${label} !text-blue-300`}>
+            Security demonstration
+          </span>
+          <h2 className="my-4 text-[clamp(38px,4.5vw,60px)] font-extrabold leading-none tracking-[-.05em]">
+            Useful signals.
+            <br />
+            Human decisions.
+          </h2>
+          <p className="leading-7 text-blue-100/70">
+            Monitoring supports a fair process without turning browser events
+            into automatic verdicts. Policy, context, and authorised review
+            remain essential.
+          </p>
+          <ul className="my-7 grid list-none grid-cols-2 gap-3 p-0 text-[11px] max-sm:grid-cols-1">
+            {[
+              "Configurable integrity thresholds",
+              "Server-synchronised deadlines",
+              "Append-only incident history",
+              "Privacy-aware candidate notices",
+            ].map((x) => (
+              <li className="flex items-center gap-2" key={x}>
+                <span className="text-emerald-400">
+                  <Icon name="check" size={15} />
+                </span>
+                {x}
+              </li>
+            ))}
+          </ul>
+          <a
+            className="flex items-center gap-2 text-[11px] font-extrabold text-blue-300 no-underline"
+            href="#policies"
+          >
+            Read monitoring principles <Icon name="arrow" size={15} />
+          </a>
+        </div>
+        <div className="rounded-[22px] border border-white/10 bg-[#101f3b] p-3.5 shadow-2xl shadow-black/40">
+          <header className="flex justify-between px-2 pb-4 pt-2 text-[10px]">
+            <b className="flex items-center gap-2">
+              <i className="size-2 rounded-full bg-emerald-400 ring-4 ring-emerald-400/10" />{" "}
+              Secure session demo
+            </b>
+            <small>Illustrative preview</small>
+          </header>
+          <div className="grid grid-cols-[1.15fr_.85fr] gap-3 max-sm:grid-cols-1">
+            <div className="relative flex min-h-[270px] items-end justify-center overflow-hidden rounded-[15px] bg-gradient-to-br from-blue-100 to-blue-400">
+              <span className="relative h-[185px] w-[140px] rounded-t-full rounded-b-[18px] bg-gradient-to-b from-blue-900 to-slate-950 before:absolute before:-top-[30px] before:left-[29px] before:size-[82px] before:rounded-full before:bg-[#efc7a8]" />
+              <small className="absolute bottom-3 left-3 rounded-lg bg-slate-950/90 px-2 py-1.5 text-[7px]">
+                Candidate preview
+              </small>
+            </div>
+            <div className="flex flex-col gap-2">
+              {signals.map(([i, l, v], n) => (
+                <article
+                  className={`grid grid-cols-[32px_1fr_6px] items-center gap-2 rounded-xl border p-2 ${active === n ? "border-blue-500 bg-blue-900/50" : "border-white/5 bg-slate-950/30 opacity-60"}`}
+                  key={l}
+                >
+                  <span className="grid size-8 place-items-center rounded-lg bg-white/5 text-blue-300">
+                    <Icon name={i} size={16} />
+                  </span>
+                  <b className="flex flex-col text-[10px]">
+                    <small className="text-[7px] uppercase tracking-widest text-slate-400">
+                      {l}
+                    </small>
+                    {v}
+                  </b>
+                  <i className="size-1.5 rounded-full bg-emerald-400" />
+                </article>
+              ))}
+            </div>
+          </div>
+          <footer className="mt-3 flex items-center gap-3 rounded-[13px] bg-slate-950/40 p-3">
+            <i className="size-2.5 rounded-full bg-emerald-400 ring-4 ring-emerald-400/10" />
+            <b className="flex flex-1 flex-col text-[10px]">
+              <small className="text-[7px] uppercase tracking-widest text-slate-400">
+                Latest activity
+              </small>
+              {signals[active][1]} · {signals[active][2]}
+            </b>
+            <time className="text-[8px] text-slate-400">Now</time>
+          </footer>
+        </div>
+      </div>
+    </section>
+  );
+}
+function Institutions() {
+  const data = [
+    [
+      "01",
+      "Create and schedule",
+      "Configure windows, duration, marks, eligibility, and integrity policy.",
+    ],
+    [
+      "02",
+      "Assign and operate",
+      "Invite candidates, observe progress, and handle exceptions consistently.",
+    ],
+    [
+      "03",
+      "Review and publish",
+      "Score server-side, review incidents, publish outcomes, and export reports.",
+    ],
+  ];
+  return (
+    <section id="institutions" className="bg-slate-50 py-24 max-sm:py-[70px]">
+      <div
+        className={`${wrap} grid grid-cols-[.9fr_1.1fr] gap-16 rounded-[26px] border border-slate-200 bg-white p-13 shadow-2xl max-sm:grid-cols-1 max-sm:p-7`}
+      >
+        <div>
+          <span className={label}>For institutions</span>
+          <h2 className="my-3 text-[clamp(34px,4vw,53px)] font-extrabold leading-[1.07] tracking-[-.045em]">
+            Every operation in one connected workspace.
+          </h2>
+          <p className="mb-7 leading-7 text-slate-600">
+            Administrators move through a controlled lifecycle while candidates
+            receive a calm, consistent experience.
+          </p>
+          <a
+            className={`${btn} bg-gradient-to-br from-blue-600 to-violet-600 text-white`}
+            href="mailto:exams@kgs.edu"
+          >
+            Request a walkthrough <Icon name="arrow" size={16} />
+          </a>
+        </div>
+        <div>
+          {data.map(([n, t, c]) => (
+            <article
+              className="grid grid-cols-[50px_1fr] gap-4 border-b border-slate-200 py-5 last:border-0"
+              key={n}
+            >
+              <span className="text-[11px] font-extrabold text-blue-600">
+                {n}
+              </span>
+              <div>
+                <h3 className="font-bold">{t}</h3>
+                <p className="mt-1.5 text-[11px] leading-5 text-slate-600">
+                  {c}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+function Footer() {
+  const cols = [
+    [
+      "Product",
+      ["How it works", "Security", "For institutions"],
+      ["#journey", "#security", "#institutions"],
+    ],
+    [
+      "Candidate",
+      ["Student login", "Create profile", "Candidate journey"],
+      ["/login", "/register", "#candidate-journey"],
+    ],
+    [
+      "Policies",
+      ["Privacy", "Monitoring", "Support"],
+      ["/privacy", "/monitoring-policy", "mailto:exams@kgs.edu"],
+    ],
+  ] as const;
+  return (
+    <footer id="policies" className="bg-[#061126] pb-6 pt-16 text-white">
+      <div
+        className={`${wrap} grid grid-cols-[1.5fr_repeat(3,1fr)] gap-14 border-b border-white/10 pb-12 max-sm:grid-cols-1`}
+      >
+        <div className="flex flex-col items-start gap-2.5">
+          <Brand />
+          <p className="max-w-[280px] text-[11px] leading-5 text-slate-400">
+            Secure examination infrastructure for fair, accessible, and
+            auditable assessments.
+          </p>
+          <a
+            className="flex gap-1.5 text-[11px] text-slate-300 no-underline"
+            href="mailto:exams@kgs.edu"
+          >
+            <Icon name="mail" size={15} /> exams@kgs.edu
+          </a>
+        </div>
+        {cols.map(([title, links, hrefs]) => (
+          <div className="flex flex-col items-start gap-2.5" key={title}>
+            <h3 className="text-[10px] font-extrabold uppercase tracking-[.14em] text-blue-300">
+              {title}
+            </h3>
+            {links.map((x, i) => (
+              <a
+                className="text-[11px] text-slate-300 no-underline"
+                href={hrefs[i]}
+                key={x}
+              >
+                {x}
+              </a>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div
+        className={`${wrap} flex justify-between pt-5 text-[10px] text-slate-400 max-sm:flex-col`}
+      >
+        <p>© {new Date().getFullYear()} KGS Institute. All rights reserved.</p>
+        <a className="text-blue-200 no-underline" href="#home">
+          Back to top ↑
+        </a>
+      </div>
+    </footer>
+  );
+}
 
-export function LandingPage(p:LandingPageProps){return <div className="min-h-screen overflow-x-hidden bg-white font-sans text-[#07152f]"><a className="fixed -top-16 left-4 z-[999] rounded-xl bg-white px-4 py-3 focus:top-4" href="#main">Skip to main content</a><Header onLogin={p.onLogin} onAdminLogin={p.onAdminLogin}/><main id="main"><Hero onLogin={p.onLogin} onRegister={p.onRegister}/><section className="py-12"><div className={`${wrap} flex flex-wrap items-center justify-center gap-6 text-sm font-extrabold tracking-[.13em] text-blue-700 max-sm:gap-2 max-sm:text-[9px]`}><span>PREPARE FAIRLY</span><i className="size-1.5 rounded-full bg-slate-300"/><span>PERFORM CONFIDENTLY</span><i className="size-1.5 rounded-full bg-slate-300"/><span>PROGRESS CLEARLY</span></div></section><Benefits/><Solutions/><Journey/><Security/><Institutions/><section id="contact" className="bg-gradient-to-br from-blue-600 to-violet-600 py-[75px] text-white"><div className={`${wrap} flex items-end justify-between gap-9 max-sm:flex-col max-sm:items-start`}><div><span className={`${label} !text-blue-200`}>Ready when you are</span><h2 className="my-3 text-[46px] font-extrabold tracking-[-.045em] max-sm:text-[37px]">Build trust into every assessment.</h2><p className="text-blue-100">Give candidates clarity and give your team an operational record it can rely on.</p></div><div className="flex gap-2 max-sm:w-full max-sm:flex-col"><button className={`${btn} bg-white text-slate-950 max-sm:w-full`} onClick={p.onLogin}>Student Login <Icon name="arrow" size={16}/></button><button className={`${btn} border border-white/30 bg-white/10 text-white max-sm:w-full`} onClick={p.onAdminLogin}>Admin Login</button></div></div></section></main><Footer/></div>}
+export function LandingPage(p: LandingPageProps) {
+  return (
+    <div className="min-h-screen overflow-x-hidden bg-white font-sans text-[#07152f]">
+      <a
+        className="fixed -top-16 left-4 z-[999] rounded-xl bg-white px-4 py-3 focus:top-4"
+        href="#main"
+      >
+        Skip to main content
+      </a>
+      <Header onLogin={p.onLogin} onAdminLogin={p.onAdminLogin} />
+      <main id="main">
+        <Hero onLogin={p.onLogin} onRegister={p.onRegister} />
+        <section className="py-12">
+          <div
+            className={`${wrap} flex flex-wrap items-center justify-center gap-6 text-sm font-extrabold tracking-[.13em] text-blue-700 max-sm:gap-2 max-sm:text-[9px]`}
+          >
+            <span>PREPARE FAIRLY</span>
+            <i className="size-1.5 rounded-full bg-slate-300" />
+            <span>PERFORM CONFIDENTLY</span>
+            <i className="size-1.5 rounded-full bg-slate-300" />
+            <span>PROGRESS CLEARLY</span>
+          </div>
+        </section>
+        <Benefits />
+        <Solutions />
+        <Journey />
+        <Security />
+        <Institutions />
+        <section
+          id="contact"
+          className="bg-gradient-to-br from-blue-600 to-violet-600 py-[75px] text-white"
+        >
+          <div
+            className={`${wrap} flex items-end justify-between gap-9 max-sm:flex-col max-sm:items-start`}
+          >
+            <div>
+              <span className={`${label} !text-blue-200`}>
+                Ready when you are
+              </span>
+              <h2 className="my-3 text-[46px] font-extrabold tracking-[-.045em] max-sm:text-[37px]">
+                Build trust into every assessment.
+              </h2>
+              <p className="text-blue-100">
+                Give candidates clarity and give your team an operational record
+                it can rely on.
+              </p>
+            </div>
+            <div className="flex gap-2 max-sm:w-full max-sm:flex-col">
+              <button
+                className={`${btn} bg-white text-slate-950 max-sm:w-full`}
+                onClick={p.onLogin}
+              >
+                Student Login <Icon name="arrow" size={16} />
+              </button>
+              <button
+                className={`${btn} border border-white/30 bg-white/10 text-white max-sm:w-full`}
+                onClick={p.onAdminLogin}
+              >
+                Admin Login
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
+}

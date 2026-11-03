@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import logo from "../../assets/Logo.png";
+import corporateLearningPathway from "../../assets/image.png";
 import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4";
-import heroStudent from "../../assets/hero-student.png";
 import { TransparentLogoVideo } from "./TransparentLogoVideo";
 import { ContactModal } from "./ContactModal";
+
+const HERO_VIDEO_URL =
+  "https://res.cloudinary.com/dujdjt4l7/video/upload/v1793726282/linkedin-video_1_jf1kbg.mp4";
 
 interface LandingPageProps {
   onLogin: () => void;
   onAdminLogin: () => void;
   onRegister: () => void;
-  onAbout: () => void;
 }
-
-type TrackCategory = "all" | "fullstack" | "data" | "cloud";
 
 interface Achiever {
   id: string;
@@ -89,7 +89,7 @@ const ACHIEVERS: Achiever[] = [
   },
 ];
 
-export const BATCH_TRACKS: BatchTrack[] = [
+const BATCH_TRACKS: BatchTrack[] = [
   {
     id: "python-gen-ai",
     category: "fullstack",
@@ -165,11 +165,22 @@ const PROFILE_COMPETENCIES = [
 ] as const;
 
 const ACTIVE_PRODUCTS = [
-  ["Kaizen Defense", "See threats earlier. Secure smarter with unified visibility and threat detection.", "shield_lock"],
+  ["Kaizen Defense", "AI-assisted cybersecurity management for multi-cloud environments.", "shield_lock"],
   ["Cloud Posture Management", "Multi-cloud strategy, smart assessment, cloud readiness, and compliance security.", "cloud_done"],
   ["AI Gateway", "One gateway for unified model access, smart routing, guardrails, and cost visibility.", "hub"],
   ["WMS Application", "Every item tracked, every move connected, with inventory visibility and workflow control.", "inventory_2"],
 ] as const;
+
+const PRODUCT_DETAILS: Record<string, string> = {
+  "Kaizen Defense":
+    "Kaizen Defense is an AI-assisted, multi-cloud cybersecurity management platform that integrates security monitoring, asset discovery, vulnerability assessment, compliance evaluation, threat intelligence, and remediation management into one centralized system. It is designed to help organizations understand cloud security risks and manage them through evidence-based analysis, specialized security agents, and approval-controlled operational workflows.",
+  "Cloud Posture Management":
+    "Cloud Posture Management is a centralized cybersecurity solution that helps organizations monitor and secure their multi-cloud infrastructure. The system connects to Azure, AWS, and Google Cloud, discovers cloud resources, evaluates security configurations, identifies vulnerabilities and misconfigurations, and prioritizes risks based on severity and business impact. It also supports compliance monitoring, AI-assisted security analysis, and remediation management, enabling security teams to maintain better visibility and control over their cloud environments.",
+  "AI Gateway":
+    "AI Gateway provides a centralized integration layer for AI-assisted cybersecurity operations. It connects the platform's security analysis capabilities with AI models to generate contextual explanations, prioritize vulnerabilities, assess business impact, and recommend remediation actions. Through authenticated APIs, structured security context, configurable model settings, and response validation, the system supports more efficient security investigation while keeping operational decisions under human control.",
+  "WMS Application":
+    "KaizenX is an enterprise Warehouse and Asset Management System designed to digitize and connect warehouse operations, from supplier shipment notification and vehicle arrival through goods receiving, quality inspection, inventory management, assembly, finished-goods handling, dispatch, and gate exit. The platform provides role-based web dashboards, mobile operations, QR-enabled material identification, transactional traceability, and an event-driven backend architecture. By integrating operational processes into one centralized system, KaizenX aims to improve material visibility, reduce manual coordination, maintain accurate inventory records, and provide end-to-end accountability for warehouse transactions.",
+};
 
 const TALENT_SERVICES = [
   ["Contract Employment", "Work on customer assignments while employed under KGS payroll."],
@@ -179,15 +190,15 @@ const TALENT_SERVICES = [
 
 const LANDING_LOADER_SESSION_KEY = "kgs-landing-loader-played";
 
-export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: LandingPageProps) {
+export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPageProps) {
   const [isLoading, setIsLoading] = useState(
     () => sessionStorage.getItem(LANDING_LOADER_SESSION_KEY) !== "true",
   );
   const [isLoaderExiting, setIsLoaderExiting] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<(typeof ACTIVE_PRODUCTS)[number] | null>(null);
   const [selectedTrack, setSelectedTrack] = useState<string>();
-  const [activeTrackFilter, setActiveTrackFilter] = useState<TrackCategory>("all");
   const achieverGridRef = useRef<HTMLDivElement>(null);
   const loaderFinishedRef = useRef(false);
   const loaderExitTimerRef = useRef<number | null>(null);
@@ -222,11 +233,6 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
       achieverGridRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   };
-
-  const filteredTracks = BATCH_TRACKS.filter((track) => {
-    if (activeTrackFilter === "all") return true;
-    return track.category === activeTrackFilter;
-  });
 
   return (
     <div className="min-h-screen bg-surface font-sans text-on-surface antialiased selection:bg-primary selection:text-white">
@@ -273,42 +279,26 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
 
           {/* Desktop Navigation */}
           <nav className="hidden xl:flex items-center gap-space-lg">
-            <button
-              type="button"
-              onClick={onAbout}
-              className="public-nav-link cursor-pointer border-0 bg-transparent font-label-lg text-label-lg text-on-surface-variant"
+            <a
+              href="https://www.kaizentrixglobal.com/"
+              className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
             >
               About Us
-            </button>
-            <a
-              href="/batches"
-              className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
-            >
-              Batches
-            </a>
-            <a
-              href="/placement-track"
-              className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
-            >
-              Placement Track
-            </a>
-            <a
-              href="/achievers"
-              className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
-            >
-              Achievers
-            </a>
-            <a
-              href="/lms-gateway"
-              className="public-nav-link font-label-lg text-label-lg text-on-surface-variant"
-            >
-              LMS Gateway
             </a>
             <button type="button" onClick={() => openContact()} className="public-nav-link border-0 bg-transparent font-label-lg text-label-lg text-on-surface-variant">Contact Us</button>
           </nav>
 
           {/* Header Action Controls */}
           <div className="flex items-center gap-space-md">
+            <a
+              href="https://www.linkedin.com/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Kaizentrix Global Solutions on LinkedIn"
+              className="hidden items-center justify-center rounded-xl border border-surface-container-high bg-surface-container-lowest px-space-md py-1.5 font-label-md text-label-md text-primary shadow-sm transition-colors hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:inline-flex"
+            >
+              LinkedIn
+            </a>
             {/* Portal Login CTA */}
             <button
               onClick={onLogin}
@@ -334,43 +324,12 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
         {mobileMenuOpen && (
           <div className="xl:hidden bg-surface-container-lowest border-b border-surface-container px-margin py-4 space-y-3 shadow-xl">
             <div className="flex flex-col gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onAbout();
-                }}
+              <a
+                href="https://www.kaizentrixglobal.com/"
+                onClick={() => setMobileMenuOpen(false)}
                 className="py-2 text-left text-on-surface-variant font-label-lg"
               >
                 About Us
-              </button>
-              <a
-                href="#batches"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-2 text-on-surface-variant font-label-lg"
-              >
-                Batches
-              </a>
-              <a
-                href="#lms-preview"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-2 text-on-surface-variant font-label-lg"
-              >
-                Placement Track
-              </a>
-              <a
-                href="#achievers"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-2 text-on-surface-variant font-label-lg"
-              >
-                Achievers
-              </a>
-              <a
-                href="#lms-preview"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-2 text-on-surface-variant font-label-lg"
-              >
-                LMS Gateway
               </a>
             </div>
             <div className="pt-3 border-t border-surface-container flex flex-col gap-2">
@@ -401,26 +360,35 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
       <main className="w-full bg-surface">
         {/* SECTION 1: HERO & LIVE WORKBENCH PREVIEW */}
         <section
-          className="relative isolate min-h-[calc(100svh-4rem)] overflow-hidden bg-surface-container-low px-margin py-16 lg:min-h-[calc(100svh-4rem)] lg:py-20"
+          className="relative isolate min-h-[560px] overflow-hidden bg-surface-container-low px-margin py-20 sm:min-h-[600px] lg:min-h-[680px] lg:py-24"
         >
-          <img
-            src={heroStudent}
-            alt="Student preparing for a software engineering career"
-            className="pointer-events-none absolute inset-0 h-full w-full scale-105 object-cover object-[70%_center] opacity-100 transition-transform duration-1000 max-lg:scale-110 max-lg:object-[76%_center] max-md:scale-100 max-md:object-[center_bottom] max-md:opacity-60"
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            aria-label="Students preparing for software engineering careers"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[65%_center] max-lg:object-[70%_center] max-md:object-[72%_center]"
+          >
+            <source src={HERO_VIDEO_URL} type="video/mp4" />
+          </video>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(248,250,255,0.98)_0%,rgba(248,250,255,0.92)_28%,rgba(248,250,255,0.65)_48%,rgba(248,250,255,0.08)_78%,transparent_100%)] max-md:bg-[linear-gradient(180deg,rgba(248,250,255,0.99)_0%,rgba(248,250,255,0.94)_40%,rgba(248,250,255,0.52)_72%,rgba(248,250,255,0.12)_100%)]"
           />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(250,248,255,.98)_0%,rgba(250,248,255,.93)_30%,rgba(250,248,255,.68)_56%,rgba(250,248,255,.2)_84%,rgba(250,248,255,0)_100%)] max-md:bg-[linear-gradient(180deg,rgba(250,248,255,.96)_0%,rgba(250,248,255,.78)_38%,rgba(250,248,255,.18)_78%,rgba(250,248,255,.04)_100%)]" />
           <div className="absolute -top-32 right-10 w-96 h-96 bg-primary-fixed-dim/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 left-10 w-80 h-80 bg-tertiary-fixed/30 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 mx-auto grid min-h-[calc(100svh-8rem)] max-w-7xl grid-cols-1 items-center gap-space-xl lg:min-h-[calc(100svh-8rem)] lg:grid-cols-12">
+          <div className="relative z-10 mx-auto grid h-full max-w-7xl grid-cols-1 items-center gap-space-xl lg:grid-cols-12">
             {/* Left Copy & Metric Highlights */}
-            <div className="flex max-w-3xl flex-col gap-space-md lg:col-span-7">
-              <h1 className="font-headline-xl text-headline-xl text-on-surface leading-[1.04] tracking-tight lg:text-[clamp(3.6rem,6vw,6.4rem)]">
+            <div className="flex max-w-[620px] flex-col gap-space-md lg:col-span-7">
+              <h1 className="font-headline-xl text-[clamp(2.2rem,3.2vw,3.5rem)] leading-[1.08] tracking-tight text-[#14213D]">
                 Launch Your Career in <span className="text-primary font-bold">High-Impact</span>{" "}
                 Software Engineering
               </h1>
 
-              <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
+              <p className="max-w-[580px] font-body-lg text-body-lg leading-relaxed text-[#475569]">
                 From algorithmic mastery to high-throughput distributed microservices. Kaizentrix
                 Global Solutions bridges the gap between academic theory and high-paying engineering roles at top
                 product companies.
@@ -430,12 +398,12 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               <div className="flex flex-wrap items-center gap-space-md pt-space-xs">
                 <button
                   onClick={onLogin}
-                  className="hero-login-button px-space-lg py-3 rounded-xl font-label-lg text-label-lg shadow-md flex items-center gap-2 cursor-pointer border-0"
+                  className="hero-login-button flex cursor-pointer items-center gap-2 rounded-xl border-0 bg-[#155CC0] px-space-lg py-3 font-label-lg text-label-lg text-white shadow-md transition-colors hover:bg-[#104a9b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#155CC0]"
                 >
-                  <span className="material-symbols-outlined text-primary text-[20px]">
+                  <span className="material-symbols-outlined text-white text-[20px]">
                     person
                   </span>
-                  <span>Student Portal Login</span>
+                  <span>Candidate Login</span>
                 </button>
 
               </div>
@@ -522,37 +490,42 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               <p className="mt-3 font-body-md text-body-md leading-relaxed text-on-surface-variant">From security and cloud readiness to warehouse visibility and responsible AI access, our products connect complex work into clearer decisions.</p>
             </div>
             <div className="mt-space-lg grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {ACTIVE_PRODUCTS.map(([name, copy, icon], index) => (
+              {ACTIVE_PRODUCTS.map((product, index) => {
+                const [name, copy, icon] = product;
+                return (
                 <article key={name} className="group relative overflow-hidden rounded-3xl border border-surface-container bg-surface-container-lowest p-6 shadow-sm transition duration-500 hover:-translate-y-2 hover:shadow-xl">
                   <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/10 transition duration-500 group-hover:scale-[2.5]" />
                   <span className="relative material-symbols-outlined text-[32px] text-primary transition-transform duration-500 group-hover:rotate-12">{icon}</span>
                   <span className="relative mt-6 block text-[11px] font-extrabold uppercase tracking-widest text-outline">0{index + 1}</span>
                   <h3 className="relative mt-2 text-xl font-bold text-on-surface">{name}</h3>
                   <p className="relative mt-3 text-sm leading-6 text-on-surface-variant">{copy}</p>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedProduct(product)}
+                    className="relative mt-5 inline-flex items-center gap-1 border-0 bg-transparent p-0 text-sm font-bold text-primary transition-colors hover:text-primary-container focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  >
+                    Read more
+                    <span className="material-symbols-outlined text-[17px]">arrow_forward</span>
+                  </button>
                 </article>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
 
         <section className="bg-surface px-margin py-space-xl">
-          <div className="mx-auto grid max-w-7xl gap-space-xl lg:grid-cols-[.9fr_1.1fr] lg:items-start">
+          <div className="mx-auto grid max-w-7xl gap-space-xl lg:grid-cols-[.9fr_1.1fr] lg:items-center">
             <div>
               <span className="font-label-sm text-label-sm uppercase tracking-widest text-secondary font-bold">Corporate learning & development</span>
               <h2 className="mt-3 font-headline-lg text-headline-lg text-on-surface">A structured pathway from capability to confidence.</h2>
               <p className="mt-4 max-w-xl font-body-md text-body-md leading-relaxed text-on-surface-variant">KGS combines customer projects, intensive in-house development, and career acceleration to build stronger technical foundations and job readiness.</p>
               <button onClick={() => openContact("Corporate Learning & Development")} className="mt-7 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-md transition hover:-translate-y-1 hover:bg-primary-container">Talk to our team</button>
             </div>
-            <div className="relative grid gap-4 sm:grid-cols-3">
-              {[["CWDP", "Corporate Workforce Development Program", "6 Months"], ["CSAP", "Corporate Skill Accelerator Program", "1 Month"], ["Customer Projects", "In-house project experience", "Hands-on"]].map(([short, title, duration], index) => (
-                <article key={short} className="relative rounded-2xl border border-surface-container bg-surface-container-lowest p-5 shadow-sm transition duration-500 hover:-translate-y-2">
-                  {index < 2 && <span className="absolute -right-3 top-1/2 hidden h-px w-6 bg-primary/30 sm:block" />}
-                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-sm font-black text-primary">{short}</span>
-                  <h3 className="mt-5 text-base font-bold text-on-surface">{title}</h3>
-                  <span className="mt-3 inline-block rounded-full bg-surface-container px-2.5 py-1 text-[11px] font-bold text-primary">{duration}</span>
-                </article>
-              ))}
+            <div className="flex items-center justify-center lg:justify-end">
+              <img src={corporateLearningPathway} alt="Corporate Learning and Development Program pathway" className="h-auto max-h-[720px] w-full max-w-[590px] rounded-2xl object-contain shadow-xl" />
             </div>
+            {/* removed legacy cards */}
           </div>
         </section>
 
@@ -574,21 +547,37 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
                 ))}
               </div>
             </div>
-            <div className="mt-space-xl grid gap-5 rounded-3xl bg-[#07152f] p-6 text-white shadow-xl md:grid-cols-[.7fr_1.3fr] md:p-8">
-              <div>
-                <span className="font-label-sm uppercase tracking-widest text-blue-300">Our global presence</span>
-                <div className="mt-5 text-4xl font-black text-white">+896</div>
-                <div className="mt-1 text-sm font-semibold text-blue-100/70">clients served across industries</div>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/10 bg-white/[.07] p-5"><span className="material-symbols-outlined text-blue-300">location_on</span><p className="mt-3 text-sm leading-6 text-blue-100/80">100, DC Complex, 80 Feet Road, Nagarbhavi 1st Stage, Chandra Layout, Vijayanagar, Bengaluru, Karnataka 560040</p></div>
-                <div className="rounded-2xl border border-white/10 bg-white/[.07] p-5"><span className="material-symbols-outlined text-blue-300">contact_phone</span><p className="mt-3 text-sm leading-6 text-blue-100/80">+91 9187980031<br />080-23143355<br /><a className="text-blue-200 hover:text-white" href="mailto:enquiry@kaizentrixglobal.com">enquiry@kaizentrixglobal.com</a></p></div>
-              </div>
-            </div>
           </div>
         </section>
 
-        {/* SECTION 3: ACHIEVER HALL OF FAME */}
+        <section className="bg-surface px-margin py-space-xl">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-space-lg text-center">
+              <span className="font-label-sm text-label-sm font-bold uppercase tracking-widest text-primary">Our people &amp; moments</span>
+              <h2 className="mt-2 font-headline-lg text-headline-lg text-on-surface">The Kaizentrix Story in Motion</h2>
+            </div>
+            <div className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden">
+            <div className="flex w-max animate-[photoMarquee_28s_linear_infinite] gap-5 hover:[animation-play-state:paused]">
+              {[1, 2].map((set) => (
+                <div key={set} className="flex shrink-0 items-center gap-5" aria-hidden={set === 2}>
+                  <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731145/1663840189570_foad0r.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
+                  <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731147/1666640669681_smq5jx.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team gathering" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
+                  <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731147/1668439994991_ddavxh.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team event" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
+                  <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731146/1666232975402_ohwoo1.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team activity" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
+                  <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731148/1668439995034_fmhbez.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team gathering" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
+                  <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731149/1686325656185_p8pf8k.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team event" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
+                  <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731150/1686325657188_rra4yy.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
+                  <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731151/1686325657258_yxzipq.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
+                  <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731152/1698096697724_ghvjdv.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
+                  <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731153/1710103021935_dv8wi9.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
+                  <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731154/1710103023532_schhna.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
+                </div>
+              ))}
+            </div>
+            </div>
+          </div>
+        </section>
+        {false && (
         <section id="achievers" className="py-space-xl px-margin max-w-7xl mx-auto w-full">
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-space-lg gap-space-sm">
             <div>
@@ -666,98 +655,9 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
             ))}
           </div>
         </section>
+        )}
 
-        {/* SECTION 4: UPCOMING BATCHES & ENGINEERING TRACKS */}
-        <section id="batches" className="py-space-xl px-margin bg-surface-container-low">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-space-lg gap-space-sm">
-              <div>
-                <span className="font-label-sm text-label-sm uppercase tracking-widest text-primary font-bold">
-                  Accelerated Curriculum
-                </span>
-                <h2 className="font-headline-lg text-headline-lg text-on-surface mt-1">
-                  Upcoming Batches &amp; Engineering Tracks
-                </h2>
-                <p className="font-body-md text-body-md text-on-surface-variant">
-                  Live mentor-led classes, production grade capstones, and direct referral pipeline.
-                </p>
-              </div>
-
-              {/* Category Filter Tabs */}
-              <div className="flex items-center gap-space-xs bg-surface-container-lowest p-1 rounded-xl shadow-sm border border-surface-container-high">
-                {(
-                  [
-                    { key: "all", label: "All Tracks" },
-                    { key: "fullstack", label: "Full Stack" },
-                    { key: "data", label: "Data & AI" },
-                    { key: "cloud", label: "Cloud" },
-                  ] as const
-                ).map(({ key, label }) => (
-                  <button
-                    key={key}
-                    onClick={() => setActiveTrackFilter(key)}
-                    className={`px-3 py-1.5 rounded-lg font-label-sm text-label-sm font-semibold transition-all cursor-pointer ${
-                      activeTrackFilter === key
-                        ? "bg-primary text-on-primary shadow-xs"
-                        : "text-on-surface-variant hover:text-on-surface"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Batch Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-              {filteredTracks.map((track) => (
-                <div
-                  key={track.id}
-                  className="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-surface-container"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-space-sm">
-                      <span
-                        className={`px-3 py-1 rounded-full bg-surface-container ${track.badgeColor} font-label-sm text-label-sm font-semibold flex items-center gap-1`}
-                      >
-                        <span className="material-symbols-outlined text-[16px]">
-                          {track.badgeIcon}
-                        </span>
-                        {track.badge}
-                      </span>
-                    </div>
-
-                    <h3 className="font-headline-md text-headline-md text-on-surface">
-                      {track.title}
-                    </h3>
-                    <p className="font-body-md text-body-md text-on-surface-variant mt-2 leading-relaxed">
-                      {track.description}
-                    </p>
-
-                  </div>
-
-                  <div className="flex items-center justify-between pt-space-xs">
-                    <a
-                      className="inline-flex items-center gap-1.5 text-primary font-label-md text-label-md hover:underline font-semibold"
-                      href="#batches"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">download</span>
-                      <span>Download Syllabus PDF</span>
-                    </a>
-                    <button
-                      onClick={() => openContact(track.title)}
-                      className={`px-space-md py-2.5 rounded-xl font-label-md text-label-md shadow transition-all cursor-pointer ${track.actionColor}`}
-                    >
-                      Apply For Track
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 5: INTERACTIVE STUDENT OPERATING SYSTEM / LMS */}
+        {false && (
         <section id="lms-preview" className="py-space-xl px-margin max-w-7xl mx-auto w-full">
           <div className="bg-gradient-to-br from-surface-container-high via-surface-container to-surface-container-low rounded-3xl p-space-lg lg:p-space-xl relative overflow-hidden shadow-lg border border-surface-container-high">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center relative z-10">
@@ -908,6 +808,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
             </div>
           </div>
         </section>
+        )}
 
         {/* SECTION 6: DETAILED HEADQUARTERS & ACCREDITATION FOOTER SECTION */}
         <section className="bg-surface-container-lowest pt-space-xl pb-space-lg px-margin">
@@ -930,9 +831,12 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               </p>
 
               {/* Certifications */}
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex flex-wrap items-center gap-2 mt-2">
                 <span className="px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
-                  ISO 9001:2015 Certified
+                  ISO 9001 – Quality Management
+                </span>
+                <span className="px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
+                  ISO/IEC 27001 – Information Security
                 </span>
               </div>
 
@@ -985,24 +889,11 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
               </div>
             </div>
 
-            {/* Col 2: Explore */}
-            <div className="flex flex-col gap-2">
-              <span className="font-label-lg text-label-lg text-on-surface font-bold">
-                Explore
-              </span>
-              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/">About Us</a>
-              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/batches">Batches</a>
-              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/placement-track">Placement Track</a>
-              <button onClick={() => openContact()} className="cursor-pointer text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors">Contact Us</button>
-            </div>
-
-            {/* Col 3: Student Access */}
-            <div className="flex flex-col gap-2">
-              <span className="font-label-lg text-label-lg text-on-surface font-bold">Student Access</span>
-              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/achievers">Achievers</a>
-              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/lms-gateway">LMS Gateway</a>
-              <button onClick={() => openContact()} className="cursor-pointer text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors">Contact Us</button>
-              <button onClick={onLogin} className="text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Student Portal Login</button>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 lg:col-span-2">
+              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="https://www.kaizentrixglobal.com/">About Us</a>
+              <button onClick={() => openContact()} className="cursor-pointer border-0 bg-transparent p-0 text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors">Contact Us</button>
+              <a className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="https://www.linkedin.com/" target="_blank" rel="noreferrer">LinkedIn</a>
+              <button onClick={onLogin} className="cursor-pointer border-0 bg-transparent p-0 text-left font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors">Portal Login</button>
             </div>
 
             {/* Col 4: Contact */}
@@ -1051,6 +942,43 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
           </div>
         </div>
       </footer>
+      {selectedProduct && (
+        <div
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-[#14213D]/40 px-4 backdrop-blur-sm animate-[fadeIn_200ms_ease-out]"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="product-dialog-title"
+          onClick={() => setSelectedProduct(null)}
+        >
+          <div
+            className="w-full max-w-lg rounded-3xl bg-surface-container-lowest p-7 shadow-2xl animate-[scaleIn_250ms_ease-out]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <span className="font-label-sm text-label-sm font-bold uppercase tracking-widest text-primary">Active product</span>
+                <h2 id="product-dialog-title" className="mt-2 text-2xl font-bold text-on-surface">{selectedProduct[0]}</h2>
+              </div>
+              <button
+                type="button"
+                aria-label="Close product details"
+                onClick={() => setSelectedProduct(null)}
+                className="grid h-9 w-9 place-items-center rounded-xl border-0 bg-surface-container text-on-surface transition-colors hover:bg-surface-container-high"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <p className="mt-5 text-base leading-7 text-on-surface-variant">{PRODUCT_DETAILS[selectedProduct[0]] ?? selectedProduct[1]}</p>
+            <button
+              type="button"
+              onClick={() => setSelectedProduct(null)}
+              className="mt-7 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primary-container"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
       <ContactModal open={contactOpen} track={selectedTrack} onClose={() => setContactOpen(false)} />
     </div>
   );

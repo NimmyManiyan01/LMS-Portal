@@ -48,11 +48,13 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
       !/^[\w.!#$%&'*+/=?^`{|}~-]+@[\w-]+(?:\.[\w-]+)+$/.test(form.email.trim())
     )
       next.email = "Enter a valid email address."
-    if (form.phone && !/^[6-9]\d{9}$/.test(form.phone))
+    if (!/^[6-9]\d{9}$/.test(form.phone.trim()))
       next.phone = "Enter a valid 10-digit Indian mobile number."
-    if (form.college && (form.college.trim().length < 2 || form.college.trim().length > 150))
+    if (form.college.trim().length < 2 || form.college.trim().length > 150)
       next.college = "Enter a college name between 2 and 150 characters."
-    if (form.passOutYear && (!Number.isInteger(year) || year < current - 10 || year > current + 10))
+    if (form.branch.trim().length < 2 || form.branch.trim().length > 100)
+      next.branch = "Enter a branch between 2 and 100 characters."
+    if (!form.passOutYear || !Number.isInteger(year) || year < current - 10 || year > current + 10)
       next.passOutYear = "Select a valid pass-out year."
     if (!form.privacyAccepted)
       next.privacyAccepted = "Privacy acknowledgement is required."
@@ -214,7 +216,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
             </label>
 
             <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-700">
-              Phone Number <span className="font-normal text-slate-400">(optional)</span>
+              Phone Number <b className="text-red-500">*</b>
               <input
                 type="tel"
                 inputMode="numeric"
@@ -263,7 +265,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
             </label>
 
             <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-700">
-              Branch <span className="font-normal text-slate-400">(optional)</span>
+              Branch <b className="text-red-500">*</b>
               <input
                 value={form.branch}
                 onChange={(e) => update("branch", e.target.value)}
@@ -283,7 +285,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
             </label>
 
             <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-700">
-              Pass-out Year <span className="font-normal text-slate-400">(optional)</span>
+              Pass-out Year <b className="text-red-500">*</b>
               <select
                 value={form.passOutYear}
                 onChange={(e) => update("passOutYear", e.target.value)}

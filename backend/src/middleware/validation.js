@@ -24,19 +24,21 @@ function validateRegistration(req, res, next) {
   const phone = text(body.phone);
   const college = text(body.college);
   const branch = text(body.branch);
-  const year = body.passOutYear === undefined || body.passOutYear === ""
-    ? null
-    : Number(body.passOutYear);
+  const year = Number(body.passOutYear);
 
   if (
     fullName.length < 2 ||
     fullName.length > 100 ||
     !emailPattern.test(text(body.email).toLowerCase()) ||
     text(body.email).length > 254 ||
-    (phone && !/^[6-9]\d{9}$/.test(phone)) ||
+    !/^[6-9]\d{9}$/.test(phone) ||
+    college.length < 2 ||
     college.length > 150 ||
+    branch.length < 2 ||
     branch.length > 100 ||
-    (year !== null && (!Number.isInteger(year) || year < 1900 || year > 2200)) ||
+    !Number.isInteger(year) ||
+    year < 1900 ||
+    year > 2200 ||
     body.privacyAccepted !== true ||
     body.monitoringAccepted !== true
   )
@@ -47,7 +49,7 @@ function validateRegistration(req, res, next) {
   req.body.phone = phone;
   req.body.college = college;
   req.body.branch = branch;
-  if (year !== null) req.body.passOutYear = year;
+  req.body.passOutYear = year;
   next();
 }
 
