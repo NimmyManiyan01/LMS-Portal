@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const { mongoUri, isProduction } = require("./env");
 
 mongoose.set("strictQuery", true);
-mongoose.set("sanitizeFilter", true);
 
 async function connectDatabase() {
   await mongoose.connect(mongoUri, {

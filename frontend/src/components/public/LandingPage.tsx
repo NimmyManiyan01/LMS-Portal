@@ -401,21 +401,21 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister, onAbout }: Land
       <main className="w-full bg-surface">
         {/* SECTION 1: HERO & LIVE WORKBENCH PREVIEW */}
         <section
-          className="relative isolate overflow-hidden bg-surface-container-low pt-space-xl pb-24 px-margin"
+          className="relative isolate min-h-[720px] overflow-hidden bg-surface-container-low px-margin pb-28 pt-32 lg:min-h-[860px] lg:pb-36 lg:pt-40"
         >
           <img
             src={heroStudent}
             alt="Student preparing for a software engineering career"
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[68%_center] opacity-90 max-lg:object-[72%_center] max-md:object-[center_bottom] max-md:opacity-60"
+            className="pointer-events-none absolute inset-0 h-full w-full scale-105 object-cover object-[70%_center] opacity-100 transition-transform duration-1000 max-lg:scale-110 max-lg:object-[76%_center] max-md:scale-100 max-md:object-[center_bottom] max-md:opacity-60"
           />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(250,248,255,.98)_0%,rgba(250,248,255,.93)_30%,rgba(250,248,255,.68)_56%,rgba(250,248,255,.2)_84%,rgba(250,248,255,0)_100%)] max-md:bg-[linear-gradient(180deg,rgba(250,248,255,.96)_0%,rgba(250,248,255,.78)_38%,rgba(250,248,255,.18)_78%,rgba(250,248,255,.04)_100%)]" />
           <div className="absolute -top-32 right-10 w-96 h-96 bg-primary-fixed-dim/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 left-10 w-80 h-80 bg-tertiary-fixed/30 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center relative z-10">
+          <div className="relative z-10 mx-auto grid min-h-[560px] max-w-7xl grid-cols-1 items-center gap-space-xl lg:min-h-[660px] lg:grid-cols-12">
             {/* Left Copy & Metric Highlights */}
-            <div className="lg:col-span-7 flex flex-col gap-space-md">
-              <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight leading-tight">
+            <div className="flex max-w-3xl flex-col gap-space-md lg:col-span-7">
+              <h1 className="font-headline-xl text-headline-xl text-on-surface leading-[1.04] tracking-tight lg:text-[clamp(3.6rem,6vw,6.4rem)]">
                 Launch Your Career in <span className="text-primary font-bold">High-Impact</span>{" "}
                 Software Engineering
               </h1>
