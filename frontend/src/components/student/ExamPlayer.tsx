@@ -523,9 +523,15 @@ export function ExamPlayer({
   }
 
   const saveAndNext = async () => {
-    if (currentIdx >= questions.length - 1) return
     const saved = await persistAnswer(currentAns)
-    if (saved) goToQuestion(currentIdx + 1)
+    if (!saved) return
+    if (currentIdx >= questions.length - 1) {
+      finalizingRef.current = true
+      stopCamera()
+      onSubmitExam({ ...answers, [currentAns.questionId]: currentAns }, tabSwitches)
+      return
+    }
+    goToQuestion(currentIdx + 1)
   }
 
   const selectOption = (optId: string) => {
@@ -976,10 +982,10 @@ export function ExamPlayer({
                 Mark for Review & Next
               </button>
               <button
-                className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-sm shadow-blue-500/20 border-none flex-1 sm:flex-initial"
+                className={`h-10 px-5 text-xs sm:text-sm font-semibold rounded-lg text-white transition-all cursor-pointer shadow-sm border-none flex-1 sm:flex-initial ${currentIdx >= questions.length - 1 ? "bg-red-600 hover:bg-red-700 active:bg-red-800 shadow-red-500/20" : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-blue-500/20"}`}
                 onClick={() => void saveAndNext()}
               >
-                Save & Next →
+                {currentIdx >= questions.length - 1 ? "Submit Exam" : "Save & Next →"}
               </button>
             </div>
           </footer>
