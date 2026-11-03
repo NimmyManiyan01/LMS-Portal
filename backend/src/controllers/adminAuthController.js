@@ -2,7 +2,7 @@ const crypto = require("node:crypto");
 const AdminUser = require("../models/AdminUser");
 const Session = require("../models/Session");
 const EmailVerification = require("../models/EmailVerification");
-const { sessionSecret, otpSecret } = require("../config/env");
+const { sessionSecret, otpSecret, jwtSecret, isProduction } = require("../config/env");
 const { sendOtpEmail } = require("../services/auth/brevoEmail");
 const OTP_TTL = 300000,
   RESEND_COOLDOWN = 30000,
@@ -17,12 +17,31 @@ const hash = (v) =>
   crypto.createHmac("sha256", sessionSecret).update(v).digest("hex");
 const hashOtp = (v) =>
   crypto.createHmac("sha256", otpSecret).update(v).digest("hex");
-const passwordHash = (v) =>
-  crypto
-    .scryptSync(v, process.env.JWT_SECRET || "local-salt", 64)
-    .toString("hex");
+const passwordHash = (value) => {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const derived = crypto.scryptSync(value, salt, 64).toString("hex");
+  return `scrypt$${salt}$${derived}`;
+};
+const passwordMatches = (value, stored) => {
+  if (typeof stored !== "string") return false;
+  if (stored.startsWith("scrypt$")) {
+    const [, salt, expectedHex] = stored.split("$");
+    if (!salt || !/^[a-f0-9]{128}$/i.test(expectedHex || "")) return false;
+    const actual = crypto.scryptSync(value, salt, 64);
+    const expected = Buffer.from(expectedHex, "hex");
+    return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+  }
+  const expected = Buffer.from(stored, "hex");
+  const actual = Buffer.from(crypto.scryptSync(value, jwtSecret, 64).toString("hex"));
+  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+};
+const hashesMatch = (left, right) => {
+  const actual = Buffer.from(left, "hex");
+  const expected = Buffer.from(right, "hex");
+  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+};
 const cookie = (token) =>
-  `kgs_admin_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure; Partitioned" : "Lax"}`;
+  `kgs_admin_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${isProduction ? "None; Secure; Partitioned" : "Lax"}; Priority=High`;
 function limited(key, max, windowMs) {
   const now = Date.now();
   const item = buckets.get(key) || { count: 0, reset: now + windowMs };
@@ -45,15 +64,16 @@ async function login(req, res) {
       .toLowerCase()
       .trim(),
     password = String(req.body.password || "");
-  const admin = await AdminUser.findOne({ email, active: true }),
-    expected = Buffer.from(passwordHash(password)),
-    actual = Buffer.from(admin?.passwordHash || "");
+  const ip = clientIp(req);
   if (
-    !(
-      actual.length === expected.length &&
-      crypto.timingSafeEqual(actual, expected)
-    )
+    limited(`admin-login-ip:${ip}`, 10, 900000) ||
+    limited(`admin-login-email:${email}`, 5, 900000)
   )
+    return res
+      .status(429)
+      .json({ error: "Too many login attempts. Please try again later." });
+  const admin = await AdminUser.findOne({ email, active: true });
+  if (!passwordMatches(password, admin?.passwordHash))
     return res.status(401).json({ error: "Invalid administrator credentials" });
   const raw = crypto.randomBytes(32).toString("hex");
   await Session.create({
@@ -61,7 +81,7 @@ async function login(req, res) {
     adminId: admin.id,
     expiresAt: new Date(Date.now() + SESSION_TTL),
   });
-  res.setHeader("Set-Cookie", cookie(raw));
+  res.append("Set-Cookie", cookie(raw));
   res.json({
     token: raw,
     user: { id: admin.id, email: admin.email, role: "ADMIN" },
@@ -71,7 +91,7 @@ async function logout(req, res) {
   if (req.session) await Session.deleteOne({ _id: req.session.id });
   res.setHeader(
     "Set-Cookie",
-    `kgs_admin_session=; HttpOnly; Path=/; Max-Age=0; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure; Partitioned" : "Lax"}`,
+    `kgs_admin_session=; HttpOnly; Path=/; Max-Age=0; SameSite=${isProduction ? "None; Secure; Partitioned" : "Lax"}; Priority=High`,
   );
   res.json({ ok: true });
 }
@@ -134,15 +154,11 @@ async function requestOtp(req, res) {
     await verification.save();
   } catch (error) {
     verification.deliveryStatus = "FAILED";
-    const providerMessage = error?.providerResponse?.message;
-    verification.deliveryError = providerMessage || error.message;
+    verification.deliveryError = error?.providerResponse?.message || error.message;
     await verification.save();
     return res.status(503).json({
       ...generic,
       delivery: "FAILED",
-      ...(process.env.NODE_ENV !== "production" && {
-        deliveryError: providerMessage || error.message,
-      }),
     });
   }
   res.json({
@@ -172,7 +188,7 @@ async function verifyOtp(req, res) {
     return res
       .status(429)
       .json({ error: "Too many attempts. Request a new code." });
-  if (!/^\d{6}$/.test(otp) || verification.otpHash !== hashOtp(otp)) {
+  if (!/^\d{6}$/.test(otp) || !hashesMatch(verification.otpHash, hashOtp(otp))) {
     await EmailVerification.updateOne(
       { _id: verification.id },
       { $inc: { attemptCount: 1 } },
@@ -197,7 +213,7 @@ async function verifyOtp(req, res) {
     adminId: admin.id,
     expiresAt: new Date(Date.now() + SESSION_TTL),
   });
-  res.setHeader("Set-Cookie", cookie(raw));
+  res.append("Set-Cookie", cookie(raw));
   res.json({
     token: raw,
     user: { id: admin.id, email: admin.email, role: "ADMIN" },

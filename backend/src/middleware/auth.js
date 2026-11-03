@@ -50,6 +50,9 @@ async function authenticate(req, res, next) {
     req.session = session;
 
     if (session.adminId) {
+      if (session.adminId.active !== true) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
       req.admin = session.adminId;
       req.auth = {
         sub: String(session.adminId._id || session.adminId.id),

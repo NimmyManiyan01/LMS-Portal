@@ -9,20 +9,26 @@ const {
 } = require("../controllers/authController");
 const { authenticate } = require("../middleware/auth");
 const {
+  validateEmail,
+  validateOtp,
+  validateRegistration,
+  validateAdminLogin,
+} = require("../middleware/validation");
+const {
   login: adminLogin,
   requestOtp: adminRequestOtp,
   verifyOtp: adminVerifyOtp,
   logout: adminLogout,
 } = require("../controllers/adminAuthController");
-router.post("/register", registerStudent);
-router.post("/request-otp", requestOtp);
-router.post("/resend-otp", resendOtp);
-router.post("/verify-otp", verifyOtp);
+router.post("/register", validateRegistration, registerStudent);
+router.post("/request-otp", validateEmail, requestOtp);
+router.post("/resend-otp", validateEmail, resendOtp);
+router.post("/verify-otp", validateEmail, validateOtp, verifyOtp);
 router.post("/logout", authenticate, logout);
 router.get("/me", authenticate, me);
-router.post("/admin/login", adminLogin);
-router.post("/admin/request-otp", adminRequestOtp);
-router.post("/admin/verify-otp", adminVerifyOtp);
+router.post("/admin/login", validateAdminLogin, adminLogin);
+router.post("/admin/request-otp", validateEmail, adminRequestOtp);
+router.post("/admin/verify-otp", validateEmail, validateOtp, adminVerifyOtp);
 router.post("/admin/logout", adminLogout);
 router.get("/admin/me", authenticate, (req, res) => {
   if (req.auth.role !== "ADMIN")

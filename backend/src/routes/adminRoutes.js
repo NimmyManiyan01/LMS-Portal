@@ -17,9 +17,14 @@ const FinalResult = require("../models/FinalResult");
 const ExamFeedback = require("../models/ExamFeedback");
 const { authenticate } = require("../middleware/auth");
 const adminOnly = (req, res, next) =>
-  req.auth?.role === "ADMIN"
+  req.auth?.role === "ADMIN" && req.admin?.active === true
     ? next()
-    : res.status(403).json({ error: "Administrator access required" });
+    : res.status(403).json({ error: "Active administrator access required" });
+
+router.use((req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+});
 const effectiveExamStatus = (exam, now = new Date()) => {
   if (exam.status === "DRAFT") return "DRAFT";
   if (exam.status === "COMPLETED" || exam.status === "CLOSED")
@@ -1209,10 +1214,11 @@ router.get("/questions", authenticate, adminOnly, async (req, res) => {
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
   const search = String(req.query.search || "").trim();
   const filter = {};
-  if (search)
+  const safeSearch = escapeRegex(search);
+  if (safeSearch)
     filter.$or = [
-      { questionText: { $regex: search, $options: "i" } },
-      { sectionName: { $regex: search, $options: "i" } },
+      { questionText: { $regex: safeSearch, $options: "i" } },
+      { sectionName: { $regex: safeSearch, $options: "i" } },
     ];
   if (req.query.type)
     filter.questionType = String(req.query.type).toUpperCase();
@@ -1465,8 +1471,10 @@ router.get("/paper-sets", authenticate, adminOnly, async (req, res) => {
   if (req.query.status) filter.status = String(req.query.status).toUpperCase();
   if (req.query.examId && mongoose.isValidObjectId(req.query.examId))
     filter.examId = req.query.examId;
-  if (req.query.search)
-    filter.name = { $regex: String(req.query.search).trim(), $options: "i" };
+  if (req.query.search) {
+    const safeSearch = escapeRegex(String(req.query.search).trim());
+    if (safeSearch) filter.name = { $regex: safeSearch, $options: "i" };
+  }
   const sets = await PaperSet.find(filter)
     .populate("examId", "title code")
     .sort({ createdAt: -1 })
@@ -1504,8 +1512,10 @@ router.get(
   adminOnly,
   async (req, res) => {
     const filter = { status: "ACTIVE" };
-    if (req.query.search)
-      filter.questionText = { $regex: String(req.query.search), $options: "i" };
+    if (req.query.search) {
+      const safeSearch = escapeRegex(String(req.query.search));
+      if (safeSearch) filter.questionText = { $regex: safeSearch, $options: "i" };
+    }
     if (req.query.category) filter.sectionName = String(req.query.category);
     if (req.query.difficulty)
       filter.difficulty = String(req.query.difficulty).toUpperCase();
@@ -1532,8 +1542,10 @@ router.get(
   adminOnly,
   async (req, res) => {
     const filter = { status: "ACTIVE" };
-    if (req.query.search)
-      filter.questionText = { $regex: String(req.query.search), $options: "i" };
+    if (req.query.search) {
+      const safeSearch = escapeRegex(String(req.query.search));
+      if (safeSearch) filter.questionText = { $regex: safeSearch, $options: "i" };
+    }
     if (req.query.category) filter.sectionName = String(req.query.category);
     if (req.query.difficulty)
       filter.difficulty = String(req.query.difficulty).toUpperCase();
@@ -1892,11 +1904,12 @@ router.get("/students", authenticate, adminOnly, async (req, res) => {
       .filter(Boolean);
   }
   const filter = {};
-  if (search)
+  const safeSearch = escapeRegex(search);
+  if (safeSearch)
     filter.$or = [
-      { studentId: { $regex: search, $options: "i" } },
-      { fullName: { $regex: search, $options: "i" } },
-      { email: { $regex: search, $options: "i" } },
+      { studentId: { $regex: safeSearch, $options: "i" } },
+      { fullName: { $regex: safeSearch, $options: "i" } },
+      { email: { $regex: safeSearch, $options: "i" } },
     ];
   if (["ACTIVE", "SUSPENDED"].includes(status)) filter.accountStatus = status;
   if (queryColleges.length) {

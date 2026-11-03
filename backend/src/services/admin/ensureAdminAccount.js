@@ -1,13 +1,14 @@
 const crypto = require("node:crypto");
 const AdminUser = require("../../models/AdminUser");
+const { jwtSecret, isProduction } = require("../../config/env");
 
 function hashPassword(password) {
-  return crypto
-    .scryptSync(password, process.env.JWT_SECRET || "local-seed-salt", 64)
-    .toString("hex");
+  const salt = crypto.randomBytes(16).toString("hex");
+  return `scrypt$${salt}$${crypto.scryptSync(password, salt, 64).toString("hex")}`;
 }
 
 async function ensureAdminAccount() {
+  if (isProduction) return null;
   const emails = String(
     process.env.ADMIN_EMAILS ||
       process.env.ADMIN_EMAIL ||

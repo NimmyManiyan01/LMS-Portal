@@ -4,7 +4,7 @@ const AdminUser = require("../models/AdminUser");
 const Counter = require("../models/Counter");
 const EmailVerification = require("../models/EmailVerification");
 const Session = require("../models/Session");
-const { otpSecret, sessionSecret } = require("../config/env");
+const { otpSecret, sessionSecret, isProduction } = require("../config/env");
 const { sendOtpEmail } = require("../services/auth/brevoEmail");
 const OTP_TTL = 5 * 60 * 1000;
 const RESEND_COOLDOWN = 30 * 1000;
@@ -13,6 +13,11 @@ const hashOtp = (value) =>
   crypto.createHmac("sha256", otpSecret).update(value).digest("hex");
 const hashSession = (value) =>
   crypto.createHmac("sha256", sessionSecret).update(value).digest("hex");
+const hashesMatch = (left, right) => {
+  const actual = Buffer.from(left, "hex");
+  const expected = Buffer.from(right, "hex");
+  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+};
 const buckets = new Map();
 function limited(key, max, windowMs) {
   const now = Date.now();
@@ -31,7 +36,7 @@ const generic = {
     "If this email can be used, verification instructions have been sent.",
 };
 const cookie = (token) =>
-  `kgs_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure; Partitioned" : "Lax"}`;
+  `kgs_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${isProduction ? "None; Secure; Partitioned" : "Lax"}; Priority=High`;
 
 async function registerStudent(req, res) {
   const {
@@ -152,15 +157,11 @@ async function issueOtp(req, res) {
     await verification.save();
   } catch (error) {
     verification.deliveryStatus = "FAILED";
-    const providerMessage = error?.providerResponse?.message;
-    verification.deliveryError = providerMessage || error.message;
+    verification.deliveryError = error?.providerResponse?.message || error.message;
     await verification.save();
     return res.status(503).json({
       ...generic,
       delivery: "FAILED",
-      ...(process.env.NODE_ENV !== "production" && {
-        deliveryError: providerMessage || error.message,
-      }),
     });
   }
   return res.json({
@@ -214,7 +215,7 @@ async function verifyOtp(req, res) {
       .json({ error: "Too many attempts. Please try again later." });
   if (
     !/^\d{6}$/.test(submittedOtp) ||
-    verification.otpHash !== hashOtp(submittedOtp)
+    !hashesMatch(verification.otpHash, hashOtp(submittedOtp))
   ) {
     await EmailVerification.updateOne(
       { _id: verification.id },
@@ -239,7 +240,7 @@ async function verifyOtp(req, res) {
       adminId: administrator.id,
       expiresAt: new Date(Date.now() + SESSION_TTL),
     });
-    res.setHeader("Set-Cookie", cookie(raw));
+    res.append("Set-Cookie", cookie(raw));
     return res.json({
       token: raw,
       user: {
@@ -263,7 +264,7 @@ async function verifyOtp(req, res) {
     studentId: student.id,
     expiresAt: new Date(Date.now() + SESSION_TTL),
   });
-  res.setHeader("Set-Cookie", cookie(raw));
+  res.append("Set-Cookie", cookie(raw));
   res.json({
     token: raw,
     user: {
@@ -279,9 +280,9 @@ async function verifyOtp(req, res) {
 }
 async function logout(req, res) {
   if (req.session) await Session.deleteOne({ _id: req.session.id });
-  res.setHeader(
+  res.append(
     "Set-Cookie",
-    `kgs_session=; HttpOnly; Path=/; Max-Age=0; SameSite=${process.env.NODE_ENV === "production" ? "None; Secure; Partitioned" : "Lax"}`,
+    `kgs_session=; HttpOnly; Path=/; Max-Age=0; SameSite=${isProduction ? "None; Secure; Partitioned" : "Lax"}; Priority=High`,
   );
   res.json({ ok: true });
 }

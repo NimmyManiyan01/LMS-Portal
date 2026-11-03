@@ -19,7 +19,6 @@
     "dotenv": "^16.4.7",
     "exceljs": "^4.4.0",
     "express": "^4.22.3",
-    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5"
   }
 }
