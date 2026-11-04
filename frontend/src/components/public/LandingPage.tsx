@@ -5,7 +5,7 @@ import { TransparentLogoVideo } from "./TransparentLogoVideo";
 import { ContactModal } from "./ContactModal";
 
 const HERO_VIDEO_URL =
-  "https://res.cloudinary.com/dujdjt4l7/video/upload/v1793726282/linkedin-video_1_jf1kbg.mp4";
+  "https://res.cloudinary.com/dujdjt4l7/video/upload/v1793776799/EXAM_aphxzg.mp4";
 
 interface LandingPageProps {
   onLogin: () => void;

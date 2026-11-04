@@ -296,32 +296,25 @@ export function StudentLoginPage({
       className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#faf8ff] bg-[radial-gradient(circle_at_82%_8%,rgba(124,58,237,.16)_0%,transparent_34%),radial-gradient(circle_at_8%_82%,rgba(37,99,235,.13)_0%,transparent_36%)] font-sans text-[#172044] transition-colors duration-300"
     >
       {/* Header */}
-      <header className="cinematic-navbar fixed left-0 right-0 top-0 z-50 bg-[#faf8ff]/90 shadow-[0_1px_8px_rgba(0,0,0,.04)] backdrop-blur-xl">
-        <div className="flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-8 lg:px-12">
+      <header className="cinematic-navbar fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+        <div className="h-16 w-full px-margin flex items-center justify-between gap-space-md">
           <button
             className="group flex cursor-pointer items-center gap-2 border-none bg-transparent p-0 text-left focus:outline-none sm:gap-3"
             onClick={onBackToLanding}
             aria-label="Back to the Kaizentrix Global Solutions landing page"
           >
             <TransparentLogoVideo src={logoRevealVideo} loop className="h-9 w-24 object-contain transition-transform group-hover:scale-105" />
-            <span className="hidden font-headline-sm text-sm font-bold tracking-tight text-primary sm:inline sm:text-base">Kaizentrix Global Solutions</span>
+            <span className="hidden font-headline-sm text-headline-sm text-primary font-bold tracking-tight sm:inline">Kaizentrix Global Solutions</span>
           </button>
 
-          <nav className="hidden items-center gap-6 xl:flex">
-            {[["About Us", "/"], ["Batches", "/batches"], ["Placement Track", "/#lms-preview"], ["Achievers", "/#achievers"], ["LMS Gateway", "/#lms-preview"]].map(([name, href]) => <a key={name} href={href} className="text-sm font-semibold text-slate-600 no-underline transition-colors hover:text-blue-600">{name}</a>)}
+          <nav className="hidden xl:flex items-center gap-space-lg">
+            <a href="https://www.kaizentrixglobal.com/" className="font-label-lg text-label-lg text-on-surface-variant">About Us</a>
+            <a href="/#contact" className="font-label-lg text-label-lg text-on-surface-variant">Contact Us</a>
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="hero-login-button portal-login-button hidden rounded-xl px-4 py-2 text-sm font-semibold shadow-sm md:inline-flex"><span>Portal Login</span></button>
-            {allowRegistration && <>
-            <button
-              className={`${btnSecondary} h-10 rounded-xl px-4 text-sm font-semibold`}
-              onClick={onRegister}
-            >
-              <span className="hidden sm:inline">New student?&nbsp;</span>
-              <span className="text-blue-600">Create account</span>
-            </button>
-            </>}
+            <a href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/" target="_blank" rel="noreferrer" className="hidden items-center justify-center rounded-xl border border-surface-container-high bg-surface-container-lowest px-space-md py-1.5 font-label-md text-label-md text-primary shadow-sm md:inline-flex">LinkedIn</a>
+            <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="hero-login-button portal-login-button hidden md:inline-flex items-center px-space-md py-1.5 rounded-xl font-label-md text-label-md shadow-[0_1px_3px_0_rgba(15,23,42,0.05)] cursor-pointer"><span>Login</span></button>
             <button className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm xl:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle navigation"><span className="text-[22px]">{mobileMenuOpen ? "×" : "☰"}</span></button>
           </div>
         </div>

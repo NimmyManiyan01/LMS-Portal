@@ -105,21 +105,23 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
   return (
     <div className="min-h-screen bg-[#faf8ff] flex flex-col font-sans text-slate-900">
       {/* Header */}
-      <header className="cinematic-navbar fixed left-0 right-0 top-0 z-50 bg-[#faf8ff]/90 shadow-[0_1px_8px_rgba(0,0,0,.04)] backdrop-blur-xl">
-        <div className="flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-8 lg:px-12">
+      <header className="cinematic-navbar fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+        <div className="h-16 w-full px-margin flex items-center justify-between gap-space-md">
         <button
           className="group flex items-center gap-2 border-none bg-transparent cursor-pointer text-left focus:outline-none sm:gap-3"
           onClick={onBackToLogin}
         >
           <TransparentLogoVideo src={logoRevealVideo} loop className="h-9 w-24 object-contain transition-transform group-hover:scale-105" />
-          <span className="hidden text-sm font-bold tracking-tight text-blue-700 sm:inline sm:text-base">Kaizentrix Global Solutions</span>
+          <span className="hidden font-headline-sm text-headline-sm text-primary font-bold tracking-tight sm:inline">Kaizentrix Global Solutions</span>
         </button>
-        <nav className="hidden items-center gap-6 xl:flex">
-          {[['About Us', '/'], ['Batches', '/batches'], ['Placement Track', '/#lms-preview'], ['Achievers', '/#achievers'], ['LMS Gateway', '/#lms-preview']].map(([name, href]) => <a key={name} href={href} className="text-sm font-semibold text-slate-600 no-underline transition-colors hover:text-blue-600">{name}</a>)}
+          <nav className="hidden xl:flex items-center gap-space-lg">
+          <a href="https://www.kaizentrixglobal.com/" className="font-label-lg text-label-lg text-on-surface-variant">About Us</a>
+          <a href="/#contact" className="font-label-lg text-label-lg text-on-surface-variant">Contact Us</a>
         </nav>
         <div className="flex items-center gap-2 sm:gap-3">
-          <button type="button" onClick={onBackToLogin} className="hero-login-button portal-login-button hidden rounded-xl px-4 py-2 text-sm font-semibold shadow-sm md:inline-flex"><span>Portal Login</span></button>
-          <button className="rounded-xl border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-600 shadow-sm" onClick={onBackToLogin}>Already registered? <span className="hidden sm:inline">Sign in</span></button>
+          <a href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/" target="_blank" rel="noreferrer" className="hidden items-center justify-center rounded-xl border border-surface-container-high bg-surface-container-lowest px-space-md py-1.5 font-label-md text-label-md text-primary shadow-sm md:inline-flex">LinkedIn</a>
+          <button type="button" onClick={onBackToLogin} className="hidden rounded-xl border border-surface-container-high bg-surface-container-lowest px-space-md py-1.5 font-label-md text-label-md text-primary shadow-sm transition-colors hover:bg-primary hover:text-white md:inline-flex">Back to login</button>
+          <button type="button" onClick={onBackToLogin} className="hero-login-button portal-login-button hidden md:inline-flex items-center px-space-md py-1.5 rounded-xl font-label-md text-label-md shadow-[0_1px_3px_0_rgba(15,23,42,0.05)] cursor-pointer"><span>Login</span></button>
           <button className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm xl:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle navigation"><span className="text-[22px]">{mobileMenuOpen ? "×" : "☰"}</span></button>
         </div>
         </div>
