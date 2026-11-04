@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import logo from "../../assets/Logo.png";
-import corporateLearningPathway from "../../assets/image.png";
 import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4";
 import { TransparentLogoVideo } from "./TransparentLogoVideo";
 import { ContactModal } from "./ContactModal";
@@ -304,7 +303,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
               onClick={onLogin}
               className="hero-login-button portal-login-button hidden md:inline-flex items-center px-space-md py-1.5 rounded-xl font-label-md text-label-md shadow-[0_1px_3px_0_rgba(15,23,42,0.05)] cursor-pointer"
             >
-              <span>Portal Login</span>
+              <span>Login</span>
             </button>
 
             {/* Mobile Menu Toggle Button */}
@@ -340,7 +339,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
                 }}
                 className="w-full py-2.5 rounded-xl bg-primary text-on-primary font-label-md text-center"
               >
-                Student Portal Login
+                Login
               </button>
               <button
                 onClick={() => {
@@ -450,32 +449,32 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
         </section>
 
         {/* COMPANY PROFILE */}
-        <section id="company-profile" className="relative overflow-hidden bg-[#07152f] px-margin py-space-xl text-white">
+        <section id="company-profile" className="relative overflow-hidden bg-surface-container-low px-margin py-space-xl text-on-surface">
           <div className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl animate-[float_8s_ease-in-out_infinite]" />
           <div className="pointer-events-none absolute -left-24 bottom-0 h-80 w-80 rounded-full bg-violet-500/20 blur-3xl animate-[float_10s_ease-in-out_infinite_reverse]" />
           <div className="relative z-10 mx-auto max-w-7xl">
             <div className="grid items-end gap-space-lg lg:grid-cols-[1.05fr_.95fr]">
               <div>
-                <span className="font-label-sm text-label-sm uppercase tracking-[.2em] text-blue-300">Company profile · 11+ years of technology expertise</span>
+                <span className="font-label-sm text-label-sm uppercase tracking-[.2em] text-primary">Company profile · 11+ years of technology expertise</span>
                 <h2 className="mt-4 max-w-4xl font-headline-lg text-headline-lg leading-tight">Learn. Build. Innovate. Deploy.</h2>
-                <p className="mt-5 max-w-3xl font-body-lg text-body-lg leading-relaxed text-blue-100/75">
+                <p className="mt-5 max-w-3xl font-body-lg text-body-lg leading-relaxed text-on-surface-variant">
                   Kaizentrix Global Solutions, InfyStrat, and StratNex collaborate with industry partners to develop customer-centric products and innovative solutions globally. Our group also extends into power infrastructure and data-center setup through GTV Power Pvt. Ltd. across India.
                 </p>
               </div>
-              <div className="rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-md shadow-2xl shadow-black/20">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <span className="font-label-sm uppercase tracking-widest text-blue-200">Our promise</span>
-                  <span className="material-symbols-outlined text-amber-300">auto_awesome</span>
+              <div className="rounded-3xl border border-surface-container bg-surface-container-lowest p-6 shadow-2xl shadow-black/10">
+                <div className="flex items-center justify-between border-b border-surface-container pb-4">
+                  <span className="font-label-sm uppercase tracking-widest text-primary">Our promise</span>
+                  <span className="material-symbols-outlined text-amber-500">auto_awesome</span>
                 </div>
-                <p className="mt-5 text-xl font-semibold leading-relaxed text-white">Driven by collaboration and continuous improvement, we evolve with customer needs to deliver lasting value through technology and engineering excellence.</p>
+                <p className="mt-5 text-xl font-semibold leading-relaxed text-on-surface">Driven by collaboration and continuous improvement, we evolve with customer needs to deliver lasting value through technology and engineering excellence.</p>
               </div>
             </div>
 
             <div className="mt-space-xl grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {PROFILE_COMPETENCIES.map(([name, icon, color], index) => (
-                <article key={name} className="group rounded-2xl border border-white/10 bg-white/[.07] p-5 transition duration-500 hover:-translate-y-2 hover:border-blue-300/60 hover:bg-white/[.13]" style={{ animationDelay: `${index * 70}ms` }}>
+                <article key={name} className="group rounded-2xl border border-surface-container bg-surface-container-lowest p-5 transition duration-500 hover:-translate-y-2 hover:border-primary/60 hover:shadow-lg" style={{ animationDelay: `${index * 70}ms` }}>
                   <span className={`material-symbols-outlined ${color} text-[30px] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6`}>{icon}</span>
-                  <h3 className="mt-5 text-base font-bold text-white">{name}</h3>
+                  <h3 className="mt-5 text-base font-bold text-on-surface">{name}</h3>
                 </article>
               ))}
             </div>
@@ -515,17 +514,8 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
         </section>
 
         <section className="bg-surface px-margin py-space-xl">
-          <div className="mx-auto grid max-w-7xl gap-space-xl lg:grid-cols-[.9fr_1.1fr] lg:items-center">
-            <div>
-              <span className="font-label-sm text-label-sm uppercase tracking-widest text-secondary font-bold">Corporate learning & development</span>
-              <h2 className="mt-3 font-headline-lg text-headline-lg text-on-surface">A structured pathway from capability to confidence.</h2>
-              <p className="mt-4 max-w-xl font-body-md text-body-md leading-relaxed text-on-surface-variant">KGS combines customer projects, intensive in-house development, and career acceleration to build stronger technical foundations and job readiness.</p>
-              <button onClick={() => openContact("Corporate Learning & Development")} className="mt-7 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-md transition hover:-translate-y-1 hover:bg-primary-container">Talk to our team</button>
-            </div>
-            <div className="flex items-center justify-center lg:justify-end">
-              <img src={corporateLearningPathway} alt="Corporate Learning and Development Program pathway" className="h-auto max-h-[720px] w-full max-w-[590px] rounded-2xl object-contain shadow-xl" />
-            </div>
-            {/* removed legacy cards */}
+          <div className="mx-auto max-w-7xl">
+            <img src="https://chatgpt.com/backend-api/estuary/public_content/enc/eyJpZCI6Im1fNmFlYWI1N2QyYmEwODE5MTlmMDllYTU4ZGY5Yjc2NTE6ZmlsZV8wMDAwMDAwMDMzY2M4MjExOWM4YTQ2YzE4NDRkODY3YSIsImdpem1vX2lkIjpudWxsLCJ3aWQiOm51bGwsIm9pZCI6bnVsbCwic2lkIjpudWxsLCJjcyI6bnVsbCwiZm4iOm51bGwsImNkIjpudWxsLCJ0cyI6IjIwNzYxIiwicCI6InB5aSIsImNpZCI6IjEiLCJzaWciOiJmZWQwYmQ0OTQ5MTQ4MDUwNjVlZDQ2OTYyYzI5ODA2YTEyZjQwZjAwNjQ0ZDU2YTFjMWMxY2FiODUxNjMzNDQ4IiwidiI6IjAiLCJjZG4iOm51bGwsImNwIjpudWxsLCJtYSI6bnVsbH0=" alt="Corporate Learning and Development Program pathway" className="block h-auto w-full rounded-2xl object-cover shadow-xl" />
           </div>
         </section>
 
@@ -556,10 +546,10 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
               <span className="font-label-sm text-label-sm font-bold uppercase tracking-widest text-primary">Our people &amp; moments</span>
               <h2 className="mt-2 font-headline-lg text-headline-lg text-on-surface">The Kaizentrix Story in Motion</h2>
             </div>
-            <div className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden">
-            <div className="flex w-max animate-[photoMarquee_28s_linear_infinite] gap-5 hover:[animation-play-state:paused]">
-              {[1, 2].map((set) => (
-                <div key={set} className="flex shrink-0 items-center gap-5" aria-hidden={set === 2}>
+            <div className="relative left-1/2 w-[calc(100vw-20px)] -translate-x-1/2 overflow-hidden">
+            <div className="flex w-max animate-[photoMarquee_28s_linear_infinite] gap-[10px] hover:[animation-play-state:paused]">
+                {[1, 2].map((set) => (
+                <div key={set} className="flex shrink-0 items-center gap-[10px]" aria-hidden={set === 2}>
                   <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731145/1663840189570_foad0r.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
                   <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731147/1666640669681_smq5jx.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team gathering" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
                   <img src="https://res.cloudinary.com/dujdjt4l7/image/upload/v1793731147/1668439994991_ddavxh.jpg" alt={set === 1 ? "Kaizentrix Global Solutions team event" : ""} className="h-64 w-[min(78vw,420px)] rounded-2xl object-cover shadow-lg sm:h-72" />
