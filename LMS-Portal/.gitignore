@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.env
+.env.*
+!.env.qa.example
+!.env.example
+*.log
+.vite/
+coverage/
+.idea/
+.figma/
+.playwright-cli/
+.browseract-data/
