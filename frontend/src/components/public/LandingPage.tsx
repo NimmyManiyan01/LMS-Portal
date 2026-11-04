@@ -515,9 +515,9 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
 
         <section className="bg-surface px-margin py-space-xl">
           <div className="mx-auto max-w-7xl">
-            <p className="mb-5 font-label-sm text-label-sm font-bold uppercase tracking-widest text-primary">
+            <h2 className="mb-6 text-3xl font-extrabold tracking-tight text-primary sm:text-4xl lg:text-5xl">
               Internship program and development
-            </p>
+            </h2>
             <img src="https://chatgpt.com/backend-api/estuary/public_content/enc/eyJpZCI6Im1fNmFlYWI1N2QyYmEwODE5MTlmMDllYTU4ZGY5Yjc2NTE6ZmlsZV8wMDAwMDAwMDMzY2M4MjExOWM4YTQ2YzE4NDRkODY3YSIsImdpem1vX2lkIjpudWxsLCJ3aWQiOm51bGwsIm9pZCI6bnVsbCwic2lkIjpudWxsLCJjcyI6bnVsbCwiZm4iOm51bGwsImNkIjpudWxsLCJ0cyI6IjIwNzYxIiwicCI6InB5aSIsImNpZCI6IjEiLCJzaWciOiJmZWQwYmQ0OTQ5MTQ4MDUwNjVlZDQ2OTYyYzI5ODA2YTEyZjQwZjAwNjQ0ZDU2YTFjMWMxY2FiODUxNjMzNDQ4IiwidiI6IjAiLCJjZG4iOm51bGwsImNwIjpudWxsLCJtYSI6bnVsbH0=" alt="Corporate Learning and Development Program pathway" className="block h-auto w-full rounded-2xl object-cover shadow-xl" />
           </div>
         </section>
