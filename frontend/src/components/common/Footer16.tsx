@@ -30,27 +30,29 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
         }
         .kgs-watermark-stroke {
           stroke-dasharray: 1400;
-          animation: kgsStrokeDraw 26s ease-in-out infinite;
+          animation: kgsStrokeDraw 24s ease-in-out infinite;
         }
       `}</style>
 
       {/* SVG Drawing Line-Stroke Animated Watermark Background */}
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none select-none z-0">
+      <div className="absolute bottom-4 left-0 right-0 h-44 flex items-center justify-center overflow-hidden pointer-events-none select-none z-0">
         <svg
-          className="w-full h-full max-h-[320px] select-none"
-          viewBox="0 0 1000 220"
+          className="w-full h-full max-h-[160px] select-none"
+          viewBox="0 0 1000 160"
           preserveAspectRatio="xMidYMid meet"
         >
           <text
             x="50%"
-            y="55%"
-            dominantBaseline="middle"
+            y="50%"
+            dominantBaseline="central"
             textAnchor="middle"
-            fontSize="145"
+            fontSize="120"
             fontWeight="900"
-            letterSpacing="8"
+            letterSpacing="14"
             stroke="#057A55"
-            strokeWidth="1.8"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
             className="kgs-watermark-stroke font-sans"
           >
             KAIZENTRIX
@@ -210,7 +212,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
 
         </div>
 
-        {/* LOWER SECTION (Separated by subtle line) */}
+        {/* LOWER SECTION (Clean Border Divider Above Watermark Area) */}
         <div className="pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-extrabold text-[#1E3A34]">
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <a
