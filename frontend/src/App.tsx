@@ -2495,49 +2495,214 @@ function AdminDashboard() {
 
       {/* Grid: Chart & Activity */}
       <section className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
-        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col gap-4">
-          <div className="flex items-center justify-between pb-3.5 border-b border-[#F0EBE1]">
+        {/* Participation Overview Interactive Area Chart */}
+        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col gap-4 relative">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#F0EBE1]">
             <div>
-              <h3 className="text-lg font-black text-[#203D39] m-0">Participation overview</h3>
-              <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Registrations and completed attempts in the selected period</p>
+              <h3 className="text-lg font-black text-[#203D39] m-0">Participation Overview</h3>
+              <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Daily registrations and completed attempts in selected period</p>
             </div>
             <div className="flex items-center gap-4 text-xs font-bold text-[#203D39]">
-              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-[#176B58] inline-block shrink-0" /> Registered</span>
-              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-[#E5A23B] inline-block shrink-0" /> Completed</span>
+              <span className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#176B58]/10 text-[#176B58]">
+                <i className="w-2.5 h-2.5 rounded-full bg-[#176B58] inline-block shrink-0 shadow-sm" /> Registered
+              </span>
+              <span className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#E5A23B]/10 text-[#E5A23B]">
+                <i className="w-2.5 h-2.5 rounded-full bg-[#E5A23B] inline-block shrink-0 shadow-sm" /> Completed
+              </span>
             </div>
           </div>
+
           {dates.length === 0 ? (
-            <div className="py-12 text-center text-xs text-[#203D39]/70 font-semibold">
-              No registration or completed-attempt history for this period.
+            <div className="py-16 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#203D39]/70 font-semibold bg-[#F7F4EC]/50 rounded-xl border border-dashed border-[#E2DBD0]">
+              <span className="text-2xl text-[#176B58]">📊</span>
+              <span className="font-bold text-[#203D39]">No activity recorded for this period</span>
+              <p className="text-[11px] text-[#176B58] font-medium m-0">Try selecting a different date range in the top toolbar filter.</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-3 text-xs">
-              {dates.map((date) => (
-                <div className="grid grid-cols-[85px_1fr] items-center gap-3" key={date}>
-                  <span className="text-[#203D39] font-bold">
-                    {new Intl.DateTimeFormat(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    }).format(new Date(`${date}T00:00:00`))}
-                  </span>
-                  <div className="flex flex-col gap-1.5">
-                    <div
-                      className="h-2.5 rounded-full bg-[#176B58] transition-all shadow-sm"
-                      style={{
-                        width: `${(Number(registrationMap.get(date) || 0) / max) * 100}%`,
-                      }}
-                      title={`Registered: ${registrationMap.get(date) || 0}`}
-                    />
-                    <div
-                      className="h-2.5 rounded-full bg-[#E5A23B] transition-all shadow-sm"
-                      style={{
-                        width: `${(Number(completedMap.get(date) || 0) / max) * 100}%`,
-                      }}
-                      title={`Completed: ${completedMap.get(date) || 0}`}
-                    />
+            <div
+              className="relative w-full overflow-hidden"
+              onMouseLeave={() => setHoveredChartIndex(null)}
+            >
+              {/* Interactive Tooltip Overlay */}
+              {hoveredChartIndex !== null && regPoints[hoveredChartIndex] && (
+                <div
+                  className="absolute bg-[#203D39] text-white backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-[#176B58]/40 shadow-2xl text-xs space-y-1.5 pointer-events-none transition-all duration-150 z-30"
+                  style={{
+                    left: `${Math.min(Math.max((regPoints[hoveredChartIndex].x / chartWidth) * 85, 5), 72)}%`,
+                    top: "10px",
+                  }}
+                >
+                  <div className="font-black text-[#E5A23B] border-b border-white/10 pb-1 text-[11px] tracking-wide">
+                    {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(new Date(`${dates[hoveredChartIndex]}T00:00:00`))}
+                  </div>
+                  <div className="flex items-center justify-between gap-4 text-[11px]">
+                    <span className="flex items-center gap-1.5 font-bold text-emerald-300">
+                      <span className="w-2 h-2 rounded-full bg-[#176B58]" /> Registered:
+                    </span>
+                    <span className="font-black text-white">{registrationMap.get(dates[hoveredChartIndex]) || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 text-[11px]">
+                    <span className="flex items-center gap-1.5 font-bold text-amber-300">
+                      <span className="w-2 h-2 rounded-full bg-[#E5A23B]" /> Completed:
+                    </span>
+                    <span className="font-black text-white">{completedMap.get(dates[hoveredChartIndex]) || 0}</span>
                   </div>
                 </div>
-              ))}
+              )}
+
+              {/* SVG Area / Line Chart */}
+              <svg
+                className="w-full h-56 sm:h-64 overflow-visible"
+                viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#176B58" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#176B58" stopOpacity="0.0" />
+                  </linearGradient>
+                  <linearGradient id="amberGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#E5A23B" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#E5A23B" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+
+                {/* Y-Axis Gridlines & Labels */}
+                {[0, 0.5, 1].map((ratio) => {
+                  const gridY = padTop + innerH * (1 - ratio)
+                  const labelVal = Math.round(max * ratio)
+                  return (
+                    <g key={ratio}>
+                      <line
+                        x1={padLeft}
+                        y1={gridY}
+                        x2={chartWidth - padRight}
+                        y2={gridY}
+                        stroke="#F0EBE1"
+                        strokeWidth="1"
+                        strokeDasharray="4 4"
+                      />
+                      <text
+                        x={padLeft - 6}
+                        y={gridY + 4}
+                        textAnchor="end"
+                        fill="#203D39"
+                        opacity="0.6"
+                        fontSize="10"
+                        fontWeight="bold"
+                      >
+                        {labelVal}
+                      </text>
+                    </g>
+                  )
+                })}
+
+                {/* X-Axis Date Labels */}
+                {dates.map((date, i) => {
+                  if (dates.length > 10 && i % Math.ceil(dates.length / 8) !== 0 && i !== dates.length - 1) return null
+                  const x = dates.length === 1 ? padLeft + innerW / 2 : padLeft + (i / (dates.length - 1)) * innerW
+                  return (
+                    <text
+                      key={date}
+                      x={x}
+                      y={chartHeight - 8}
+                      textAnchor="middle"
+                      fill="#203D39"
+                      opacity="0.7"
+                      fontSize="9"
+                      fontWeight="bold"
+                    >
+                      {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(`${date}T00:00:00`))}
+                    </text>
+                  )
+                })}
+
+                {/* Registered Students Gradient Fill & Line */}
+                {regAreaD && <path d={regAreaD} fill="url(#emeraldGrad)" />}
+                {regLineD && (
+                  <path
+                    d={regLineD}
+                    fill="none"
+                    stroke="#176B58"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                )}
+
+                {/* Completed Attempts Gradient Fill & Line */}
+                {compAreaD && <path d={compAreaD} fill="url(#amberGrad)" />}
+                {compLineD && (
+                  <path
+                    d={compLineD}
+                    fill="none"
+                    stroke="#E5A23B"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                )}
+
+                {/* Interactive Points & Vertical Hover Line */}
+                {dates.map((date, i) => {
+                  const ptReg = regPoints[i]
+                  const ptComp = compPoints[i]
+                  const isHovered = hoveredChartIndex === i
+
+                  return (
+                    <g
+                      key={date}
+                      className="cursor-pointer"
+                      onMouseEnter={() => setHoveredChartIndex(i)}
+                    >
+                      {/* Transparent Hover Hitbox Area */}
+                      <rect
+                        x={ptReg.x - (innerW / Math.max(1, dates.length)) / 2}
+                        y={padTop}
+                        width={innerW / Math.max(1, dates.length)}
+                        height={innerH}
+                        fill="transparent"
+                      />
+
+                      {/* Active Vertical Line */}
+                      {isHovered && (
+                        <line
+                          x1={ptReg.x}
+                          y1={padTop}
+                          x2={ptReg.x}
+                          y2={bottomY}
+                          stroke="#203D39"
+                          strokeWidth="1.5"
+                          strokeDasharray="3 3"
+                          opacity="0.5"
+                        />
+                      )}
+
+                      {/* Registered Point Circle */}
+                      <circle
+                        cx={ptReg.x}
+                        cy={ptReg.y}
+                        r={isHovered ? "6" : "3.5"}
+                        fill="#176B58"
+                        stroke="#FFFFFF"
+                        strokeWidth="2"
+                        className="transition-all duration-200"
+                      />
+
+                      {/* Completed Point Circle */}
+                      <circle
+                        cx={ptComp.x}
+                        cy={ptComp.y}
+                        r={isHovered ? "6" : "3.5"}
+                        fill="#E5A23B"
+                        stroke="#FFFFFF"
+                        strokeWidth="2"
+                        className="transition-all duration-200"
+                      />
+                    </g>
+                  )
+                })}
+              </svg>
             </div>
           )}
         </div>
