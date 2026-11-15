@@ -35,6 +35,96 @@ const WORDMARK_PATHS = [
 ]
 
 /**
+ * Full-bleed animated SVG wave canvas spanning 100% width and 100% height of the footer.
+ * Features organic liquid wave layers with emerald (#00D084), cyan (#00C4DF), and amber (#FFB800) accents.
+ */
+export function FooterWaveCanvas() {
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0 w-full h-full pointer-events-none select-none overflow-hidden z-0"
+    >
+      <style>{`
+        @keyframes kgsWaveFlow1 {
+          0% { transform: translateX(0) scaleY(1); }
+          50% { transform: translateX(-25%) scaleY(1.15); }
+          100% { transform: translateX(0) scaleY(1); }
+        }
+        @keyframes kgsWaveFlow2 {
+          0% { transform: translateX(0) scaleY(1.1); }
+          50% { transform: translateX(20%) scaleY(0.9); }
+          100% { transform: translateX(0) scaleY(1.1); }
+        }
+        @keyframes kgsWaveFlow3 {
+          0% { transform: translateY(0) scaleX(1); }
+          50% { transform: translateY(-12px) scaleX(1.05); }
+          100% { transform: translateY(0) scaleX(1); }
+        }
+        .kgs-wave-layer-1 {
+          animation: kgsWaveFlow1 14s ease-in-out infinite;
+        }
+        .kgs-wave-layer-2 {
+          animation: kgsWaveFlow2 18s ease-in-out infinite;
+        }
+        .kgs-wave-layer-3 {
+          animation: kgsWaveFlow3 22s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .kgs-wave-layer-1, .kgs-wave-layer-2, .kgs-wave-layer-3 {
+            animation: none !important;
+          }
+        }
+      `}</style>
+
+      <svg
+        className="absolute inset-0 w-[200%] h-full min-h-full"
+        viewBox="0 0 2880 400"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="waveEmerald" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#00D084" stopOpacity="0.18" />
+            <stop offset="50%" stopColor="#057A55" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="#00D084" stopOpacity="0.18" />
+          </linearGradient>
+          <linearGradient id="waveCyan" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#00C4DF" stopOpacity="0.15" />
+            <stop offset="50%" stopColor="#008DA1" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#00C4DF" stopOpacity="0.15" />
+          </linearGradient>
+          <linearGradient id="waveAmber" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#FFB800" stopOpacity="0.12" />
+            <stop offset="50%" stopColor="#FF7A59" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="#FFB800" stopOpacity="0.12" />
+          </linearGradient>
+        </defs>
+
+        {/* Wave 3 (Amber/Peach Accent Back Layer) */}
+        <path
+          d="M 0 160 C 360 80, 720 240, 1080 160 C 1440 80, 1800 240, 2160 160 C 2520 80, 2760 220, 2880 180 L 2880 400 L 0 400 Z"
+          fill="url(#waveAmber)"
+          className="kgs-wave-layer-3"
+        />
+
+        {/* Wave 2 (Cyan Accent Mid Layer) */}
+        <path
+          d="M 0 200 C 400 280, 800 120, 1200 200 C 1600 280, 2000 120, 2400 200 C 2640 250, 2800 160, 2880 200 L 2880 400 L 0 400 Z"
+          fill="url(#waveCyan)"
+          className="kgs-wave-layer-2"
+        />
+
+        {/* Wave 1 (Emerald Accent Front Layer) */}
+        <path
+          d="M 0 240 C 320 180, 640 300, 960 240 C 1280 180, 1600 300, 1920 240 C 2240 180, 2560 280, 2880 240 L 2880 400 L 0 400 Z"
+          fill="url(#waveEmerald)"
+          className="kgs-wave-layer-1"
+        />
+      </svg>
+    </div>
+  )
+}
+
+/**
  * Reusable <WordmarkDraw /> Component.
  * Pure CSS keyframe line-drawing sequence for KAIZENTRIX.
  */
@@ -147,12 +237,15 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
   return (
     <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#1E3A34] border-t border-slate-200/80 pt-12 pb-8 px-6 sm:px-12">
 
+      {/* Full-Bleed Animated Wave Background Canvas (Spans 100% width and 100% height) */}
+      <FooterWaveCanvas />
+
       {/* SVG Wordmark Layer */}
-      <div className="absolute bottom-4 left-0 right-0 h-44 flex items-center justify-center overflow-hidden pointer-events-none select-none z-0">
-        <WordmarkDraw className="max-h-[160px]" />
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none select-none z-10">
+        <WordmarkDraw className="max-h-[220px]" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto space-y-10">
+      <div className="relative z-20 max-w-7xl mx-auto space-y-10">
 
         {/* UPPER CONTENT (Company Logo, Description, ISO Badges, Social Buttons, Quick Links, Contact Details) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
