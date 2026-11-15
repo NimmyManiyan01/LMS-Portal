@@ -2447,431 +2447,427 @@ function AdminDashboard() {
   ] as const
 
   return (
-    <div className="bg-[#F7F4EC] min-h-full p-4 sm:p-6 rounded-2xl font-sans text-[#203D39]">
-      {/* Premium Cinematic Enterprise Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#176B58] via-[#1C7A65] to-[#203D39] p-6 sm:p-8 text-[#F7F4EC] shadow-[0_10px_30px_-5px_rgba(23,107,88,0.3)] border border-[#176B58]/40 mb-6">
-        {/* Subtle Geometric Background Pattern & Lighting Blur */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(229,162,59,0.22),transparent_60%)] pointer-events-none" />
-        <div className="absolute -right-12 -bottom-12 w-64 h-64 rounded-full bg-[#176B58]/30 blur-3xl pointer-events-none" />
-        <svg className="absolute inset-0 w-full h-full opacity-5 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#FFFFFF" strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
+    <div className="relative min-h-screen bg-[#F7F4EC] p-4 sm:p-8 font-sans text-[#203D39] overflow-hidden">
+      {/* Full-Viewport Atmospheric Background Blur Orbs */}
+      <div className="absolute -top-24 -right-24 w-[450px] h-[450px] rounded-full bg-[#E5A23B]/20 blur-[130px] pointer-events-none" />
+      <div className="absolute top-20 -left-28 w-[500px] h-[500px] rounded-full bg-[#176B58]/20 blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[#06B6D4]/15 blur-[180px] pointer-events-none" />
+      <div className="absolute -bottom-28 -right-20 w-[500px] h-[500px] rounded-full bg-white/70 blur-[120px] pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          {/* Left Column: Greeting, Title & Description */}
-          <div className="space-y-2 max-w-2xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#E5A23B]/20 border border-[#E5A23B]/40 text-[#E5A23B] text-[10px] font-black uppercase tracking-widest">
-                Enterprise Analytics
-              </span>
-              <span className="text-xs font-bold text-[#F7F4EC]/80">
-                Welcome back, Administrator
-              </span>
+      <div className="relative z-10 max-w-7xl mx-auto space-y-8">
+
+        {/* Floating Glass Editorial Hero Bar */}
+        <header className="relative overflow-hidden rounded-3xl bg-white/75 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(23,107,88,0.12)] p-6 sm:p-8">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#176B58] via-[#E5A23B] to-[#D96C50]" />
+
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="px-3 py-1 rounded-full bg-[#176B58]/10 text-[#176B58] text-[10px] font-black uppercase tracking-widest border border-[#176B58]/20">
+                  Flux Editorial Suite
+                </span>
+                <span className="text-xs font-bold text-[#203D39]/70">
+                  Welcome back, Administrator
+                </span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#203D39] tracking-tight leading-tight m-0">
+                Examination Overview
+              </h1>
+
+              <p className="text-xs sm:text-sm text-[#176B58] font-bold m-0 leading-relaxed">
+                Real-time operational metrics, live candidate attempts, and system status across all active examination portals.
+              </p>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight m-0">
-              Examination Overview
-            </h1>
+            <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-3.5 shrink-0">
+              {/* System Operational Badge */}
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-[#E2DBD0] text-[#203D39] text-xs font-bold shadow-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10B981]" />
+                <span>System Operational</span>
+                <span className="text-[#203D39]/30">|</span>
+                <span className="text-[#E5A23B] font-extrabold">{stats.activeExams || 0} Live Exams</span>
+              </div>
 
-            <p className="text-xs sm:text-sm text-[#F7F4EC]/85 font-medium m-0 leading-relaxed">
-              Monitor live operations, candidate activity, and examination health in real-time across all active portals.
-            </p>
-          </div>
-
-          {/* Right Column: Status Tag & Date Range Picker */}
-          <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-3 shrink-0">
-            {/* System Operational Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/20 text-[#F7F4EC] text-xs font-bold shadow-inner">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#10B981]" />
-              <span>System Operational</span>
-              <span className="text-white/40">|</span>
-              <span className="text-[#E5A23B] font-extrabold">{stats.activeExams || 0} Live Exams</span>
-            </div>
-
-            {/* Date Range Selector */}
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/25 rounded-xl p-1 shadow-lg">
-              <span className="text-[11px] font-bold text-[#F7F4EC]/80 pl-3">Period:</span>
-              <select
-                className="h-9 px-3 text-xs font-black bg-[#203D39] text-white border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E5A23B] cursor-pointer shadow-sm"
-                value={range}
-                onChange={(event) => setRange(event.target.value as typeof range)}
-                aria-label="Dashboard date range"
-              >
-                <option value="week">This Week</option>
-                <option value="month">Last 30 Days</option>
-                <option value="quarter">Last 90 Days</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI Stats Grid */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4.5 mb-6">
-        {kpiCardConfig.map((kpi, idx) => (
-          <article
-            key={kpi.label}
-            style={{ animationDelay: `${idx * 60}ms` }}
-            className={`group relative overflow-hidden bg-white rounded-2xl p-4 sm:p-5 border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(23,107,88,0.08)] hover:shadow-[0_16px_32px_-4px_rgba(23,107,88,0.18)] transition-all duration-300 ease-out hover:-translate-y-1.5 flex flex-col justify-between motion-reduce:transition-none ${kpi.accentBorder}`}
-          >
-            {/* Subtle Top Accent Gradient Glow */}
-            <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${kpi.accentGradient}`} />
-
-            {/* Icon Header */}
-            <div className="flex items-center justify-between mb-3">
-              <span className={`w-9 h-9 rounded-full ${kpi.badgeBg} flex items-center justify-center text-base font-bold shadow-inner group-hover:scale-110 transition-transform duration-300`}>
-                <Icon name={kpi.icon} />
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E2DBD0] group-hover:bg-[#176B58] transition-colors" />
-            </div>
-
-            {/* Label & Number */}
-            <div>
-              <small className="block text-[10px] font-black text-[#D96C50] uppercase tracking-wider mb-1">
-                {kpi.label}
-              </small>
-              <strong
-                className={`block font-black text-[#203D39] leading-tight tracking-tight ${
-                  (kpi as any).isTextValue ? "text-xs sm:text-sm font-bold truncate" : "text-2xl sm:text-3xl"
-                }`}
-                title={(kpi as any).fullDate || String(kpi.value)}
-              >
-                {kpi.value}
-              </strong>
-            </div>
-          </article>
-        ))}
-      </section>
-
-      {/* Grid: Chart & Activity */}
-      <section className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-6 items-stretch">
-        {/* Participation Overview Interactive Area Chart */}
-        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col justify-between gap-4 relative h-full min-h-[440px]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#F0EBE1]">
-            <div>
-              <h3 className="text-lg font-black text-[#203D39] m-0">Participation Overview</h3>
-              <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Daily registrations and completed attempts in selected period</p>
-            </div>
-            <div className="flex items-center gap-4 text-xs font-bold text-[#203D39]">
-              <span className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#176B58]/10 text-[#176B58]">
-                <i className="w-2.5 h-2.5 rounded-full bg-[#176B58] inline-block shrink-0 shadow-sm" /> Registered
-              </span>
-              <span className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#E5A23B]/10 text-[#E5A23B]">
-                <i className="w-2.5 h-2.5 rounded-full bg-[#E5A23B] inline-block shrink-0 shadow-sm" /> Completed
-              </span>
-            </div>
-          </div>
-
-          {dates.length === 0 ? (
-            <div className="py-16 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#203D39]/70 font-semibold bg-[#F7F4EC]/50 rounded-xl border border-dashed border-[#E2DBD0]">
-              <span className="text-2xl text-[#176B58]">📊</span>
-              <span className="font-bold text-[#203D39]">No activity recorded for this period</span>
-              <p className="text-[11px] text-[#176B58] font-medium m-0">Try selecting a different date range in the top toolbar filter.</p>
-            </div>
-          ) : (
-            <div
-              className="relative w-full overflow-hidden"
-              onMouseLeave={() => setHoveredChartIndex(null)}
-            >
-              {/* Interactive Tooltip Overlay */}
-              {hoveredChartIndex !== null && regPoints[hoveredChartIndex] && (
-                <div
-                  className="absolute bg-[#203D39] text-white backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-[#176B58]/40 shadow-2xl text-xs space-y-1.5 pointer-events-none transition-all duration-150 z-30"
-                  style={{
-                    left: `${Math.min(Math.max((regPoints[hoveredChartIndex].x / chartWidth) * 85, 5), 72)}%`,
-                    top: "10px",
-                  }}
+              {/* Date Range Selector */}
+              <div className="flex items-center gap-2.5 bg-white/90 backdrop-blur-md border border-[#E2DBD0] rounded-2xl p-1.5 shadow-sm">
+                <span className="text-[11px] font-bold text-[#176B58] pl-3">Period:</span>
+                <select
+                  className="h-9 px-4 text-xs font-black bg-[#203D39] text-white border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-[#E5A23B] cursor-pointer shadow-sm"
+                  value={range}
+                  onChange={(event) => setRange(event.target.value as typeof range)}
+                  aria-label="Dashboard date range"
                 >
-                  <div className="font-black text-[#E5A23B] border-b border-white/10 pb-1 text-[11px] tracking-wide">
-                    {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(new Date(`${dates[hoveredChartIndex]}T00:00:00`))}
-                  </div>
-                  <div className="flex items-center justify-between gap-4 text-[11px]">
-                    <span className="flex items-center gap-1.5 font-bold text-emerald-300">
-                      <span className="w-2 h-2 rounded-full bg-[#176B58]" /> Registered:
+                  <option value="week">This Week</option>
+                  <option value="month">Last 30 Days</option>
+                  <option value="quarter">Last 90 Days</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Asymmetric Editorial Dashboard Composition */}
+        <main className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+
+          {/* Primary Column (8 Columns) */}
+          <div className="xl:col-span-8 space-y-8">
+
+            {/* Asymmetric KPI Flow */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {kpiCardConfig.map((kpi, idx) => (
+                <article
+                  key={kpi.label}
+                  style={{ animationDelay: `${idx * 60}ms` }}
+                  className={`group relative overflow-hidden bg-white/80 backdrop-blur-xl rounded-3xl p-5 border border-white/90 shadow-[0_8px_30px_-5px_rgba(23,107,88,0.1)] hover:shadow-[0_16px_40px_-5px_rgba(23,107,88,0.2)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between ${kpi.accentBorder} ${
+                    idx === 0 ? "sm:col-span-2 lg:col-span-2 bg-gradient-to-br from-white/90 via-white/80 to-[#176B58]/5" : ""
+                  }`}
+                >
+                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${kpi.accentGradient}`} />
+
+                  <div className="flex items-center justify-between mb-4">
+                    <span className={`w-10 h-10 rounded-2xl ${kpi.badgeBg} flex items-center justify-center text-lg font-bold shadow-inner group-hover:scale-110 transition-transform duration-300`}>
+                      <Icon name={kpi.icon} />
                     </span>
-                    <span className="font-black text-white">{registrationMap.get(dates[hoveredChartIndex]) || 0}</span>
+                    <span className="w-2 h-2 rounded-full bg-[#E2DBD0] group-hover:bg-[#176B58] transition-colors" />
                   </div>
-                  <div className="flex items-center justify-between gap-4 text-[11px]">
-                    <span className="flex items-center gap-1.5 font-bold text-amber-300">
-                      <span className="w-2 h-2 rounded-full bg-[#E5A23B]" /> Completed:
-                    </span>
-                    <span className="font-black text-white">{completedMap.get(dates[hoveredChartIndex]) || 0}</span>
+
+                  <div>
+                    <small className="block text-[10px] font-black text-[#D96C50] uppercase tracking-wider mb-1">
+                      {kpi.label}
+                    </small>
+                    <strong
+                      className={`block font-black text-[#203D39] leading-tight tracking-tight ${
+                        (kpi as any).isTextValue ? "text-xs sm:text-sm font-bold truncate" : "text-3xl sm:text-4xl"
+                      }`}
+                      title={(kpi as any).fullDate || String(kpi.value)}
+                    >
+                      {kpi.value}
+                    </strong>
                   </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Participation Overview Glass Card */}
+            <div className="bg-white/80 backdrop-blur-2xl rounded-3xl border border-white/90 shadow-[0_12px_40px_-10px_rgba(23,107,88,0.12)] p-6 sm:p-8 flex flex-col justify-between gap-6 relative min-h-[440px]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#F0EBE1]">
+                <div>
+                  <h3 className="text-xl font-black text-[#203D39] m-0">Participation Overview</h3>
+                  <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Daily registrations and completed attempts in selected period</p>
+                </div>
+                <div className="flex items-center gap-4 text-xs font-bold text-[#203D39]">
+                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#176B58]/10 text-[#176B58]">
+                    <i className="w-2.5 h-2.5 rounded-full bg-[#176B58] inline-block shrink-0 shadow-sm" /> Registered
+                  </span>
+                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5A23B]/10 text-[#E5A23B]">
+                    <i className="w-2.5 h-2.5 rounded-full bg-[#E5A23B] inline-block shrink-0 shadow-sm" /> Completed
+                  </span>
+                </div>
+              </div>
+
+              {dates.length === 0 ? (
+                <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#203D39]/70 font-semibold bg-[#F7F4EC]/50 rounded-2xl border border-dashed border-[#E2DBD0]">
+                  <span className="text-3xl text-[#176B58]">📊</span>
+                  <span className="font-bold text-[#203D39]">No activity recorded for this period</span>
+                  <p className="text-[11px] text-[#176B58] font-medium m-0">Try selecting a different date range in the top toolbar filter.</p>
+                </div>
+              ) : (
+                <div
+                  className="relative w-full overflow-hidden"
+                  onMouseLeave={() => setHoveredChartIndex(null)}
+                >
+                  {/* Interactive Tooltip Overlay */}
+                  {hoveredChartIndex !== null && regPoints[hoveredChartIndex] && (
+                    <div
+                      className="absolute bg-[#203D39] text-white backdrop-blur-md px-4 py-3 rounded-2xl border border-[#176B58]/40 shadow-2xl text-xs space-y-1.5 pointer-events-none transition-all duration-150 z-30"
+                      style={{
+                        left: `${Math.min(Math.max((regPoints[hoveredChartIndex].x / chartWidth) * 85, 5), 72)}%`,
+                        top: "10px",
+                      }}
+                    >
+                      <div className="font-black text-[#E5A23B] border-b border-white/10 pb-1 text-[11px] tracking-wide">
+                        {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(new Date(`${dates[hoveredChartIndex]}T00:00:00`))}
+                      </div>
+                      <div className="flex items-center justify-between gap-4 text-[11px]">
+                        <span className="flex items-center gap-1.5 font-bold text-emerald-300">
+                          <span className="w-2 h-2 rounded-full bg-[#176B58]" /> Registered:
+                        </span>
+                        <span className="font-black text-white">{registrationMap.get(dates[hoveredChartIndex]) || 0}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4 text-[11px]">
+                        <span className="flex items-center gap-1.5 font-bold text-amber-300">
+                          <span className="w-2 h-2 rounded-full bg-[#E5A23B]" /> Completed:
+                        </span>
+                        <span className="font-black text-white">{completedMap.get(dates[hoveredChartIndex]) || 0}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SVG Area / Line Chart */}
+                  <svg
+                    className="w-full h-60 sm:h-68 overflow-visible"
+                    viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+                    preserveAspectRatio="none"
+                  >
+                    <defs>
+                      <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#176B58" stopOpacity="0.35" />
+                        <stop offset="100%" stopColor="#176B58" stopOpacity="0.0" />
+                      </linearGradient>
+                      <linearGradient id="amberGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#E5A23B" stopOpacity="0.35" />
+                        <stop offset="100%" stopColor="#E5A23B" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Y-Axis Gridlines & Labels */}
+                    {[0, 0.5, 1].map((ratio) => {
+                      const gridY = padTop + innerH * (1 - ratio)
+                      const labelVal = Math.round(max * ratio)
+                      return (
+                        <g key={ratio}>
+                          <line
+                            x1={padLeft}
+                            y1={gridY}
+                            x2={chartWidth - padRight}
+                            y2={gridY}
+                            stroke="#F0EBE1"
+                            strokeWidth="1"
+                            strokeDasharray="4 4"
+                          />
+                          <text
+                            x={padLeft - 6}
+                            y={gridY + 4}
+                            textAnchor="end"
+                            fill="#203D39"
+                            opacity="0.6"
+                            fontSize="10"
+                            fontWeight="bold"
+                          >
+                            {labelVal}
+                          </text>
+                        </g>
+                      )
+                    })}
+
+                    {/* X-Axis Date Labels */}
+                    {dates.map((date, i) => {
+                      if (dates.length > 10 && i % Math.ceil(dates.length / 8) !== 0 && i !== dates.length - 1) return null
+                      const x = dates.length === 1 ? padLeft + innerW / 2 : padLeft + (i / (dates.length - 1)) * innerW
+                      return (
+                        <text
+                          key={date}
+                          x={x}
+                          y={chartHeight - 8}
+                          textAnchor="middle"
+                          fill="#203D39"
+                          opacity="0.7"
+                          fontSize="9"
+                          fontWeight="bold"
+                        >
+                          {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(`${date}T00:00:00`))}
+                        </text>
+                      )
+                    })}
+
+                    {/* Registered Students Gradient Fill & Line */}
+                    {regAreaD && <path d={regAreaD} fill="url(#emeraldGrad)" />}
+                    {regLineD && (
+                      <path
+                        d={regLineD}
+                        fill="none"
+                        stroke="#176B58"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    )}
+
+                    {/* Completed Attempts Gradient Fill & Line */}
+                    {compAreaD && <path d={compAreaD} fill="url(#amberGrad)" />}
+                    {compLineD && (
+                      <path
+                        d={compLineD}
+                        fill="none"
+                        stroke="#E5A23B"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    )}
+
+                    {/* Interactive Points & Vertical Hover Line */}
+                    {dates.map((date, i) => {
+                      const ptReg = regPoints[i]
+                      const ptComp = compPoints[i]
+                      const isHovered = hoveredChartIndex === i
+
+                      return (
+                        <g
+                          key={date}
+                          className="cursor-pointer"
+                          onMouseEnter={() => setHoveredChartIndex(i)}
+                        >
+                          <rect
+                            x={ptReg.x - (innerW / Math.max(1, dates.length)) / 2}
+                            y={padTop}
+                            width={innerW / Math.max(1, dates.length)}
+                            height={innerH}
+                            fill="transparent"
+                          />
+
+                          {isHovered && (
+                            <line
+                              x1={ptReg.x}
+                              y1={padTop}
+                              x2={ptReg.x}
+                              y2={bottomY}
+                              stroke="#203D39"
+                              strokeWidth="1.5"
+                              strokeDasharray="3 3"
+                              opacity="0.5"
+                            />
+                          )}
+
+                          <circle
+                            cx={ptReg.x}
+                            cy={ptReg.y}
+                            r={isHovered ? "6" : "3.5"}
+                            fill="#176B58"
+                            stroke="#FFFFFF"
+                            strokeWidth="2"
+                            className="transition-all duration-200"
+                          />
+
+                          <circle
+                            cx={ptComp.x}
+                            cy={ptComp.y}
+                            r={isHovered ? "6" : "3.5"}
+                            fill="#E5A23B"
+                            stroke="#FFFFFF"
+                            strokeWidth="2"
+                            className="transition-all duration-200"
+                          />
+                        </g>
+                      )
+                    })}
+                  </svg>
                 </div>
               )}
-
-              {/* SVG Area / Line Chart */}
-              <svg
-                className="w-full h-56 sm:h-64 overflow-visible"
-                viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-                preserveAspectRatio="none"
-              >
-                <defs>
-                  <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#176B58" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#176B58" stopOpacity="0.0" />
-                  </linearGradient>
-                  <linearGradient id="amberGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#E5A23B" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#E5A23B" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
-
-                {/* Y-Axis Gridlines & Labels */}
-                {[0, 0.5, 1].map((ratio) => {
-                  const gridY = padTop + innerH * (1 - ratio)
-                  const labelVal = Math.round(max * ratio)
-                  return (
-                    <g key={ratio}>
-                      <line
-                        x1={padLeft}
-                        y1={gridY}
-                        x2={chartWidth - padRight}
-                        y2={gridY}
-                        stroke="#F0EBE1"
-                        strokeWidth="1"
-                        strokeDasharray="4 4"
-                      />
-                      <text
-                        x={padLeft - 6}
-                        y={gridY + 4}
-                        textAnchor="end"
-                        fill="#203D39"
-                        opacity="0.6"
-                        fontSize="10"
-                        fontWeight="bold"
-                      >
-                        {labelVal}
-                      </text>
-                    </g>
-                  )
-                })}
-
-                {/* X-Axis Date Labels */}
-                {dates.map((date, i) => {
-                  if (dates.length > 10 && i % Math.ceil(dates.length / 8) !== 0 && i !== dates.length - 1) return null
-                  const x = dates.length === 1 ? padLeft + innerW / 2 : padLeft + (i / (dates.length - 1)) * innerW
-                  return (
-                    <text
-                      key={date}
-                      x={x}
-                      y={chartHeight - 8}
-                      textAnchor="middle"
-                      fill="#203D39"
-                      opacity="0.7"
-                      fontSize="9"
-                      fontWeight="bold"
-                    >
-                      {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(`${date}T00:00:00`))}
-                    </text>
-                  )
-                })}
-
-                {/* Registered Students Gradient Fill & Line */}
-                {regAreaD && <path d={regAreaD} fill="url(#emeraldGrad)" />}
-                {regLineD && (
-                  <path
-                    d={regLineD}
-                    fill="none"
-                    stroke="#176B58"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                )}
-
-                {/* Completed Attempts Gradient Fill & Line */}
-                {compAreaD && <path d={compAreaD} fill="url(#amberGrad)" />}
-                {compLineD && (
-                  <path
-                    d={compLineD}
-                    fill="none"
-                    stroke="#E5A23B"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                )}
-
-                {/* Interactive Points & Vertical Hover Line */}
-                {dates.map((date, i) => {
-                  const ptReg = regPoints[i]
-                  const ptComp = compPoints[i]
-                  const isHovered = hoveredChartIndex === i
-
-                  return (
-                    <g
-                      key={date}
-                      className="cursor-pointer"
-                      onMouseEnter={() => setHoveredChartIndex(i)}
-                    >
-                      {/* Transparent Hover Hitbox Area */}
-                      <rect
-                        x={ptReg.x - (innerW / Math.max(1, dates.length)) / 2}
-                        y={padTop}
-                        width={innerW / Math.max(1, dates.length)}
-                        height={innerH}
-                        fill="transparent"
-                      />
-
-                      {/* Active Vertical Line */}
-                      {isHovered && (
-                        <line
-                          x1={ptReg.x}
-                          y1={padTop}
-                          x2={ptReg.x}
-                          y2={bottomY}
-                          stroke="#203D39"
-                          strokeWidth="1.5"
-                          strokeDasharray="3 3"
-                          opacity="0.5"
-                        />
-                      )}
-
-                      {/* Registered Point Circle */}
-                      <circle
-                        cx={ptReg.x}
-                        cy={ptReg.y}
-                        r={isHovered ? "6" : "3.5"}
-                        fill="#176B58"
-                        stroke="#FFFFFF"
-                        strokeWidth="2"
-                        className="transition-all duration-200"
-                      />
-
-                      {/* Completed Point Circle */}
-                      <circle
-                        cx={ptComp.x}
-                        cy={ptComp.y}
-                        r={isHovered ? "6" : "3.5"}
-                        fill="#E5A23B"
-                        stroke="#FFFFFF"
-                        strokeWidth="2"
-                        className="transition-all duration-200"
-                      />
-                    </g>
-                  )
-                })}
-              </svg>
             </div>
-          )}
-        </div>
-
-        {/* Recent Activity Vertical Timeline Container */}
-        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col justify-between gap-4 h-full min-h-[440px] max-h-[480px]">
-          <div className="flex items-center justify-between pb-3.5 border-b border-[#F0EBE1]">
-            <div>
-              <h3 className="text-lg font-black text-[#203D39] m-0">Recent Activity</h3>
-              <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Live audit timeline and security log</p>
-            </div>
-            <span className="px-2.5 py-1 rounded-full bg-[#176B58]/10 text-[#176B58] text-[10px] font-black uppercase tracking-wider">
-              {activity.length} Events
-            </span>
           </div>
 
-          {activity.length === 0 ? (
-            <div className="py-16 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#203D39]/70 font-semibold bg-[#F7F4EC]/50 rounded-xl border border-dashed border-[#E2DBD0]">
-              <span className="text-2xl text-[#176B58]">📋</span>
-              <span className="font-bold text-[#203D39]">No audit activity recorded</span>
-              <p className="text-[11px] text-[#176B58] font-medium m-0">Audit logs will automatically appear here as users interact with exams.</p>
+          {/* Secondary Column (4 Columns - Recent Activity Glass Panel) */}
+          <div className="xl:col-span-4 sticky top-8">
+            <div className="bg-white/80 backdrop-blur-2xl rounded-3xl border border-white/90 shadow-[0_12px_40px_-10px_rgba(23,107,88,0.12)] p-6 sm:p-8 flex flex-col justify-between gap-4 max-h-[600px]">
+              <div className="flex items-center justify-between pb-4 border-b border-[#F0EBE1]">
+                <div>
+                  <h3 className="text-xl font-black text-[#203D39] m-0">Recent Activity</h3>
+                  <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Live audit timeline and security log</p>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-[#176B58]/10 text-[#176B58] text-[10px] font-black uppercase tracking-wider border border-[#176B58]/20">
+                  {activity.length} Events
+                </span>
+              </div>
+
+              {activity.length === 0 ? (
+                <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#203D39]/70 font-semibold bg-[#F7F4EC]/50 rounded-2xl border border-dashed border-[#E2DBD0]">
+                  <span className="text-3xl text-[#176B58]">📋</span>
+                  <span className="font-bold text-[#203D39]">No audit activity recorded</span>
+                  <p className="text-[11px] text-[#176B58] font-medium m-0">Audit logs will automatically appear here as users interact with exams.</p>
+                </div>
+              ) : (
+                <div className="flex-1 overflow-y-auto pr-1 space-y-3 relative">
+                  <div className="absolute left-4 top-3 bottom-3 w-0.5 bg-[#E2DBD0] z-0" />
+
+                  {activity.map((item: any) => {
+                    const cat = (() => {
+                      const action = String(item.action || "").toLowerCase()
+                      const entity = String(item.entityType || "").toLowerCase()
+
+                      if (action.includes("security") || action.includes("delete") || action.includes("failed") || action.includes("alert")) {
+                        return {
+                          icon: "review",
+                          badgeBg: "bg-[#D96C50]/15 text-[#D96C50]",
+                          tagText: "Security / Alert",
+                          tagColor: "text-[#D96C50]",
+                        }
+                      }
+                      if (action.includes("submit") || action.includes("attempt") || action.includes("review")) {
+                        return {
+                          icon: "pulse",
+                          badgeBg: "bg-[#E5A23B]/15 text-[#E5A23B]",
+                          tagText: "Submission",
+                          tagColor: "text-[#E5A23B]",
+                        }
+                      }
+                      if (action.includes("result") || action.includes("export") || action.includes("download")) {
+                        return {
+                          icon: "download",
+                          badgeBg: "bg-[#176B58]/15 text-[#176B58]",
+                          tagText: "Report / Data",
+                          tagColor: "text-[#176B58]",
+                        }
+                      }
+                      if (entity.includes("exam") || action.includes("exam")) {
+                        return {
+                          icon: "book",
+                          badgeBg: "bg-[#176B58]/15 text-[#176B58]",
+                          tagText: "Examination",
+                          tagColor: "text-[#176B58]",
+                        }
+                      }
+                      return {
+                        icon: "users",
+                        badgeBg: "bg-[#203D39]/15 text-[#203D39]",
+                        tagText: "System Operation",
+                        tagColor: "text-[#176B58]",
+                      }
+                    })()
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="group relative z-10 flex items-start gap-3.5 p-3 rounded-2xl hover:bg-[#F7F4EC]/80 transition-all duration-200 border border-transparent hover:border-white"
+                      >
+                        <div className={`w-8 h-8 rounded-full ${cat.badgeBg} flex items-center justify-center text-xs shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-200`}>
+                          <Icon name={cat.icon} />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <b className="font-black text-[#203D39] text-xs sm:text-sm truncate">
+                              {item.action || "Administrative action"}
+                            </b>
+                            <small className="text-[#203D39]/60 font-bold text-[10px] shrink-0">
+                              {item.recordedAt ? new Date(item.recordedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+                            </small>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[11px]">
+                            <span className={`font-bold ${cat.tagColor}`}>
+                              {item.entityType || cat.tagText}
+                            </span>
+                            <span className="text-[#203D39]/30">•</span>
+                            <span className="text-[#203D39]/70 font-semibold truncate">
+                              User: <strong className="text-[#203D39] font-bold">{item.actorRole || "System"}</strong>
+                            </span>
+                          </div>
+
+                          <div className="text-[10px] text-[#203D39]/50 font-medium mt-1">
+                            {item.recordedAt ? new Date(item.recordedAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }) : ""}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="flex-1 overflow-y-auto pr-1 space-y-3 relative">
-              {/* Vertical Connector Line */}
-              <div className="absolute left-4 top-3 bottom-3 w-0.5 bg-[#E2DBD0] z-0" />
-
-              {activity.map((item: any) => {
-                const cat = (() => {
-                  const action = String(item.action || "").toLowerCase()
-                  const entity = String(item.entityType || "").toLowerCase()
-
-                  if (action.includes("security") || action.includes("delete") || action.includes("failed") || action.includes("alert")) {
-                    return {
-                      icon: "review",
-                      badgeBg: "bg-[#D96C50]/15 text-[#D96C50]",
-                      tagText: "Security / Alert",
-                      tagColor: "text-[#D96C50]",
-                    }
-                  }
-                  if (action.includes("submit") || action.includes("attempt") || action.includes("review")) {
-                    return {
-                      icon: "pulse",
-                      badgeBg: "bg-[#E5A23B]/15 text-[#E5A23B]",
-                      tagText: "Submission",
-                      tagColor: "text-[#E5A23B]",
-                    }
-                  }
-                  if (action.includes("result") || action.includes("export") || action.includes("download")) {
-                    return {
-                      icon: "download",
-                      badgeBg: "bg-[#176B58]/15 text-[#176B58]",
-                      tagText: "Report / Data",
-                      tagColor: "text-[#176B58]",
-                    }
-                  }
-                  if (entity.includes("exam") || action.includes("exam")) {
-                    return {
-                      icon: "book",
-                      badgeBg: "bg-[#176B58]/15 text-[#176B58]",
-                      tagText: "Examination",
-                      tagColor: "text-[#176B58]",
-                    }
-                  }
-                  return {
-                    icon: "users",
-                    badgeBg: "bg-[#203D39]/15 text-[#203D39]",
-                    tagText: "System Operation",
-                    tagColor: "text-[#176B58]",
-                  }
-                })()
-
-                return (
-                  <div
-                    key={item.id}
-                    className="group relative z-10 flex items-start gap-3.5 p-2.5 rounded-xl hover:bg-[#F7F4EC]/70 transition-all duration-200 border border-transparent hover:border-[#E2DBD0]"
-                  >
-                    {/* Circular Icon Node */}
-                    <div className={`w-8 h-8 rounded-full ${cat.badgeBg} flex items-center justify-center text-xs shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-200`}>
-                      <Icon name={cat.icon} />
-                    </div>
-
-                    {/* Content Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <b className="font-black text-[#203D39] text-xs sm:text-sm truncate">
-                          {item.action || "Administrative action"}
-                        </b>
-                        <small className="text-[#203D39]/60 font-bold text-[10px] shrink-0">
-                          {item.recordedAt ? new Date(item.recordedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
-                        </small>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[11px]">
-                        <span className={`font-bold ${cat.tagColor}`}>
-                          {item.entityType || cat.tagText}
-                        </span>
-                        <span className="text-[#203D39]/30">•</span>
-                        <span className="text-[#203D39]/70 font-semibold truncate">
-                          User: <strong className="text-[#203D39] font-bold">{item.actorRole || "System"}</strong>
-                        </span>
-                      </div>
-
-                      <div className="text-[10px] text-[#203D39]/50 font-medium mt-1">
-                        {item.recordedAt ? new Date(item.recordedAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }) : ""}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
