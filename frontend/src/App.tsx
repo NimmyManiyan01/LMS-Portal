@@ -2696,10 +2696,10 @@ function AdminDashboard({
         setIsCollapsed={setSidebarCollapsed}
       />
 
-      {/* Main Dashboard Content Wrapper - Dynamically shifts padding when sidebar expands or collapses */}
+      {/* Main Dashboard Content Wrapper - Optimized spacing and screen width utilization */}
       <div
-        className={`relative z-10 max-w-7xl mx-auto space-y-6 transition-all duration-300 ease-in-out ${
-          sidebarCollapsed ? "lg:pl-24" : "lg:pl-72"
+        className={`relative z-10 max-w-[1550px] mx-auto space-y-6 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
         }`}
       >
         {/* Floating Glass Hero Welcome Header */}
@@ -2755,8 +2755,8 @@ function AdminDashboard({
         {/* Asymmetric Editorial Dashboard Composition */}
         <main className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
 
-          {/* Primary Column (8 Columns) */}
-          <div className="xl:col-span-8 space-y-6">
+          {/* Primary Column (7 Columns on XL, 8 Columns on 2XL) */}
+          <div className="xl:col-span-7 2xl:col-span-8 space-y-6">
 
             {/* Perfectly Balanced Asymmetric Glass Analytics Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
@@ -3234,9 +3234,9 @@ function AdminDashboard({
 
           </div>
 
-          {/* Secondary Column (4 Columns - Recent Activity Glass Panel) */}
-          <div className="xl:col-span-4 sticky top-8">
-            <div className="bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/80 shadow-[0_10px_35px_-5px_rgba(32,61,57,0.08)] p-6 sm:p-8 flex flex-col justify-between gap-4 max-h-[600px]">
+          {/* Secondary Column (5 Columns on XL, 4 Columns on 2XL - Recent Activity Glass Panel) */}
+          <div className="xl:col-span-5 2xl:col-span-4 sticky top-8">
+            <div className="bg-white/50 backdrop-blur-xl rounded-3xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-5 sm:p-6 flex flex-col justify-between gap-4 max-h-[520px]">
               <div className="flex items-center justify-between pb-4 border-b border-[#F0EBE1]">
                 <div>
                   <h3 className="text-xl font-black text-[#203D39] m-0">Recent Activity</h3>
