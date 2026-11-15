@@ -2402,7 +2402,6 @@ function AdminFloatingNavbar({
     </nav>
   )
 }
-}
 
 function AdminDashboard({
   active = "Overview",
