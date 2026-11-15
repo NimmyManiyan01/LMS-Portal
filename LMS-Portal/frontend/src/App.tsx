@@ -2513,10 +2513,11 @@ function AdminDashboard() {
 
       {/* KPI Stats Grid */}
       <section className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4.5 mb-6">
-        {kpiCardConfig.map((kpi) => (
+        {kpiCardConfig.map((kpi, idx) => (
           <article
             key={kpi.label}
-            className={`group relative overflow-hidden bg-white rounded-2xl p-4 sm:p-5 border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(23,107,88,0.08)] hover:shadow-[0_12px_28px_-4px_rgba(23,107,88,0.16)] transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between ${kpi.accentBorder}`}
+            style={{ animationDelay: `${idx * 60}ms` }}
+            className={`group relative overflow-hidden bg-white rounded-2xl p-4 sm:p-5 border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(23,107,88,0.08)] hover:shadow-[0_16px_32px_-4px_rgba(23,107,88,0.18)] transition-all duration-300 ease-out hover:-translate-y-1.5 flex flex-col justify-between motion-reduce:transition-none ${kpi.accentBorder}`}
           >
             {/* Subtle Top Accent Gradient Glow */}
             <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${kpi.accentGradient}`} />
@@ -2548,9 +2549,9 @@ function AdminDashboard() {
       </section>
 
       {/* Grid: Chart & Activity */}
-      <section className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
+      <section className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-6 items-stretch">
         {/* Participation Overview Interactive Area Chart */}
-        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col gap-4 relative">
+        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col justify-between gap-4 relative h-full min-h-[440px]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#F0EBE1]">
             <div>
               <h3 className="text-lg font-black text-[#203D39] m-0">Participation Overview</h3>
@@ -2762,7 +2763,7 @@ function AdminDashboard() {
         </div>
 
         {/* Recent Activity Vertical Timeline Container */}
-        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col gap-4 max-h-[480px]">
+        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col justify-between gap-4 h-full min-h-[440px] max-h-[480px]">
           <div className="flex items-center justify-between pb-3.5 border-b border-[#F0EBE1]">
             <div>
               <h3 className="text-lg font-black text-[#203D39] m-0">Recent Activity</h3>

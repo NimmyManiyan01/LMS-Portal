@@ -2762,7 +2762,7 @@ function AdminDashboard() {
         </div>
 
         {/* Recent Activity Vertical Timeline Container */}
-        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col gap-4 max-h-[480px]">
+        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col justify-between gap-4 h-full min-h-[440px] max-h-[480px]">
           <div className="flex items-center justify-between pb-3.5 border-b border-[#F0EBE1]">
             <div>
               <h3 className="text-lg font-black text-[#203D39] m-0">Recent Activity</h3>
