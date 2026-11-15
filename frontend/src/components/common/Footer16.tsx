@@ -17,11 +17,11 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
           }
           45% {
             stroke-dashoffset: 0;
-            fill: rgba(5, 122, 85, 0.04);
+            fill: rgba(5, 122, 85, 0.03);
           }
           75% {
             stroke-dashoffset: 0;
-            fill: rgba(5, 122, 85, 0.07);
+            fill: rgba(5, 122, 85, 0.06);
           }
           100% {
             stroke-dashoffset: -1400;
@@ -30,7 +30,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
         }
         .kgs-watermark-stroke {
           stroke-dasharray: 1400;
-          animation: kgsStrokeDraw 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          animation: kgsStrokeDraw 26s ease-in-out infinite;
         }
       `}</style>
 
