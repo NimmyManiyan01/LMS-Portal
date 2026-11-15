@@ -1118,7 +1118,7 @@ export default function App() {
       )}
 
       {/* Sidebar Navigation */}
-      {admin && active !== "Overview" && (
+      {admin && active !== "Overview" && active !== "Examinations" && (
         <div className={`shrink-0 ${menu ? "block" : "hidden lg:block"}`}>
           <Sidebar
             admin
@@ -1133,7 +1133,7 @@ export default function App() {
       )}
 
       {/* Mobile Backdrop Scrim */}
-      {menu && active !== "Overview" && (
+      {menu && active !== "Overview" && active !== "Examinations" && (
         <button
           className="fixed inset-0 z-20 bg-slate-900/60 backdrop-blur-sm lg:hidden border-none"
           onClick={() => setMenu(false)}
@@ -1142,7 +1142,7 @@ export default function App() {
       )}
 
       <div className="min-w-0 flex-1 flex flex-col">
-        {(!admin || active !== "Overview") && (
+        {(!admin || (active !== "Overview" && active !== "Examinations")) && (
           <Topbar
             admin={admin}
             setAdmin={switchPortal}
@@ -1168,7 +1168,14 @@ export default function App() {
           ) : admin &&
             active === "Examinations" &&
             viewState === "DASHBOARD" ? (
-            <ExaminationsPage Icon={Icon} PageHead={PageHead} />
+            <ExaminationsPage
+              Icon={Icon}
+              PageHead={PageHead}
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
           ) : admin &&
             active === "Question bank" &&
             viewState === "DASHBOARD" ? (
@@ -2273,7 +2280,7 @@ function StudentDashboard({
   )
 }
 
-function AdminFloatingSidebar({
+export function AdminFloatingSidebar({
   active,
   onNav,
   adminUser,
@@ -2429,7 +2436,7 @@ function AdminFloatingSidebar({
           </div>
 
           {/* Navigation Links List */}
-          <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-230px)] pr-0.5 scrollbar-thin">
+          <nav className="space-y-1 overflow-y-auto overflow-x-hidden max-h-[calc(100vh-230px)] pr-0.5 scrollbar-thin">
             {adminNav.map(([iconName, label]) => {
               const isActive = active === label
               return (
