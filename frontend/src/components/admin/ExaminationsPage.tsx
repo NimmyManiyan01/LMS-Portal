@@ -745,52 +745,65 @@ export function ExaminationsPage({
 
       {/* Create / Edit Examination Modal */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
-          <div className="relative w-full max-w-[780px] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
-            <button
-              className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors text-xl font-medium leading-none cursor-pointer focus:outline-none z-10"
-              onClick={() => setOpen(false)}
-            >
-              ×
-            </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/30 backdrop-blur-md p-3 sm:p-6 overflow-y-auto">
+          <div className="relative w-full max-w-[780px] max-h-[90vh] flex flex-col bg-white/85 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_0_rgba(30,58,52,0.2)] border border-white overflow-hidden text-[#1E3A34]">
+            {/* Top Accent Gradient Line */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59] z-20" />
 
-            {/* Modal Body */}
-            <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-7 flex flex-col gap-4">
-              <h2 className="text-xl font-bold text-slate-900 mb-1">
-                {editing ? "Edit Examination" : "Create Examination"}
-              </h2>
+            {/* Modal Refined Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#F0EBE1] bg-white/50 backdrop-blur-xl shrink-0 pt-5">
+              <div>
+                <h2 className="text-xl font-black text-[#1E3A34] tracking-tight m-0">
+                  {editing ? "Edit Examination" : "Create Examination"}
+                </h2>
+                <span className="text-xs font-bold text-[#057A55]">
+                  {editing ? "Modify examination parameters and schedule" : "Configure new examination specifications"}
+                </span>
+              </div>
+              <button
+                className="flex items-center justify-center w-8 h-8 rounded-full bg-white/80 hover:bg-white text-[#1E3A34] hover:text-[#D9532F] transition-all text-lg font-bold border border-white shadow-sm cursor-pointer"
+                onClick={() => setOpen(false)}
+                aria-label="Close modal"
+              >
+                ×
+              </button>
+            </div>
 
-              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+            {/* Scrollable Modal Body */}
+            <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-7 flex flex-col gap-4.5 scrollbar-thin">
+
+              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-extrabold text-[#1E3A34]">
                 Examination Name
                 <input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                  placeholder="e.g. End Semester Computer Science Examination 2025"
+                  className="w-full h-10 px-3.5 text-xs sm:text-sm bg-white/80 border border-[#E2DBD0] rounded-xl text-[#1E3A34] placeholder:text-slate-400 focus:outline-none focus:border-[#00D084] focus:ring-2 focus:ring-[#00D084]/20 transition-all shadow-sm"
                 />
               </label>
 
-              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-extrabold text-[#1E3A34]">
                 Examination Code
                 <input
                   value={form.code}
                   readOnly
-                  className="w-full h-10 px-3 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-500 cursor-not-allowed shadow-sm"
+                  className="w-full h-10 px-3.5 text-xs sm:text-sm bg-[#F6F2E6]/90 border border-[#E2DBD0] rounded-xl text-[#1E3A34]/70 font-mono font-bold cursor-not-allowed shadow-inner"
                 />
               </label>
 
-              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-extrabold text-[#1E3A34]">
                 Examination Type
                 <select
                   value={form.examinationType}
                   onChange={(e) => setForm({ ...form, examinationType: e.target.value })}
-                  className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                  className="w-full h-10 px-3.5 text-xs sm:text-sm bg-white/80 border border-[#E2DBD0] rounded-xl text-[#1E3A34] focus:outline-none focus:border-[#00D084] focus:ring-2 focus:ring-[#00D084]/20 transition-all shadow-sm"
                 >
                   <option>MCQ</option>
                   <option>Assessment</option>
                 </select>
               </label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 items-start">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
                 <DateTimePicker
                   label="Start Date and Time"
                   value={form.startAt}
@@ -801,42 +814,46 @@ export function ExaminationsPage({
                   value={form.endAt}
                   onChange={(value) => updateDate("endAt", value)}
                 />
-                <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+                <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-extrabold text-[#1E3A34]">
                   Duration (minutes)
                   <input
                     readOnly
                     value={duration && duration > 0 ? duration : ""}
-                    className="w-full h-10 px-3 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-500 cursor-not-allowed shadow-sm"
+                    placeholder="Auto-calculated"
+                    className="w-full h-10 px-3.5 text-xs sm:text-sm bg-[#F6F2E6]/90 border border-[#E2DBD0] rounded-xl text-[#1E3A34]/70 font-bold cursor-not-allowed shadow-inner"
                   />
                   {invalidRange && (
-                    <small className="text-xs font-medium text-red-600 mt-1 block">
+                    <small className="text-xs font-bold text-rose-600 mt-1 block">
                       End Date &amp; Time must be later than Start Date &amp; Time.
                     </small>
                   )}
                 </label>
               </div>
 
-              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-extrabold text-[#1E3A34]">
                 Maximum Attempts
                 <input
                   type="number"
                   min="1"
                   value={form.maxAttempts}
                   onChange={(e) => setForm({ ...form, maxAttempts: e.target.value })}
-                  className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                  className="w-full h-10 px-3.5 text-xs sm:text-sm bg-white/80 border border-[#E2DBD0] rounded-xl text-[#1E3A34] focus:outline-none focus:border-[#00D084] focus:ring-2 focus:ring-[#00D084]/20 transition-all shadow-sm"
                 />
               </label>
 
-              {/* Security Section */}
-              <section className="p-4 sm:p-5 rounded-xl border border-slate-200/80 bg-slate-50/60 flex flex-col gap-3.5 my-1">
-                <h3 className="text-sm font-bold text-slate-900">Examination Security &amp; Proctoring</h3>
+              {/* Security & Proctoring Section */}
+              <section className="p-4 sm:p-5 rounded-2xl border border-white bg-white/60 backdrop-blur-md flex flex-col gap-3.5 my-1 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#00D084] animate-pulse" />
+                  <h3 className="text-sm font-black text-[#1E3A34] m-0">Examination Security &amp; Proctoring</h3>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 items-start">
                   {([
                     ["camera", "Camera Required"],
                     ["microphone", "Microphone Required"],
                     ["fullscreen", "Fullscreen Required"],
                   ] as const).map(([key, label]) => (
-                    <label key={key} className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-700 cursor-pointer select-none">
+                    <label key={key} className="flex items-center gap-2.5 text-xs sm:text-sm font-extrabold text-[#1E3A34] cursor-pointer select-none">
                       <input
                         type="checkbox"
                         checked={Boolean(form.readinessRequirements?.[key])}
@@ -849,24 +866,24 @@ export function ExaminationsPage({
                             },
                           })
                         }
-                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                        className="h-4 w-4 rounded border-slate-300 text-[#057A55] focus:ring-[#00D084] focus:ring-2 cursor-pointer"
                       />
                       <span>{label}</span>
                     </label>
                   ))}
-                  <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+                  <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-extrabold text-[#1E3A34]">
                     Integrity Profile
                     <select
                       value={form.integrityProfile}
                       onChange={(e) => setForm({ ...form, integrityProfile: e.target.value })}
-                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                      className="w-full h-10 px-3.5 text-xs sm:text-sm bg-white/80 border border-[#E2DBD0] rounded-xl text-[#1E3A34] focus:outline-none focus:border-[#00D084] focus:ring-2 focus:ring-[#00D084]/20 transition-all shadow-sm"
                     >
                       <option value="BASIC">Basic</option>
                       <option value="STANDARD">Standard</option>
                       <option value="STRICT">Strict</option>
                     </select>
                   </label>
-                  <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+                  <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-extrabold text-[#1E3A34]">
                     Tab-Switch Warning Threshold
                     <input
                       type="number"
@@ -882,16 +899,16 @@ export function ExaminationsPage({
                           },
                         })
                       }
-                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                      className="w-full h-10 px-3.5 text-xs sm:text-sm bg-white/80 border border-[#E2DBD0] rounded-xl text-[#1E3A34] focus:outline-none focus:border-[#00D084] focus:ring-2 focus:ring-[#00D084]/20 transition-all shadow-sm"
                     />
                   </label>
                 </div>
-                <small className="text-xs text-slate-500">
+                <small className="text-xs font-semibold text-[#057A55]">
                   Tab-switch monitoring follows the selected backend integrity profile.
                 </small>
               </section>
 
-              <label className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-700 cursor-pointer select-none">
+              <label className="flex items-center gap-2.5 text-xs sm:text-sm font-extrabold text-[#1E3A34] cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={form.resultReleasePolicy === "IMMEDIATE"}
@@ -902,35 +919,36 @@ export function ExaminationsPage({
                       resultReleasePolicy: e.target.checked ? "IMMEDIATE" : "ADMIN_CONTROLLED",
                     })
                   }
-                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-2 cursor-pointer disabled:cursor-not-allowed"
+                  className="h-4 w-4 rounded border-slate-300 text-[#057A55] focus:ring-[#00D084] focus:ring-2 cursor-pointer disabled:cursor-not-allowed"
                 />
                 <span>
                   Show Marks Immediately After Submission
-                  {editing && <small className="text-slate-500 font-normal ml-1">Existing examination policy is preserved.</small>}
+                  {editing && <small className="text-[#1E3A34]/60 font-normal ml-1">Existing examination policy is preserved.</small>}
                 </span>
               </label>
 
-              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-extrabold text-[#1E3A34]">
                 Instructions
                 <textarea
                   value={form.instructions}
                   rows={3}
                   onChange={(e) => setForm({ ...form, instructions: e.target.value })}
-                  className="w-full p-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm resize-y"
+                  placeholder="Enter candidate instructions..."
+                  className="w-full p-3.5 text-xs sm:text-sm bg-white/80 border border-[#E2DBD0] rounded-xl text-[#1E3A34] placeholder:text-slate-400 focus:outline-none focus:border-[#00D084] focus:ring-2 focus:ring-[#00D084]/20 transition-all shadow-sm resize-y"
                 />
               </label>
             </div>
 
-            {/* Modal Actions */}
-            <div className="flex items-center justify-end gap-3 p-4 sm:px-7 sm:py-4 border-t border-slate-100 bg-slate-50/50 flex-none">
+            {/* Fixed Modal Actions Footer */}
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#F0EBE1] bg-white/60 backdrop-blur-xl shrink-0">
               <button
-                className="h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:opacity-50 cursor-pointer transition-all shadow-sm"
+                className="h-10 px-5 py-2 text-xs sm:text-sm font-extrabold rounded-full text-[#1E3A34] bg-white/80 hover:bg-white border border-[#E2DBD0] transition-all cursor-pointer shadow-sm"
                 onClick={() => setOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="h-10 px-5 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all shadow-sm shadow-blue-500/20"
+                className="h-10 px-6 py-2 text-xs sm:text-sm font-black rounded-full text-white bg-[#057A55] hover:bg-[#035E41] active:scale-95 transition-all cursor-pointer shadow-md shadow-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed border border-emerald-400/30"
                 disabled={saving || invalidRange}
                 onClick={() => void save()}
               >
