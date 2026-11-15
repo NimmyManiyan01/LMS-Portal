@@ -67,22 +67,22 @@ export function FooterWaveWordmark() {
 
 export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
   return (
-    <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#434655] border-t border-[#E2E7FF] pt-10 pb-6 px-6 sm:px-12">
+    <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#434655] border-t border-[#E2E7FF] py-8 lg:py-10 px-6 lg:px-8">
 
       {/* Decorative 5% Opacity Background Watermark (z-0) */}
       <FooterWaveWordmark />
 
-      <div className="relative z-10 max-w-7xl mx-auto space-y-8">
+      <div className="relative z-10 max-w-6xl mx-auto w-full space-y-7">
 
         {/* UPPER 3-COLUMN ENTERPRISE LAYOUT */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
 
           {/* COLUMN 1: Company Logo, Description, ISO Badges, & Social Icons (5 Cols) */}
-          <div className="lg:col-span-5 space-y-3.5">
+          <div className="lg:col-span-5 space-y-3">
             <div className="flex items-center gap-3">
               <img
                 alt="Kaizentrix Global Solutions"
-                className="h-9 w-auto"
+                className="h-8.5 w-auto"
                 src={logo}
               />
               <span className="text-xl font-bold tracking-tight text-[#131B2E]">
@@ -90,7 +90,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </span>
             </div>
 
-            <p className="text-sm font-normal text-[#434655] leading-relaxed max-w-md m-0">
+            <p className="text-xs sm:text-sm font-normal text-[#434655] leading-relaxed max-w-md m-0">
               India&apos;s leading specialized accelerator for algorithmic mastery, full-stack systems engineering, and Tier-1 product placement training.
             </p>
 
@@ -108,7 +108,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
             <div className="flex items-center gap-2.5 pt-0.5">
               <a
                 aria-label="LinkedIn"
-                className="w-9 h-9 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-8.5 h-8.5 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/"
                 target="_blank"
                 rel="noreferrer"
@@ -119,7 +119,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="GitHub"
-                className="w-9 h-9 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-8.5 h-8.5 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://github.com"
                 target="_blank"
                 rel="noreferrer"
@@ -130,7 +130,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="YouTube"
-                className="w-9 h-9 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-8.5 h-8.5 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://youtube.com"
                 target="_blank"
                 rel="noreferrer"
@@ -141,7 +141,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="Discord"
-                className="w-9 h-9 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-8.5 h-8.5 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://discord.com"
                 target="_blank"
                 rel="noreferrer"
@@ -154,11 +154,11 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
           </div>
 
           {/* COLUMN 2: Quick Navigation Links (3 Cols) */}
-          <div className="lg:col-span-3 space-y-3.5">
+          <div className="lg:col-span-3 space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-[#131B2E] block mb-2">
               Quick Links
             </span>
-            <ul className="space-y-2.5 p-0 m-0 list-none text-sm font-semibold">
+            <ul className="space-y-2.5 p-0 m-0 list-none text-xs sm:text-sm font-semibold">
               <li>
                 <a
                   className="text-[#434655] hover:text-[#004AC6] transition-colors duration-200"
@@ -173,7 +173,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
                 <li>
                   <button
                     onClick={onOpenContact}
-                    className="cursor-pointer border-0 bg-transparent p-0 text-left text-sm font-semibold text-[#434655] hover:text-[#004AC6] transition-colors duration-200"
+                    className="cursor-pointer border-0 bg-transparent p-0 text-left text-xs sm:text-sm font-semibold text-[#434655] hover:text-[#004AC6] transition-colors duration-200"
                   >
                     Contact Us
                   </button>
@@ -193,7 +193,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
                 <li>
                   <button
                     onClick={onLogin}
-                    className="cursor-pointer border-0 bg-transparent p-0 text-left text-sm font-semibold text-[#004AC6] hover:text-[#2563EB] transition-colors duration-200"
+                    className="cursor-pointer border-0 bg-transparent p-0 text-left text-xs sm:text-sm font-semibold text-[#004AC6] hover:text-[#2563EB] transition-colors duration-200"
                   >
                     Portal Login
                   </button>
@@ -203,14 +203,14 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
           </div>
 
           {/* COLUMN 3: Contact Information with Aligned Icons (4 Cols) */}
-          <div className="lg:col-span-4 space-y-3.5">
+          <div className="lg:col-span-4 space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-[#131B2E] block mb-2">
               Contact
             </span>
 
-            <div className="space-y-3 text-sm font-normal text-[#434655]">
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-[#004AC6] text-[20px] mt-0.5 shrink-0">mail</span>
+            <div className="space-y-2.5 text-xs sm:text-sm font-normal text-[#434655]">
+              <div className="flex items-start gap-2.5">
+                <span className="material-symbols-outlined text-[#004AC6] text-[18px] mt-0.5 shrink-0">mail</span>
                 <a
                   className="break-all hover:text-[#004AC6] transition-colors duration-200"
                   href="mailto:enquiry@kaizentrixglobal.com"
@@ -219,15 +219,15 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
                 </a>
               </div>
 
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-[#004AC6] text-[20px] mt-0.5 shrink-0">call</span>
+              <div className="flex items-start gap-2.5">
+                <span className="material-symbols-outlined text-[#004AC6] text-[18px] mt-0.5 shrink-0">call</span>
                 <a className="hover:text-[#004AC6] transition-colors duration-200" href="tel:+919187980031">
                   080-23143355 / +91 91879 80031
                 </a>
               </div>
 
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-[#004AC6] text-[20px] mt-0.5 shrink-0">location_on</span>
+              <div className="flex items-start gap-2.5">
+                <span className="material-symbols-outlined text-[#004AC6] text-[18px] mt-0.5 shrink-0">location_on</span>
                 <span className="leading-relaxed">
                   100 DC Complex, Chandra Layout,<br />
                   Vijayanagar, Bengaluru,<br />
@@ -241,7 +241,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
 
         {/* LOWER SECTION: SUBTLE DIVIDER & POLICY / COPYRIGHT BAR */}
         <div className="pt-5 border-t border-[#E2E7FF] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-medium text-[#434655]">
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
             <a
               className="hover:text-[#004AC6] transition-colors duration-200"
               href="mailto:enquiry@kaizentrixglobal.com"
