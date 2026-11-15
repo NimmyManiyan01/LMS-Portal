@@ -2301,16 +2301,16 @@ function AdminDashboard() {
 
   if (loading)
     return (
-      <div className="p-12 text-center text-xs sm:text-sm font-medium text-slate-500 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-900 m-0">Loading administrator dashboard...</h2>
+      <div className="p-12 text-center text-xs sm:text-sm font-medium bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)]">
+        <h2 className="text-xl font-bold text-[#203D39] m-0">Loading administrator dashboard...</h2>
       </div>
     )
   if (error)
     return (
-      <div className="p-12 text-center text-xs sm:text-sm font-medium text-red-600 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col items-center gap-3">
-        <h2 className="text-xl font-bold text-slate-900 m-0">Unable to load administrator dashboard</h2>
-        <p className="m-0">{error}</p>
-        <button className="h-9 px-4 text-xs font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer border-none" onClick={() => void load()}>
+      <div className="p-12 text-center text-xs sm:text-sm font-medium text-[#D96C50] bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] flex flex-col items-center gap-3">
+        <h2 className="text-xl font-bold text-[#203D39] m-0">Unable to load administrator dashboard</h2>
+        <p className="m-0 text-[#203D39]/80">{error}</p>
+        <button className="h-9 px-5 text-xs font-bold rounded-lg text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer border-none shadow-md" onClick={() => void load()}>
           Retry
         </button>
       </div>
@@ -2353,24 +2353,24 @@ function AdminDashboard() {
   ] as const
 
   return (
-    <>
+    <div className="bg-[#F7F4EC] min-h-full p-4 sm:p-6 rounded-2xl font-sans text-[#203D39]">
       <PageHead admin student={null} showCreateAction={false} />
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 p-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
-        <div className="flex items-center gap-3">
-          <span className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 p-5 bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)]">
+        <div className="flex items-center gap-3.5">
+          <span className="w-10 h-10 rounded-xl bg-[#176B58]/10 text-[#176B58] flex items-center justify-center shrink-0 text-lg">
             <Icon name="pulse" />
           </span>
           <div>
-            <b className="block text-sm font-bold text-slate-900">{stats.activeExams || 0} examinations currently live</b>
-            <small className="text-xs text-slate-500 font-medium">
+            <b className="block text-base font-black text-[#203D39]">{stats.activeExams || 0} examinations currently live</b>
+            <small className="text-xs text-[#176B58] font-bold">
               {stats.activeAttempts || 0} active attempts · Database-backed status
             </small>
           </div>
         </div>
         <select
-          className="h-9 px-3 text-xs font-semibold bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+          className="h-10 px-4 text-xs font-bold bg-[#F7F4EC] border border-[#D8D0C0] rounded-xl text-[#203D39] focus:outline-none focus:border-[#176B58] focus:ring-2 focus:ring-[#176B58]/20 shadow-inner cursor-pointer"
           value={range}
           onChange={(event) => setRange(event.target.value as typeof range)}
           aria-label="Dashboard date range"
@@ -2384,53 +2384,53 @@ function AdminDashboard() {
       {/* KPI Stats */}
       <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 mb-6">
         {dashboardKpis.map(([icon, label, value]) => (
-          <article className="flex flex-col p-4 bg-white rounded-xl border border-slate-200/80 shadow-sm hover:border-slate-300 transition-all" key={label}>
-            <div className="text-blue-600 mb-2">
+          <article className="flex flex-col p-4 bg-white rounded-xl border border-[#E2DBD0] shadow-[0_2px_12px_-1px_rgba(32,61,57,0.05)] hover:border-[#176B58] transition-all hover:shadow-md" key={label}>
+            <div className="text-[#176B58] mb-2 text-lg">
               <Icon name={icon} />
             </div>
-            <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{label}</small>
-            <strong className="text-lg sm:text-xl font-extrabold text-slate-900 leading-none">{value ?? 0}</strong>
+            <small className="text-[10px] font-black text-[#D96C50] uppercase tracking-wider mb-1">{label}</small>
+            <strong className="text-xl sm:text-2xl font-black text-[#203D39] leading-none">{value ?? 0}</strong>
           </article>
         ))}
       </section>
 
       {/* Grid: Chart & Activity */}
       <section className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-6 flex flex-col gap-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col gap-4">
+          <div className="flex items-center justify-between pb-3.5 border-b border-[#F0EBE1]">
             <div>
-              <h3 className="text-base font-bold text-slate-900 m-0">Participation overview</h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5 m-0">Registrations and completed attempts in the selected period</p>
+              <h3 className="text-lg font-black text-[#203D39] m-0">Participation overview</h3>
+              <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Registrations and completed attempts in the selected period</p>
             </div>
-            <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
-              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block shrink-0" /> Registered</span>
-              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shrink-0" /> Completed</span>
+            <div className="flex items-center gap-4 text-xs font-bold text-[#203D39]">
+              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-[#176B58] inline-block shrink-0" /> Registered</span>
+              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-[#E5A23B] inline-block shrink-0" /> Completed</span>
             </div>
           </div>
           {dates.length === 0 ? (
-            <div className="py-12 text-center text-xs text-slate-500 font-medium">
+            <div className="py-12 text-center text-xs text-[#203D39]/70 font-semibold">
               No registration or completed-attempt history for this period.
             </div>
           ) : (
-            <div className="flex flex-col gap-2.5 text-xs">
+            <div className="flex flex-col gap-3 text-xs">
               {dates.map((date) => (
-                <div className="grid grid-cols-[80px_1fr] items-center gap-3" key={date}>
-                  <span className="text-slate-500 font-medium">
+                <div className="grid grid-cols-[85px_1fr] items-center gap-3" key={date}>
+                  <span className="text-[#203D39] font-bold">
                     {new Intl.DateTimeFormat(undefined, {
                       month: "short",
                       day: "numeric",
                     }).format(new Date(`${date}T00:00:00`))}
                   </span>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1.5">
                     <div
-                      className="h-2 rounded-full bg-blue-600 transition-all"
+                      className="h-2.5 rounded-full bg-[#176B58] transition-all shadow-sm"
                       style={{
                         width: `${(Number(registrationMap.get(date) || 0) / max) * 100}%`,
                       }}
                       title={`Registered: ${registrationMap.get(date) || 0}`}
                     />
                     <div
-                      className="h-2 rounded-full bg-emerald-500 transition-all"
+                      className="h-2.5 rounded-full bg-[#E5A23B] transition-all shadow-sm"
                       style={{
                         width: `${(Number(completedMap.get(date) || 0) / max) * 100}%`,
                       }}
@@ -2443,26 +2443,26 @@ function AdminDashboard() {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-6 flex flex-col gap-4">
-          <div className="pb-3 border-b border-slate-100">
-            <h3 className="text-base font-bold text-slate-900 m-0">Recent activity</h3>
-            <p className="text-xs text-slate-500 font-medium mt-0.5 m-0">Latest recorded audit events</p>
+        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col gap-4">
+          <div className="pb-3.5 border-b border-[#F0EBE1]">
+            <h3 className="text-lg font-black text-[#203D39] m-0">Recent activity</h3>
+            <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Latest recorded audit events</p>
           </div>
           {activity.length === 0 ? (
-            <div className="py-12 text-center text-xs text-slate-500 font-medium">
+            <div className="py-12 text-center text-xs text-[#203D39]/70 font-semibold">
               No audit activity recorded for this period.
             </div>
           ) : (
             activity.map((item: any) => (
-              <div className="flex items-center gap-3 py-2.5 border-b border-slate-100 last:border-none text-xs" key={item.id}>
-                <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-3.5 py-3 border-b border-[#F5F0E6] last:border-none text-xs" key={item.id}>
+                <div className="w-8 h-8 rounded-xl bg-[#176B58]/10 text-[#176B58] font-black flex items-center justify-center shrink-0">
                   {String(item.actorRole || "AD").slice(0, 2)}
                 </div>
                 <div className="flex flex-col min-w-0 flex-1">
-                  <b className="font-semibold text-slate-900 truncate">{item.action || "Administrative action"}</b>
-                  <span className="text-slate-500 text-[11px]">{item.entityType || "System event"}</span>
+                  <b className="font-bold text-[#203D39] truncate">{item.action || "Administrative action"}</b>
+                  <span className="text-[#D96C50] font-semibold text-[11px]">{item.entityType || "System event"}</span>
                 </div>
-                <small className="text-slate-400 font-medium text-[11px] shrink-0">
+                <small className="text-[#203D39]/60 font-semibold text-[11px] shrink-0">
                   {item.recordedAt
                     ? new Date(item.recordedAt).toLocaleString()
                     : "—"}
@@ -2472,6 +2472,7 @@ function AdminDashboard() {
           )}
         </div>
       </section>
-    </>
+    </div>
+  )
   )
 }
