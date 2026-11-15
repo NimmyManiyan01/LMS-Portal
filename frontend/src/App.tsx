@@ -2707,32 +2707,113 @@ function AdminDashboard() {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col gap-4">
-          <div className="pb-3.5 border-b border-[#F0EBE1]">
-            <h3 className="text-lg font-black text-[#203D39] m-0">Recent activity</h3>
-            <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Latest recorded audit events</p>
+        {/* Recent Activity Vertical Timeline Container */}
+        <div className="bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] p-5 sm:p-6 flex flex-col gap-4 max-h-[480px]">
+          <div className="flex items-center justify-between pb-3.5 border-b border-[#F0EBE1]">
+            <div>
+              <h3 className="text-lg font-black text-[#203D39] m-0">Recent Activity</h3>
+              <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Live audit timeline and security log</p>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-[#176B58]/10 text-[#176B58] text-[10px] font-black uppercase tracking-wider">
+              {activity.length} Events
+            </span>
           </div>
+
           {activity.length === 0 ? (
-            <div className="py-12 text-center text-xs text-[#203D39]/70 font-semibold">
-              No audit activity recorded for this period.
+            <div className="py-16 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#203D39]/70 font-semibold bg-[#F7F4EC]/50 rounded-xl border border-dashed border-[#E2DBD0]">
+              <span className="text-2xl text-[#176B58]">📋</span>
+              <span className="font-bold text-[#203D39]">No audit activity recorded</span>
+              <p className="text-[11px] text-[#176B58] font-medium m-0">Audit logs will automatically appear here as users interact with exams.</p>
             </div>
           ) : (
-            activity.map((item: any) => (
-              <div className="flex items-center gap-3.5 py-3 border-b border-[#F5F0E6] last:border-none text-xs" key={item.id}>
-                <div className="w-8 h-8 rounded-xl bg-[#176B58]/10 text-[#176B58] font-black flex items-center justify-center shrink-0">
-                  {String(item.actorRole || "AD").slice(0, 2)}
-                </div>
-                <div className="flex flex-col min-w-0 flex-1">
-                  <b className="font-bold text-[#203D39] truncate">{item.action || "Administrative action"}</b>
-                  <span className="text-[#D96C50] font-semibold text-[11px]">{item.entityType || "System event"}</span>
-                </div>
-                <small className="text-[#203D39]/60 font-semibold text-[11px] shrink-0">
-                  {item.recordedAt
-                    ? new Date(item.recordedAt).toLocaleString()
-                    : "—"}
-                </small>
-              </div>
-            ))
+            <div className="flex-1 overflow-y-auto pr-1 space-y-3 relative">
+              {/* Vertical Connector Line */}
+              <div className="absolute left-4 top-3 bottom-3 w-0.5 bg-[#E2DBD0] z-0" />
+
+              {activity.map((item: any) => {
+                const cat = (() => {
+                  const action = String(item.action || "").toLowerCase()
+                  const entity = String(item.entityType || "").toLowerCase()
+
+                  if (action.includes("security") || action.includes("delete") || action.includes("failed") || action.includes("alert")) {
+                    return {
+                      icon: "review",
+                      badgeBg: "bg-[#D96C50]/15 text-[#D96C50]",
+                      tagText: "Security / Alert",
+                      tagColor: "text-[#D96C50]",
+                    }
+                  }
+                  if (action.includes("submit") || action.includes("attempt") || action.includes("review")) {
+                    return {
+                      icon: "pulse",
+                      badgeBg: "bg-[#E5A23B]/15 text-[#E5A23B]",
+                      tagText: "Submission",
+                      tagColor: "text-[#E5A23B]",
+                    }
+                  }
+                  if (action.includes("result") || action.includes("export") || action.includes("download")) {
+                    return {
+                      icon: "download",
+                      badgeBg: "bg-[#176B58]/15 text-[#176B58]",
+                      tagText: "Report / Data",
+                      tagColor: "text-[#176B58]",
+                    }
+                  }
+                  if (entity.includes("exam") || action.includes("exam")) {
+                    return {
+                      icon: "book",
+                      badgeBg: "bg-[#176B58]/15 text-[#176B58]",
+                      tagText: "Examination",
+                      tagColor: "text-[#176B58]",
+                    }
+                  }
+                  return {
+                    icon: "users",
+                    badgeBg: "bg-[#203D39]/15 text-[#203D39]",
+                    tagText: "System Operation",
+                    tagColor: "text-[#176B58]",
+                  }
+                })()
+
+                return (
+                  <div
+                    key={item.id}
+                    className="group relative z-10 flex items-start gap-3.5 p-2.5 rounded-xl hover:bg-[#F7F4EC]/70 transition-all duration-200 border border-transparent hover:border-[#E2DBD0]"
+                  >
+                    {/* Circular Icon Node */}
+                    <div className={`w-8 h-8 rounded-full ${cat.badgeBg} flex items-center justify-center text-xs shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-200`}>
+                      <Icon name={cat.icon} />
+                    </div>
+
+                    {/* Content Details */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <b className="font-black text-[#203D39] text-xs sm:text-sm truncate">
+                          {item.action || "Administrative action"}
+                        </b>
+                        <small className="text-[#203D39]/60 font-bold text-[10px] shrink-0">
+                          {item.recordedAt ? new Date(item.recordedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+                        </small>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[11px]">
+                        <span className={`font-bold ${cat.tagColor}`}>
+                          {item.entityType || cat.tagText}
+                        </span>
+                        <span className="text-[#203D39]/30">•</span>
+                        <span className="text-[#203D39]/70 font-semibold truncate">
+                          User: <strong className="text-[#203D39] font-bold">{item.actorRole || "System"}</strong>
+                        </span>
+                      </div>
+
+                      <div className="text-[10px] text-[#203D39]/50 font-medium mt-1">
+                        {item.recordedAt ? new Date(item.recordedAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }) : ""}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           )}
         </div>
       </section>
