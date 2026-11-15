@@ -55,43 +55,68 @@ export function SubmissionConfirmation({
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 font-sans text-slate-900">
       {showFeedback && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-2xl sm:p-8">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-2xl">★</div>
-            <h2 className="mt-4 text-xl font-bold text-slate-900">Rate your examination experience</h2>
-            <p className="mt-2 text-sm font-medium text-slate-500">Your feedback helps KGS improve future assessments.</p>
-            <div className="mt-5 flex justify-center gap-2" role="radiogroup" aria-label="Rating">
-              {[1, 2, 3, 4, 5].map((value) => (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/30 p-4 backdrop-blur-md">
+          <div className="w-full max-w-md rounded-3xl border border-white bg-white/95 backdrop-blur-2xl p-6 text-center shadow-2xl sm:p-8 text-[#1E3A34]">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#00D084]/20 text-2xl">💬</div>
+            <h2 className="mt-4 text-xl font-black text-[#1E3A34]">Rate your examination experience</h2>
+            <p className="mt-1 text-xs font-bold text-[#057A55]">Help us improve future assessments by sharing your thoughts.</p>
+
+            <div className="mt-5 flex justify-center gap-2.5" role="radiogroup" aria-label="Rating">
+              {[
+                { value: 1, label: "Very Dissatisfied", icon: "😡" },
+                { value: 2, label: "Dissatisfied", icon: "🙁" },
+                { value: 3, label: "Neutral", icon: "😐" },
+                { value: 4, label: "Satisfied", icon: "🙂" },
+                { value: 5, label: "Very Satisfied", icon: "😄" },
+              ].map((item) => (
                 <button
-                  key={value}
+                  key={item.value}
                   type="button"
                   role="radio"
-                  aria-checked={rating === value}
-                  aria-label={`${value} star${value === 1 ? "" : "s"}`}
-                  onClick={() => setRating(value)}
-                  className={`cursor-pointer border-0 bg-transparent p-1 text-4xl transition-transform hover:scale-110 ${value <= rating ? "text-amber-400" : "text-slate-200"}`}
+                  aria-checked={rating === item.value}
+                  title={item.label}
+                  aria-label={item.label}
+                  onClick={() => setRating(item.value)}
+                  className={`cursor-pointer border-2 rounded-full w-11 h-11 flex items-center justify-center text-2xl transition-all duration-200 ${
+                    rating === item.value
+                      ? "border-[#057A55] bg-[#00D084]/20 scale-110 shadow-md"
+                      : "border-slate-200 bg-white hover:bg-slate-50 hover:scale-105"
+                  }`}
                 >
-                  ★
+                  {item.icon}
                 </button>
               ))}
             </div>
+
             <textarea
               value={comment}
               onChange={(event) => setComment(event.target.value)}
-              maxLength={1000}
-              rows={4}
+              maxLength={500}
+              rows={3}
               placeholder="Tell us what worked well or what we can improve (optional)"
-              className="mt-5 w-full resize-none rounded-xl border border-slate-300 p-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              className="mt-5 w-full resize-none rounded-xl border border-[#E2DBD0] bg-white p-3 text-xs sm:text-sm text-[#1E3A34] placeholder:text-slate-400 outline-none focus:border-[#00D084] focus:ring-2 focus:ring-[#00D084]/20 shadow-sm"
             />
-            {feedbackError && <p className="mt-3 text-sm font-semibold text-red-600" role="alert">{feedbackError}</p>}
-            <button
-              type="button"
-              disabled={!rating || feedbackSaving}
-              onClick={() => void saveFeedback()}
-              className="mt-5 h-11 w-full cursor-pointer rounded-xl border-0 bg-blue-600 px-5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {feedbackSaving ? "Saving feedback…" : "Submit Feedback"}
-            </button>
+            <p className="text-right text-[10px] font-bold text-slate-400 mt-1">{comment.length}/500 characters</p>
+
+            {feedbackError && <p className="mt-2 text-xs font-bold text-rose-600" role="alert">⚠️ {feedbackError}</p>}
+
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => setShowFeedback(false)}
+                className="h-10 px-5 rounded-full border border-[#E2DBD0] bg-white text-xs font-bold text-[#1E3A34] hover:bg-slate-50 cursor-pointer shadow-sm"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!rating || feedbackSaving}
+                onClick={() => void saveFeedback()}
+                className="h-10 px-6 rounded-full border border-emerald-400/30 bg-[#057A55] text-xs font-black text-white shadow-md shadow-emerald-900/20 hover:bg-[#035E41] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {feedbackSaving ? "Saving feedback…" : "Submit Feedback"}
+              </button>
+            </div>
           </div>
         </div>
       )}

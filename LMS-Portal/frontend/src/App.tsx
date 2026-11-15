@@ -1118,7 +1118,7 @@ export default function App() {
       )}
 
       {/* Sidebar Navigation */}
-      {admin && active !== "Overview" && active !== "Examinations" && (
+      {admin && active !== "Overview" && active !== "Examinations" && active !== "Feedback" && (
         <div className={`shrink-0 ${menu ? "block" : "hidden lg:block"}`}>
           <Sidebar
             admin
@@ -1133,7 +1133,7 @@ export default function App() {
       )}
 
       {/* Mobile Backdrop Scrim */}
-      {menu && active !== "Overview" && active !== "Examinations" && (
+      {menu && active !== "Overview" && active !== "Examinations" && active !== "Feedback" && (
         <button
           className="fixed inset-0 z-20 bg-slate-900/60 backdrop-blur-sm lg:hidden border-none"
           onClick={() => setMenu(false)}
@@ -1142,7 +1142,7 @@ export default function App() {
       )}
 
       <div className="min-w-0 flex-1 flex flex-col">
-        {(!admin || (active !== "Overview" && active !== "Examinations")) && (
+        {(!admin || (active !== "Overview" && active !== "Examinations" && active !== "Feedback")) && (
           <Topbar
             admin={admin}
             setAdmin={switchPortal}
@@ -1189,7 +1189,13 @@ export default function App() {
           ) : admin && active === "Results" && viewState === "DASHBOARD" ? (
             <ResultsPage PageHead={PageHead} />
           ) : admin && active === "Feedback" && viewState === "DASHBOARD" ? (
-            <FeedbackPage PageHead={PageHead} />
+            <FeedbackPage
+              PageHead={PageHead}
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
           ) : admin && active === "Administrators" && viewState === "DASHBOARD" ? (
             <AdministratorsPage PageHead={PageHead} />
           ) : active === "Overview" && viewState === "DASHBOARD" ? (
