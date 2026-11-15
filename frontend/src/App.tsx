@@ -2271,6 +2271,7 @@ function AdminDashboard() {
   const [dashboard, setDashboard] = useState<any>(null)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
+  const [hoveredChartIndex, setHoveredChartIndex] = useState<number | null>(null)
 
   const load = async () => {
     setLoading(true)
