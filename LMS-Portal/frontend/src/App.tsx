@@ -2338,6 +2338,59 @@ function AdminDashboard() {
       ),
     ),
   )
+
+  // Chart coordinate calculations
+  const chartWidth = 500
+  const chartHeight = 220
+  const padLeft = 35
+  const padRight = 15
+  const padTop = 20
+  const padBottom = 30
+  const innerW = chartWidth - padLeft - padRight
+  const innerH = chartHeight - padTop - padBottom
+  const bottomY = padTop + innerH
+
+  const regPoints = dates.map((date, i) => {
+    const val = Number(registrationMap.get(date) || 0)
+    const x = dates.length === 1 ? padLeft + innerW / 2 : padLeft + (i / (dates.length - 1)) * innerW
+    const y = bottomY - (val / max) * innerH
+    return { x, y, val, date }
+  })
+
+  const compPoints = dates.map((date, i) => {
+    const val = Number(completedMap.get(date) || 0)
+    const x = dates.length === 1 ? padLeft + innerW / 2 : padLeft + (i / (dates.length - 1)) * innerW
+    const y = bottomY - (val / max) * innerH
+    return { x, y, val, date }
+  })
+
+  const buildSmoothPath = (pts: { x: number; y: number }[]) => {
+    if (pts.length === 0) return ""
+    if (pts.length === 1) return `M ${pts[0].x - 100},${pts[0].y} L ${pts[0].x + 100},${pts[0].y}`
+    let path = `M ${pts[0].x},${pts[0].y}`
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i]
+      const p1 = pts[i + 1]
+      const cpX = (p0.x + p1.x) / 2
+      path += ` C ${cpX},${p0.y} ${cpX},${p1.y} ${p1.x},${p1.y}`
+    }
+    return path
+  }
+
+  const buildAreaPath = (pts: { x: number; y: number }[]) => {
+    if (pts.length === 0) return ""
+    const linePath = buildSmoothPath(pts)
+    const firstX = pts[0].x
+    const lastX = pts[pts.length - 1].x
+    return `${linePath} L ${lastX},${bottomY} L ${firstX},${bottomY} Z`
+  }
+
+  const regLineD = buildSmoothPath(regPoints)
+  const regAreaD = buildAreaPath(regPoints)
+
+  const compLineD = buildSmoothPath(compPoints)
+  const compAreaD = buildAreaPath(compPoints)
+
   const kpiCardConfig = [
     {
       icon: "users",
