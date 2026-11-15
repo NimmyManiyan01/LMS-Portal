@@ -2649,11 +2649,11 @@ function AdminDashboard({
           {/* Primary Column (8 Columns) */}
           <div className="xl:col-span-8 space-y-6">
 
-            {/* Premium Asymmetric Glass Analytics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Perfectly Balanced Asymmetric Glass Analytics Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
 
-              {/* Featured Primary Card: Registrations + Real Mini Sparkline */}
-              <article className="sm:col-span-2 lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-white/95 via-white/80 to-[#00D084]/15 backdrop-blur-2xl rounded-3xl p-5 sm:p-6 border border-white shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
+              {/* Featured Primary Card: Registrations + Real Mini Sparkline (4 Cols) */}
+              <article className="sm:col-span-2 lg:col-span-4 relative overflow-hidden bg-gradient-to-br from-white/95 via-white/80 to-[#00D084]/15 backdrop-blur-2xl rounded-3xl p-5 sm:p-6 border border-white shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
                 <div className="flex items-start justify-between gap-4 relative z-10">
                   <div className="flex items-center gap-3">
                     <span className="w-10 h-10 rounded-2xl bg-[#00D084]/20 text-[#057A55] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60">
@@ -2717,8 +2717,8 @@ function AdminDashboard({
                 </div>
               </article>
 
-              {/* Tile 2: Active Exams */}
-              <article className="group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
+              {/* Tile 2: Active Exams (2 Cols) */}
+              <article className="sm:col-span-1 lg:col-span-2 group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="w-9 h-9 rounded-2xl bg-[#00C4DF]/20 text-[#008DA1] flex items-center justify-center text-base font-bold shadow-inner border border-white/70 group-hover:scale-110 transition-transform duration-200">
                     <Icon name="book" />
@@ -2736,8 +2736,8 @@ function AdminDashboard({
                 </div>
               </article>
 
-              {/* Tile 3: Active Attempts */}
-              <article className="group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
+              {/* Tile 3: Active Attempts (2 Cols) */}
+              <article className="sm:col-span-1 lg:col-span-2 group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="w-9 h-9 rounded-2xl bg-[#FF7A59]/20 text-[#FF7A59] flex items-center justify-center text-base font-bold shadow-inner border border-white/70 group-hover:scale-110 transition-transform duration-200">
                     <Icon name="pulse" />
@@ -2759,8 +2759,8 @@ function AdminDashboard({
                 </div>
               </article>
 
-              {/* Tile 4: Completed Attempts + Real Sparkline */}
-              <article className="group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
+              {/* Tile 4: Completed Attempts + Real Sparkline (2 Cols) */}
+              <article className="sm:col-span-1 lg:col-span-2 group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="w-9 h-9 rounded-2xl bg-[#FFB800]/20 text-[#D99B00] flex items-center justify-center text-base font-bold shadow-inner border border-white/70 group-hover:scale-110 transition-transform duration-200">
                     <Icon name="result" />
@@ -2796,8 +2796,8 @@ function AdminDashboard({
                 </div>
               </article>
 
-              {/* Tile 5: Pending Reviews */}
-              <article className="group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
+              {/* Tile 5: Pending Reviews (2 Cols) */}
+              <article className="sm:col-span-1 lg:col-span-2 group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="w-9 h-9 rounded-2xl bg-[#00D084]/20 text-[#057A55] flex items-center justify-center text-base font-bold shadow-inner border border-white/70 group-hover:scale-110 transition-transform duration-200">
                     <Icon name="review" />
@@ -2815,23 +2815,31 @@ function AdminDashboard({
                 </div>
               </article>
 
-              {/* Tile 6: Latest Export */}
-              <article className="group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="w-9 h-9 rounded-2xl bg-[#1E3A34]/20 text-[#1E3A34] flex items-center justify-center text-base font-bold shadow-inner border border-white/70 group-hover:scale-110 transition-transform duration-200">
+              {/* Tile 6: Latest Export (Full-Width Row 3 Glass Status Banner - 6 Cols) */}
+              <article className="col-span-full lg:col-span-6 group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <span className="w-10 h-10 rounded-2xl bg-[#1E3A34]/15 text-[#1E3A34] flex items-center justify-center text-lg font-bold shadow-inner border border-white/70 shrink-0">
                     <Icon name="download" />
                   </span>
-                  <span className="text-[10px] font-bold text-[#1E3A34] bg-slate-100 px-2 py-0.5 rounded-full">Report</span>
+                  <div>
+                    <small className="block text-[10px] font-black uppercase tracking-wider text-[#1E3A34]">
+                      Latest Export Activity
+                    </small>
+                    <b className="text-xs font-bold text-[#057A55]">System Register & Audit Export Workbook</b>
+                  </div>
                 </div>
-                <div>
-                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#1E3A34] mb-1">
-                    Latest Export
-                  </small>
-                  <strong className="block text-base sm:text-lg font-black text-[#1E3A34] leading-snug truncate" title={stats.latestExport ? new Date(stats.latestExport).toLocaleString() : "None"}>
-                    {stats.latestExport ? new Date(stats.latestExport).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "None"}
-                  </strong>
-                  <span className="text-[11px] font-semibold text-[#1E3A34]/70 mt-1 block">
-                    {stats.latestExport ? new Date(stats.latestExport).toLocaleDateString([], { month: "short", day: "numeric" }) : "No export generated"}
+
+                <div className="flex items-center gap-4 sm:justify-end">
+                  <div className="text-left sm:text-right">
+                    <strong className="block text-sm sm:text-base font-black text-[#1E3A34] leading-snug" title={stats.latestExport ? new Date(stats.latestExport).toLocaleString() : "None"}>
+                      {stats.latestExport ? new Date(stats.latestExport).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "No export recorded"}
+                    </strong>
+                    <span className="text-[10px] font-extrabold text-[#1E3A34]/60">
+                      {stats.latestExport ? new Date(stats.latestExport).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }) : "System ready"}
+                    </span>
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-slate-100/80 text-[#1E3A34] text-[10px] font-extrabold uppercase tracking-wider border border-white shrink-0">
+                    Report Sync
                   </span>
                 </div>
               </article>
