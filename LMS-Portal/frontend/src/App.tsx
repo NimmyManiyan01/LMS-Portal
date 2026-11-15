@@ -1118,7 +1118,7 @@ export default function App() {
       )}
 
       {/* Sidebar Navigation */}
-      {admin && (
+      {admin && active !== "Overview" && (
         <div className={`shrink-0 ${menu ? "block" : "hidden lg:block"}`}>
           <Sidebar
             admin
@@ -1133,7 +1133,7 @@ export default function App() {
       )}
 
       {/* Mobile Backdrop Scrim */}
-      {menu && (
+      {menu && active !== "Overview" && (
         <button
           className="fixed inset-0 z-20 bg-slate-900/60 backdrop-blur-sm lg:hidden border-none"
           onClick={() => setMenu(false)}
@@ -1142,15 +1142,17 @@ export default function App() {
       )}
 
       <div className="min-w-0 flex-1 flex flex-col">
-        <Topbar
-          admin={admin}
-          setAdmin={switchPortal}
-          student={student}
-          adminUser={adminUser}
-          onOpenLogin={() => navigateEntry("/login")}
-          openMenu={() => setMenu(true)}
-          onLogout={handleLogout}
-        />
+        {(!admin || active !== "Overview") && (
+          <Topbar
+            admin={admin}
+            setAdmin={switchPortal}
+            student={student}
+            adminUser={adminUser}
+            onOpenLogin={() => navigateEntry("/login")}
+            openMenu={() => setMenu(true)}
+            onLogout={handleLogout}
+          />
+        )}
 
         <main className="mx-auto w-full max-w-[1480px] px-4 py-8 sm:px-6 lg:px-9">
           {!admin && viewState === "DASHBOARD" ? (
@@ -1185,7 +1187,12 @@ export default function App() {
             <AdministratorsPage PageHead={PageHead} />
           ) : active === "Overview" && viewState === "DASHBOARD" ? (
             admin ? (
-              <AdminDashboard />
+              <AdminDashboard
+                active={active}
+                onNav={setActive}
+                adminUser={adminUser}
+                onLogout={handleLogout}
+              />
             ) : (
               <StudentExaminations
                 onStartExam={handleStartExam}
@@ -2266,7 +2273,124 @@ function StudentDashboard({
   )
 }
 
-function AdminDashboard() {
+function AdminFloatingNavbar({
+  active,
+  onNav,
+  adminUser,
+  onLogout,
+}: {
+  active: string
+  onNav: (v: string) => void
+  adminUser: { email: string; role: string } | null
+  onLogout: () => void
+}) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const primaryNav = adminNav.slice(0, 5)
+  const overflowNav = adminNav.slice(5)
+
+  return (
+    <nav className="sticky top-4 z-50 mb-6 mx-auto w-full max-w-7xl bg-white/40 backdrop-blur-2xl border border-white/70 shadow-[0_12px_40px_-5px_rgba(23,107,88,0.15)] rounded-full px-5 py-2.5 flex items-center justify-between gap-4">
+      {/* Brand */}
+      <div className="flex items-center gap-3 shrink-0 cursor-pointer" onClick={() => onNav("Overview")}>
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#176B58] to-[#203D39] flex items-center justify-center text-white font-black italic text-xs shadow-md">
+          K
+        </div>
+        <div className="hidden sm:block">
+          <strong className="block text-xs font-black tracking-tight text-[#203D39]">
+            KGS EXAM PORTAL
+          </strong>
+          <small className="block text-[8px] font-extrabold tracking-widest text-[#176B58] leading-none">
+            FLUX ENTERPRISE SUITE
+          </small>
+        </div>
+      </div>
+
+      {/* Primary Links */}
+      <div className="hidden md:flex items-center gap-1.5">
+        {primaryNav.map(([icon, label]) => (
+          <button
+            key={label}
+            onClick={() => onNav(label)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border border-transparent cursor-pointer ${
+              active === label
+                ? "bg-[#203D39] text-white shadow-md border-white/20"
+                : "text-[#203D39] hover:bg-white/70 hover:text-[#176B58]"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+
+        {/* Overflow Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#203D39] hover:bg-white/70 transition-all flex items-center gap-1 cursor-pointer"
+          >
+            <span>More</span>
+            <span className="text-[10px]">▼</span>
+          </button>
+
+          {menuOpen && (
+            <div className="absolute right-0 top-11 z-50 w-56 bg-white/95 backdrop-blur-2xl border border-white/80 rounded-2xl shadow-2xl p-2 space-y-1">
+              {overflowNav.map(([icon, label]) => (
+                <button
+                  key={label}
+                  onClick={() => {
+                    onNav(label)
+                    setMenuOpen(false)
+                  }}
+                  className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    active === label ? "bg-[#176B58] text-white" : "text-[#203D39] hover:bg-[#F7F4EC]"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile Menu Toggle Button */}
+      <button
+        onClick={() => setMenuOpen(!menuOpen)}
+        className="md:hidden p-2 rounded-full text-[#203D39] hover:bg-white/60 transition-colors cursor-pointer border-none bg-transparent"
+        aria-label="Toggle menu"
+      >
+        <span className="text-lg">☰</span>
+      </button>
+
+      {/* User Avatar & Logout */}
+      <div className="flex items-center gap-2.5 shrink-0">
+        <div className="hidden sm:flex items-center gap-2 bg-white/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/70 shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[11px] font-extrabold text-[#203D39] truncate max-w-[140px]">
+            {adminUser?.email || "Administrator"}
+          </span>
+        </div>
+        <button
+          onClick={onLogout}
+          className="px-3.5 py-1.5 rounded-full bg-[#D96C50]/15 text-[#D96C50] hover:bg-[#D96C50] hover:text-white text-xs font-bold transition-all border border-[#D96C50]/30 shadow-sm cursor-pointer"
+        >
+          Logout
+        </button>
+      </div>
+    </nav>
+  )
+}
+
+function AdminDashboard({
+  active = "Overview",
+  onNav = () => {},
+  adminUser = null,
+  onLogout = () => {},
+}: {
+  active?: string
+  onNav?: (v: string) => void
+  adminUser?: { email: string; role: string } | null
+  onLogout?: () => void
+}) {
   const [range, setRange] = useState<"week" | "month" | "quarter">("month")
   const [dashboard, setDashboard] = useState<any>(null)
   const [error, setError] = useState("")
@@ -2302,13 +2426,13 @@ function AdminDashboard() {
 
   if (loading)
     return (
-      <div className="p-12 text-center text-xs sm:text-sm font-medium bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)]">
+      <div className="p-12 text-center text-xs sm:text-sm font-medium bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/80 shadow-xl">
         <h2 className="text-xl font-bold text-[#203D39] m-0">Loading administrator dashboard...</h2>
       </div>
     )
   if (error)
     return (
-      <div className="p-12 text-center text-xs sm:text-sm font-medium text-[#D96C50] bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)] flex flex-col items-center gap-3">
+      <div className="p-12 text-center text-xs sm:text-sm font-medium text-[#D96C50] bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/80 shadow-xl flex flex-col items-center gap-3">
         <h2 className="text-xl font-bold text-[#203D39] m-0">Unable to load administrator dashboard</h2>
         <p className="m-0 text-[#203D39]/80">{error}</p>
         <button className="h-9 px-5 text-xs font-bold rounded-lg text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer border-none shadow-md" onClick={() => void load()}>
@@ -2346,6 +2470,541 @@ function AdminDashboard() {
   const padRight = 15
   const padTop = 20
   const padBottom = 30
+  const innerW = chartWidth - padLeft - padRight
+  const innerH = chartHeight - padTop - padBottom
+  const bottomY = padTop + innerH
+
+  const regPoints = dates.map((date, i) => {
+    const val = Number(registrationMap.get(date) || 0)
+    const x = dates.length === 1 ? padLeft + innerW / 2 : padLeft + (i / (dates.length - 1)) * innerW
+    const y = bottomY - (val / max) * innerH
+    return { x, y, val, date }
+  })
+
+  const compPoints = dates.map((date, i) => {
+    const val = Number(completedMap.get(date) || 0)
+    const x = dates.length === 1 ? padLeft + innerW / 2 : padLeft + (i / (dates.length - 1)) * innerW
+    const y = bottomY - (val / max) * innerH
+    return { x, y, val, date }
+  })
+
+  const buildSmoothPath = (pts: { x: number; y: number }[]) => {
+    if (pts.length === 0) return ""
+    if (pts.length === 1) return `M ${pts[0].x - 100},${pts[0].y} L ${pts[0].x + 100},${pts[0].y}`
+    let path = `M ${pts[0].x},${pts[0].y}`
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i]
+      const p1 = pts[i + 1]
+      const cpX = (p0.x + p1.x) / 2
+      path += ` C ${cpX},${p0.y} ${cpX},${p1.y} ${p1.x},${p1.y}`
+    }
+    return path
+  }
+
+  const buildAreaPath = (pts: { x: number; y: number }[]) => {
+    if (pts.length === 0) return ""
+    const linePath = buildSmoothPath(pts)
+    const firstX = pts[0].x
+    const lastX = pts[pts.length - 1].x
+    return `${linePath} L ${lastX},${bottomY} L ${firstX},${bottomY} Z`
+  }
+
+  const regLineD = buildSmoothPath(regPoints)
+  const regAreaD = buildAreaPath(regPoints)
+
+  const compLineD = buildSmoothPath(compPoints)
+  const compAreaD = buildAreaPath(compPoints)
+
+  const kpiCardConfig = [
+    {
+      icon: "users",
+      label: "Registrations",
+      value: stats.registrations ?? 0,
+      badgeBg: "bg-[#176B58]/10 text-[#176B58]",
+      accentBorder: "hover:border-[#176B58]",
+      accentGradient: "from-[#176B58] to-[#1C7A65]",
+    },
+    {
+      icon: "book",
+      label: "Active Exams",
+      value: stats.activeExams ?? 0,
+      badgeBg: "bg-[#203D39]/10 text-[#203D39]",
+      accentBorder: "hover:border-[#203D39]",
+      accentGradient: "from-[#203D39] to-[#176B58]",
+    },
+    {
+      icon: "pulse",
+      label: "Active Attempts",
+      value: stats.activeAttempts ?? 0,
+      badgeBg: "bg-[#D96C50]/10 text-[#D96C50]",
+      accentBorder: "hover:border-[#D96C50]",
+      accentGradient: "from-[#D96C50] to-[#E5A23B]",
+    },
+    {
+      icon: "result",
+      label: "Completed Attempts",
+      value: stats.completedAttempts ?? 0,
+      badgeBg: "bg-[#E5A23B]/10 text-[#E5A23B]",
+      accentBorder: "hover:border-[#E5A23B]",
+      accentGradient: "from-[#E5A23B] to-[#D96C50]",
+    },
+    {
+      icon: "review",
+      label: "Pending Reviews",
+      value: stats.pendingReviews ?? 0,
+      badgeBg: "bg-[#176B58]/10 text-[#176B58]",
+      accentBorder: "hover:border-[#176B58]",
+      accentGradient: "from-[#176B58] to-[#203D39]",
+    },
+    {
+      icon: "download",
+      label: "Latest Export",
+      value: stats.latestExport
+        ? new Date(stats.latestExport).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        : "None",
+      fullDate: stats.latestExport ? new Date(stats.latestExport).toLocaleString() : "",
+      badgeBg: "bg-[#203D39]/10 text-[#203D39]",
+      accentBorder: "hover:border-[#203D39]",
+      accentGradient: "from-[#203D39] to-[#176B58]",
+      isTextValue: true,
+    },
+  ] as const
+
+  return (
+    <div className="relative min-h-screen bg-[#F4EFDF] text-[#203D39] font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8">
+      {/* Continuous Full-Viewport Atmospheric Background Lighting Orbs */}
+      <div className="fixed -top-32 -left-32 w-[600px] h-[600px] rounded-full bg-[#176B58]/25 blur-[160px] pointer-events-none" />
+      <div className="fixed top-10 -right-20 w-[500px] h-[500px] rounded-full bg-[#E5A23B]/25 blur-[140px] pointer-events-none" />
+      <div className="fixed top-1/2 left-1/3 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-[#06B6D4]/18 blur-[180px] pointer-events-none" />
+      <div className="fixed -bottom-40 right-10 w-[600px] h-[600px] rounded-full bg-white/70 blur-[120px] pointer-events-none" />
+
+      <div className="relative z-10 max-w-7xl mx-auto space-y-8">
+
+        {/* Floating Glass Horizontal Navigation Bar */}
+        <AdminFloatingNavbar
+          active={active}
+          onNav={onNav}
+          adminUser={adminUser}
+          onLogout={onLogout}
+        />
+
+        {/* Floating Glass Hero Welcome Area */}
+        <header className="relative overflow-hidden rounded-3xl bg-white/40 backdrop-blur-2xl border border-white/70 shadow-[0_12px_40px_-10px_rgba(23,107,88,0.12)] p-6 sm:p-8">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#176B58] via-[#E5A23B] to-[#D96C50]" />
+
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="px-3 py-1 rounded-full bg-[#176B58]/15 text-[#176B58] text-[10px] font-black uppercase tracking-widest border border-[#176B58]/25">
+                  Flux Editorial Suite
+                </span>
+                <span className="text-xs font-bold text-[#203D39]/80">
+                  Welcome back, Administrator
+                </span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#203D39] tracking-tight leading-tight m-0">
+                Examination Overview
+              </h1>
+
+              <p className="text-xs sm:text-sm text-[#176B58] font-extrabold m-0 leading-relaxed">
+                Real-time operational metrics, live candidate attempts, and system status across all active examination portals.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-3.5 shrink-0">
+              {/* System Operational Badge */}
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-white/80 text-[#203D39] text-xs font-bold shadow-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10B981]" />
+                <span>System Operational</span>
+                <span className="text-[#203D39]/30">|</span>
+                <span className="text-[#E5A23B] font-extrabold">{stats.activeExams || 0} Live Exams</span>
+              </div>
+
+              {/* Date Range Selector */}
+              <div className="flex items-center gap-2.5 bg-white/80 backdrop-blur-md border border-white/80 rounded-2xl p-1.5 shadow-sm">
+                <span className="text-[11px] font-bold text-[#176B58] pl-3">Period:</span>
+                <select
+                  className="h-9 px-4 text-xs font-black bg-[#203D39] text-white border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-[#E5A23B] cursor-pointer shadow-sm"
+                  value={range}
+                  onChange={(event) => setRange(event.target.value as typeof range)}
+                  aria-label="Dashboard date range"
+                >
+                  <option value="week">This Week</option>
+                  <option value="month">Last 30 Days</option>
+                  <option value="quarter">Last 90 Days</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Asymmetric Editorial Dashboard Composition */}
+        <main className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+
+          {/* Primary Column (8 Columns) */}
+          <div className="xl:col-span-8 space-y-8">
+
+            {/* Asymmetric KPI Flow */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {kpiCardConfig.map((kpi, idx) => (
+                <article
+                  key={kpi.label}
+                  style={{ animationDelay: `${idx * 60}ms` }}
+                  className={`group relative overflow-hidden bg-white/40 backdrop-blur-2xl rounded-3xl p-5 border border-white/70 shadow-[0_8px_30px_-5px_rgba(23,107,88,0.1)] hover:shadow-[0_16px_40px_-5px_rgba(23,107,88,0.2)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between ${kpi.accentBorder} ${
+                    idx === 0 ? "sm:col-span-2 lg:col-span-2 bg-gradient-to-br from-white/60 via-white/40 to-[#176B58]/10" : ""
+                  }`}
+                >
+                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${kpi.accentGradient}`} />
+
+                  <div className="flex items-center justify-between mb-4">
+                    <span className={`w-10 h-10 rounded-2xl ${kpi.badgeBg} flex items-center justify-center text-lg font-bold shadow-inner group-hover:scale-110 transition-transform duration-300`}>
+                      <Icon name={kpi.icon} />
+                    </span>
+                    <span className="w-2 h-2 rounded-full bg-[#E2DBD0] group-hover:bg-[#176B58] transition-colors" />
+                  </div>
+
+                  <div>
+                    <small className="block text-[10px] font-black text-[#D96C50] uppercase tracking-wider mb-1">
+                      {kpi.label}
+                    </small>
+                    <strong
+                      className={`block font-black text-[#203D39] leading-tight tracking-tight ${
+                        (kpi as any).isTextValue ? "text-xs sm:text-sm font-bold truncate" : "text-3xl sm:text-4xl"
+                      }`}
+                      title={(kpi as any).fullDate || String(kpi.value)}
+                    >
+                      {kpi.value}
+                    </strong>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Participation Overview Translucent Glass Card */}
+            <div className="bg-white/40 backdrop-blur-2xl rounded-3xl border border-white/70 shadow-[0_12px_40px_-10px_rgba(23,107,88,0.12)] p-6 sm:p-8 flex flex-col justify-between gap-6 relative min-h-[440px]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#203D39]/10">
+                <div>
+                  <h3 className="text-xl font-black text-[#203D39] m-0">Participation Overview</h3>
+                  <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Daily registrations and completed attempts in selected period</p>
+                </div>
+                <div className="flex items-center gap-4 text-xs font-bold text-[#203D39]">
+                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#176B58]/15 text-[#176B58]">
+                    <i className="w-2.5 h-2.5 rounded-full bg-[#176B58] inline-block shrink-0 shadow-sm" /> Registered
+                  </span>
+                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5A23B]/15 text-[#E5A23B]">
+                    <i className="w-2.5 h-2.5 rounded-full bg-[#E5A23B] inline-block shrink-0 shadow-sm" /> Completed
+                  </span>
+                </div>
+              </div>
+
+              {dates.length === 0 ? (
+                <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#203D39]/70 font-semibold bg-white/20 rounded-2xl border border-dashed border-white/40">
+                  <span className="text-3xl text-[#176B58]">📊</span>
+                  <span className="font-bold text-[#203D39]">No activity recorded for this period</span>
+                  <p className="text-[11px] text-[#176B58] font-medium m-0">Try selecting a different date range in the top toolbar filter.</p>
+                </div>
+              ) : (
+                <div
+                  className="relative w-full overflow-hidden"
+                  onMouseLeave={() => setHoveredChartIndex(null)}
+                >
+                  {/* Interactive Tooltip Overlay */}
+                  {hoveredChartIndex !== null && regPoints[hoveredChartIndex] && (
+                    <div
+                      className="absolute bg-[#203D39] text-white backdrop-blur-md px-4 py-3 rounded-2xl border border-[#176B58]/40 shadow-2xl text-xs space-y-1.5 pointer-events-none transition-all duration-150 z-30"
+                      style={{
+                        left: `${Math.min(Math.max((regPoints[hoveredChartIndex].x / chartWidth) * 85, 5), 72)}%`,
+                        top: "10px",
+                      }}
+                    >
+                      <div className="font-black text-[#E5A23B] border-b border-white/10 pb-1 text-[11px] tracking-wide">
+                        {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(new Date(`${dates[hoveredChartIndex]}T00:00:00`))}
+                      </div>
+                      <div className="flex items-center justify-between gap-4 text-[11px]">
+                        <span className="flex items-center gap-1.5 font-bold text-emerald-300">
+                          <span className="w-2 h-2 rounded-full bg-[#176B58]" /> Registered:
+                        </span>
+                        <span className="font-black text-white">{registrationMap.get(dates[hoveredChartIndex]) || 0}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4 text-[11px]">
+                        <span className="flex items-center gap-1.5 font-bold text-amber-300">
+                          <span className="w-2 h-2 rounded-full bg-[#E5A23B]" /> Completed:
+                        </span>
+                        <span className="font-black text-white">{completedMap.get(dates[hoveredChartIndex]) || 0}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SVG Area / Line Chart */}
+                  <svg
+                    className="w-full h-60 sm:h-68 overflow-visible"
+                    viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+                    preserveAspectRatio="none"
+                  >
+                    <defs>
+                      <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#176B58" stopOpacity="0.4" />
+                        <stop offset="100%" stopColor="#176B58" stopOpacity="0.0" />
+                      </linearGradient>
+                      <linearGradient id="amberGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#E5A23B" stopOpacity="0.4" />
+                        <stop offset="100%" stopColor="#E5A23B" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Y-Axis Gridlines & Labels */}
+                    {[0, 0.5, 1].map((ratio) => {
+                      const gridY = padTop + innerH * (1 - ratio)
+                      const labelVal = Math.round(max * ratio)
+                      return (
+                        <g key={ratio}>
+                          <line
+                            x1={padLeft}
+                            y1={gridY}
+                            x2={chartWidth - padRight}
+                            y2={gridY}
+                            stroke="#203D39"
+                            strokeOpacity="0.1"
+                            strokeWidth="1"
+                            strokeDasharray="4 4"
+                          />
+                          <text
+                            x={padLeft - 6}
+                            y={gridY + 4}
+                            textAnchor="end"
+                            fill="#203D39"
+                            opacity="0.6"
+                            fontSize="10"
+                            fontWeight="bold"
+                          >
+                            {labelVal}
+                          </text>
+                        </g>
+                      )
+                    })}
+
+                    {/* X-Axis Date Labels */}
+                    {dates.map((date, i) => {
+                      if (dates.length > 10 && i % Math.ceil(dates.length / 8) !== 0 && i !== dates.length - 1) return null
+                      const x = dates.length === 1 ? padLeft + innerW / 2 : padLeft + (i / (dates.length - 1)) * innerW
+                      return (
+                        <text
+                          key={date}
+                          x={x}
+                          y={chartHeight - 8}
+                          textAnchor="middle"
+                          fill="#203D39"
+                          opacity="0.7"
+                          fontSize="9"
+                          fontWeight="bold"
+                        >
+                          {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(`${date}T00:00:00`))}
+                        </text>
+                      )
+                    })}
+
+                    {/* Registered Students Gradient Fill & Line */}
+                    {regAreaD && <path d={regAreaD} fill="url(#emeraldGrad)" />}
+                    {regLineD && (
+                      <path
+                        d={regLineD}
+                        fill="none"
+                        stroke="#176B58"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    )}
+
+                    {/* Completed Attempts Gradient Fill & Line */}
+                    {compAreaD && <path d={compAreaD} fill="url(#amberGrad)" />}
+                    {compLineD && (
+                      <path
+                        d={compLineD}
+                        fill="none"
+                        stroke="#E5A23B"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    )}
+
+                    {/* Interactive Points & Vertical Hover Line */}
+                    {dates.map((date, i) => {
+                      const ptReg = regPoints[i]
+                      const ptComp = compPoints[i]
+                      const isHovered = hoveredChartIndex === i
+
+                      return (
+                        <g
+                          key={date}
+                          className="cursor-pointer"
+                          onMouseEnter={() => setHoveredChartIndex(i)}
+                        >
+                          <rect
+                            x={ptReg.x - (innerW / Math.max(1, dates.length)) / 2}
+                            y={padTop}
+                            width={innerW / Math.max(1, dates.length)}
+                            height={innerH}
+                            fill="transparent"
+                          />
+
+                          {isHovered && (
+                            <line
+                              x1={ptReg.x}
+                              y1={padTop}
+                              x2={ptReg.x}
+                              y2={bottomY}
+                              stroke="#203D39"
+                              strokeWidth="1.5"
+                              strokeDasharray="3 3"
+                              opacity="0.5"
+                            />
+                          )}
+
+                          <circle
+                            cx={ptReg.x}
+                            cy={ptReg.y}
+                            r={isHovered ? "6" : "3.5"}
+                            fill="#176B58"
+                            stroke="#FFFFFF"
+                            strokeWidth="2"
+                            className="transition-all duration-200"
+                          />
+
+                          <circle
+                            cx={ptComp.x}
+                            cy={ptComp.y}
+                            r={isHovered ? "6" : "3.5"}
+                            fill="#E5A23B"
+                            stroke="#FFFFFF"
+                            strokeWidth="2"
+                            className="transition-all duration-200"
+                          />
+                        </g>
+                      )
+                    })}
+                  </svg>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Secondary Column (4 Columns - Recent Activity Glass Panel) */}
+          <div className="xl:col-span-4 sticky top-8">
+            <div className="bg-white/40 backdrop-blur-2xl rounded-3xl border border-white/70 shadow-[0_12px_40px_-10px_rgba(23,107,88,0.12)] p-6 sm:p-8 flex flex-col justify-between gap-4 max-h-[600px]">
+              <div className="flex items-center justify-between pb-4 border-b border-[#203D39]/10">
+                <div>
+                  <h3 className="text-xl font-black text-[#203D39] m-0">Recent Activity</h3>
+                  <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Live audit timeline and security log</p>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-[#176B58]/15 text-[#176B58] text-[10px] font-black uppercase tracking-wider border border-[#176B58]/20">
+                  {activity.length} Events
+                </span>
+              </div>
+
+              {activity.length === 0 ? (
+                <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#203D39]/70 font-semibold bg-white/20 rounded-2xl border border-dashed border-white/40">
+                  <span className="text-3xl text-[#176B58]">📋</span>
+                  <span className="font-bold text-[#203D39]">No audit activity recorded</span>
+                  <p className="text-[11px] text-[#176B58] font-medium m-0">Audit logs will automatically appear here as users interact with exams.</p>
+                </div>
+              ) : (
+                <div className="flex-1 overflow-y-auto pr-1 space-y-3 relative">
+                  <div className="absolute left-4 top-3 bottom-3 w-0.5 bg-[#203D39]/20 z-0" />
+
+                  {activity.map((item: any) => {
+                    const cat = (() => {
+                      const action = String(item.action || "").toLowerCase()
+                      const entity = String(item.entityType || "").toLowerCase()
+
+                      if (action.includes("security") || action.includes("delete") || action.includes("failed") || action.includes("alert")) {
+                        return {
+                          icon: "review",
+                          badgeBg: "bg-[#D96C50]/20 text-[#D96C50]",
+                          tagText: "Security / Alert",
+                          tagColor: "text-[#D96C50]",
+                        }
+                      }
+                      if (action.includes("submit") || action.includes("attempt") || action.includes("review")) {
+                        return {
+                          icon: "pulse",
+                          badgeBg: "bg-[#E5A23B]/20 text-[#E5A23B]",
+                          tagText: "Submission",
+                          tagColor: "text-[#E5A23B]",
+                        }
+                      }
+                      if (action.includes("result") || action.includes("export") || action.includes("download")) {
+                        return {
+                          icon: "download",
+                          badgeBg: "bg-[#176B58]/20 text-[#176B58]",
+                          tagText: "Report / Data",
+                          tagColor: "text-[#176B58]",
+                        }
+                      }
+                      if (entity.includes("exam") || action.includes("exam")) {
+                        return {
+                          icon: "book",
+                          badgeBg: "bg-[#176B58]/20 text-[#176B58]",
+                          tagText: "Examination",
+                          tagColor: "text-[#176B58]",
+                        }
+                      }
+                      return {
+                        icon: "users",
+                        badgeBg: "bg-[#203D39]/20 text-[#203D39]",
+                        tagText: "System Operation",
+                        tagColor: "text-[#176B58]",
+                      }
+                    })()
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="group relative z-10 flex items-start gap-3.5 p-3 rounded-2xl hover:bg-white/60 transition-all duration-200 border border-transparent hover:border-white/80"
+                      >
+                        <div className={`w-8 h-8 rounded-full ${cat.badgeBg} flex items-center justify-center text-xs shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-200`}>
+                          <Icon name={cat.icon} />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <b className="font-black text-[#203D39] text-xs sm:text-sm truncate">
+                              {item.action || "Administrative action"}
+                            </b>
+                            <small className="text-[#203D39]/60 font-bold text-[10px] shrink-0">
+                              {item.recordedAt ? new Date(item.recordedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+                            </small>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[11px]">
+                            <span className={`font-bold ${cat.tagColor}`}>
+                              {item.entityType || cat.tagText}
+                            </span>
+                            <span className="text-[#203D39]/30">•</span>
+                            <span className="text-[#203D39]/70 font-semibold truncate">
+                              User: <strong className="text-[#203D39] font-bold">{item.actorRole || "System"}</strong>
+                            </span>
+                          </div>
+
+                          <div className="text-[10px] text-[#203D39]/50 font-medium mt-1">
+                            {item.recordedAt ? new Date(item.recordedAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }) : ""}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}
   const innerW = chartWidth - padLeft - padRight
   const innerH = chartHeight - padTop - padBottom
   const bottomY = padTop + innerH
