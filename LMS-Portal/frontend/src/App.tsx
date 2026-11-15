@@ -2512,8 +2512,7 @@ function AdminDashboard({
   })
 
   const buildSmoothPath = (pts: { x: number; y: number }[]) => {
-    if (pts.length === 0) return ""
-    if (pts.length === 1) return `M ${pts[0].x - 100},${pts[0].y} L ${pts[0].x + 100},${pts[0].y}`
+    if (pts.length < 2) return ""
     let path = `M ${pts[0].x},${pts[0].y}`
     for (let i = 0; i < pts.length - 1; i++) {
       const p0 = pts[i]
@@ -2525,7 +2524,7 @@ function AdminDashboard({
   }
 
   const buildAreaPath = (pts: { x: number; y: number }[]) => {
-    if (pts.length === 0) return ""
+    if (pts.length < 2) return ""
     const linePath = buildSmoothPath(pts)
     const firstX = pts[0].x
     const lastX = pts[pts.length - 1].x
@@ -2988,9 +2987,9 @@ function AdminDashboard({
                       )
                     })}
 
-                    {/* Registered Students Gradient Fill & Line */}
-                    {regAreaD && <path d={regAreaD} fill="url(#emeraldGrad)" />}
-                    {regLineD && (
+                    {/* Registered Students Gradient Fill & Line (rendered only when >= 2 dates) */}
+                    {dates.length >= 2 && regAreaD && <path d={regAreaD} fill="url(#emeraldGrad)" />}
+                    {dates.length >= 2 && regLineD && (
                       <path
                         d={regLineD}
                         fill="none"
@@ -3001,9 +3000,9 @@ function AdminDashboard({
                       />
                     )}
 
-                    {/* Completed Attempts Gradient Fill & Line */}
-                    {compAreaD && <path d={compAreaD} fill="url(#amberGrad)" />}
-                    {compLineD && (
+                    {/* Completed Attempts Gradient Fill & Line (rendered only when >= 2 dates) */}
+                    {dates.length >= 2 && compAreaD && <path d={compAreaD} fill="url(#amberGrad)" />}
+                    {dates.length >= 2 && compLineD && (
                       <path
                         d={compLineD}
                         fill="none"
@@ -3013,6 +3012,75 @@ function AdminDashboard({
                         strokeLinejoin="round"
                       />
                     )}
+
+                    {/* Single Date Bar Chart View (rendered when dates.length === 1) */}
+                    {dates.length === 1 && (() => {
+                      const date = dates[0]
+                      const regVal = Number(registrationMap.get(date) || 0)
+                      const compVal = Number(completedMap.get(date) || 0)
+                      const centerX = padLeft + innerW / 2
+                      const barWidth = 32
+                      const barGap = 18
+
+                      const regHeight = max > 0 ? (regVal / max) * (innerH - 20) : 0
+                      const compHeight = max > 0 ? (compVal / max) * (innerH - 20) : 0
+
+                      const regX = centerX - barWidth - barGap / 2
+                      const compX = centerX + barGap / 2
+
+                      const regY = bottomY - regHeight
+                      const compY = bottomY - compHeight
+
+                      return (
+                        <g key="single-date-bars">
+                          {/* Registered Bar */}
+                          <rect
+                            x={regX}
+                            y={regY}
+                            width={barWidth}
+                            height={Math.max(4, regHeight)}
+                            rx="6"
+                            fill="url(#emeraldGrad)"
+                            stroke="#057A55"
+                            strokeWidth="2"
+                            className="transition-all duration-300 hover:opacity-80 cursor-pointer"
+                          />
+                          <text
+                            x={regX + barWidth / 2}
+                            y={regY - 6}
+                            textAnchor="middle"
+                            fill="#057A55"
+                            fontSize="11"
+                            fontWeight="800"
+                          >
+                            {regVal}
+                          </text>
+
+                          {/* Completed Bar */}
+                          <rect
+                            x={compX}
+                            y={compY}
+                            width={barWidth}
+                            height={Math.max(4, compHeight)}
+                            rx="6"
+                            fill="url(#amberGrad)"
+                            stroke="#FFB800"
+                            strokeWidth="2"
+                            className="transition-all duration-300 hover:opacity-80 cursor-pointer"
+                          />
+                          <text
+                            x={compX + barWidth / 2}
+                            y={compY - 6}
+                            textAnchor="middle"
+                            fill="#D99B00"
+                            fontSize="11"
+                            fontWeight="800"
+                          >
+                            {compVal}
+                          </text>
+                        </g>
+                      )
+                    })()}
 
                     {/* Interactive Points & Vertical Hover Line */}
                     {dates.map((date, i) => {
