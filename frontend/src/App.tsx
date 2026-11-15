@@ -2422,8 +2422,9 @@ function AdminFloatingSidebar({
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="w-7 h-7 rounded-full bg-white/80 backdrop-blur-md border border-white flex items-center justify-center text-[10px] text-[#1E3A34] shadow-sm hover:scale-110 transition-transform cursor-pointer shrink-0"
               title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              {isCollapsed ? "➔" : "⬅"}
+              {isCollapsed ? "▶" : "◀"}
             </button>
           </div>
 
