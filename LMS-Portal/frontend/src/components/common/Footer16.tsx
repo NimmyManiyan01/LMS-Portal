@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react"
 import logo from "../../assets/Logo.png"
 
 interface Footer16Props {
@@ -5,60 +6,166 @@ interface Footer16Props {
   onOpenContact?: () => void
 }
 
-export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
+/**
+ * Clean boolean-UNION vector paths for "KAIZENTRIX" letters.
+ * Outlined geometric ExtraBold capitals with zero internal overlap contours.
+ */
+const WORDMARK_PATHS = [
+  // K
+  "M 20 20 L 45 20 L 45 62 L 72 20 L 102 20 L 64 75 L 104 140 L 74 140 L 45 90 L 45 140 L 20 140 Z",
+  // A (Compound outer + inner counter cutout)
+  "M 150 20 L 190 140 L 163 140 L 155 114 L 125 114 L 117 140 L 90 140 Z M 140 60 L 131 92 L 149 92 Z",
+  // I
+  "M 205 20 L 235 20 L 235 140 L 205 140 Z",
+  // Z
+  "M 250 20 L 330 20 L 330 44 L 283 116 L 330 116 L 330 140 L 250 140 L 250 116 L 297 44 L 250 44 Z",
+  // E
+  "M 345 20 L 420 20 L 420 44 L 373 44 L 373 68 L 415 68 L 415 92 L 373 92 L 373 116 L 420 116 L 420 140 L 345 140 Z",
+  // N
+  "M 435 20 L 463 20 L 492 92 L 492 20 L 520 20 L 520 140 L 492 140 L 463 68 L 463 140 L 435 140 Z",
+  // T
+  "M 535 20 L 615 20 L 615 44 L 589 44 L 589 140 L 561 140 L 561 44 L 535 44 Z",
+  // R (Compound outer + inner loop cutout)
+  "M 630 20 L 685 20 C 702 20 715 31 715 48 C 715 62 705 72 690 75 L 718 140 L 688 140 L 664 82 L 658 82 L 658 140 L 630 140 Z M 658 42 L 658 62 L 682 62 C 691 62 696 57 696 52 C 696 47 691 42 682 42 Z",
+  // I
+  "M 725 20 L 755 20 L 755 140 L 725 140 Z",
+  // X
+  "M 770 20 L 798 20 L 815 65 L 832 20 L 860 20 L 832 80 L 862 140 L 834 140 L 815 95 L 796 140 L 768 140 L 798 80 Z",
+]
+
+/**
+ * Animated "KAIZENTRIX" SVG Wordmark Component.
+ * Features 10s infinite keyframe timeline, staggered letter paths,
+ * CPU-saving IntersectionObserver pausing, and reduced-motion fallback.
+ */
+export function FooterWordmark() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isIntersecting, setIsIntersecting] = useState(true)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el || typeof IntersectionObserver === "undefined") return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsIntersecting(entry.isIntersecting),
+      { threshold: 0.05 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#1E3A34] border-t border-slate-200/80 pt-12 pb-8 px-6 sm:px-12">
-      {/* SVG Stroke Drawing Animation Keyframes */}
+    <div
+      ref={containerRef}
+      aria-hidden="true"
+      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-[1400px] h-[65%] flex items-center justify-center overflow-hidden pointer-events-none select-none z-0"
+    >
       <style>{`
-        @keyframes kgsStrokeDraw {
+        :root {
+          --wm-stroke: #057A55;
+          --wm-fill-hold: rgba(5, 122, 85, 0.07);
+          --wm-fill-ghost: rgba(5, 122, 85, 0.04);
+        }
+
+        @keyframes kgsWordmarkDraw {
           0% {
-            stroke-dashoffset: 1400;
-            fill: transparent;
+            stroke-dashoffset: 1;
+            stroke-opacity: 1;
+            fill-opacity: 0;
+            will-change: stroke-dashoffset, opacity;
+          }
+          12.5% {
+            /* 1.25s: DRAW phase complete */
+            stroke-dashoffset: 0;
+            stroke-opacity: 1;
+            fill-opacity: 0;
+          }
+          17.5% {
+            /* 1.75s: FILL IN phase complete */
+            stroke-dashoffset: 0;
+            stroke-opacity: 1;
+            fill-opacity: 0.07;
           }
           45% {
+            /* 4.5s: HOLD breathing sub-peak */
             stroke-dashoffset: 0;
-            fill: rgba(5, 122, 85, 0.03);
+            stroke-opacity: 0.92;
+            fill-opacity: 0.07;
           }
           75% {
+            /* 7.5s: HOLD phase complete */
             stroke-dashoffset: 0;
-            fill: rgba(5, 122, 85, 0.06);
+            stroke-opacity: 1;
+            fill-opacity: 0.07;
+          }
+          80% {
+            /* 8.0s: FADE OUT phase complete */
+            stroke-dashoffset: 0;
+            stroke-opacity: 0;
+            fill-opacity: 0.04;
           }
           100% {
-            stroke-dashoffset: -1400;
-            fill: transparent;
+            /* 10.0s: GHOST phase complete -> loop restarts */
+            stroke-dashoffset: 0;
+            stroke-opacity: 0;
+            fill-opacity: 0.04;
+            will-change: auto;
           }
         }
-        .kgs-watermark-stroke {
-          stroke-dasharray: 1400;
-          animation: kgsStrokeDraw 24s ease-in-out infinite;
+
+        .kgs-letter-path {
+          stroke: var(--wm-stroke);
+          fill: var(--wm-stroke);
+          stroke-width: 1.8;
+          stroke-dasharray: 1;
+          stroke-dashoffset: 1;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+          vector-effect: non-scaling-stroke;
+          animation: kgsWordmarkDraw 10s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .kgs-letter-path {
+            animation: none !important;
+            stroke-dashoffset: 0 !important;
+            stroke-opacity: 0 !important;
+            fill-opacity: 0.04 !important;
+          }
         }
       `}</style>
 
-      {/* SVG Drawing Line-Stroke Animated Watermark Background */}
-      <div className="absolute bottom-4 left-0 right-0 h-44 flex items-center justify-center overflow-hidden pointer-events-none select-none z-0">
-        <svg
-          className="w-full h-full max-h-[160px] select-none"
-          viewBox="0 0 1000 160"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <text
-            x="50%"
-            y="50%"
-            dominantBaseline="central"
-            textAnchor="middle"
-            fontSize="120"
-            fontWeight="900"
-            letterSpacing="14"
-            stroke="#057A55"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            className="kgs-watermark-stroke font-sans"
-          >
-            KAIZENTRIX
-          </text>
-        </svg>
-      </div>
+      <svg
+        className="w-full h-full select-none"
+        viewBox="0 0 900 160"
+        preserveAspectRatio="xMidYMid meet"
+        style={{
+          animationPlayState: isIntersecting ? "running" : "paused",
+        }}
+      >
+        {WORDMARK_PATHS.map((d, index) => (
+          <path
+            key={index}
+            d={d}
+            pathLength={1}
+            className="kgs-letter-path"
+            style={{
+              animationDelay: `${(index * 0.08).toFixed(2)}s`,
+              animationPlayState: isIntersecting ? "running" : "paused",
+            }}
+          />
+        ))}
+      </svg>
+    </div>
+  )
+}
+
+export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
+  return (
+    <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#1E3A34] border-t border-slate-200/80 pt-12 pb-8 px-6 sm:px-12">
+
+      {/* Decorative SVG Animated Wordmark Layer */}
+      <FooterWordmark />
 
       <div className="relative z-10 max-w-7xl mx-auto space-y-10">
 
