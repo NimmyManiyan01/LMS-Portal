@@ -7,57 +7,18 @@ interface Footer16Props {
 
 export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
   return (
-    <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#1E3A34] border-t border-slate-200/80 pt-12 pb-8 px-6 sm:px-12">
-      {/* SVG Stroke Drawing Animation Keyframes */}
-      <style>{`
-        @keyframes kgsStrokeDraw {
-          0% {
-            stroke-dashoffset: 1400;
-            fill: transparent;
-          }
-          45% {
-            stroke-dashoffset: 0;
-            fill: rgba(5, 122, 85, 0.03);
-          }
-          75% {
-            stroke-dashoffset: 0;
-            fill: rgba(5, 122, 85, 0.06);
-          }
-          100% {
-            stroke-dashoffset: -1400;
-            fill: transparent;
-          }
-        }
-        .kgs-watermark-stroke {
-          stroke-dasharray: 1400;
-          animation: kgsStrokeDraw 24s ease-in-out infinite;
-        }
-      `}</style>
+    <footer className="relative w-full overflow-hidden bg-[#F6F2E6] font-sans antialiased text-[#1E3A34] border-t border-white/80 pt-12 pb-8 px-6 sm:px-12">
+      {/* Bright Full-Page Ambient Atmospheric Blur Orbs */}
+      <div className="absolute -top-32 -left-32 w-[650px] h-[650px] rounded-full bg-[#00C4DF]/25 blur-[150px] pointer-events-none z-0" />
+      <div className="absolute top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-[#00D084]/25 blur-[160px] pointer-events-none z-0" />
+      <div className="absolute top-1/2 left-1/3 -translate-x-1/2 w-[550px] h-[550px] rounded-full bg-[#FFB800]/22 blur-[150px] pointer-events-none z-0" />
+      <div className="absolute -bottom-32 right-10 w-[650px] h-[650px] rounded-full bg-[#FF7A59]/22 blur-[160px] pointer-events-none z-0" />
 
-      {/* SVG Drawing Line-Stroke Animated Watermark Background */}
-      <div className="absolute bottom-4 left-0 right-0 h-44 flex items-center justify-center overflow-hidden pointer-events-none select-none z-0">
-        <svg
-          className="w-full h-full max-h-[160px] select-none"
-          viewBox="0 0 1000 160"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <text
-            x="50%"
-            y="50%"
-            dominantBaseline="central"
-            textAnchor="middle"
-            fontSize="120"
-            fontWeight="900"
-            letterSpacing="14"
-            stroke="#057A55"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            className="kgs-watermark-stroke font-sans"
-          >
-            KAIZENTRIX
-          </text>
-        </svg>
+      {/* Giant Brand Watermark Background (Bright Tint) */}
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none select-none opacity-10 z-0">
+        <span className="text-7xl sm:text-9xl lg:text-[13rem] font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-[#057A55] to-transparent">
+          KAIZENTRIX
+        </span>
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto space-y-10">
@@ -78,16 +39,16 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </span>
             </div>
 
-            <p className="text-xs sm:text-sm font-bold text-slate-600 leading-relaxed max-w-md m-0">
+            <p className="text-xs sm:text-sm font-bold text-[#1E3A34]/80 leading-relaxed max-w-md m-0">
               India&apos;s leading specialized accelerator for algorithmic mastery, full-stack systems engineering, and Tier-1 product placement training.
             </p>
 
             {/* ISO Certification Badges */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
-              <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200/80 text-[11px] font-extrabold text-slate-700 shadow-2xs">
+              <span className="px-3 py-1 rounded-full bg-white/70 backdrop-blur-md border border-white text-[11px] font-extrabold text-[#1E3A34] shadow-xs">
                 ISO 9001 – Quality Management
               </span>
-              <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200/80 text-[11px] font-extrabold text-slate-700 shadow-2xs">
+              <span className="px-3 py-1 rounded-full bg-white/70 backdrop-blur-md border border-white text-[11px] font-extrabold text-[#1E3A34] shadow-xs">
                 ISO/IEC 27001 – Information Security
               </span>
             </div>
@@ -96,7 +57,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
             <div className="flex items-center gap-2.5 pt-2">
               <a
                 aria-label="LinkedIn"
-                className="w-9 h-9 rounded-2xl bg-slate-100 border border-slate-200/80 hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-slate-600 flex items-center justify-center transition-all shadow-2xs"
+                className="w-9 h-9 rounded-2xl bg-white/70 backdrop-blur-md border border-white hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-[#1E3A34] flex items-center justify-center transition-all shadow-xs"
                 href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/"
                 target="_blank"
                 rel="noreferrer"
@@ -107,7 +68,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="GitHub"
-                className="w-9 h-9 rounded-2xl bg-slate-100 border border-slate-200/80 hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-slate-600 flex items-center justify-center transition-all shadow-2xs"
+                className="w-9 h-9 rounded-2xl bg-white/70 backdrop-blur-md border border-white hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-[#1E3A34] flex items-center justify-center transition-all shadow-xs"
                 href="https://github.com"
                 target="_blank"
                 rel="noreferrer"
@@ -118,7 +79,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="YouTube"
-                className="w-9 h-9 rounded-2xl bg-slate-100 border border-slate-200/80 hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-slate-600 flex items-center justify-center transition-all shadow-2xs"
+                className="w-9 h-9 rounded-2xl bg-white/70 backdrop-blur-md border border-white hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-[#1E3A34] flex items-center justify-center transition-all shadow-xs"
                 href="https://youtube.com"
                 target="_blank"
                 rel="noreferrer"
@@ -129,7 +90,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="Discord"
-                className="w-9 h-9 rounded-2xl bg-slate-100 border border-slate-200/80 hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-slate-600 flex items-center justify-center transition-all shadow-2xs"
+                className="w-9 h-9 rounded-2xl bg-white/70 backdrop-blur-md border border-white hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-[#1E3A34] flex items-center justify-center transition-all shadow-xs"
                 href="https://discord.com"
                 target="_blank"
                 rel="noreferrer"
@@ -212,8 +173,8 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
 
         </div>
 
-        {/* LOWER SECTION (Clean Border Divider Above Watermark Area) */}
-        <div className="pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-extrabold text-[#1E3A34]">
+        {/* LOWER SECTION (Separated by subtle glass line, same bright background) */}
+        <div className="pt-6 border-t border-[#E2DBD0] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-extrabold text-[#1E3A34]">
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <a
               className="hover:text-[#057A55] transition-colors"
@@ -237,7 +198,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
             </a>
           </div>
 
-          <div className="text-center sm:text-right text-xs font-extrabold text-slate-500">
+          <div className="text-center sm:text-right text-xs font-extrabold text-[#1E3A34]/70">
             © 2026 Kaizentrix Global Solutions Private Limited. All rights reserved.
           </div>
         </div>
