@@ -2354,31 +2354,67 @@ function AdminDashboard() {
 
   return (
     <div className="bg-[#F7F4EC] min-h-full p-4 sm:p-6 rounded-2xl font-sans text-[#203D39]">
-      <PageHead admin student={null} showCreateAction={false} />
+      {/* Premium Cinematic Enterprise Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#176B58] via-[#1C7A65] to-[#203D39] p-6 sm:p-8 text-[#F7F4EC] shadow-[0_10px_30px_-5px_rgba(23,107,88,0.3)] border border-[#176B58]/40 mb-6">
+        {/* Subtle Geometric Background Pattern & Lighting Blur */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(229,162,59,0.22),transparent_60%)] pointer-events-none" />
+        <div className="absolute -right-12 -bottom-12 w-64 h-64 rounded-full bg-[#176B58]/30 blur-3xl pointer-events-none" />
+        <svg className="absolute inset-0 w-full h-full opacity-5 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#FFFFFF" strokeWidth="1" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
 
-      {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 p-5 bg-white rounded-2xl border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(32,61,57,0.06)]">
-        <div className="flex items-center gap-3.5">
-          <span className="w-10 h-10 rounded-xl bg-[#176B58]/10 text-[#176B58] flex items-center justify-center shrink-0 text-lg">
-            <Icon name="pulse" />
-          </span>
-          <div>
-            <b className="block text-base font-black text-[#203D39]">{stats.activeExams || 0} examinations currently live</b>
-            <small className="text-xs text-[#176B58] font-bold">
-              {stats.activeAttempts || 0} active attempts · Database-backed status
-            </small>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          {/* Left Column: Greeting, Title & Description */}
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#E5A23B]/20 border border-[#E5A23B]/40 text-[#E5A23B] text-[10px] font-black uppercase tracking-widest">
+                Enterprise Analytics
+              </span>
+              <span className="text-xs font-bold text-[#F7F4EC]/80">
+                Welcome back, Administrator
+              </span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight m-0">
+              Examination Overview
+            </h1>
+
+            <p className="text-xs sm:text-sm text-[#F7F4EC]/85 font-medium m-0 leading-relaxed">
+              Monitor live operations, candidate activity, and examination health in real-time across all active portals.
+            </p>
+          </div>
+
+          {/* Right Column: Status Tag & Date Range Picker */}
+          <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-3 shrink-0">
+            {/* System Operational Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/20 text-[#F7F4EC] text-xs font-bold shadow-inner">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#10B981]" />
+              <span>System Operational</span>
+              <span className="text-white/40">|</span>
+              <span className="text-[#E5A23B] font-extrabold">{stats.activeExams || 0} Live Exams</span>
+            </div>
+
+            {/* Date Range Selector */}
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/25 rounded-xl p-1 shadow-lg">
+              <span className="text-[11px] font-bold text-[#F7F4EC]/80 pl-3">Period:</span>
+              <select
+                className="h-9 px-3 text-xs font-black bg-[#203D39] text-white border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E5A23B] cursor-pointer shadow-sm"
+                value={range}
+                onChange={(event) => setRange(event.target.value as typeof range)}
+                aria-label="Dashboard date range"
+              >
+                <option value="week">This Week</option>
+                <option value="month">Last 30 Days</option>
+                <option value="quarter">Last 90 Days</option>
+              </select>
+            </div>
           </div>
         </div>
-        <select
-          className="h-10 px-4 text-xs font-bold bg-[#F7F4EC] border border-[#D8D0C0] rounded-xl text-[#203D39] focus:outline-none focus:border-[#176B58] focus:ring-2 focus:ring-[#176B58]/20 shadow-inner cursor-pointer"
-          value={range}
-          onChange={(event) => setRange(event.target.value as typeof range)}
-          aria-label="Dashboard date range"
-        >
-          <option value="week">This week</option>
-          <option value="month">Last 30 days</option>
-          <option value="quarter">Last 90 days</option>
-        </select>
       </div>
 
       {/* KPI Stats */}
