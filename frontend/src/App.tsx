@@ -2289,32 +2289,35 @@ function AdminFloatingNavbar({
   const overflowNav = adminNav.slice(5)
 
   return (
-    <nav className="sticky top-4 z-50 mb-6 mx-auto w-full max-w-7xl bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.1)] rounded-full px-5 py-2.5 flex items-center justify-between gap-4">
+    <nav className="sticky top-4 z-50 mb-6 mx-auto w-full max-w-7xl bg-white/45 backdrop-blur-2xl border border-white/80 shadow-[0_8px_32px_0_rgba(30,58,52,0.12)] rounded-full px-5 sm:px-6 py-2 flex items-center justify-between gap-4 transition-all duration-200">
+      {/* Specular Glass Highlight */}
+      <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent pointer-events-none" />
+
       {/* Brand */}
       <div className="flex items-center gap-3 shrink-0 cursor-pointer" onClick={() => onNav("Overview")}>
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#176B58] to-[#203D39] flex items-center justify-center text-white font-black italic text-xs shadow-md">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00D084] via-[#057A55] to-[#1E3A34] flex items-center justify-center text-white font-black italic text-xs shadow-md shadow-emerald-600/20">
           K
         </div>
         <div className="hidden sm:block">
-          <strong className="block text-xs font-black tracking-tight text-[#203D39]">
+          <strong className="block text-xs font-black tracking-tight text-[#1E3A34]">
             KGS EXAM PORTAL
           </strong>
-          <small className="block text-[8px] font-extrabold tracking-widest text-[#176B58] leading-none">
+          <small className="block text-[8px] font-extrabold tracking-widest text-[#057A55] leading-none">
             FLUX ENTERPRISE SUITE
           </small>
         </div>
       </div>
 
       {/* Primary Links */}
-      <div className="hidden md:flex items-center gap-1.5">
+      <div className="hidden md:flex items-center gap-2">
         {primaryNav.map(([icon, label]) => (
           <button
             key={label}
             onClick={() => onNav(label)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border border-transparent cursor-pointer ${
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border cursor-pointer ${
               active === label
-                ? "bg-[#203D39] text-white shadow-md border-white/20 font-extrabold"
-                : "text-[#203D39] hover:bg-white/80 hover:text-[#176B58]"
+                ? "bg-[#1E3A34] text-white shadow-md border-white/20 font-extrabold"
+                : "text-[#1E3A34] hover:bg-white/80 hover:text-[#057A55] border-transparent"
             }`}
           >
             {label}
@@ -2325,14 +2328,14 @@ function AdminFloatingNavbar({
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#203D39] hover:bg-white/80 transition-all flex items-center gap-1 cursor-pointer border border-transparent"
+            className="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#1E3A34] hover:bg-white/80 transition-all duration-200 flex items-center gap-1 cursor-pointer border border-transparent"
           >
             <span>More</span>
             <span className="text-[10px]">▼</span>
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-11 z-50 w-56 bg-white/95 backdrop-blur-2xl border border-white/80 rounded-2xl shadow-2xl p-2 space-y-1">
+            <div className="absolute right-0 top-11 z-50 w-56 bg-white/95 backdrop-blur-2xl border border-white/90 rounded-2xl shadow-2xl p-2 space-y-1">
               {overflowNav.map(([icon, label]) => (
                 <button
                   key={label}
@@ -2340,8 +2343,8 @@ function AdminFloatingNavbar({
                     onNav(label)
                     setMenuOpen(false)
                   }}
-                  className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    active === label ? "bg-[#176B58] text-white" : "text-[#203D39] hover:bg-[#F7F4EC]"
+                  className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+                    active === label ? "bg-[#057A55] text-white" : "text-[#1E3A34] hover:bg-[#F6F2E6]"
                   }`}
                 >
                   {label}
@@ -2355,7 +2358,7 @@ function AdminFloatingNavbar({
       {/* Mobile Menu Toggle Button */}
       <button
         onClick={() => setMenuOpen(!menuOpen)}
-        className="md:hidden p-2 rounded-full text-[#203D39] hover:bg-white/60 transition-colors cursor-pointer border-none bg-transparent"
+        className="md:hidden p-2 rounded-full text-[#1E3A34] hover:bg-white/70 transition-colors cursor-pointer border-none bg-transparent"
         aria-label="Toggle menu"
       >
         <span className="text-lg">☰</span>
@@ -2363,20 +2366,21 @@ function AdminFloatingNavbar({
 
       {/* User Avatar & Logout */}
       <div className="flex items-center gap-2.5 shrink-0">
-        <div className="hidden sm:flex items-center gap-2 bg-white/70 backdrop-blur-md px-3 py-1 rounded-full border border-white/90 text-[11px] font-extrabold text-[#203D39] shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10B981]" />
+        <div className="hidden sm:flex items-center gap-2 bg-white/70 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/90 text-[11px] font-extrabold text-[#1E3A34] shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-[#00D084] animate-pulse shadow-[0_0_8px_#00D084]" />
           <span className="truncate max-w-[140px]">
             {adminUser?.email || "Administrator"}
           </span>
         </div>
         <button
           onClick={onLogout}
-          className="px-3.5 py-1.5 rounded-full bg-[#D96C50]/15 text-[#D96C50] hover:bg-[#D96C50] hover:text-white text-xs font-bold transition-all border border-[#D96C50]/30 shadow-sm cursor-pointer"
+          className="px-3.5 py-1.5 rounded-full bg-[#D9532F]/15 text-[#D9532F] hover:bg-[#D9532F] hover:text-white text-xs font-bold transition-all duration-200 border border-[#D9532F]/30 shadow-sm cursor-pointer"
         >
           Logout
         </button>
       </div>
     </nav>
+  )
   )
 }
 
@@ -2650,42 +2654,42 @@ function AdminDashboard({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
               {/* Featured Primary Card: Registrations + Real Mini Sparkline */}
-              <article className="sm:col-span-2 lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-white/95 via-white/80 to-[#176B58]/15 backdrop-blur-2xl rounded-3xl p-6 border border-white shadow-[0_12px_35px_-5px_rgba(32,61,57,0.1)] hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+              <article className="sm:col-span-2 lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-white/95 via-white/80 to-[#00D084]/15 backdrop-blur-2xl rounded-3xl p-5 sm:p-6 border border-white shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
                 <div className="flex items-start justify-between gap-4 relative z-10">
                   <div className="flex items-center gap-3">
-                    <span className="w-11 h-11 rounded-2xl bg-[#176B58]/15 text-[#176B58] flex items-center justify-center text-xl font-bold shadow-inner border border-white/60">
+                    <span className="w-10 h-10 rounded-2xl bg-[#00D084]/20 text-[#057A55] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60">
                       <Icon name="users" />
                     </span>
                     <div>
-                      <small className="block text-[11px] font-black uppercase tracking-wider text-[#D96C50]">
+                      <small className="block text-[11px] font-black uppercase tracking-wider text-[#FF7A59]">
                         Registrations
                       </small>
-                      <span className="text-xs font-bold text-[#176B58]/90">Total Candidate Enrolments</span>
+                      <span className="text-xs font-bold text-[#057A55]/90">Total Candidate Enrolments</span>
                     </div>
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-[#176B58]/10 text-[#176B58] text-[10px] font-extrabold uppercase tracking-wider border border-[#176B58]/20">
+                  <span className="px-3 py-1 rounded-full bg-[#00D084]/15 text-[#057A55] text-[10px] font-extrabold uppercase tracking-wider border border-[#00D084]/30">
                     Featured Metric
                   </span>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-4 relative z-10">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-3 relative z-10">
                   <div>
-                    <strong className="block text-4xl sm:text-5xl lg:text-6xl font-black text-[#203D39] leading-none tracking-tight">
+                    <strong className="block text-4xl sm:text-5xl lg:text-6xl font-black text-[#1E3A34] leading-none tracking-tight">
                       {stats.registrations ?? 0}
                     </strong>
-                    <small className="text-[11px] font-bold text-[#203D39]/60 mt-1 block">
+                    <small className="text-[11px] font-bold text-[#1E3A34]/60 mt-1 block">
                       Active candidate database records
                     </small>
                   </div>
 
                   {/* Real Historical Registration Sparkline (if available) */}
                   {regPoints.length > 1 && (
-                    <div className="w-36 h-12 shrink-0 flex flex-col items-end justify-end">
-                      <svg viewBox="0 0 150 45" className="w-full h-10 overflow-visible">
+                    <div className="w-36 h-11 shrink-0 flex flex-col items-end justify-end">
+                      <svg viewBox="0 0 150 45" className="w-full h-9 overflow-visible">
                         <defs>
                           <linearGradient id="sparkReg" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#176B58" stopOpacity="0.4" />
-                            <stop offset="100%" stopColor="#176B58" stopOpacity="0" />
+                            <stop offset="0%" stopColor="#00D084" stopOpacity="0.45" />
+                            <stop offset="100%" stopColor="#00D084" stopOpacity="0" />
                           </linearGradient>
                         </defs>
                         {regAreaD && (
@@ -2703,73 +2707,73 @@ function AdminDashboard({
                             y: 40 - (p.val / max) * 32,
                           })))}
                           fill="none"
-                          stroke="#176B58"
+                          stroke="#057A55"
                           strokeWidth="2.5"
                           strokeLinecap="round"
                         />
                       </svg>
-                      <span className="text-[9px] font-extrabold text-[#176B58] uppercase tracking-wider">Historical Trend</span>
+                      <span className="text-[9px] font-extrabold text-[#057A55] uppercase tracking-wider">Historical Trend</span>
                     </div>
                   )}
                 </div>
               </article>
 
               {/* Tile 2: Active Exams */}
-              <article className="group relative overflow-hidden bg-white/65 backdrop-blur-2xl rounded-3xl p-5 border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.06)] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+              <article className="group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="w-10 h-10 rounded-2xl bg-[#203D39]/15 text-[#203D39] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60 group-hover:scale-110 transition-transform">
+                  <span className="w-9 h-9 rounded-2xl bg-[#00C4DF]/20 text-[#008DA1] flex items-center justify-center text-base font-bold shadow-inner border border-white/70 group-hover:scale-110 transition-transform duration-200">
                     <Icon name="book" />
                   </span>
                   <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Live</span>
                 </div>
                 <div>
-                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#176B58] mb-1">
+                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#057A55] mb-1">
                     Active Exams
                   </small>
-                  <strong className="block text-3xl sm:text-4xl font-black text-[#203D39] leading-tight">
+                  <strong className="block text-3xl sm:text-4xl font-black text-[#1E3A34] leading-tight">
                     {stats.activeExams ?? 0}
                   </strong>
-                  <span className="text-[11px] font-semibold text-[#203D39]/70 mt-1 block">Scheduled & published</span>
+                  <span className="text-[11px] font-semibold text-[#1E3A34]/70 mt-1 block">Scheduled & published</span>
                 </div>
               </article>
 
               {/* Tile 3: Active Attempts */}
-              <article className="group relative overflow-hidden bg-white/65 backdrop-blur-2xl rounded-3xl p-5 border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.06)] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+              <article className="group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="w-10 h-10 rounded-2xl bg-[#D96C50]/15 text-[#D96C50] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60 group-hover:scale-110 transition-transform">
+                  <span className="w-9 h-9 rounded-2xl bg-[#FF7A59]/20 text-[#FF7A59] flex items-center justify-center text-base font-bold shadow-inner border border-white/70 group-hover:scale-110 transition-transform duration-200">
                     <Icon name="pulse" />
                   </span>
                   {stats.activeAttempts > 0 && (
-                    <span className="flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" /> In Progress
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#FFB800] animate-ping" /> In Progress
                     </span>
                   )}
                 </div>
                 <div>
-                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#D96C50] mb-1">
+                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#FF7A59] mb-1">
                     Active Attempts
                   </small>
-                  <strong className="block text-3xl sm:text-4xl font-black text-[#203D39] leading-tight">
+                  <strong className="block text-3xl sm:text-4xl font-black text-[#1E3A34] leading-tight">
                     {stats.activeAttempts ?? 0}
                   </strong>
-                  <span className="text-[11px] font-semibold text-[#203D39]/70 mt-1 block">Live candidate sessions</span>
+                  <span className="text-[11px] font-semibold text-[#1E3A34]/70 mt-1 block">Live candidate sessions</span>
                 </div>
               </article>
 
               {/* Tile 4: Completed Attempts + Real Sparkline */}
-              <article className="group relative overflow-hidden bg-white/65 backdrop-blur-2xl rounded-3xl p-5 border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.06)] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+              <article className="group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="w-10 h-10 rounded-2xl bg-[#E5A23B]/15 text-[#E5A23B] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60 group-hover:scale-110 transition-transform">
+                  <span className="w-9 h-9 rounded-2xl bg-[#FFB800]/20 text-[#D99B00] flex items-center justify-center text-base font-bold shadow-inner border border-white/70 group-hover:scale-110 transition-transform duration-200">
                     <Icon name="result" />
                   </span>
-                  <span className="text-[10px] font-bold text-[#E5A23B] bg-amber-50 px-2 py-0.5 rounded-full">Completed</span>
+                  <span className="text-[10px] font-bold text-[#D99B00] bg-amber-50 px-2 py-0.5 rounded-full">Completed</span>
                 </div>
                 <div>
-                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#E5A23B] mb-1">
+                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#D99B00] mb-1">
                     Completed Attempts
                   </small>
                   <div className="flex items-end justify-between gap-2">
-                    <strong className="block text-3xl sm:text-4xl font-black text-[#203D39] leading-tight">
+                    <strong className="block text-3xl sm:text-4xl font-black text-[#1E3A34] leading-tight">
                       {stats.completedAttempts ?? 0}
                     </strong>
                     {compPoints.length > 1 && (
@@ -2781,7 +2785,7 @@ function AdminDashboard({
                               y: 30 - (p.val / max) * 25,
                             })))}
                             fill="none"
-                            stroke="#E5A23B"
+                            stroke="#FFB800"
                             strokeWidth="2.5"
                             strokeLinecap="round"
                           />
@@ -2789,45 +2793,45 @@ function AdminDashboard({
                       </div>
                     )}
                   </div>
-                  <span className="text-[11px] font-semibold text-[#203D39]/70 mt-1 block">Submissions processed</span>
+                  <span className="text-[11px] font-semibold text-[#1E3A34]/70 mt-1 block">Submissions processed</span>
                 </div>
               </article>
 
               {/* Tile 5: Pending Reviews */}
-              <article className="group relative overflow-hidden bg-white/65 backdrop-blur-2xl rounded-3xl p-5 border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.06)] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+              <article className="group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="w-10 h-10 rounded-2xl bg-[#176B58]/15 text-[#176B58] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60 group-hover:scale-110 transition-transform">
+                  <span className="w-9 h-9 rounded-2xl bg-[#00D084]/20 text-[#057A55] flex items-center justify-center text-base font-bold shadow-inner border border-white/70 group-hover:scale-110 transition-transform duration-200">
                     <Icon name="review" />
                   </span>
-                  <span className="text-[10px] font-bold text-[#176B58] bg-emerald-50 px-2 py-0.5 rounded-full">Audit</span>
+                  <span className="text-[10px] font-bold text-[#057A55] bg-emerald-50 px-2 py-0.5 rounded-full">Audit</span>
                 </div>
                 <div>
-                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#176B58] mb-1">
+                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#057A55] mb-1">
                     Pending Reviews
                   </small>
-                  <strong className="block text-3xl sm:text-4xl font-black text-[#203D39] leading-tight">
+                  <strong className="block text-3xl sm:text-4xl font-black text-[#1E3A34] leading-tight">
                     {stats.pendingReviews ?? 0}
                   </strong>
-                  <span className="text-[11px] font-semibold text-[#203D39]/70 mt-1 block">Evaluations awaiting action</span>
+                  <span className="text-[11px] font-semibold text-[#1E3A34]/70 mt-1 block">Evaluations awaiting action</span>
                 </div>
               </article>
 
               {/* Tile 6: Latest Export */}
-              <article className="group relative overflow-hidden bg-white/65 backdrop-blur-2xl rounded-3xl p-5 border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.06)] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+              <article className="group relative overflow-hidden bg-white/50 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[175px]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="w-10 h-10 rounded-2xl bg-[#203D39]/15 text-[#203D39] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60 group-hover:scale-110 transition-transform">
+                  <span className="w-9 h-9 rounded-2xl bg-[#1E3A34]/20 text-[#1E3A34] flex items-center justify-center text-base font-bold shadow-inner border border-white/70 group-hover:scale-110 transition-transform duration-200">
                     <Icon name="download" />
                   </span>
-                  <span className="text-[10px] font-bold text-[#203D39] bg-slate-100 px-2 py-0.5 rounded-full">Report</span>
+                  <span className="text-[10px] font-bold text-[#1E3A34] bg-slate-100 px-2 py-0.5 rounded-full">Report</span>
                 </div>
                 <div>
-                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#203D39] mb-1">
+                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#1E3A34] mb-1">
                     Latest Export
                   </small>
-                  <strong className="block text-base sm:text-lg font-black text-[#203D39] leading-snug truncate" title={stats.latestExport ? new Date(stats.latestExport).toLocaleString() : "None"}>
+                  <strong className="block text-base sm:text-lg font-black text-[#1E3A34] leading-snug truncate" title={stats.latestExport ? new Date(stats.latestExport).toLocaleString() : "None"}>
                     {stats.latestExport ? new Date(stats.latestExport).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "None"}
                   </strong>
-                  <span className="text-[11px] font-semibold text-[#203D39]/70 mt-1 block">
+                  <span className="text-[11px] font-semibold text-[#1E3A34]/70 mt-1 block">
                     {stats.latestExport ? new Date(stats.latestExport).toLocaleDateString([], { month: "short", day: "numeric" }) : "No export generated"}
                   </span>
                 </div>
