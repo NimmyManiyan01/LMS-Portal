@@ -552,24 +552,81 @@ export function ExaminationsPage({
           </div>
         </header>
 
-        {/* KPI Summary Cards */}
-        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        {/* Refined Flux Glassmorphism KPI Summary Cards */}
+        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
-            ["Total Examinations", "total", "bg-[#00D084]/15 text-[#057A55]"],
-            ["Draft", "draft", "bg-[#1E3A34]/15 text-[#1E3A34]"],
-            ["Scheduled", "scheduled", "bg-[#00C4DF]/20 text-[#008DA1]"],
-            ["Active", "active", "bg-emerald-100 text-emerald-800"],
-            ["Completed", "completed", "bg-[#FFB800]/20 text-[#D99B00]"],
-          ].map(([label, key, badgeStyle]) => (
+            {
+              label: "Total Examinations",
+              key: "total",
+              icon: "book",
+              badgeBg: "bg-[#00D084]/20 text-[#057A55]",
+              labelColor: "text-[#057A55]",
+              pillText: "All",
+            },
+            {
+              label: "Draft",
+              key: "draft",
+              icon: "copy",
+              badgeBg: "bg-[#FF7A59]/20 text-[#FF7A59]",
+              labelColor: "text-[#FF7A59]",
+              pillText: "Pending",
+            },
+            {
+              label: "Scheduled",
+              key: "scheduled",
+              icon: "pulse",
+              badgeBg: "bg-[#00C4DF]/20 text-[#008DA1]",
+              labelColor: "text-[#008DA1]",
+              pillText: "Upcoming",
+            },
+            {
+              label: "Active",
+              key: "active",
+              icon: "pulse",
+              badgeBg: "bg-[#00D084]/20 text-[#057A55]",
+              labelColor: "text-[#057A55]",
+              pillText: "Live",
+              isLive: true,
+            },
+            {
+              label: "Completed",
+              key: "completed",
+              icon: "result",
+              badgeBg: "bg-[#FFB800]/20 text-[#D99B00]",
+              labelColor: "text-[#D99B00]",
+              pillText: "Closed",
+            },
+          ].map((kpi) => (
             <article
-              className="flex flex-col justify-between p-4 sm:p-5 bg-white/50 backdrop-blur-xl rounded-3xl border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5"
-              key={key}
+              key={kpi.key}
+              className="group relative overflow-hidden bg-white/50 backdrop-blur-xl rounded-3xl p-4 sm:p-5 border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between min-h-[145px]"
             >
-              <div className="flex items-center justify-between mb-2">
-                <small className="text-[10px] font-black text-[#1E3A34]/60 uppercase tracking-wider">{label}</small>
-                <span className={`w-2.5 h-2.5 rounded-full ${key === "active" ? "bg-[#00D084] animate-pulse" : "bg-slate-300"}`} />
+              {/* Specular Highlight */}
+              <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent pointer-events-none" />
+
+              <div className="flex items-center justify-between mb-3 relative z-10">
+                <span className={`w-9 h-9 rounded-2xl ${kpi.badgeBg} flex items-center justify-center text-base font-bold shadow-inner border border-white/70 group-hover:scale-110 transition-transform duration-200`}>
+                  <Icon name={kpi.icon} />
+                </span>
+                {kpi.isLive ? (
+                  <span className="flex items-center gap-1 text-[10px] font-extrabold text-[#057A55] bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00D084] animate-pulse" /> {kpi.pillText}
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-extrabold text-[#1E3A34]/60 bg-slate-100/80 px-2 py-0.5 rounded-full border border-white">
+                    {kpi.pillText}
+                  </span>
+                )}
               </div>
-              <strong className="text-2xl sm:text-3xl font-black text-[#1E3A34] leading-none tracking-tight">{stats[key] || 0}</strong>
+
+              <div className="relative z-10">
+                <small className={`block text-[10px] font-black uppercase tracking-wider mb-1 ${kpi.labelColor}`}>
+                  {kpi.label}
+                </small>
+                <strong className="block text-3xl sm:text-4xl font-black text-[#1E3A34] leading-none tracking-tight">
+                  {stats[kpi.key] || 0}
+                </strong>
+              </div>
             </article>
           ))}
         </section>
