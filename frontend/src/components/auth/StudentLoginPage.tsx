@@ -465,31 +465,41 @@ export function StudentLoginPage({
             <form
               onSubmit={verifyOtp}
               noValidate
-              className="flex flex-col gap-5"
+              className="flex flex-col gap-5 text-center"
             >
-              <div>
-                <h2 className="m-0 text-2xl font-bold tracking-tight text-[#0F1B4C]">
-                  Enter Verification Code
-                </h2>
-                <p className="mt-1.5 text-sm text-slate-600">
-                  Enter the six-digit code sent to{" "}
-                  <strong className="break-all text-[#0F1B4C]">
-                    {email}
-                  </strong>
-                  .
-                </p>
+              <div className="flex flex-col items-center gap-3">
+                <div
+                  className="mx-auto flex size-12 shrink-0 items-center justify-center rounded-2xl border border-[#00D084]/30 bg-[#00D084]/15 text-2xl shadow-md text-[#057A55]"
+                  aria-hidden="true"
+                >
+                  ✉️
+                </div>
+                <div>
+                  <h2 className="m-0 text-xl sm:text-2xl font-black tracking-tight text-[#1E3A34]">
+                    Enter OTP Code
+                  </h2>
+                  <p className="mt-1.5 text-xs sm:text-sm font-semibold text-[#057A55]">
+                    Enter the 6-digit code sent to{" "}
+                    <strong className="break-all text-[#1E3A34] font-extrabold">
+                      {email}
+                    </strong>
+                    .<br />
+                    This helps keep your account secure.
+                  </p>
+                </div>
               </div>
 
               {error && (
                 <div
-                  className={`${alertBox} border-red-300/70 bg-red-500/10 text-red-600`}
+                  className="p-3.5 text-xs font-bold rounded-2xl border flex items-center justify-center gap-2 text-rose-900 bg-rose-50/90 border-rose-200 shadow-sm"
                   role="alert"
                 >
-                  {error}
+                  ⚠️ {error}
                 </div>
               )}
 
-              <div className="my-1 grid grid-cols-6 gap-2 sm:gap-3">
+              {/* OTP Slots Grid */}
+              <div className="my-1 flex items-center justify-center gap-2 sm:gap-3">
                 {otp.map((digit, index) => (
                   <input
                     key={index}
@@ -502,34 +512,38 @@ export function StudentLoginPage({
                     onChange={(event) => updateOtp(index, event.target.value)}
                     onKeyDown={(event) => onOtpKeyDown(index, event)}
                     onPaste={onOtpPaste}
-                    className={`${inputBase} h-14 text-center text-xl font-bold`}
+                    className="flex size-11 sm:size-12 items-center justify-center rounded-2xl border border-[#E2DBD0] bg-white/90 text-center font-black text-xl text-[#1E3A34] shadow-sm transition-all outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 focus:scale-105"
                   />
                 ))}
               </div>
 
               <p
-                className="m-0 text-center text-xs font-medium text-slate-600"
+                className="m-0 text-center text-xs font-extrabold text-[#1E3A34]/70"
                 aria-live="polite"
               >
                 {expiresAt ? (
                   expirySeconds > 0 ? (
                     <>
                       Code expires in{" "}
-                      <b className="text-[#0F1B4C]">
+                      <b className="text-[#1E3A34]">
                         {formatClock(expirySeconds)}
                       </b>
                     </>
                   ) : (
-                    <span className="text-red-500">
+                    <span className="text-rose-600 font-bold">
                       Code expired. Request a new one.
                     </span>
                   )
                 ) : (
-                  "Check your inbox for the code."
+                  "Check your inbox for the verification code."
                 )}
               </p>
 
-              <button className={btnPrimary} type="submit" disabled={loading}>
+              <button
+                type="submit"
+                disabled={loading}
+                className="h-11 w-full cursor-pointer rounded-full border border-emerald-400/30 bg-[#057A55] px-6 text-xs sm:text-sm font-black text-white shadow-md hover:bg-[#035E41] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 {loading ? (
                   "Verifying code..."
                 ) : (
@@ -540,15 +554,15 @@ export function StudentLoginPage({
               </button>
 
               {message && (
-                <p className="m-0 rounded-xl border border-emerald-300/60 bg-emerald-500/10 p-3 text-center text-xs font-medium text-emerald-600">
-                  {message}
+                <p className="m-0 rounded-2xl border border-emerald-300/60 bg-emerald-500/10 p-3 text-center text-xs font-bold text-emerald-700">
+                  ✅ {message}
                 </p>
               )}
 
-              <div className="flex items-center justify-between gap-3 border-t border-slate-900/10 pt-4">
+              <div className="flex items-center justify-between gap-3 border-t border-[#F0EBE1] pt-4 text-xs font-extrabold">
                 <button
                   type="button"
-                  className="cursor-pointer border-none bg-transparent p-0 text-sm font-semibold text-slate-600 transition-colors hover:text-[#0F1B4C]"
+                  className="cursor-pointer border-none bg-transparent p-0 text-[#1E3A34]/70 transition-colors hover:text-[#1E3A34]"
                   onClick={() => {
                     setStep("EMAIL");
                     setOtp(["", "", "", "", "", ""]);
@@ -560,7 +574,7 @@ export function StudentLoginPage({
                 </button>
                 <button
                   type="button"
-                  className="cursor-pointer border-none bg-transparent p-0 text-sm font-semibold text-blue-600 transition-colors hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="cursor-pointer border-none bg-transparent p-0 text-[#057A55] transition-colors hover:underline disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={loading || resendSeconds > 0}
                   onClick={() => {
                     void requestOtp();
