@@ -2381,7 +2381,6 @@ function AdminFloatingNavbar({
       </div>
     </nav>
   )
-  )
 }
 
 function AdminDashboard({
