@@ -2644,39 +2644,193 @@ function AdminDashboard({
           {/* Primary Column (8 Columns) */}
           <div className="xl:col-span-8 space-y-6">
 
-            {/* Asymmetric KPI Flow with Varied Card Sizes & Lightweight Glass Tiles */}
+            {/* Premium Asymmetric Glass Analytics Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {kpiCardConfig.map((kpi, idx) => (
-                <article
-                  key={kpi.label}
-                  className={`group relative overflow-hidden backdrop-blur-2xl rounded-3xl p-5 border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.06)] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between ${
-                    (kpi as any).isFeatured
-                      ? "sm:col-span-2 lg:col-span-2 bg-gradient-to-br from-white/90 via-white/70 to-[#176B58]/10 border-white"
-                      : "bg-white/60 hover:bg-white/80"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-4 relative z-10">
-                    <span className={`w-10 h-10 rounded-2xl ${kpi.badgeBg} flex items-center justify-center text-lg font-bold shadow-inner group-hover:scale-110 transition-transform duration-300`}>
-                      <Icon name={kpi.icon} />
+
+              {/* Featured Primary Card: Registrations + Real Mini Sparkline */}
+              <article className="sm:col-span-2 lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-white/95 via-white/80 to-[#176B58]/15 backdrop-blur-2xl rounded-3xl p-6 border border-white shadow-[0_12px_35px_-5px_rgba(32,61,57,0.1)] hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+                <div className="flex items-start justify-between gap-4 relative z-10">
+                  <div className="flex items-center gap-3">
+                    <span className="w-11 h-11 rounded-2xl bg-[#176B58]/15 text-[#176B58] flex items-center justify-center text-xl font-bold shadow-inner border border-white/60">
+                      <Icon name="users" />
                     </span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#E2DBD0] group-hover:bg-[#176B58] transition-colors" />
+                    <div>
+                      <small className="block text-[11px] font-black uppercase tracking-wider text-[#D96C50]">
+                        Registrations
+                      </small>
+                      <span className="text-xs font-bold text-[#176B58]/90">Total Candidate Enrolments</span>
+                    </div>
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-[#176B58]/10 text-[#176B58] text-[10px] font-extrabold uppercase tracking-wider border border-[#176B58]/20">
+                    Featured Metric
+                  </span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-4 relative z-10">
+                  <div>
+                    <strong className="block text-4xl sm:text-5xl lg:text-6xl font-black text-[#203D39] leading-none tracking-tight">
+                      {stats.registrations ?? 0}
+                    </strong>
+                    <small className="text-[11px] font-bold text-[#203D39]/60 mt-1 block">
+                      Active candidate database records
+                    </small>
                   </div>
 
-                  <div className="relative z-10">
-                    <small className={`block text-[10px] font-black uppercase tracking-wider mb-1 ${kpi.labelColor}`}>
-                      {kpi.label}
-                    </small>
-                    <strong
-                      className={`block font-black text-[#203D39] leading-tight tracking-tight ${
-                        (kpi as any).isTextValue ? "text-xs sm:text-sm font-bold truncate" : (kpi as any).isFeatured ? "text-4xl sm:text-5xl" : "text-3xl sm:text-4xl"
-                      }`}
-                      title={(kpi as any).fullDate || String(kpi.value)}
-                    >
-                      {kpi.value}
+                  {/* Real Historical Registration Sparkline (if available) */}
+                  {regPoints.length > 1 && (
+                    <div className="w-36 h-12 shrink-0 flex flex-col items-end justify-end">
+                      <svg viewBox="0 0 150 45" className="w-full h-10 overflow-visible">
+                        <defs>
+                          <linearGradient id="sparkReg" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#176B58" stopOpacity="0.4" />
+                            <stop offset="100%" stopColor="#176B58" stopOpacity="0" />
+                          </linearGradient>
+                        </defs>
+                        {regAreaD && (
+                          <path
+                            d={buildAreaPath(regPoints.map((p, i) => ({
+                              x: (i / (regPoints.length - 1)) * 140 + 5,
+                              y: 40 - (p.val / max) * 32,
+                            })))}
+                            fill="url(#sparkReg)"
+                          />
+                        )}
+                        <path
+                          d={buildSmoothPath(regPoints.map((p, i) => ({
+                            x: (i / (regPoints.length - 1)) * 140 + 5,
+                            y: 40 - (p.val / max) * 32,
+                          })))}
+                          fill="none"
+                          stroke="#176B58"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <span className="text-[9px] font-extrabold text-[#176B58] uppercase tracking-wider">Historical Trend</span>
+                    </div>
+                  )}
+                </div>
+              </article>
+
+              {/* Tile 2: Active Exams */}
+              <article className="group relative overflow-hidden bg-white/65 backdrop-blur-2xl rounded-3xl p-5 border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.06)] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="w-10 h-10 rounded-2xl bg-[#203D39]/15 text-[#203D39] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60 group-hover:scale-110 transition-transform">
+                    <Icon name="book" />
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Live</span>
+                </div>
+                <div>
+                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#176B58] mb-1">
+                    Active Exams
+                  </small>
+                  <strong className="block text-3xl sm:text-4xl font-black text-[#203D39] leading-tight">
+                    {stats.activeExams ?? 0}
+                  </strong>
+                  <span className="text-[11px] font-semibold text-[#203D39]/70 mt-1 block">Scheduled & published</span>
+                </div>
+              </article>
+
+              {/* Tile 3: Active Attempts */}
+              <article className="group relative overflow-hidden bg-white/65 backdrop-blur-2xl rounded-3xl p-5 border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.06)] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="w-10 h-10 rounded-2xl bg-[#D96C50]/15 text-[#D96C50] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60 group-hover:scale-110 transition-transform">
+                    <Icon name="pulse" />
+                  </span>
+                  {stats.activeAttempts > 0 && (
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" /> In Progress
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#D96C50] mb-1">
+                    Active Attempts
+                  </small>
+                  <strong className="block text-3xl sm:text-4xl font-black text-[#203D39] leading-tight">
+                    {stats.activeAttempts ?? 0}
+                  </strong>
+                  <span className="text-[11px] font-semibold text-[#203D39]/70 mt-1 block">Live candidate sessions</span>
+                </div>
+              </article>
+
+              {/* Tile 4: Completed Attempts + Real Sparkline */}
+              <article className="group relative overflow-hidden bg-white/65 backdrop-blur-2xl rounded-3xl p-5 border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.06)] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="w-10 h-10 rounded-2xl bg-[#E5A23B]/15 text-[#E5A23B] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60 group-hover:scale-110 transition-transform">
+                    <Icon name="result" />
+                  </span>
+                  <span className="text-[10px] font-bold text-[#E5A23B] bg-amber-50 px-2 py-0.5 rounded-full">Completed</span>
+                </div>
+                <div>
+                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#E5A23B] mb-1">
+                    Completed Attempts
+                  </small>
+                  <div className="flex items-end justify-between gap-2">
+                    <strong className="block text-3xl sm:text-4xl font-black text-[#203D39] leading-tight">
+                      {stats.completedAttempts ?? 0}
                     </strong>
+                    {compPoints.length > 1 && (
+                      <div className="w-24 h-8 shrink-0">
+                        <svg viewBox="0 0 100 35" className="w-full h-8 overflow-visible">
+                          <path
+                            d={buildSmoothPath(compPoints.map((p, i) => ({
+                              x: (i / (compPoints.length - 1)) * 90 + 5,
+                              y: 30 - (p.val / max) * 25,
+                            })))}
+                            fill="none"
+                            stroke="#E5A23B"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </div>
+                    )}
                   </div>
-                </article>
-              ))}
+                  <span className="text-[11px] font-semibold text-[#203D39]/70 mt-1 block">Submissions processed</span>
+                </div>
+              </article>
+
+              {/* Tile 5: Pending Reviews */}
+              <article className="group relative overflow-hidden bg-white/65 backdrop-blur-2xl rounded-3xl p-5 border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.06)] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="w-10 h-10 rounded-2xl bg-[#176B58]/15 text-[#176B58] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60 group-hover:scale-110 transition-transform">
+                    <Icon name="review" />
+                  </span>
+                  <span className="text-[10px] font-bold text-[#176B58] bg-emerald-50 px-2 py-0.5 rounded-full">Audit</span>
+                </div>
+                <div>
+                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#176B58] mb-1">
+                    Pending Reviews
+                  </small>
+                  <strong className="block text-3xl sm:text-4xl font-black text-[#203D39] leading-tight">
+                    {stats.pendingReviews ?? 0}
+                  </strong>
+                  <span className="text-[11px] font-semibold text-[#203D39]/70 mt-1 block">Evaluations awaiting action</span>
+                </div>
+              </article>
+
+              {/* Tile 6: Latest Export */}
+              <article className="group relative overflow-hidden bg-white/65 backdrop-blur-2xl rounded-3xl p-5 border border-white/80 shadow-[0_10px_30px_-5px_rgba(32,61,57,0.06)] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[190px]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="w-10 h-10 rounded-2xl bg-[#203D39]/15 text-[#203D39] flex items-center justify-center text-lg font-bold shadow-inner border border-white/60 group-hover:scale-110 transition-transform">
+                    <Icon name="download" />
+                  </span>
+                  <span className="text-[10px] font-bold text-[#203D39] bg-slate-100 px-2 py-0.5 rounded-full">Report</span>
+                </div>
+                <div>
+                  <small className="block text-[10px] font-black uppercase tracking-wider text-[#203D39] mb-1">
+                    Latest Export
+                  </small>
+                  <strong className="block text-base sm:text-lg font-black text-[#203D39] leading-snug truncate" title={stats.latestExport ? new Date(stats.latestExport).toLocaleString() : "None"}>
+                    {stats.latestExport ? new Date(stats.latestExport).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "None"}
+                  </strong>
+                  <span className="text-[11px] font-semibold text-[#203D39]/70 mt-1 block">
+                    {stats.latestExport ? new Date(stats.latestExport).toLocaleDateString([], { month: "short", day: "numeric" }) : "No export generated"}
+                  </span>
+                </div>
+              </article>
+
             </div>
 
             {/* Participation Overview Translucent Light Glass Card */}
