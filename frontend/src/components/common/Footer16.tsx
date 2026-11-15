@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react"
 import logo from "../../assets/Logo.png"
 
 interface Footer16Props {
@@ -7,7 +6,7 @@ interface Footer16Props {
 }
 
 /**
- * Clean boolean-UNION 10 vector paths for "KAIZENTRIX" (K A I Z E N T R I X).
+ * Single-contour boolean-UNION 10 vector paths for "KAIZENTRIX" (K A I Z E N T R I X).
  * Outlined heavy geometric ExtraBold capitals stretching edge-to-edge.
  * ViewBox 0 0 1000 200 with preserveAspectRatio="none".
  */
@@ -36,200 +35,80 @@ const WORDMARK_PATHS = [
 
 /**
  * Reusable <FooterWaveWordmark /> Component.
- * Full-bleed (100% width x 100% height) wave sweep reveal animation.
+ * Subtle 4–6% opacity decorative watermark layer with crisp 1.5px non-scaling stroke.
  */
 export function FooterWaveWordmark() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [isIntersecting, setIsIntersecting] = useState(true)
-
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el || typeof IntersectionObserver === "undefined") return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsIntersecting(entry.isIntersecting),
-      { threshold: 0.01 },
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
   return (
     <div
-      ref={containerRef}
       aria-hidden="true"
-      className="absolute inset-0 w-full h-full pointer-events-none select-none overflow-hidden z-0"
+      className="absolute inset-0 w-full h-full pointer-events-none select-none overflow-hidden z-0 opacity-5"
     >
-      <style>{`
-        :root {
-          --wm-stroke: rgba(11, 122, 75, 0.55);
-          --wm-fill: rgba(11, 122, 75, 0.05);
-        }
-
-        @keyframes kgsWaveSweep {
-          0% {
-            mask-position: -28% 0;
-            -webkit-mask-position: -28% 0;
-          }
-          40% {
-            mask-position: 128% 0;
-            -webkit-mask-position: 128% 0;
-          }
-          100% {
-            mask-position: 128% 0;
-            -webkit-mask-position: 128% 0;
-          }
-        }
-
-        @keyframes kgsWaveSweepCore {
-          0% {
-            mask-position: -14% 0;
-            -webkit-mask-position: -14% 0;
-          }
-          40% {
-            mask-position: 114% 0;
-            -webkit-mask-position: 114% 0;
-          }
-          100% {
-            mask-position: 114% 0;
-            -webkit-mask-position: 114% 0;
-          }
-        }
-
-        .kgs-wave-mask-wrapper {
-          mask-image: linear-gradient(90deg, transparent 0%, #000 35%, #000 65%, transparent 100%);
-          mask-size: 28% 100%;
-          mask-repeat: no-repeat;
-          -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 35%, #000 65%, transparent 100%);
-          -webkit-mask-size: 28% 100%;
-          -webkit-mask-repeat: no-repeat;
-          animation: kgsWaveSweep 8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-          will-change: mask-position, -webkit-mask-position;
-        }
-
-        .kgs-wave-core-wrapper {
-          mask-image: linear-gradient(90deg, transparent 0%, #000 45%, #000 55%, transparent 100%);
-          mask-size: 14% 100%;
-          mask-repeat: no-repeat;
-          -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 45%, #000 55%, transparent 100%);
-          -webkit-mask-size: 14% 100%;
-          -webkit-mask-repeat: no-repeat;
-          animation: kgsWaveSweepCore 8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-          will-change: mask-position, -webkit-mask-position;
-        }
-
-        .kgs-wave-wm-path {
-          stroke: var(--wm-stroke);
-          fill: var(--wm-fill);
-          stroke-width: 1.5px;
-          stroke-linecap: round;
-          stroke-linejoin: round;
-          vector-effect: non-scaling-stroke;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .kgs-wave-mask-wrapper, .kgs-wave-core-wrapper {
-            animation: none !important;
-            mask-position: 50% 0 !important;
-            -webkit-mask-position: 50% 0 !important;
-            mask-size: 100% 100% !important;
-            -webkit-mask-size: 100% 100% !important;
-          }
-        }
-      `}</style>
-
-      {/* Primary Masked Wave Sweep Layer */}
-      <div
-        className="w-full h-full kgs-wave-mask-wrapper"
-        style={{
-          animationPlayState: isIntersecting ? "running" : "paused",
-        }}
+      <svg
+        className="w-full h-full select-none"
+        viewBox="0 0 1000 200"
+        preserveAspectRatio="none"
       >
-        <svg
-          className="w-full h-full select-none"
-          viewBox="0 0 1000 200"
-          preserveAspectRatio="none"
-        >
-          {WORDMARK_PATHS.map((d, index) => (
-            <path
-              key={index}
-              d={d}
-              className="kgs-wave-wm-path"
-            />
-          ))}
-        </svg>
-      </div>
-
-      {/* Optional Polish: Bright Center Core Layer */}
-      <div
-        className="absolute inset-0 w-full h-full kgs-wave-core-wrapper opacity-90"
-        style={{
-          animationPlayState: isIntersecting ? "running" : "paused",
-        }}
-      >
-        <svg
-          className="w-full h-full select-none"
-          viewBox="0 0 1000 200"
-          preserveAspectRatio="none"
-        >
-          {WORDMARK_PATHS.map((d, index) => (
-            <path
-              key={index}
-              d={d}
-              className="kgs-wave-wm-path"
-              style={{ strokeOpacity: 1, strokeWidth: "2px" }}
-            />
-          ))}
-        </svg>
-      </div>
+        {WORDMARK_PATHS.map((d, index) => (
+          <path
+            key={index}
+            d={d}
+            stroke="#057A55"
+            fill="#057A55"
+            strokeWidth="1.5px"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ vectorEffect: "non-scaling-stroke" }}
+          />
+        ))}
+      </svg>
     </div>
   )
 }
 
 export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
   return (
-    <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#1E3A34] border-t border-slate-200/80 pt-12 pb-8 px-6 sm:px-12">
+    <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#434655] border-t border-[#E2E7FF] pt-14 pb-10 px-6 sm:px-12">
 
-      {/* Wave Sweep Reveal Animated Wordmark Layer (Full-Bleed 100% Edge-to-Edge) */}
+      {/* Decorative 5% Opacity Background Watermark (z-0) */}
       <FooterWaveWordmark />
 
-      <div className="relative z-10 max-w-7xl mx-auto space-y-10">
+      <div className="relative z-10 max-w-7xl mx-auto space-y-12">
 
-        {/* UPPER CONTENT (Company Logo, Description, ISO Badges, Social Buttons, Quick Links, Contact Details) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        {/* UPPER 3-COLUMN ENTERPRISE LAYOUT */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
 
-          {/* Left Column: Brand Logo, Description, ISO Badges, Social Channels (5 Cols) */}
-          <div className="lg:col-span-5 space-y-4">
+          {/* COLUMN 1: Company Logo, Description, ISO Badges, & Social Icons (5 Cols) */}
+          <div className="lg:col-span-5 space-y-5">
             <div className="flex items-center gap-3">
               <img
                 alt="Kaizentrix Global Solutions"
                 className="h-9 w-auto"
                 src={logo}
               />
-              <span className="text-xl font-black tracking-tight text-[#057A55]">
+              <span className="text-xl font-bold tracking-tight text-[#131B2E]">
                 Kaizentrix Global Solutions
               </span>
             </div>
 
-            <p className="text-xs sm:text-sm font-bold text-slate-600 leading-relaxed max-w-md m-0">
+            <p className="text-sm font-normal text-[#434655] leading-relaxed max-w-md m-0">
               India&apos;s leading specialized accelerator for algorithmic mastery, full-stack systems engineering, and Tier-1 product placement training.
             </p>
 
             {/* ISO Certification Badges */}
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200/80 text-[11px] font-extrabold text-slate-700 shadow-2xs">
+            <div className="flex flex-wrap items-center gap-2.5 pt-1">
+              <span className="px-3.5 py-1.5 rounded-lg bg-[#F2F3FF] border border-[#E2E7FF] text-xs font-semibold text-[#131B2E] shadow-2xs">
                 ISO 9001 – Quality Management
               </span>
-              <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200/80 text-[11px] font-extrabold text-slate-700 shadow-2xs">
+              <span className="px-3.5 py-1.5 rounded-lg bg-[#F2F3FF] border border-[#E2E7FF] text-xs font-semibold text-[#131B2E] shadow-2xs">
                 ISO/IEC 27001 – Information Security
               </span>
             </div>
 
             {/* Social Channels */}
-            <div className="flex items-center gap-2.5 pt-2">
+            <div className="flex items-center gap-3 pt-2">
               <a
                 aria-label="LinkedIn"
-                className="w-9 h-9 rounded-2xl bg-slate-100 border border-slate-200/80 hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-slate-600 flex items-center justify-center transition-all shadow-2xs"
+                className="w-10 h-10 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/"
                 target="_blank"
                 rel="noreferrer"
@@ -240,7 +119,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="GitHub"
-                className="w-9 h-9 rounded-2xl bg-slate-100 border border-slate-200/80 hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-slate-600 flex items-center justify-center transition-all shadow-2xs"
+                className="w-10 h-10 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://github.com"
                 target="_blank"
                 rel="noreferrer"
@@ -251,7 +130,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="YouTube"
-                className="w-9 h-9 rounded-2xl bg-slate-100 border border-slate-200/80 hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-slate-600 flex items-center justify-center transition-all shadow-2xs"
+                className="w-10 h-10 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://youtube.com"
                 target="_blank"
                 rel="noreferrer"
@@ -262,7 +141,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="Discord"
-                className="w-9 h-9 rounded-2xl bg-slate-100 border border-slate-200/80 hover:bg-[#057A55] hover:text-white hover:border-[#057A55] text-slate-600 flex items-center justify-center transition-all shadow-2xs"
+                className="w-10 h-10 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://discord.com"
                 target="_blank"
                 rel="noreferrer"
@@ -274,103 +153,118 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
             </div>
           </div>
 
-          {/* Center Column: Navigation Links (3 Cols) */}
-          <div className="lg:col-span-3 flex flex-wrap items-center lg:items-start lg:flex-col gap-3.5 text-xs font-bold text-[#1E3A34] pt-1">
-            <a
-              className="hover:text-[#057A55] transition-colors"
-              href="https://www.kaizentrixglobal.com/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              About Us
-            </a>
-            {onOpenContact && (
-              <button
-                onClick={onOpenContact}
-                className="cursor-pointer border-0 bg-transparent p-0 text-left text-xs font-bold text-[#1E3A34] hover:text-[#057A55] transition-colors"
-              >
-                Contact Us
-              </button>
-            )}
-            <a
-              className="hover:text-[#057A55] transition-colors"
-              href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              LinkedIn
-            </a>
-            {onLogin && (
-              <button
-                onClick={onLogin}
-                className="cursor-pointer border-0 bg-transparent p-0 text-left text-xs font-bold text-[#1E3A34] hover:text-[#057A55] transition-colors"
-              >
-                Portal Login
-              </button>
-            )}
+          {/* COLUMN 2: Quick Navigation Links (3 Cols) */}
+          <div className="lg:col-span-3 space-y-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#131B2E] block mb-2">
+              Quick Links
+            </span>
+            <ul className="space-y-3 p-0 m-0 list-none text-sm font-semibold">
+              <li>
+                <a
+                  className="text-[#434655] hover:text-[#004AC6] transition-colors duration-200"
+                  href="https://www.kaizentrixglobal.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  About Us
+                </a>
+              </li>
+              {onOpenContact && (
+                <li>
+                  <button
+                    onClick={onOpenContact}
+                    className="cursor-pointer border-0 bg-transparent p-0 text-left text-sm font-semibold text-[#434655] hover:text-[#004AC6] transition-colors duration-200"
+                  >
+                    Contact Us
+                  </button>
+                </li>
+              )}
+              <li>
+                <a
+                  className="text-[#434655] hover:text-[#004AC6] transition-colors duration-200"
+                  href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  LinkedIn
+                </a>
+              </li>
+              {onLogin && (
+                <li>
+                  <button
+                    onClick={onLogin}
+                    className="cursor-pointer border-0 bg-transparent p-0 text-left text-sm font-semibold text-[#004AC6] hover:text-[#2563EB] transition-colors duration-200"
+                  >
+                    Portal Login
+                  </button>
+                </li>
+              )}
+            </ul>
           </div>
 
-          {/* Right Column: Contact Details (4 Cols) */}
-          <div className="lg:col-span-4 space-y-3">
-            <span className="text-xs font-black uppercase tracking-wider text-[#057A55] block mb-1">
+          {/* COLUMN 3: Contact Information with Aligned Icons (4 Cols) */}
+          <div className="lg:col-span-4 space-y-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#131B2E] block mb-2">
               Contact
             </span>
 
-            <div className="flex items-start gap-3 text-xs font-bold text-[#1E3A34]">
-              <span className="text-base text-[#057A55]">✉️</span>
-              <a
-                className="break-all hover:text-[#057A55] transition-colors"
-                href="mailto:enquiry@kaizentrixglobal.com"
-              >
-                enquiry@kaizentrixglobal.com
-              </a>
-            </div>
+            <div className="space-y-3.5 text-sm font-normal text-[#434655]">
+              <div className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-[#004AC6] text-[20px] mt-0.5 shrink-0">mail</span>
+                <a
+                  className="break-all hover:text-[#004AC6] transition-colors duration-200"
+                  href="mailto:enquiry@kaizentrixglobal.com"
+                >
+                  enquiry@kaizentrixglobal.com
+                </a>
+              </div>
 
-            <div className="flex items-start gap-3 text-xs font-bold text-[#1E3A34]">
-              <span className="text-base text-[#057A55]">📞</span>
-              <a className="hover:text-[#057A55] transition-colors" href="tel:+919187980031">
-                080-23143355 / +91 91879 80031
-              </a>
-            </div>
+              <div className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-[#004AC6] text-[20px] mt-0.5 shrink-0">call</span>
+                <a className="hover:text-[#004AC6] transition-colors duration-200" href="tel:+919187980031">
+                  080-23143355 / +91 91879 80031
+                </a>
+              </div>
 
-            <div className="flex items-start gap-3 text-xs font-bold text-[#1E3A34]">
-              <span className="text-base text-[#057A55]">📍</span>
-              <span className="leading-relaxed">
-                100 DC Complex, Chandra Layout,<br />
-                Vijayanagar, Bengaluru,<br />
-                Karnataka 560056
-              </span>
+              <div className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-[#004AC6] text-[20px] mt-0.5 shrink-0">location_on</span>
+                <span className="leading-relaxed">
+                  100 DC Complex, Chandra Layout,<br />
+                  Vijayanagar, Bengaluru,<br />
+                  Karnataka 560056
+                </span>
+              </div>
             </div>
           </div>
 
         </div>
 
-        {/* LOWER SECTION (Clean Border Divider Above Watermark Area) */}
-        <div className="pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-extrabold text-[#1E3A34]">
+        {/* LOWER SECTION: SUBTLE DIVIDER & POLICY / COPYRIGHT BAR */}
+        <div className="pt-7 border-t border-[#E2E7FF] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-[#434655]">
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <a
-              className="hover:text-[#057A55] transition-colors"
+              className="hover:text-[#004AC6] transition-colors duration-200"
               href="mailto:enquiry@kaizentrixglobal.com"
             >
               Campus Assistance
             </a>
-            <span className="text-[#1E3A34]/30">•</span>
+            <span className="text-[#E2E7FF]">•</span>
             <a
-              className="hover:text-[#057A55] transition-colors"
+              className="hover:text-[#004AC6] transition-colors duration-200"
               href="/placement-policy"
             >
               Placement Policy
             </a>
-            <span className="text-[#1E3A34]/30">•</span>
+            <span className="text-[#E2E7FF]">•</span>
             <a
-              className="hover:text-[#057A55] transition-colors"
+              className="hover:text-[#004AC6] transition-colors duration-200"
               href="/policy"
             >
               Privacy &amp; Terms
             </a>
           </div>
 
-          <div className="text-center sm:text-right text-xs font-extrabold text-slate-500">
+          <div className="text-center sm:text-right text-xs font-medium text-[#434655]">
             © 2026 Kaizentrix Global Solutions Private Limited. All rights reserved.
           </div>
         </div>
