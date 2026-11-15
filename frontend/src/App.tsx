@@ -2474,5 +2474,4 @@ function AdminDashboard() {
       </section>
     </div>
   )
-  )
 }
