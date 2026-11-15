@@ -2289,17 +2289,17 @@ function AdminFloatingNavbar({
   const overflowNav = adminNav.slice(5)
 
   return (
-    <nav className="sticky top-4 z-50 mb-6 mx-auto w-full max-w-7xl bg-white/40 backdrop-blur-2xl border border-white/70 shadow-[0_12px_40px_-5px_rgba(23,107,88,0.15)] rounded-full px-5 py-2.5 flex items-center justify-between gap-4">
+    <nav className="sticky top-4 z-50 mb-6 mx-auto w-full max-w-7xl bg-white/10 backdrop-blur-2xl border border-white/20 shadow-[0_16px_35px_-5px_rgba(0,0,0,0.4)] rounded-full px-5 py-2 flex items-center justify-between gap-4">
       {/* Brand */}
       <div className="flex items-center gap-3 shrink-0 cursor-pointer" onClick={() => onNav("Overview")}>
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#176B58] to-[#203D39] flex items-center justify-center text-white font-black italic text-xs shadow-md">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 via-emerald-400 to-amber-400 flex items-center justify-center text-slate-950 font-black italic text-xs shadow-lg shadow-cyan-500/20">
           K
         </div>
         <div className="hidden sm:block">
-          <strong className="block text-xs font-black tracking-tight text-[#203D39]">
+          <strong className="block text-xs font-black tracking-tight text-white drop-shadow-sm">
             KGS EXAM PORTAL
           </strong>
-          <small className="block text-[8px] font-extrabold tracking-widest text-[#176B58] leading-none">
+          <small className="block text-[8px] font-extrabold tracking-widest text-cyan-300 leading-none">
             FLUX ENTERPRISE SUITE
           </small>
         </div>
@@ -2311,10 +2311,10 @@ function AdminFloatingNavbar({
           <button
             key={label}
             onClick={() => onNav(label)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border border-transparent cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border ${
               active === label
-                ? "bg-[#203D39] text-white shadow-md border-white/20"
-                : "text-[#203D39] hover:bg-white/70 hover:text-[#176B58]"
+                ? "bg-white/25 text-white shadow-inner border-white/40 font-extrabold"
+                : "text-slate-300 hover:text-white hover:bg-white/10 border-transparent"
             }`}
           >
             {label}
@@ -2325,14 +2325,14 @@ function AdminFloatingNavbar({
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#203D39] hover:bg-white/70 transition-all flex items-center gap-1 cursor-pointer"
+            className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1 cursor-pointer border border-transparent"
           >
             <span>More</span>
             <span className="text-[10px]">▼</span>
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-11 z-50 w-56 bg-white/95 backdrop-blur-2xl border border-white/80 rounded-2xl shadow-2xl p-2 space-y-1">
+            <div className="absolute right-0 top-11 z-50 w-56 bg-slate-900/90 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-2xl p-2 space-y-1">
               {overflowNav.map(([icon, label]) => (
                 <button
                   key={label}
@@ -2341,7 +2341,7 @@ function AdminFloatingNavbar({
                     setMenuOpen(false)
                   }}
                   className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    active === label ? "bg-[#176B58] text-white" : "text-[#203D39] hover:bg-[#F7F4EC]"
+                    active === label ? "bg-cyan-500/30 text-white border border-cyan-400/40" : "text-slate-300 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   {label}
@@ -2355,7 +2355,7 @@ function AdminFloatingNavbar({
       {/* Mobile Menu Toggle Button */}
       <button
         onClick={() => setMenuOpen(!menuOpen)}
-        className="md:hidden p-2 rounded-full text-[#203D39] hover:bg-white/60 transition-colors cursor-pointer border-none bg-transparent"
+        className="md:hidden p-2 rounded-full text-white hover:bg-white/10 transition-colors cursor-pointer border-none bg-transparent"
         aria-label="Toggle menu"
       >
         <span className="text-lg">☰</span>
@@ -2363,15 +2363,15 @@ function AdminFloatingNavbar({
 
       {/* User Avatar & Logout */}
       <div className="flex items-center gap-2.5 shrink-0">
-        <div className="hidden sm:flex items-center gap-2 bg-white/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/70 shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-[11px] font-extrabold text-[#203D39] truncate max-w-[140px]">
+        <div className="hidden sm:flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#10B981]" />
+          <span className="text-[11px] font-extrabold text-slate-200 truncate max-w-[140px]">
             {adminUser?.email || "Administrator"}
           </span>
         </div>
         <button
           onClick={onLogout}
-          className="px-3.5 py-1.5 rounded-full bg-[#D96C50]/15 text-[#D96C50] hover:bg-[#D96C50] hover:text-white text-xs font-bold transition-all border border-[#D96C50]/30 shadow-sm cursor-pointer"
+          className="px-3.5 py-1.5 rounded-full bg-rose-500/20 text-rose-300 hover:bg-rose-500 hover:text-white text-xs font-bold transition-all border border-rose-500/30 shadow-sm cursor-pointer"
         >
           Logout
         </button>
@@ -2426,16 +2426,16 @@ function AdminDashboard({
 
   if (loading)
     return (
-      <div className="p-12 text-center text-xs sm:text-sm font-medium bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/80 shadow-xl">
-        <h2 className="text-xl font-bold text-[#203D39] m-0">Loading administrator dashboard...</h2>
+      <div className="p-12 text-center text-xs sm:text-sm font-medium bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl text-white">
+        <h2 className="text-xl font-bold text-white m-0">Loading administrator dashboard...</h2>
       </div>
     )
   if (error)
     return (
-      <div className="p-12 text-center text-xs sm:text-sm font-medium text-[#D96C50] bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/80 shadow-xl flex flex-col items-center gap-3">
-        <h2 className="text-xl font-bold text-[#203D39] m-0">Unable to load administrator dashboard</h2>
-        <p className="m-0 text-[#203D39]/80">{error}</p>
-        <button className="h-9 px-5 text-xs font-bold rounded-lg text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer border-none shadow-md" onClick={() => void load()}>
+      <div className="p-12 text-center text-xs sm:text-sm font-medium text-rose-300 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl flex flex-col items-center gap-3">
+        <h2 className="text-xl font-bold text-white m-0">Unable to load administrator dashboard</h2>
+        <p className="m-0 text-slate-300">{error}</p>
+        <button className="h-9 px-5 text-xs font-bold rounded-full text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all cursor-pointer border-none shadow-lg shadow-cyan-500/20" onClick={() => void load()}>
           Retry
         </button>
       </div>
@@ -2520,41 +2520,42 @@ function AdminDashboard({
       icon: "users",
       label: "Registrations",
       value: stats.registrations ?? 0,
-      badgeBg: "bg-[#176B58]/10 text-[#176B58]",
-      accentBorder: "hover:border-[#176B58]",
-      accentGradient: "from-[#176B58] to-[#1C7A65]",
+      badgeBg: "bg-emerald-400/20 text-emerald-300",
+      labelColor: "text-emerald-300",
+      accentGlow: "from-emerald-500/20 to-cyan-500/10",
+      isFeatured: true,
     },
     {
       icon: "book",
       label: "Active Exams",
       value: stats.activeExams ?? 0,
-      badgeBg: "bg-[#203D39]/10 text-[#203D39]",
-      accentBorder: "hover:border-[#203D39]",
-      accentGradient: "from-[#203D39] to-[#176B58]",
+      badgeBg: "bg-cyan-400/20 text-cyan-300",
+      labelColor: "text-cyan-300",
+      accentGlow: "from-cyan-500/15 to-transparent",
     },
     {
       icon: "pulse",
       label: "Active Attempts",
       value: stats.activeAttempts ?? 0,
-      badgeBg: "bg-[#D96C50]/10 text-[#D96C50]",
-      accentBorder: "hover:border-[#D96C50]",
-      accentGradient: "from-[#D96C50] to-[#E5A23B]",
+      badgeBg: "bg-amber-400/20 text-amber-300",
+      labelColor: "text-amber-300",
+      accentGlow: "from-amber-500/15 to-transparent",
     },
     {
       icon: "result",
       label: "Completed Attempts",
       value: stats.completedAttempts ?? 0,
-      badgeBg: "bg-[#E5A23B]/10 text-[#E5A23B]",
-      accentBorder: "hover:border-[#E5A23B]",
-      accentGradient: "from-[#E5A23B] to-[#D96C50]",
+      badgeBg: "bg-rose-400/20 text-rose-300",
+      labelColor: "text-rose-300",
+      accentGlow: "from-rose-500/15 to-transparent",
     },
     {
       icon: "review",
       label: "Pending Reviews",
       value: stats.pendingReviews ?? 0,
-      badgeBg: "bg-[#176B58]/10 text-[#176B58]",
-      accentBorder: "hover:border-[#176B58]",
-      accentGradient: "from-[#176B58] to-[#203D39]",
+      badgeBg: "bg-indigo-400/20 text-indigo-300",
+      labelColor: "text-indigo-300",
+      accentGlow: "from-indigo-500/15 to-transparent",
     },
     {
       icon: "download",
@@ -2563,22 +2564,22 @@ function AdminDashboard({
         ? new Date(stats.latestExport).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         : "None",
       fullDate: stats.latestExport ? new Date(stats.latestExport).toLocaleString() : "",
-      badgeBg: "bg-[#203D39]/10 text-[#203D39]",
-      accentBorder: "hover:border-[#203D39]",
-      accentGradient: "from-[#203D39] to-[#176B58]",
+      badgeBg: "bg-purple-400/20 text-purple-300",
+      labelColor: "text-purple-300",
+      accentGlow: "from-purple-500/15 to-transparent",
       isTextValue: true,
     },
   ] as const
 
   return (
-    <div className="relative min-h-screen bg-[#F4EFDF] text-[#203D39] font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8">
+    <div className="relative min-h-screen bg-[#090D16] text-white font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8 selection:bg-cyan-500 selection:text-slate-950">
       {/* Continuous Full-Viewport Atmospheric Background Lighting Orbs */}
-      <div className="fixed -top-32 -left-32 w-[600px] h-[600px] rounded-full bg-[#176B58]/25 blur-[160px] pointer-events-none" />
-      <div className="fixed top-10 -right-20 w-[500px] h-[500px] rounded-full bg-[#E5A23B]/25 blur-[140px] pointer-events-none" />
-      <div className="fixed top-1/2 left-1/3 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-[#06B6D4]/18 blur-[180px] pointer-events-none" />
-      <div className="fixed -bottom-40 right-10 w-[600px] h-[600px] rounded-full bg-white/70 blur-[120px] pointer-events-none" />
+      <div className="fixed -top-20 -left-20 w-[650px] h-[650px] rounded-full bg-cyan-500/25 blur-[160px] pointer-events-none animate-pulse" />
+      <div className="fixed top-12 -right-16 w-[550px] h-[550px] rounded-full bg-amber-500/22 blur-[150px] pointer-events-none" />
+      <div className="fixed top-1/2 left-1/3 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-emerald-500/22 blur-[170px] pointer-events-none" />
+      <div className="fixed -bottom-32 right-12 w-[600px] h-[600px] rounded-full bg-orange-400/20 blur-[150px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-7xl mx-auto space-y-8">
+      <div className="relative z-10 max-w-7xl mx-auto space-y-6">
 
         {/* Floating Glass Horizontal Navigation Bar */}
         <AdminFloatingNavbar
@@ -2588,44 +2589,42 @@ function AdminDashboard({
           onLogout={onLogout}
         />
 
-        {/* Floating Glass Hero Welcome Area */}
-        <header className="relative overflow-hidden rounded-3xl bg-white/40 backdrop-blur-2xl border border-white/70 shadow-[0_12px_40px_-10px_rgba(23,107,88,0.12)] p-6 sm:p-8">
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#176B58] via-[#E5A23B] to-[#D96C50]" />
-
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-2 max-w-2xl">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <span className="px-3 py-1 rounded-full bg-[#176B58]/15 text-[#176B58] text-[10px] font-black uppercase tracking-widest border border-[#176B58]/25">
-                  Flux Editorial Suite
+        {/* Floating Glass Hero Welcome Header (Compact Height ~35% Reduction) */}
+        <header className="relative overflow-hidden rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/20 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.3)] p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1 max-w-2xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-cyan-400/20 text-cyan-300 text-[10px] font-black uppercase tracking-widest border border-cyan-400/30">
+                  Flux Suite
                 </span>
-                <span className="text-xs font-bold text-[#203D39]/80">
+                <span className="text-xs font-semibold text-slate-300">
                   Welcome back, Administrator
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#203D39] tracking-tight leading-tight m-0">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-tight m-0 drop-shadow-sm">
                 Examination Overview
               </h1>
 
-              <p className="text-xs sm:text-sm text-[#176B58] font-extrabold m-0 leading-relaxed">
-                Real-time operational metrics, live candidate attempts, and system status across all active examination portals.
+              <p className="text-xs text-cyan-300/90 font-semibold m-0 leading-relaxed">
+                Real-time operational metrics and live candidate attempts across all examination portals.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-3.5 shrink-0">
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
               {/* System Operational Badge */}
-              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/70 backdrop-blur-md border border-white/80 text-[#203D39] text-xs font-bold shadow-sm">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10B981]" />
-                <span>System Operational</span>
-                <span className="text-[#203D39]/30">|</span>
-                <span className="text-[#E5A23B] font-extrabold">{stats.activeExams || 0} Live Exams</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-inner">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_#10B981]" />
+                <span className="text-emerald-300">Operational</span>
+                <span className="text-white/20">|</span>
+                <span className="text-amber-300 font-extrabold">{stats.activeExams || 0} Live Exams</span>
               </div>
 
               {/* Date Range Selector */}
-              <div className="flex items-center gap-2.5 bg-white/80 backdrop-blur-md border border-white/80 rounded-2xl p-1.5 shadow-sm">
-                <span className="text-[11px] font-bold text-[#176B58] pl-3">Period:</span>
+              <div className="flex items-center gap-2 bg-slate-900/60 backdrop-blur-md border border-white/20 rounded-xl p-1 shadow-sm">
+                <span className="text-[11px] font-bold text-slate-300 pl-2">Period:</span>
                 <select
-                  className="h-9 px-4 text-xs font-black bg-[#203D39] text-white border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-[#E5A23B] cursor-pointer shadow-sm"
+                  className="h-8 px-3 text-xs font-black bg-slate-900 text-white border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 cursor-pointer shadow-sm"
                   value={range}
                   onChange={(event) => setRange(event.target.value as typeof range)}
                   aria-label="Dashboard date range"
@@ -2640,37 +2639,41 @@ function AdminDashboard({
         </header>
 
         {/* Asymmetric Editorial Dashboard Composition */}
-        <main className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+        <main className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
 
           {/* Primary Column (8 Columns) */}
-          <div className="xl:col-span-8 space-y-8">
+          <div className="xl:col-span-8 space-y-6">
 
-            {/* Asymmetric KPI Flow */}
+            {/* Asymmetric KPI Flow with Varied Card Sizes & NO Thick Top Borders */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {kpiCardConfig.map((kpi, idx) => (
                 <article
                   key={kpi.label}
-                  style={{ animationDelay: `${idx * 60}ms` }}
-                  className={`group relative overflow-hidden bg-white/40 backdrop-blur-2xl rounded-3xl p-5 border border-white/70 shadow-[0_8px_30px_-5px_rgba(23,107,88,0.1)] hover:shadow-[0_16px_40px_-5px_rgba(23,107,88,0.2)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between ${kpi.accentBorder} ${
-                    idx === 0 ? "sm:col-span-2 lg:col-span-2 bg-gradient-to-br from-white/60 via-white/40 to-[#176B58]/10" : ""
+                  className={`group relative overflow-hidden backdrop-blur-2xl rounded-3xl p-5 border border-white/20 shadow-[0_12px_35px_-10px_rgba(0,0,0,0.3)] hover:border-white/40 transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between ${
+                    (kpi as any).isFeatured
+                      ? "sm:col-span-2 lg:col-span-2 bg-gradient-to-br from-white/20 via-white/10 to-emerald-500/20 border-white/30"
+                      : "bg-white/10 hover:bg-white/15"
                   }`}
                 >
-                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${kpi.accentGradient}`} />
+                  {/* Subtle Inner Glow Layer */}
+                  <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${kpi.accentGlow} blur-2xl pointer-events-none`} />
 
-                  <div className="flex items-center justify-between mb-4">
-                    <span className={`w-10 h-10 rounded-2xl ${kpi.badgeBg} flex items-center justify-center text-lg font-bold shadow-inner group-hover:scale-110 transition-transform duration-300`}>
+                  <div className="flex items-center justify-between mb-4 relative z-10">
+                    <span className={`w-10 h-10 rounded-2xl ${kpi.badgeBg} flex items-center justify-center text-lg font-bold shadow-inner group-hover:scale-110 transition-transform duration-300 border border-white/10`}>
                       <Icon name={kpi.icon} />
                     </span>
-                    <span className="w-2 h-2 rounded-full bg-[#E2DBD0] group-hover:bg-[#176B58] transition-colors" />
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10">
+                      {(kpi as any).isFeatured ? "Featured Metric" : "Live"}
+                    </span>
                   </div>
 
-                  <div>
-                    <small className="block text-[10px] font-black text-[#D96C50] uppercase tracking-wider mb-1">
+                  <div className="relative z-10">
+                    <small className={`block text-[11px] font-black uppercase tracking-wider mb-1 ${kpi.labelColor}`}>
                       {kpi.label}
                     </small>
                     <strong
-                      className={`block font-black text-[#203D39] leading-tight tracking-tight ${
-                        (kpi as any).isTextValue ? "text-xs sm:text-sm font-bold truncate" : "text-3xl sm:text-4xl"
+                      className={`block font-black text-white leading-tight tracking-tight drop-shadow-sm ${
+                        (kpi as any).isTextValue ? "text-base font-bold truncate text-slate-200" : (kpi as any).isFeatured ? "text-4xl sm:text-5xl" : "text-3xl sm:text-4xl"
                       }`}
                       title={(kpi as any).fullDate || String(kpi.value)}
                     >
@@ -2682,27 +2685,27 @@ function AdminDashboard({
             </div>
 
             {/* Participation Overview Translucent Glass Card */}
-            <div className="bg-white/40 backdrop-blur-2xl rounded-3xl border border-white/70 shadow-[0_12px_40px_-10px_rgba(23,107,88,0.12)] p-6 sm:p-8 flex flex-col justify-between gap-6 relative min-h-[440px]">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#203D39]/10">
+            <div className="bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.3)] p-6 sm:p-8 flex flex-col justify-between gap-6 relative min-h-[420px]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
                 <div>
-                  <h3 className="text-xl font-black text-[#203D39] m-0">Participation Overview</h3>
-                  <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Daily registrations and completed attempts in selected period</p>
+                  <h3 className="text-xl font-black text-white m-0 drop-shadow-sm">Participation Overview</h3>
+                  <p className="text-xs text-cyan-300/90 font-bold mt-0.5 m-0">Daily candidate registrations vs completed attempts</p>
                 </div>
-                <div className="flex items-center gap-4 text-xs font-bold text-[#203D39]">
-                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#176B58]/15 text-[#176B58]">
-                    <i className="w-2.5 h-2.5 rounded-full bg-[#176B58] inline-block shrink-0 shadow-sm" /> Registered
+                <div className="flex items-center gap-4 text-xs font-bold text-slate-200">
+                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                    <i className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shrink-0 shadow-[0_0_8px_#10B981]" /> Registered
                   </span>
-                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5A23B]/15 text-[#E5A23B]">
-                    <i className="w-2.5 h-2.5 rounded-full bg-[#E5A23B] inline-block shrink-0 shadow-sm" /> Completed
+                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                    <i className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shrink-0 shadow-[0_0_8px_#F59E0B]" /> Completed
                   </span>
                 </div>
               </div>
 
               {dates.length === 0 ? (
-                <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#203D39]/70 font-semibold bg-white/20 rounded-2xl border border-dashed border-white/40">
-                  <span className="text-3xl text-[#176B58]">📊</span>
-                  <span className="font-bold text-[#203D39]">No activity recorded for this period</span>
-                  <p className="text-[11px] text-[#176B58] font-medium m-0">Try selecting a different date range in the top toolbar filter.</p>
+                <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-slate-300 font-semibold bg-white/5 rounded-2xl border border-dashed border-white/20">
+                  <span className="text-3xl text-cyan-400">📊</span>
+                  <span className="font-bold text-white">No activity recorded for this period</span>
+                  <p className="text-[11px] text-slate-400 font-medium m-0">Try selecting a different date range in the top toolbar filter.</p>
                 </div>
               ) : (
                 <div
@@ -2712,24 +2715,24 @@ function AdminDashboard({
                   {/* Interactive Tooltip Overlay */}
                   {hoveredChartIndex !== null && regPoints[hoveredChartIndex] && (
                     <div
-                      className="absolute bg-[#203D39] text-white backdrop-blur-md px-4 py-3 rounded-2xl border border-[#176B58]/40 shadow-2xl text-xs space-y-1.5 pointer-events-none transition-all duration-150 z-30"
+                      className="absolute bg-slate-900/90 text-white backdrop-blur-2xl px-4 py-3 rounded-2xl border border-cyan-400/40 shadow-2xl text-xs space-y-1.5 pointer-events-none transition-all duration-150 z-30"
                       style={{
                         left: `${Math.min(Math.max((regPoints[hoveredChartIndex].x / chartWidth) * 85, 5), 72)}%`,
                         top: "10px",
                       }}
                     >
-                      <div className="font-black text-[#E5A23B] border-b border-white/10 pb-1 text-[11px] tracking-wide">
+                      <div className="font-black text-amber-300 border-b border-white/10 pb-1 text-[11px] tracking-wide">
                         {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(new Date(`${dates[hoveredChartIndex]}T00:00:00`))}
                       </div>
                       <div className="flex items-center justify-between gap-4 text-[11px]">
                         <span className="flex items-center gap-1.5 font-bold text-emerald-300">
-                          <span className="w-2 h-2 rounded-full bg-[#176B58]" /> Registered:
+                          <span className="w-2 h-2 rounded-full bg-emerald-400" /> Registered:
                         </span>
                         <span className="font-black text-white">{registrationMap.get(dates[hoveredChartIndex]) || 0}</span>
                       </div>
                       <div className="flex items-center justify-between gap-4 text-[11px]">
                         <span className="flex items-center gap-1.5 font-bold text-amber-300">
-                          <span className="w-2 h-2 rounded-full bg-[#E5A23B]" /> Completed:
+                          <span className="w-2 h-2 rounded-full bg-amber-400" /> Completed:
                         </span>
                         <span className="font-black text-white">{completedMap.get(dates[hoveredChartIndex]) || 0}</span>
                       </div>
@@ -2744,12 +2747,12 @@ function AdminDashboard({
                   >
                     <defs>
                       <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#176B58" stopOpacity="0.4" />
-                        <stop offset="100%" stopColor="#176B58" stopOpacity="0.0" />
+                        <stop offset="0%" stopColor="#10B981" stopOpacity="0.45" />
+                        <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
                       </linearGradient>
                       <linearGradient id="amberGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#E5A23B" stopOpacity="0.4" />
-                        <stop offset="100%" stopColor="#E5A23B" stopOpacity="0.0" />
+                        <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.45" />
+                        <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.0" />
                       </linearGradient>
                     </defs>
 
@@ -2764,7 +2767,7 @@ function AdminDashboard({
                             y1={gridY}
                             x2={chartWidth - padRight}
                             y2={gridY}
-                            stroke="#203D39"
+                            stroke="white"
                             strokeOpacity="0.1"
                             strokeWidth="1"
                             strokeDasharray="4 4"
@@ -2773,7 +2776,7 @@ function AdminDashboard({
                             x={padLeft - 6}
                             y={gridY + 4}
                             textAnchor="end"
-                            fill="#203D39"
+                            fill="white"
                             opacity="0.6"
                             fontSize="10"
                             fontWeight="bold"
@@ -2794,8 +2797,8 @@ function AdminDashboard({
                           x={x}
                           y={chartHeight - 8}
                           textAnchor="middle"
-                          fill="#203D39"
-                          opacity="0.7"
+                          fill="white"
+                          opacity="0.8"
                           fontSize="9"
                           fontWeight="bold"
                         >
@@ -2810,7 +2813,7 @@ function AdminDashboard({
                       <path
                         d={regLineD}
                         fill="none"
-                        stroke="#176B58"
+                        stroke="#10B981"
                         strokeWidth="3.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -2823,7 +2826,7 @@ function AdminDashboard({
                       <path
                         d={compLineD}
                         fill="none"
-                        stroke="#E5A23B"
+                        stroke="#F59E0B"
                         strokeWidth="3.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -2856,10 +2859,10 @@ function AdminDashboard({
                               y1={padTop}
                               x2={ptReg.x}
                               y2={bottomY}
-                              stroke="#203D39"
+                              stroke="white"
                               strokeWidth="1.5"
                               strokeDasharray="3 3"
-                              opacity="0.5"
+                              opacity="0.6"
                             />
                           )}
 
@@ -2867,7 +2870,7 @@ function AdminDashboard({
                             cx={ptReg.x}
                             cy={ptReg.y}
                             r={isHovered ? "6" : "3.5"}
-                            fill="#176B58"
+                            fill="#10B981"
                             stroke="#FFFFFF"
                             strokeWidth="2"
                             className="transition-all duration-200"
@@ -2877,7 +2880,7 @@ function AdminDashboard({
                             cx={ptComp.x}
                             cy={ptComp.y}
                             r={isHovered ? "6" : "3.5"}
-                            fill="#E5A23B"
+                            fill="#F59E0B"
                             stroke="#FFFFFF"
                             strokeWidth="2"
                             className="transition-all duration-200"
@@ -2894,26 +2897,26 @@ function AdminDashboard({
 
           {/* Secondary Column (4 Columns - Recent Activity Glass Panel) */}
           <div className="xl:col-span-4 sticky top-8">
-            <div className="bg-white/40 backdrop-blur-2xl rounded-3xl border border-white/70 shadow-[0_12px_40px_-10px_rgba(23,107,88,0.12)] p-6 sm:p-8 flex flex-col justify-between gap-4 max-h-[600px]">
-              <div className="flex items-center justify-between pb-4 border-b border-[#203D39]/10">
+            <div className="bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.3)] p-6 sm:p-8 flex flex-col justify-between gap-4 max-h-[600px]">
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
                 <div>
-                  <h3 className="text-xl font-black text-[#203D39] m-0">Recent Activity</h3>
-                  <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Live audit timeline and security log</p>
+                  <h3 className="text-xl font-black text-white m-0 drop-shadow-sm">Recent Activity</h3>
+                  <p className="text-xs text-cyan-300/90 font-bold mt-0.5 m-0">Live audit timeline and security log</p>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-[#176B58]/15 text-[#176B58] text-[10px] font-black uppercase tracking-wider border border-[#176B58]/20">
+                <span className="px-3 py-1 rounded-full bg-cyan-400/20 text-cyan-300 text-[10px] font-black uppercase tracking-wider border border-cyan-400/30">
                   {activity.length} Events
                 </span>
               </div>
 
               {activity.length === 0 ? (
-                <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#203D39]/70 font-semibold bg-white/20 rounded-2xl border border-dashed border-white/40">
-                  <span className="text-3xl text-[#176B58]">📋</span>
-                  <span className="font-bold text-[#203D39]">No audit activity recorded</span>
-                  <p className="text-[11px] text-[#176B58] font-medium m-0">Audit logs will automatically appear here as users interact with exams.</p>
+                <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-slate-300 font-semibold bg-white/5 rounded-2xl border border-dashed border-white/20">
+                  <span className="text-3xl text-cyan-400">📋</span>
+                  <span className="font-bold text-white">No audit activity recorded</span>
+                  <p className="text-[11px] text-slate-400 font-medium m-0">Audit logs will automatically appear here as users interact with exams.</p>
                 </div>
               ) : (
-                <div className="flex-1 overflow-y-auto pr-1 space-y-3 relative">
-                  <div className="absolute left-4 top-3 bottom-3 w-0.5 bg-[#203D39]/20 z-0" />
+                <div className="flex-1 overflow-y-auto pr-1 space-y-3 relative scrollbar-thin">
+                  <div className="absolute left-4 top-3 bottom-3 w-0.5 bg-white/20 z-0" />
 
                   {activity.map((item: any) => {
                     const cat = (() => {
@@ -2923,47 +2926,47 @@ function AdminDashboard({
                       if (action.includes("security") || action.includes("delete") || action.includes("failed") || action.includes("alert")) {
                         return {
                           icon: "review",
-                          badgeBg: "bg-[#D96C50]/20 text-[#D96C50]",
+                          badgeBg: "bg-rose-500/20 text-rose-300 border border-rose-500/30",
                           tagText: "Security / Alert",
-                          tagColor: "text-[#D96C50]",
+                          tagColor: "text-rose-300",
                         }
                       }
                       if (action.includes("submit") || action.includes("attempt") || action.includes("review")) {
                         return {
                           icon: "pulse",
-                          badgeBg: "bg-[#E5A23B]/20 text-[#E5A23B]",
+                          badgeBg: "bg-amber-500/20 text-amber-300 border border-amber-500/30",
                           tagText: "Submission",
-                          tagColor: "text-[#E5A23B]",
+                          tagColor: "text-amber-300",
                         }
                       }
                       if (action.includes("result") || action.includes("export") || action.includes("download")) {
                         return {
                           icon: "download",
-                          badgeBg: "bg-[#176B58]/20 text-[#176B58]",
+                          badgeBg: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30",
                           tagText: "Report / Data",
-                          tagColor: "text-[#176B58]",
+                          tagColor: "text-cyan-300",
                         }
                       }
                       if (entity.includes("exam") || action.includes("exam")) {
                         return {
                           icon: "book",
-                          badgeBg: "bg-[#176B58]/20 text-[#176B58]",
+                          badgeBg: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30",
                           tagText: "Examination",
-                          tagColor: "text-[#176B58]",
+                          tagColor: "text-emerald-300",
                         }
                       }
                       return {
                         icon: "users",
-                        badgeBg: "bg-[#203D39]/20 text-[#203D39]",
+                        badgeBg: "bg-slate-500/20 text-slate-300 border border-slate-500/30",
                         tagText: "System Operation",
-                        tagColor: "text-[#176B58]",
+                        tagColor: "text-slate-300",
                       }
                     })()
 
                     return (
                       <div
                         key={item.id}
-                        className="group relative z-10 flex items-start gap-3.5 p-3 rounded-2xl hover:bg-white/60 transition-all duration-200 border border-transparent hover:border-white/80"
+                        className="group relative z-10 flex items-start gap-3.5 p-3 rounded-2xl hover:bg-white/15 transition-all duration-200 border border-transparent hover:border-white/20"
                       >
                         <div className={`w-8 h-8 rounded-full ${cat.badgeBg} flex items-center justify-center text-xs shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-200`}>
                           <Icon name={cat.icon} />
@@ -2971,10 +2974,10 @@ function AdminDashboard({
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
-                            <b className="font-black text-[#203D39] text-xs sm:text-sm truncate">
+                            <b className="font-black text-white text-xs sm:text-sm truncate">
                               {item.action || "Administrative action"}
                             </b>
-                            <small className="text-[#203D39]/60 font-bold text-[10px] shrink-0">
+                            <small className="text-slate-400 font-bold text-[10px] shrink-0">
                               {item.recordedAt ? new Date(item.recordedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
                             </small>
                           </div>
@@ -2983,13 +2986,13 @@ function AdminDashboard({
                             <span className={`font-bold ${cat.tagColor}`}>
                               {item.entityType || cat.tagText}
                             </span>
-                            <span className="text-[#203D39]/30">•</span>
-                            <span className="text-[#203D39]/70 font-semibold truncate">
-                              User: <strong className="text-[#203D39] font-bold">{item.actorRole || "System"}</strong>
+                            <span className="text-white/20">•</span>
+                            <span className="text-slate-300 font-semibold truncate">
+                              User: <strong className="text-white font-bold">{item.actorRole || "System"}</strong>
                             </span>
                           </div>
 
-                          <div className="text-[10px] text-[#203D39]/50 font-medium mt-1">
+                          <div className="text-[10px] text-slate-400 font-medium mt-1">
                             {item.recordedAt ? new Date(item.recordedAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }) : ""}
                           </div>
                         </div>
