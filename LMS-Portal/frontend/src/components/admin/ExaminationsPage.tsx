@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { DateTimePicker } from "./DateTimePicker"
 import { API_BASE_URL, authFetch } from "../../api"
 import { AssignStudentsModal } from "./AssignStudentsModal"
+import { AdminFloatingSidebar } from "../../App"
 
 const API = API_BASE_URL
 
@@ -27,10 +28,19 @@ const durationBetween = (start: string, end: string) => {
 export function ExaminationsPage({
   Icon,
   PageHead,
+  active = "Examinations",
+  onNav = () => {},
+  adminUser = null,
+  onLogout = () => {},
 }: {
   Icon: any
   PageHead: any
+  active?: string
+  onNav?: (v: string) => void
+  adminUser?: { email: string; role: string } | null
+  onLogout?: () => void
 }) {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [exams, setExams] = useState<any[]>([])
   const [stats, setStats] = useState<any>({})
   const [open, setOpen] = useState(false)
@@ -56,8 +66,8 @@ export function ExaminationsPage({
   const [paperModalSuccess, setPaperModalSuccess] = useState("")
   const [paperForm, setPaperForm] = useState({
     name: "",
-    passingMarks: "35",
-    totalMarks: "100",
+    passingMarks: "50",
+    totalMarks: "50",
     durationMinutes: "60",
     instructions: "Read all questions carefully before submitting.",
   })
@@ -485,117 +495,100 @@ export function ExaminationsPage({
   }
 
   return (
-    <>
-      {/* Breadcrumb Navigation */}
-      <nav
-        aria-label="Breadcrumb"
-        className="flex items-center space-x-1.5 text-xs text-slate-500 font-medium mb-3 px-1"
-      >
-        <span className="p-0.5 text-slate-600">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 32 32"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M16 7.609c.352 0 .69.122.96.343l.111.1 6.25 6.25v.001a1.5 1.5 0 0 1 .445 1.071v7.5a.89.89 0 0 1-.891.891H9.125a.89.89 0 0 1-.89-.89v-7.5l.006-.149a1.5 1.5 0 0 1 .337-.813l.1-.11 6.25-6.25c.285-.285.67-.444 1.072-.444Zm5.984 7.876L16 9.5l-5.984 5.985v6.499h11.968z"
-              fill="#475569"
-              stroke="#475569"
-              strokeWidth=".094"
-            />
-          </svg>
-        </span>
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 20 20"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-slate-300 shrink-0"
-        >
-          <path
-            d="m14.413 10.663-6.25 6.25a.939.939 0 1 1-1.328-1.328L12.42 10 6.836 4.413a.939.939 0 1 1 1.328-1.328l6.25 6.25a.94.94 0 0 1-.001 1.328"
-            fill="#CBD5E1"
-          />
-        </svg>
-        <span className="text-slate-600">Admin Dashboard</span>
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 20 20"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-slate-300 shrink-0"
-        >
-          <path
-            d="m14.413 10.663-6.25 6.25a.939.939 0 1 1-1.328-1.328L12.42 10 6.836 4.413a.939.939 0 1 1 1.328-1.328l6.25 6.25a.94.94 0 0 1-.001 1.328"
-            fill="#CBD5E1"
-          />
-        </svg>
-        <span className="text-blue-600 font-semibold">
-          Examinations Management
-        </span>
-      </nav>
+    <div className="relative min-h-screen bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8">
+      {/* Continuous Full-Page Atmospheric Background Vibrant Lighting Blobs */}
+      <div className="fixed -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-[#00C4DF]/30 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-[#00D084]/30 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed top-1/2 left-1/3 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[#FFB800]/28 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed -bottom-40 right-10 w-[700px] h-[700px] rounded-full bg-[#FF7A59]/28 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/20 pointer-events-none z-0" />
 
-      <PageHead
-        admin
-        student={null}
-        title="Examinations"
-        description="Create, schedule, and manage examinations."
-        showCreateAction={false}
+      {/* Floating Vertical Glass Sidebar */}
+      <AdminFloatingSidebar
+        active={active}
+        onNav={onNav}
+        adminUser={adminUser}
+        onLogout={onLogout}
+        isCollapsed={sidebarCollapsed}
+        setIsCollapsed={setSidebarCollapsed}
       />
 
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Examinations</h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Manage the examination lifecycle and scheduling.</p>
-        </div>
-        <button
-          className="inline-flex items-center justify-center gap-2 h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-sm shadow-blue-500/20 flex-shrink-0"
-          onClick={() => void openCreate()}
-        >
-          <Icon name="plus" />
-          Create Examination
-        </button>
-      </div>
+      {/* Main Page Content Wrapper */}
+      <div
+        className={`relative z-10 max-w-[1550px] mx-auto space-y-6 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
+        }`}
+      >
+        {/* Floating Glass Page Header */}
+        <header className="relative overflow-hidden rounded-3xl bg-white/50 backdrop-blur-xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
+          <div className="space-y-1 max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#00D084]/20 text-[#057A55] text-[10px] font-black uppercase tracking-widest border border-[#00D084]/30">
+                Flux Suite
+              </span>
+              <span className="text-xs font-bold text-[#1E3A34]/80">
+                Examination Management
+              </span>
+            </div>
 
-      {/* KPI Stats Section */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6">
-        {[
-          ["Total Examinations", "total"],
-          ["Draft", "draft"],
-          ["Scheduled", "scheduled"],
-          ["Active", "active"],
-          ["Completed", "completed"],
-        ].map(([label, key]) => (
-          <article
-            className="flex flex-col p-4 bg-white rounded-xl border border-slate-200/80 shadow-sm hover:border-slate-300 transition-all"
-            key={key}
-          >
-            <small className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">{label}</small>
-            <strong className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{stats[key] || 0}</strong>
-          </article>
-        ))}
-      </section>
+            <h1 className="text-2xl sm:text-3xl font-black text-[#1E3A34] tracking-tight leading-tight m-0">
+              Examinations
+            </h1>
 
-      {/* Alert Notices */}
-      {message && (
-        <div className="p-3.5 px-4 mb-6 text-xs sm:text-sm font-semibold rounded-xl border flex items-center gap-2 text-red-800 bg-red-50 border-red-200/80">
-          {message}
-        </div>
-      )}
-      {successMessage && (
-        <div className="p-3.5 px-4 mb-6 text-xs sm:text-sm font-semibold rounded-xl border flex items-center gap-2 text-emerald-800 bg-emerald-50 border-emerald-200/80">
-          {successMessage}
-        </div>
-      )}
+            <p className="text-xs sm:text-sm text-[#057A55] font-bold m-0 leading-relaxed">
+              Create, schedule, and manage examination lifecycles across all candidate portals.
+            </p>
+          </div>
 
-      {/* Examinations Table */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
-        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-extrabold rounded-full text-white bg-[#1E3A34] hover:bg-[#057A55] active:bg-[#035E41] transition-all duration-200 cursor-pointer shadow-md shadow-emerald-900/20 shrink-0"
+              onClick={() => void openCreate()}
+            >
+              <Icon name="plus" />
+              Create Examination
+            </button>
+          </div>
+        </header>
+
+        {/* KPI Summary Cards */}
+        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          {[
+            ["Total Examinations", "total", "bg-[#00D084]/15 text-[#057A55]"],
+            ["Draft", "draft", "bg-[#1E3A34]/15 text-[#1E3A34]"],
+            ["Scheduled", "scheduled", "bg-[#00C4DF]/20 text-[#008DA1]"],
+            ["Active", "active", "bg-emerald-100 text-emerald-800"],
+            ["Completed", "completed", "bg-[#FFB800]/20 text-[#D99B00]"],
+          ].map(([label, key, badgeStyle]) => (
+            <article
+              className="flex flex-col justify-between p-4 sm:p-5 bg-white/50 backdrop-blur-xl rounded-3xl border border-white/80 shadow-[0_8px_30px_0_rgba(30,58,52,0.08)] hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5"
+              key={key}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <small className="text-[10px] font-black text-[#1E3A34]/60 uppercase tracking-wider">{label}</small>
+                <span className={`w-2.5 h-2.5 rounded-full ${key === "active" ? "bg-[#00D084] animate-pulse" : "bg-slate-300"}`} />
+              </div>
+              <strong className="text-2xl sm:text-3xl font-black text-[#1E3A34] leading-none tracking-tight">{stats[key] || 0}</strong>
+            </article>
+          ))}
+        </section>
+
+        {/* Alert Notices */}
+        {message && (
+          <div className="p-4 text-xs sm:text-sm font-bold rounded-2xl border flex items-center gap-2 text-rose-900 bg-rose-50/90 border-rose-200 shadow-sm">
+            <span>⚠️</span> {message}
+          </div>
+        )}
+        {successMessage && (
+          <div className="p-4 text-xs sm:text-sm font-bold rounded-2xl border flex items-center gap-2 text-emerald-900 bg-emerald-50/90 border-emerald-200 shadow-sm">
+            <span>✅</span> {successMessage}
+          </div>
+        )}
+
+        {/* Examinations Table Container */}
+        <div className="bg-white/50 backdrop-blur-xl rounded-3xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-5 sm:p-6 overflow-hidden">
+          <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs sm:text-sm border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold text-xs uppercase tracking-wider">
@@ -1183,6 +1176,7 @@ export function ExaminationsPage({
           </div>
         </div>
       )}
-    </>
+      </div>
+    </div>
   )
 }

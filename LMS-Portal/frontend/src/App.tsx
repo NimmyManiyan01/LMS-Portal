@@ -1168,7 +1168,14 @@ export default function App() {
           ) : admin &&
             active === "Examinations" &&
             viewState === "DASHBOARD" ? (
-            <ExaminationsPage Icon={Icon} PageHead={PageHead} />
+            <ExaminationsPage
+              Icon={Icon}
+              PageHead={PageHead}
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
           ) : admin &&
             active === "Question bank" &&
             viewState === "DASHBOARD" ? (
@@ -2273,7 +2280,7 @@ function StudentDashboard({
   )
 }
 
-function AdminFloatingSidebar({
+export function AdminFloatingSidebar({
   active,
   onNav,
   adminUser,
