@@ -2433,21 +2433,30 @@ function AdminFloatingSidebar({
             {adminNav.map(([iconName, label]) => {
               const isActive = active === label
               return (
-                <button
-                  key={label}
-                  onClick={() => onNav(label)}
-                  title={isCollapsed ? label : undefined}
-                  className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 border cursor-pointer ${
-                    isActive
-                      ? "bg-[#1E3A34] text-white shadow-md border-white/20 font-extrabold"
-                      : "text-[#1E3A34] hover:bg-white/80 hover:text-[#057A55] border-transparent"
-                  } ${isCollapsed ? "justify-center px-0" : ""}`}
-                >
-                  <span className="text-base shrink-0">
-                    <Icon name={iconName} />
-                  </span>
-                  {!isCollapsed && <span className="truncate">{label}</span>}
-                </button>
+                <div key={label} className="relative group flex items-center">
+                  <button
+                    onClick={() => onNav(label)}
+                    aria-label={label}
+                    className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 border cursor-pointer ${
+                      isActive
+                        ? "bg-[#1E3A34] text-white shadow-md border-white/20 font-extrabold"
+                        : "text-[#1E3A34] hover:bg-white/80 hover:text-[#057A55] border-transparent"
+                    } ${isCollapsed ? "justify-center px-0 h-10" : ""}`}
+                  >
+                    <span className="text-base shrink-0">
+                      <Icon name={iconName} />
+                    </span>
+                    {!isCollapsed && <span className="truncate">{label}</span>}
+                  </button>
+
+                  {/* Floating Glass Tooltip (Visible in Collapsed Mode) */}
+                  {isCollapsed && (
+                    <div className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-[#1E3A34] text-white text-xs font-bold whitespace-nowrap shadow-2xl border border-white/20 z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center">
+                      <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-[#1E3A34] rotate-45 border-l border-b border-white/20" />
+                      <span>{label}</span>
+                    </div>
+                  )}
+                </div>
               )
             })}
           </nav>
@@ -2473,13 +2482,19 @@ function AdminFloatingSidebar({
               </button>
             </>
           ) : (
-            <button
-              onClick={onLogout}
-              title="Logout"
-              className="w-full h-10 rounded-2xl bg-[#D9532F]/15 text-[#D9532F] hover:bg-[#D9532F] hover:text-white flex items-center justify-center font-bold text-xs transition-all border border-[#D9532F]/30 shadow-sm cursor-pointer"
-            >
-              🚪
-            </button>
+            <div className="relative group flex items-center justify-center">
+              <button
+                onClick={onLogout}
+                aria-label="Logout"
+                className="w-full h-10 rounded-2xl bg-[#D9532F]/15 text-[#D9532F] hover:bg-[#D9532F] hover:text-white flex items-center justify-center font-bold text-xs transition-all border border-[#D9532F]/30 shadow-sm cursor-pointer"
+              >
+                🚪
+              </button>
+              <div className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-[#D9532F] text-white text-xs font-bold whitespace-nowrap shadow-2xl border border-white/20 z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-[#D9532F] rotate-45 border-l border-b border-white/20" />
+                <span>Logout</span>
+              </div>
+            </div>
           )}
         </div>
       </aside>
