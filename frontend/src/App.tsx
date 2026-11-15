@@ -2273,133 +2273,216 @@ function StudentDashboard({
   )
 }
 
-function AdminFloatingNavbar({
+function AdminFloatingSidebar({
   active,
   onNav,
   adminUser,
   onLogout,
+  isCollapsed,
+  setIsCollapsed,
 }: {
   active: string
   onNav: (v: string) => void
   adminUser: { email: string; role: string } | null
   onLogout: () => void
+  isCollapsed: boolean
+  setIsCollapsed: (v: boolean) => void
 }) {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const primaryNav = adminNav.slice(0, 5)
-  const overflowNav = adminNav.slice(5)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <nav className="sticky top-4 z-50 mb-6 mx-auto w-full max-w-7xl bg-white/45 backdrop-blur-2xl border border-white/80 shadow-[0_8px_32px_0_rgba(30,58,52,0.12)] rounded-full px-5 sm:px-6 py-2 flex items-center justify-between gap-4 transition-all duration-200">
-      {/* Specular Glass Highlight */}
-      <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent pointer-events-none" />
-
-      {/* Brand */}
-      <div className="flex items-center gap-3 shrink-0 cursor-pointer" onClick={() => onNav("Overview")}>
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00D084] via-[#057A55] to-[#1E3A34] flex items-center justify-center text-white font-black italic text-xs shadow-md shadow-emerald-600/20">
-          K
-        </div>
-        <div className="hidden sm:block">
-          <strong className="block text-xs font-black tracking-tight text-[#1E3A34]">
-            KGS EXAM PORTAL
-          </strong>
-          <small className="block text-[8px] font-extrabold tracking-widest text-[#057A55] leading-none">
-            FLUX ENTERPRISE SUITE
-          </small>
-        </div>
+    <>
+      {/* Mobile Drawer Toggle Button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50 flex items-center gap-3">
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="p-3 rounded-full bg-white/70 backdrop-blur-2xl border border-white shadow-lg text-[#1E3A34] hover:bg-white transition-all cursor-pointer"
+          aria-label="Toggle Navigation Sidebar"
+        >
+          <span className="text-lg leading-none">☰</span>
+        </button>
+        <span className="text-xs font-black text-[#1E3A34] tracking-tight bg-white/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/80 shadow-sm">
+          {active}
+        </span>
       </div>
 
-      {/* Primary Links */}
-      <div className="hidden md:flex items-center gap-2">
-        {primaryNav.map(([icon, label]) => (
-          <button
-            key={label}
-            onClick={() => onNav(label)}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border cursor-pointer ${
-              active === label
-                ? "bg-[#1E3A34] text-white shadow-md border-white/20 font-extrabold"
-                : "text-[#1E3A34] hover:bg-white/80 hover:text-[#057A55] border-transparent"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-
-        {/* Overflow Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#1E3A34] hover:bg-white/80 transition-all duration-200 flex items-center gap-1 cursor-pointer border border-transparent"
-          >
-            <span>More</span>
-            <span className="text-[10px]">▼</span>
-          </button>
-
-          {menuOpen && (
-            <div className="absolute right-0 top-11 z-50 w-56 bg-white/95 backdrop-blur-2xl border border-white/90 rounded-2xl shadow-2xl p-2 space-y-1">
-              {overflowNav.map(([icon, label]) => (
+      {/* Mobile Slide-Out Glass Drawer Overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          <div
+            className="fixed inset-0 bg-[#1E3A34]/20 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          <aside className="relative z-10 w-72 h-full bg-white/95 backdrop-blur-2xl border-r border-white/80 p-5 flex flex-col justify-between shadow-2xl overflow-y-auto">
+            <div className="space-y-6">
+              {/* Brand Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00D084] via-[#057A55] to-[#1E3A34] flex items-center justify-center text-white font-black italic text-sm shadow-md">
+                    K
+                  </div>
+                  <div>
+                    <strong className="block text-xs font-black tracking-tight text-[#1E3A34]">
+                      KGS EXAM PORTAL
+                    </strong>
+                    <small className="block text-[8px] font-extrabold tracking-widest text-[#057A55] leading-none">
+                      FLUX ENTERPRISE SUITE
+                    </small>
+                  </div>
+                </div>
                 <button
-                  key={label}
-                  onClick={() => {
-                    onNav(label)
-                    setMenuOpen(false)
-                  }}
-                  className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
-                    active === label ? "bg-[#057A55] text-white" : "text-[#1E3A34] hover:bg-[#F6F2E6]"
-                  }`}
+                  onClick={() => setMobileOpen(false)}
+                  className="p-1.5 rounded-full text-[#1E3A34] hover:bg-slate-100 cursor-pointer border-none bg-transparent"
                 >
-                  {label}
+                  ✕
                 </button>
-              ))}
+              </div>
+
+              {/* Navigation Modules */}
+              <nav className="space-y-1">
+                {adminNav.map(([iconName, label]) => (
+                  <button
+                    key={label}
+                    onClick={() => {
+                      onNav(label)
+                      setMobileOpen(false)
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                      active === label
+                        ? "bg-[#1E3A34] text-white shadow-md border border-white/20 font-extrabold"
+                        : "text-[#1E3A34] hover:bg-white/80 hover:text-[#057A55]"
+                    }`}
+                  >
+                    <span className="text-base shrink-0">
+                      <Icon name={iconName} />
+                    </span>
+                    <span className="truncate">{label}</span>
+                  </button>
+                ))}
+              </nav>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Mobile Menu Toggle Button */}
-      <button
-        onClick={() => setMenuOpen(!menuOpen)}
-        className="md:hidden p-2 rounded-full text-[#1E3A34] hover:bg-white/70 transition-colors cursor-pointer border-none bg-transparent"
-        aria-label="Toggle menu"
-      >
-        <span className="text-lg">☰</span>
-      </button>
-
-      {/* Mobile Dropdown Menu Overlay */}
-      {menuOpen && (
-        <div className="absolute left-0 right-0 top-14 z-50 md:hidden bg-white/95 backdrop-blur-2xl border border-white/90 rounded-3xl shadow-2xl p-3 space-y-1">
-          {adminNav.map(([icon, label]) => (
-            <button
-              key={label}
-              onClick={() => {
-                onNav(label)
-                setMenuOpen(false)
-              }}
-              className={`w-full text-left px-4 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 cursor-pointer ${
-                active === label ? "bg-[#1E3A34] text-white" : "text-[#1E3A34] hover:bg-[#F6F2E6]"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+            {/* Profile & Logout */}
+            <div className="pt-4 border-t border-[#F0EBE1] space-y-3">
+              <div className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-white/70 border border-white">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#00D084] animate-pulse" />
+                <div className="min-w-0 flex-1">
+                  <small className="block text-[9px] font-extrabold text-[#057A55] uppercase">
+                    Admin Session
+                  </small>
+                  <span className="block text-xs font-black text-[#1E3A34] truncate">
+                    {adminUser?.email || "Administrator"}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={onLogout}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-[#D9532F]/15 text-[#D9532F] hover:bg-[#D9532F] hover:text-white text-xs font-bold transition-all border border-[#D9532F]/30 shadow-sm cursor-pointer"
+              >
+                Logout
+              </button>
+            </div>
+          </aside>
         </div>
       )}
 
-      {/* User Avatar & Logout */}
-      <div className="flex items-center gap-2.5 shrink-0">
-        <div className="hidden sm:flex items-center gap-2 bg-white/70 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/90 text-[11px] font-extrabold text-[#1E3A34] shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-[#00D084] animate-pulse motion-reduce:animate-none shadow-[0_0_8px_#00D084]" />
-          <span className="truncate max-w-[140px]">
-            {adminUser?.email || "Administrator"}
-          </span>
+      {/* Desktop Floating Vertical Glass Sidebar */}
+      <aside
+        className={`hidden lg:flex fixed top-4 bottom-4 left-4 z-50 flex-col justify-between bg-white/50 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] rounded-3xl p-3.5 transition-all duration-300 ease-in-out ${
+          isCollapsed ? "w-20" : "w-64"
+        }`}
+      >
+        {/* Specular Glass Highlight */}
+        <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent pointer-events-none" />
+
+        <div className="space-y-5">
+          {/* Header & Brand */}
+          <div className="flex items-center justify-between px-1">
+            <div
+              className="flex items-center gap-3 cursor-pointer overflow-hidden min-w-0"
+              onClick={() => onNav("Overview")}
+            >
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00D084] via-[#057A55] to-[#1E3A34] flex items-center justify-center text-white font-black italic text-xs shadow-md shadow-emerald-600/20 shrink-0">
+                K
+              </div>
+              {!isCollapsed && (
+                <div className="min-w-0">
+                  <strong className="block text-xs font-black tracking-tight text-[#1E3A34] truncate">
+                    KGS EXAM PORTAL
+                  </strong>
+                  <small className="block text-[8px] font-extrabold tracking-widest text-[#057A55] leading-none truncate">
+                    FLUX SUITE
+                  </small>
+                </div>
+              )}
+            </div>
+
+            {/* Collapse/Expand Toggle Button */}
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="w-7 h-7 rounded-full bg-white/80 backdrop-blur-md border border-white flex items-center justify-center text-[10px] text-[#1E3A34] shadow-sm hover:scale-110 transition-transform cursor-pointer shrink-0"
+              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isCollapsed ? "➔" : "⬅"}
+            </button>
+          </div>
+
+          {/* Navigation Links List */}
+          <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-230px)] pr-0.5 scrollbar-thin">
+            {adminNav.map(([iconName, label]) => {
+              const isActive = active === label
+              return (
+                <button
+                  key={label}
+                  onClick={() => onNav(label)}
+                  title={isCollapsed ? label : undefined}
+                  className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 border cursor-pointer ${
+                    isActive
+                      ? "bg-[#1E3A34] text-white shadow-md border-white/20 font-extrabold"
+                      : "text-[#1E3A34] hover:bg-white/80 hover:text-[#057A55] border-transparent"
+                  } ${isCollapsed ? "justify-center px-0" : ""}`}
+                >
+                  <span className="text-base shrink-0">
+                    <Icon name={iconName} />
+                  </span>
+                  {!isCollapsed && <span className="truncate">{label}</span>}
+                </button>
+              )
+            })}
+          </nav>
         </div>
-        <button
-          onClick={onLogout}
-          className="px-3.5 py-1.5 rounded-full bg-[#D9532F]/15 text-[#D9532F] hover:bg-[#D9532F] hover:text-white text-xs font-bold transition-all duration-200 border border-[#D9532F]/30 shadow-sm cursor-pointer"
-        >
-          Logout
-        </button>
-      </div>
-    </nav>
+
+        {/* Bottom Profile & Logout Footer */}
+        <div className="pt-3 border-t border-[#F0EBE1] space-y-2.5">
+          {!isCollapsed ? (
+            <>
+              <div className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-white/60 backdrop-blur-md border border-white">
+                <span className="w-2 h-2 rounded-full bg-[#00D084] animate-pulse shadow-[0_0_6px_#00D084] shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <span className="block text-[11px] font-extrabold text-[#1E3A34] truncate">
+                    {adminUser?.email || "Administrator"}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={onLogout}
+                className="w-full flex items-center justify-center gap-2 px-3.5 py-2 rounded-2xl bg-[#D9532F]/15 text-[#D9532F] hover:bg-[#D9532F] hover:text-white text-xs font-bold transition-all duration-200 border border-[#D9532F]/30 shadow-sm cursor-pointer"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={onLogout}
+              title="Logout"
+              className="w-full h-10 rounded-2xl bg-[#D9532F]/15 text-[#D9532F] hover:bg-[#D9532F] hover:text-white flex items-center justify-center font-bold text-xs transition-all border border-[#D9532F]/30 shadow-sm cursor-pointer"
+            >
+              🚪
+            </button>
+          )}
+        </div>
+      </aside>
+    </>
   )
 }
 
@@ -2419,6 +2502,7 @@ function AdminDashboard({
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
   const [hoveredChartIndex, setHoveredChartIndex] = useState<number | null>(null)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -2602,17 +2686,23 @@ function AdminDashboard({
       <div className="fixed -bottom-40 right-10 w-[700px] h-[700px] rounded-full bg-[#FF7A59]/28 blur-[160px] pointer-events-none z-0" />
       <div className="fixed inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/20 pointer-events-none z-0" />
 
-      <div className="relative z-10 max-w-7xl mx-auto space-y-6">
+      {/* Floating Vertical Glass Sidebar (Desktop + Mobile Slide Drawer) */}
+      <AdminFloatingSidebar
+        active={active}
+        onNav={onNav}
+        adminUser={adminUser}
+        onLogout={onLogout}
+        isCollapsed={sidebarCollapsed}
+        setIsCollapsed={setSidebarCollapsed}
+      />
 
-        {/* Floating Glass Horizontal Navigation Bar */}
-        <AdminFloatingNavbar
-          active={active}
-          onNav={onNav}
-          adminUser={adminUser}
-          onLogout={onLogout}
-        />
-
-        {/* Floating Glass Hero Welcome Header (Compact Height ~35% Reduction) */}
+      {/* Main Dashboard Content Wrapper - Dynamically shifts padding when sidebar expands or collapses */}
+      <div
+        className={`relative z-10 max-w-7xl mx-auto space-y-6 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? "lg:pl-24" : "lg:pl-72"
+        }`}
+      >
+        {/* Floating Glass Hero Welcome Header */}
         <header className="relative overflow-hidden rounded-3xl bg-white/50 backdrop-blur-xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-4 sm:p-5">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
