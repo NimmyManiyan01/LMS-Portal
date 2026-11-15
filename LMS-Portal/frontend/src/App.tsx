@@ -2572,12 +2572,13 @@ function AdminDashboard({
   ] as const
 
   return (
-    <div className="relative min-h-screen bg-[#F7F4EC] text-[#203D39] font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8">
-      {/* Continuous Full-Viewport Atmospheric Background Soft Light Forms */}
-      <div className="fixed -top-24 -left-24 w-[650px] h-[650px] rounded-full bg-[#06B6D4]/22 blur-[160px] pointer-events-none" />
-      <div className="fixed top-12 -right-16 w-[550px] h-[550px] rounded-full bg-[#E5A23B]/25 blur-[150px] pointer-events-none" />
-      <div className="fixed top-1/2 left-1/4 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[#D96C50]/18 blur-[160px] pointer-events-none" />
-      <div className="fixed -bottom-32 right-12 w-[650px] h-[650px] rounded-full bg-[#176B58]/22 blur-[170px] pointer-events-none" />
+    <div className="relative min-h-screen bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8">
+      {/* Continuous Full-Page Atmospheric Background Vibrant Lighting Blobs */}
+      <div className="fixed -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-[#00C4DF]/30 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-[#00D084]/30 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed top-1/2 left-1/3 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[#FFB800]/28 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed -bottom-40 right-10 w-[700px] h-[700px] rounded-full bg-[#FF7A59]/28 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/20 pointer-events-none z-0" />
 
       <div className="relative z-10 max-w-7xl mx-auto space-y-6">
 
@@ -2590,41 +2591,42 @@ function AdminDashboard({
         />
 
         {/* Floating Glass Hero Welcome Header (Compact Height ~35% Reduction) */}
-        <header className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_10px_35px_-5px_rgba(32,61,57,0.08)] p-4 sm:p-5">
+        <header className="relative overflow-hidden rounded-3xl bg-white/50 backdrop-blur-xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-4 sm:p-5">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full bg-[#176B58]/15 text-[#176B58] text-[10px] font-black uppercase tracking-widest border border-[#176B58]/20">
-                  Flux Editorial Suite
+                <span className="px-2.5 py-0.5 rounded-full bg-[#00D084]/20 text-[#057A55] text-[10px] font-black uppercase tracking-widest border border-[#00D084]/30">
+                  Flux Suite
                 </span>
-                <span className="text-xs font-bold text-[#203D39]/80">
+                <span className="text-xs font-bold text-[#1E3A34]/80">
                   Welcome back, Administrator
                 </span>
               </div>
 
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#203D39] tracking-tight leading-tight m-0">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#1E3A34] tracking-tight leading-tight m-0">
                 Examination Overview
               </h1>
 
-              <p className="text-xs text-[#176B58] font-bold m-0 leading-relaxed">
+              <p className="text-xs text-[#057A55] font-bold m-0 leading-relaxed">
                 Real-time operational metrics, live candidate attempts, and system status across all active examination portals.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3 shrink-0">
               {/* System Operational Badge */}
-              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-white text-[#203D39] text-xs font-bold shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10B981]" />
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-white text-[#1E3A34] text-xs font-bold shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-[#00D084] animate-pulse shadow-[0_0_8px_#00D084]" />
                 <span>System Operational</span>
-                <span className="text-[#203D39]/30">|</span>
-                <span className="text-[#E5A23B] font-extrabold">{stats.activeExams || 0} Live Exams</span>
+                <span className="text-[#1E3A34]/30">|</span>
+                <span className="text-[#FFB800] font-extrabold">{stats.activeExams || 0} Live Exams</span>
               </div>
 
               {/* Date Range Selector */}
               <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md border border-white rounded-xl p-1 shadow-sm">
-                <span className="text-[11px] font-bold text-[#176B58] pl-2">Period:</span>
+                <span className="text-[11px] font-bold text-[#057A55] pl-2">Period:</span>
                 <select
-                  className="h-8 px-3 text-xs font-black bg-[#203D39] text-white border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E5A23B] cursor-pointer shadow-sm"
+                  className="h-8 px-3 text-xs font-black bg-[#1E3A34] text-white border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB800] cursor-pointer shadow-sm"
                   value={range}
                   onChange={(event) => setRange(event.target.value as typeof range)}
                   aria-label="Dashboard date range"
