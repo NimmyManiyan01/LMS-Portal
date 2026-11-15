@@ -3,34 +3,52 @@ import { createPortal } from "react-dom"
 
 let latestStartValue = ""
 const pad = (value: number) => String(value).padStart(2, "0")
+
 function parts(value: string) {
-  const [date = "", time = "00:00"] = value.split("T")
-  const [hourText = "00", minute = "00"] = time.split(":")
+  const [date = "", time = "10:00"] = value.split("T")
+  const [hourText = "10", minute = "00"] = time.split(":")
   const h = Number(hourText)
-  return { date, hour: h % 12 || 12, minute, period: h >= 12 ? "PM" : "AM" }
+  return { date, hour: h % 12 || 12, minute, period: h >= 12 ? "PM" : "AM", time }
 }
-function makeValue(date: string, hour: number, minute: string, period: string) {
-  let h = hour % 12
-  if (period === "PM") h += 12
-  return date ? `${date}T${pad(h)}:${minute}` : ""
+
+function makeValueFromTime(dateKey: string, time24: string) {
+  if (!dateKey) return ""
+  return `${dateKey}T${time24}`
 }
+
 function valid(value: string) {
   return /^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d$/.test(value)
 }
+
 function preview(value: string) {
-  if (!value) return "No date selected"
+  if (!value) return "No date & time selected"
   const [date, time] = value.split("T")
+  if (!date || !time) return "No date & time selected"
   const [hour, minute] = time.split(":")
   const h = Number(hour)
-  return `${date} · ${pad(h % 12 || 12)}:${minute} ${h >= 12 ? "PM" : "AM"}`
+  const d = new Date(`${date}T00:00:00`)
+  const dateStr = Number.isFinite(d.getTime())
+    ? d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+    : date
+  return `${dateStr} at ${pad(h % 12 || 12)}:${minute} ${h >= 12 ? "PM" : "AM"}`
 }
+
 function dateFromValue(value: string) {
   const [year, month, day] = (value || "").split("-").map(Number)
   return year && month && day ? new Date(year, month - 1, day) : new Date()
 }
+
 function dateKey(date: Date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
+
+// Generate 37 time slots from 09:00 to 18:00 at 15-minute intervals
+const timeSlots = Array.from({ length: 37 }, (_, index) => {
+  const totalMinutes = index * 15
+  const hour = Math.floor(totalMinutes / 60) + 9
+  const minute = totalMinutes % 60
+  return `${pad(hour)}:${pad(minute)}`
+})
 
 export function DateTimePicker({
   value,
@@ -47,12 +65,13 @@ export function DateTimePicker({
   const [position, setPosition] = useState({
     top: 0,
     left: 0,
-    width: 320,
+    width: 440,
     maxHeight: 0,
   })
   const [month, setMonth] = useState(() => dateFromValue(value))
   const anchor = useRef<HTMLButtonElement>(null)
   const popover = useRef<HTMLDivElement>(null)
+
   const current = parts(value)
   if (label === "Start Date and Time" && value) latestStartValue = value
   const effectiveMin =
@@ -61,6 +80,7 @@ export function DateTimePicker({
     Boolean(value && !valid(value)) ||
     Boolean(effectiveMin && value && valid(value) && value <= effectiveMin)
   const canConfirm = valid(value) && !invalid
+
   const days = useMemo(() => {
     const first = new Date(month.getFullYear(), month.getMonth(), 1).getDay()
     const count = new Date(
@@ -74,18 +94,19 @@ export function DateTimePicker({
         : new Date(month.getFullYear(), month.getMonth(), index - first + 1),
     )
   }, [month])
+
   const reposition = () => {
     const rect = anchor.current?.getBoundingClientRect()
     if (!rect) return
     const viewportPadding = 8
     const maxHeight = Math.max(0, window.innerHeight - viewportPadding * 2)
-    const height = Math.min(popover.current?.scrollHeight ?? 390, maxHeight)
+    const width = Math.min(460, window.innerWidth - 16)
+    const height = Math.min(popover.current?.scrollHeight ?? 420, maxHeight)
     const below = window.innerHeight - rect.bottom
     const placeBelow = below - 6 >= height || below >= rect.top
     const top = placeBelow
       ? Math.min(rect.bottom + 6, window.innerHeight - height - viewportPadding)
       : Math.max(viewportPadding, rect.top - height - 6)
-    const width = Math.min(340, window.innerWidth - 16)
     setPosition({
       top: Math.max(viewportPadding, top),
       left: Math.min(
@@ -96,6 +117,7 @@ export function DateTimePicker({
       maxHeight,
     })
   }
+
   useEffect(() => {
     if (!open) return
     reposition()
@@ -120,6 +142,7 @@ export function DateTimePicker({
       document.removeEventListener("mousedown", outside)
     }
   }, [open])
+
   useEffect(() => {
     const closeOther = (event: Event) => {
       if ((event as CustomEvent).detail !== label) setOpen(false)
@@ -127,21 +150,29 @@ export function DateTimePicker({
     window.addEventListener("kgs-datetime-open", closeOther)
     return () => window.removeEventListener("kgs-datetime-open", closeOther)
   }, [label])
+
   const update = (next: string) => {
     if (label === "Start Date and Time") latestStartValue = next
     onChange(next)
   }
+
   const chooseDate = (date: Date) => {
-    update(
-      makeValue(dateKey(date), current.hour, current.minute, current.period),
-    )
+    const selectedDateKey = dateKey(date)
+    const selectedTime24 = current.time || "10:00"
+    update(makeValueFromTime(selectedDateKey, selectedTime24))
     setMonth(date)
   }
+
+  const chooseTime = (time24: string) => {
+    const selectedDateKey = current.date || dateKey(new Date())
+    update(makeValueFromTime(selectedDateKey, time24))
+  }
+
   const popup = open
     ? createPortal(
         <div
           ref={popover}
-          className="kgs-datetime-popover fixed z-[3000] p-4 bg-white border border-slate-200 rounded-xl shadow-xl max-h-[calc(100vh-16px)] overflow-y-auto box-border text-slate-900"
+          className="kgs-datetime-popover fixed z-[3000] p-4 sm:p-5 bg-white/95 backdrop-blur-2xl border border-white/90 rounded-3xl shadow-[0_20px_50px_0_rgba(30,58,52,0.2)] max-h-[calc(100vh-16px)] overflow-y-auto box-border text-[#1E3A34] w-[340px] sm:w-[460px]"
           style={{
             top: position.top,
             left: position.left,
@@ -151,169 +182,155 @@ export function DateTimePicker({
           role="dialog"
           aria-label={`${label} picker`}
         >
-          {/* Calendar */}
-          <div className="w-full">
-            <div className="flex items-center justify-between mb-3 text-slate-800 font-bold text-sm">
-              <button
-                type="button"
-                className="p-1 px-2.5 text-lg font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors cursor-pointer border-none bg-transparent"
-                onClick={() =>
-                  setMonth(
-                    new Date(month.getFullYear(), month.getMonth() - 1, 1),
-                  )
-                }
-              >
-                ‹
-              </button>
-              <b className="text-slate-800 font-semibold text-xs sm:text-sm">
-                {month.toLocaleString(undefined, {
-                  month: "long",
-                  year: "numeric",
-                })}
-              </b>
-              <button
-                type="button"
-                className="p-1 px-2.5 text-lg font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors cursor-pointer border-none bg-transparent"
-                onClick={() =>
-                  setMonth(
-                    new Date(month.getFullYear(), month.getMonth() + 1, 1),
-                  )
-                }
-              >
-                ›
-              </button>
-            </div>
-            <div className="grid grid-cols-7 gap-1 text-center text-slate-400 font-bold text-[11px] mb-1.5">
-              {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-                <b key={day} className="font-semibold text-slate-400">
-                  {day}
+          {/* Header Title */}
+          <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#F0EBE1]">
+            <span className="text-xs font-black uppercase tracking-wider text-[#057A55]">
+              {label}
+            </span>
+            <button
+              type="button"
+              className="text-xs font-bold text-[#D9532F] hover:bg-rose-50 px-2 py-0.5 rounded-full transition-colors cursor-pointer border-none bg-transparent"
+              onClick={() => setOpen(false)}
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Calendar & Time Slots Split View */}
+          <div className="flex flex-col sm:flex-row gap-4 items-stretch">
+
+            {/* Left Column: Calendar Grid */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-3 text-[#1E3A34] font-black text-xs sm:text-sm">
+                <button
+                  type="button"
+                  className="p-1 px-2.5 text-base font-bold text-[#1E3A34] hover:bg-white/80 rounded-xl transition-colors cursor-pointer border border-[#E2DBD0]"
+                  onClick={() =>
+                    setMonth(
+                      new Date(month.getFullYear(), month.getMonth() - 1, 1),
+                    )
+                  }
+                >
+                  ‹
+                </button>
+                <b className="text-[#1E3A34] font-extrabold text-xs sm:text-sm">
+                  {month.toLocaleString(undefined, {
+                    month: "long",
+                    year: "numeric",
+                  })}
                 </b>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-1 text-center">
-              {days.map((date, index) =>
-                date ? (
-                  <button
-                    type="button"
-                    key={date.toISOString()}
-                    className={`min-h-[32px] border-none rounded-md text-xs font-medium transition-colors cursor-pointer ${
-                      current.date === dateKey(date)
-                        ? "bg-blue-600 text-white font-bold shadow-sm"
-                        : "text-slate-700 hover:bg-blue-50 hover:text-blue-700 bg-transparent"
-                    } disabled:text-slate-300 disabled:hover:bg-transparent disabled:cursor-not-allowed`}
-                    disabled={Boolean(
-                      effectiveMin && dateKey(date) < effectiveMin.slice(0, 10),
-                    )}
-                    onClick={() => chooseDate(date)}
-                  >
-                    {date.getDate()}
-                  </button>
-                ) : (
-                  <span key={`blank-${index}`} />
-                ),
-              )}
-            </div>
-          </div>
+                <button
+                  type="button"
+                  className="p-1 px-2.5 text-base font-bold text-[#1E3A34] hover:bg-white/80 rounded-xl transition-colors cursor-pointer border border-[#E2DBD0]"
+                  onClick={() =>
+                    setMonth(
+                      new Date(month.getFullYear(), month.getMonth() + 1, 1),
+                    )
+                  }
+                >
+                  ›
+                </button>
+              </div>
 
-          {/* Time Selectors */}
-          <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-100">
-            <label className="flex flex-col gap-1 text-[11px] font-semibold text-slate-600">
-              Hour
-              <select
-                value={current.hour}
-                onChange={(e) =>
-                  update(
-                    makeValue(
-                      current.date,
-                      Number(e.target.value),
-                      current.minute,
-                      current.period,
-                    ),
-                  )
-                }
-                className="h-9 w-full px-2 bg-white border border-slate-200 rounded-md text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 cursor-pointer"
-              >
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((hour) => (
-                  <option key={hour}>{hour}</option>
+              <div className="grid grid-cols-7 gap-1 text-center font-bold text-[10px] uppercase text-[#057A55] mb-2">
+                {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+                  <b key={day} className="font-extrabold">
+                    {day}
+                  </b>
                 ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 text-[11px] font-semibold text-slate-600">
-              Minute
-              <select
-                value={current.minute}
-                onChange={(e) =>
-                  update(
-                    makeValue(
-                      current.date,
-                      current.hour,
-                      e.target.value,
-                      current.period,
-                    ),
+              </div>
+
+              <div className="grid grid-cols-7 gap-1 text-center">
+                {days.map((date, index) =>
+                  date ? (
+                    <button
+                      type="button"
+                      key={date.toISOString()}
+                      className={`h-8 border-none rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        current.date === dateKey(date)
+                          ? "bg-[#1E3A34] text-white font-black shadow-md border-white/20"
+                          : "text-[#1E3A34] hover:bg-[#00D084]/15 hover:text-[#057A55] bg-white/60"
+                      } disabled:text-slate-300 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed`}
+                      disabled={Boolean(
+                        effectiveMin && dateKey(date) < effectiveMin.slice(0, 10),
+                      )}
+                      onClick={() => chooseDate(date)}
+                    >
+                      {date.getDate()}
+                    </button>
+                  ) : (
+                    <span key={`blank-${index}`} />
+                  ),
+                )}
+              </div>
+            </div>
+
+            {/* Right Column: Time Slot Selector Scroll Area */}
+            <div className="w-full sm:w-36 border-t sm:border-t-0 sm:border-l border-[#F0EBE1] pt-3 sm:pt-0 sm:pl-3 flex flex-col gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#057A55] block mb-1 text-center">
+                Time Slot
+              </span>
+              <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin">
+                {timeSlots.map((time) => {
+                  const isSelected = current.time === time
+                  const hour = Number(time.split(":")[0])
+                  const minute = time.split(":")[1]
+                  const display12 = `${pad(hour % 12 || 12)}:${minute} ${hour >= 12 ? "PM" : "AM"}`
+
+                  return (
+                    <button
+                      key={time}
+                      type="button"
+                      onClick={() => chooseTime(time)}
+                      className={`h-8 w-full rounded-full text-xs font-bold transition-all cursor-pointer border ${
+                        isSelected
+                          ? "bg-[#1E3A34] text-white font-extrabold shadow-md border-white/20"
+                          : "bg-white/80 text-[#1E3A34] hover:bg-[#00D084]/15 hover:text-[#057A55] border-[#E2DBD0]"
+                      }`}
+                    >
+                      {display12}
+                    </button>
                   )
-                }
-                className="h-9 w-full px-2 bg-white border border-slate-200 rounded-md text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 cursor-pointer"
-              >
-                {Array.from({ length: 60 }, (_, minute) => (
-                  <option key={minute} value={pad(minute)}>
-                    {pad(minute)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 text-[11px] font-semibold text-slate-600">
-              AM/PM
-              <select
-                value={current.period}
-                onChange={(e) =>
-                  update(
-                    makeValue(
-                      current.date,
-                      current.hour,
-                      current.minute,
-                      e.target.value,
-                    ),
-                  )
-                }
-                className="h-9 w-full px-2 bg-white border border-slate-200 rounded-md text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 cursor-pointer"
-              >
-                <option>AM</option>
-                <option>PM</option>
-              </select>
-            </label>
+                })}
+              </div>
+            </div>
+
           </div>
 
-          {/* Preview */}
-          <div className="mt-3 p-2.5 bg-slate-50 rounded-lg text-slate-700 text-xs font-medium border border-slate-100 text-center">
-            {preview(value)}
-          </div>
+          {/* Appointment Status Footer */}
+          <div className="mt-4 pt-3 border-t border-[#F0EBE1] space-y-3">
+            <div className="p-3 bg-[#F6F2E6]/80 rounded-2xl text-[#1E3A34] text-xs font-bold border border-[#E2DBD0] flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#00D084] animate-pulse" />
+              <span>{preview(value)}</span>
+            </div>
 
-          {/* Validation Error */}
-          {invalid && (
-            <small className="text-xs font-medium text-red-600 mt-1.5 block">
-              {label === "End Date and Time"
-                ? "End date and time must be later than the start date and time."
-                : "Select a valid date and time."}
-            </small>
-          )}
+            {/* Validation Warning */}
+            {invalid && (
+              <small className="text-xs font-bold text-rose-600 block">
+                {label === "End Date and Time"
+                  ? "End Date & Time must be later than Start Date & Time."
+                  : "Select a valid future date & time."}
+              </small>
+            )}
 
-          {/* Actions */}
-          <div className="flex items-center justify-between mt-3.5 pt-2">
-            <button
-              type="button"
-              className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors border-none bg-transparent p-0 cursor-pointer"
-              onClick={() => onChange("")}
-            >
-              Clear date
-            </button>
-            <button
-              type="button"
-              className="px-3.5 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-md shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer border-none"
-              disabled={!canConfirm}
-              onClick={() => canConfirm && setOpen(false)}
-            >
-              Done
-            </button>
+            {/* Actions */}
+            <div className="flex items-center justify-between pt-1">
+              <button
+                type="button"
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 transition-colors border-none bg-transparent p-0 cursor-pointer"
+                onClick={() => onChange("")}
+              >
+                Clear Selection
+              </button>
+              <button
+                type="button"
+                className="px-5 py-2 text-xs font-black text-white bg-[#057A55] hover:bg-[#035E41] active:scale-95 rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer border border-emerald-400/30"
+                disabled={!canConfirm}
+                onClick={() => canConfirm && setOpen(false)}
+              >
+                Confirm Time
+              </button>
+            </div>
           </div>
         </div>,
         document.body,
@@ -322,11 +339,11 @@ export function DateTimePicker({
 
   return (
     <div className="flex flex-col gap-1.5 min-w-0">
-      <span className="text-xs sm:text-sm font-semibold text-slate-700">{label}</span>
+      <span className="text-xs sm:text-sm font-extrabold text-[#1E3A34]">{label}</span>
       <button
         type="button"
         ref={anchor}
-        className="h-10 w-full px-3 text-left bg-white border border-slate-200 rounded-lg text-slate-800 hover:border-slate-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 whitespace-nowrap overflow-hidden text-ellipsis text-xs sm:text-sm shadow-sm transition-all cursor-pointer"
+        className="h-10 w-full px-3.5 text-left bg-white/80 backdrop-blur-md border border-[#E2DBD0] rounded-xl text-[#1E3A34] font-semibold hover:border-[#00D084] focus:outline-none focus:border-[#00D084] focus:ring-2 focus:ring-[#00D084]/20 whitespace-nowrap overflow-hidden text-ellipsis text-xs sm:text-sm shadow-sm transition-all cursor-pointer"
         onClick={() => {
           window.dispatchEvent(
             new CustomEvent("kgs-datetime-open", { detail: label }),
@@ -337,10 +354,10 @@ export function DateTimePicker({
         }}
         aria-expanded={open}
       >
-        {value ? preview(value) : "Select date and time"}
+        {value ? preview(value) : "Select date & time"}
       </button>
       {invalid && (
-        <small className="text-xs font-medium text-red-600 mt-1 block">
+        <small className="text-xs font-bold text-rose-600 mt-1 block">
           {label === "End Date and Time"
             ? "End date and time must be later than the start date and time."
             : "Select a valid date and time."}
