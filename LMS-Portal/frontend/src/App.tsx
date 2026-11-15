@@ -2337,19 +2337,59 @@ function AdminDashboard() {
       ),
     ),
   )
-  const dashboardKpis = [
-    ["users", "Registrations", stats.registrations],
-    ["book", "Active exams", stats.activeExams],
-    ["pulse", "Active attempts", stats.activeAttempts],
-    ["result", "Completed attempts", stats.completedAttempts],
-    ["review", "Pending reviews", stats.pendingReviews],
-    [
-      "download",
-      "Latest export",
-      stats.latestExport
-        ? new Date(stats.latestExport).toLocaleString()
+  const kpiCardConfig = [
+    {
+      icon: "users",
+      label: "Registrations",
+      value: stats.registrations ?? 0,
+      badgeBg: "bg-[#176B58]/10 text-[#176B58]",
+      accentBorder: "hover:border-[#176B58]",
+      accentGradient: "from-[#176B58] to-[#1C7A65]",
+    },
+    {
+      icon: "book",
+      label: "Active Exams",
+      value: stats.activeExams ?? 0,
+      badgeBg: "bg-[#203D39]/10 text-[#203D39]",
+      accentBorder: "hover:border-[#203D39]",
+      accentGradient: "from-[#203D39] to-[#176B58]",
+    },
+    {
+      icon: "pulse",
+      label: "Active Attempts",
+      value: stats.activeAttempts ?? 0,
+      badgeBg: "bg-[#D96C50]/10 text-[#D96C50]",
+      accentBorder: "hover:border-[#D96C50]",
+      accentGradient: "from-[#D96C50] to-[#E5A23B]",
+    },
+    {
+      icon: "result",
+      label: "Completed Attempts",
+      value: stats.completedAttempts ?? 0,
+      badgeBg: "bg-[#E5A23B]/10 text-[#E5A23B]",
+      accentBorder: "hover:border-[#E5A23B]",
+      accentGradient: "from-[#E5A23B] to-[#D96C50]",
+    },
+    {
+      icon: "review",
+      label: "Pending Reviews",
+      value: stats.pendingReviews ?? 0,
+      badgeBg: "bg-[#176B58]/10 text-[#176B58]",
+      accentBorder: "hover:border-[#176B58]",
+      accentGradient: "from-[#176B58] to-[#203D39]",
+    },
+    {
+      icon: "download",
+      label: "Latest Export",
+      value: stats.latestExport
+        ? new Date(stats.latestExport).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         : "None",
-    ],
+      fullDate: stats.latestExport ? new Date(stats.latestExport).toLocaleString() : "",
+      badgeBg: "bg-[#203D39]/10 text-[#203D39]",
+      accentBorder: "hover:border-[#203D39]",
+      accentGradient: "from-[#203D39] to-[#176B58]",
+      isTextValue: true,
+    },
   ] as const
 
   return (
@@ -2417,15 +2457,38 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* KPI Stats */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 mb-6">
-        {dashboardKpis.map(([icon, label, value]) => (
-          <article className="flex flex-col p-4 bg-white rounded-xl border border-[#E2DBD0] shadow-[0_2px_12px_-1px_rgba(32,61,57,0.05)] hover:border-[#176B58] transition-all hover:shadow-md" key={label}>
-            <div className="text-[#176B58] mb-2 text-lg">
-              <Icon name={icon} />
+      {/* KPI Stats Grid */}
+      <section className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4.5 mb-6">
+        {kpiCardConfig.map((kpi) => (
+          <article
+            key={kpi.label}
+            className={`group relative overflow-hidden bg-white rounded-2xl p-4 sm:p-5 border border-[#E2DBD0] shadow-[0_4px_20px_-2px_rgba(23,107,88,0.08)] hover:shadow-[0_12px_28px_-4px_rgba(23,107,88,0.16)] transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between ${kpi.accentBorder}`}
+          >
+            {/* Subtle Top Accent Gradient Glow */}
+            <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${kpi.accentGradient}`} />
+
+            {/* Icon Header */}
+            <div className="flex items-center justify-between mb-3">
+              <span className={`w-9 h-9 rounded-full ${kpi.badgeBg} flex items-center justify-center text-base font-bold shadow-inner group-hover:scale-110 transition-transform duration-300`}>
+                <Icon name={kpi.icon} />
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E2DBD0] group-hover:bg-[#176B58] transition-colors" />
             </div>
-            <small className="text-[10px] font-black text-[#D96C50] uppercase tracking-wider mb-1">{label}</small>
-            <strong className="text-xl sm:text-2xl font-black text-[#203D39] leading-none">{value ?? 0}</strong>
+
+            {/* Label & Number */}
+            <div>
+              <small className="block text-[10px] font-black text-[#D96C50] uppercase tracking-wider mb-1">
+                {kpi.label}
+              </small>
+              <strong
+                className={`block font-black text-[#203D39] leading-tight tracking-tight ${
+                  (kpi as any).isTextValue ? "text-xs sm:text-sm font-bold truncate" : "text-2xl sm:text-3xl"
+                }`}
+                title={(kpi as any).fullDate || String(kpi.value)}
+              >
+                {kpi.value}
+              </strong>
+            </div>
           </article>
         ))}
       </section>
