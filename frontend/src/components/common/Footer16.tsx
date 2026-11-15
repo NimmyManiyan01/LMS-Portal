@@ -7,38 +7,38 @@ interface Footer16Props {
 }
 
 /**
- * Clean boolean-UNION vector paths for "KAIZENTRIX" letters.
- * Outlined geometric ExtraBold capitals with zero internal overlap contours.
+ * Clean boolean-UNION 10 vector paths for "KAIZENTRIX" (K A I Z E N T R I X).
+ * Outlined heavy geometric ExtraBold capitals with zero internal overlap contours.
+ * Clockwise perimeter travel starting from top-left.
  */
 const WORDMARK_PATHS = [
-  // K
-  "M 20 20 L 45 20 L 45 62 L 72 20 L 102 20 L 64 75 L 104 140 L 74 140 L 45 90 L 45 140 L 20 140 Z",
-  // A (Compound outer + inner counter cutout)
-  "M 150 20 L 190 140 L 163 140 L 155 114 L 125 114 L 117 140 L 90 140 Z M 140 60 L 131 92 L 149 92 Z",
-  // I
-  "M 205 20 L 235 20 L 235 140 L 205 140 Z",
-  // Z
-  "M 250 20 L 330 20 L 330 44 L 283 116 L 330 116 L 330 140 L 250 140 L 250 116 L 297 44 L 250 44 Z",
-  // E
-  "M 345 20 L 420 20 L 420 44 L 373 44 L 373 68 L 415 68 L 415 92 L 373 92 L 373 116 L 420 116 L 420 140 L 345 140 Z",
-  // N
-  "M 435 20 L 463 20 L 492 92 L 492 20 L 520 20 L 520 140 L 492 140 L 463 68 L 463 140 L 435 140 Z",
-  // T
-  "M 535 20 L 615 20 L 615 44 L 589 44 L 589 140 L 561 140 L 561 44 L 535 44 Z",
-  // R (Compound outer + inner loop cutout)
-  "M 630 20 L 685 20 C 702 20 715 31 715 48 C 715 62 705 72 690 75 L 718 140 L 688 140 L 664 82 L 658 82 L 658 140 L 630 140 Z M 658 42 L 658 62 L 682 62 C 691 62 696 57 696 52 C 696 47 691 42 682 42 Z",
-  // I
-  "M 725 20 L 755 20 L 755 140 L 725 140 Z",
-  // X
-  "M 770 20 L 798 20 L 815 65 L 832 20 L 860 20 L 832 80 L 862 140 L 834 140 L 815 95 L 796 140 L 768 140 L 798 80 Z",
+  // 1. K
+  "M 30 30 L 62 30 L 62 92 L 95 30 L 130 30 L 85 105 L 132 190 L 97 190 L 62 118 L 62 190 L 30 190 Z",
+  // 2. A (Compound outer + counter hole cutout)
+  "M 195 30 L 205 30 L 245 190 L 213 190 L 204 155 L 166 155 L 157 190 L 125 190 Z M 185 80 L 195 125 L 175 125 Z",
+  // 3. I
+  "M 260 30 L 295 30 L 295 190 L 260 190 Z",
+  // 4. Z
+  "M 310 30 L 410 30 L 410 58 L 352 162 L 410 162 L 410 190 L 310 190 L 310 162 L 368 58 L 310 58 Z",
+  // 5. E
+  "M 425 30 L 520 30 L 520 58 L 460 58 L 460 93 L 512 93 L 512 121 L 460 121 L 460 162 L 520 162 L 520 190 L 425 190 Z",
+  // 6. N
+  "M 535 30 L 567 30 L 603 130 L 603 30 L 635 30 L 635 190 L 603 190 L 567 90 L 567 190 L 535 190 Z",
+  // 7. T
+  "M 650 30 L 750 30 L 750 58 L 716 58 L 716 190 L 684 190 L 684 58 L 650 58 Z",
+  // 8. R (Compound outer + counter loop cutout)
+  "M 765 30 L 830 30 C 852 30 865 44 865 65 C 865 85 850 98 830 100 L 865 190 L 830 190 L 801 108 L 797 108 L 797 190 L 765 190 Z M 797 58 L 797 80 L 825 80 C 833 80 837 74 837 69 C 837 64 833 58 825 58 Z",
+  // 9. I
+  "M 880 30 L 915 30 L 915 190 L 880 190 Z",
+  // 10. X
+  "M 930 30 L 962 30 L 980 82 L 998 30 L 1030 30 L 997 110 L 1030 190 L 998 190 L 980 138 L 962 190 L 930 190 L 963 110 Z",
 ]
 
 /**
- * Animated "KAIZENTRIX" SVG Wordmark Component.
- * Features 10s infinite keyframe timeline, staggered letter paths,
- * CPU-saving IntersectionObserver pausing, and reduced-motion fallback.
+ * Reusable <WordmarkDraw /> Component.
+ * Pure CSS keyframe line-drawing sequence for KAIZENTRIX.
  */
-export function FooterWordmark() {
+export function WordmarkDraw({ className = "" }: { className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isIntersecting, setIsIntersecting] = useState(true)
 
@@ -58,86 +58,86 @@ export function FooterWordmark() {
     <div
       ref={containerRef}
       aria-hidden="true"
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-[1400px] h-[65%] flex items-center justify-center overflow-hidden pointer-events-none select-none z-0"
+      className={`relative w-full h-full flex items-center justify-center pointer-events-none select-none ${className}`}
     >
       <style>{`
         :root {
-          --wm-stroke: #057A55;
-          --wm-fill-hold: rgba(5, 122, 85, 0.07);
-          --wm-fill-ghost: rgba(5, 122, 85, 0.04);
+          --wordmark-stroke: #0B7A4B;
+          --wordmark-fill: rgba(11, 122, 75, 0.07);
         }
 
-        @keyframes kgsWordmarkDraw {
+        @keyframes kgsDrawSeq {
           0% {
             stroke-dashoffset: 1;
             stroke-opacity: 1;
+            fill: transparent;
             fill-opacity: 0;
             will-change: stroke-dashoffset, opacity;
           }
-          12.5% {
-            /* 1.25s: DRAW phase complete */
+          11% {
+            /* 1.1s: DRAW complete */
             stroke-dashoffset: 0;
             stroke-opacity: 1;
+            fill: transparent;
             fill-opacity: 0;
           }
-          17.5% {
-            /* 1.75s: FILL IN phase complete */
+          15% {
+            /* 1.5s: FILL IN complete (7% opacity) */
             stroke-dashoffset: 0;
             stroke-opacity: 1;
-            fill-opacity: 0.07;
-          }
-          45% {
-            /* 4.5s: HOLD breathing sub-peak */
-            stroke-dashoffset: 0;
-            stroke-opacity: 0.92;
+            fill: var(--wordmark-stroke);
             fill-opacity: 0.07;
           }
           75% {
             /* 7.5s: HOLD phase complete */
             stroke-dashoffset: 0;
             stroke-opacity: 1;
+            fill: var(--wordmark-stroke);
             fill-opacity: 0.07;
           }
           80% {
             /* 8.0s: FADE OUT phase complete */
             stroke-dashoffset: 0;
             stroke-opacity: 0;
-            fill-opacity: 0.04;
+            fill: var(--wordmark-stroke);
+            fill-opacity: 0;
           }
           100% {
-            /* 10.0s: GHOST phase complete -> loop restarts */
-            stroke-dashoffset: 0;
+            /* 10.0s: PAUSE complete -> loop restarts */
+            stroke-dashoffset: 1;
             stroke-opacity: 0;
-            fill-opacity: 0.04;
+            fill: transparent;
+            fill-opacity: 0;
             will-change: auto;
           }
         }
 
-        .kgs-letter-path {
-          stroke: var(--wm-stroke);
-          fill: var(--wm-stroke);
-          stroke-width: 1.8;
+        .kgs-wordmark-path {
+          stroke: var(--wordmark-stroke);
+          stroke-width: 2px;
           stroke-dasharray: 1;
           stroke-dashoffset: 1;
           stroke-linecap: round;
           stroke-linejoin: round;
           vector-effect: non-scaling-stroke;
-          animation: kgsWordmarkDraw 10s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+          animation: kgsDrawSeq 10s cubic-bezier(0.65, 0, 0.35, 1) infinite both;
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .kgs-letter-path {
+          .kgs-wordmark-path {
             animation: none !important;
             stroke-dashoffset: 0 !important;
-            stroke-opacity: 0 !important;
-            fill-opacity: 0.04 !important;
+            stroke-opacity: 1 !important;
+            fill: var(--wordmark-stroke) !important;
+            fill-opacity: 0.07 !important;
+            will-change: auto !important;
           }
         }
       `}</style>
 
       <svg
         className="w-full h-full select-none"
-        viewBox="0 0 900 160"
+        viewBox="0 0 1060 220"
         preserveAspectRatio="xMidYMid meet"
         style={{
           animationPlayState: isIntersecting ? "running" : "paused",
@@ -148,9 +148,9 @@ export function FooterWordmark() {
             key={index}
             d={d}
             pathLength={1}
-            className="kgs-letter-path"
+            className="kgs-wordmark-path"
             style={{
-              animationDelay: `${(index * 0.08).toFixed(2)}s`,
+              animationDelay: `${(index * 0.09).toFixed(2)}s`,
               animationPlayState: isIntersecting ? "running" : "paused",
             }}
           />
@@ -164,8 +164,10 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
   return (
     <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#1E3A34] border-t border-slate-200/80 pt-12 pb-8 px-6 sm:px-12">
 
-      {/* Decorative SVG Animated Wordmark Layer */}
-      <FooterWordmark />
+      {/* SVG Wordmark Layer */}
+      <div className="absolute bottom-4 left-0 right-0 h-44 flex items-center justify-center overflow-hidden pointer-events-none select-none z-0">
+        <WordmarkDraw className="max-h-[160px]" />
+      </div>
 
       <div className="relative z-10 max-w-7xl mx-auto space-y-10">
 
