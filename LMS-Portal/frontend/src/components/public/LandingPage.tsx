@@ -3,6 +3,7 @@ import logo from "../../assets/Logo.png";
 import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4";
 import { TransparentLogoVideo } from "./TransparentLogoVideo";
 import { ContactModal } from "./ContactModal";
+import { Footer16 } from "../common/Footer16";
 
 const HERO_VIDEO_URL =
   "https://res.cloudinary.com/dujdjt4l7/video/upload/v1793776799/EXAM_aphxzg.mp4";
@@ -921,21 +922,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
       </main>
 
       {/* GLOBAL FOOTER */}
-      <footer className="w-full bg-surface-container-lowest py-space-lg">
-        <div className="max-w-7xl mx-auto px-margin flex flex-col gap-space-md font-body-sm text-body-sm text-on-surface-variant">
-          <div className="flex flex-wrap items-center justify-center gap-x-space-lg gap-y-2">
-            <a className="hover:text-on-surface transition-colors" href="mailto:enquiry@kaizentrixglobal.com">
-              Campus Assistance
-            </a>
-            <a className="hover:text-on-surface transition-colors" href="/placement-policy">
-              Placement Policy
-            </a>
-          </div>
-          <div className="w-full pt-space-md text-center text-xs text-on-surface-variant">
-            © 2026 Kaizentrix Global Solutions Private Limited. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <Footer16 />
       {selectedProduct && (
         <div
           className="fixed inset-0 z-[90] flex items-center justify-center bg-[#14213D]/40 px-4 backdrop-blur-sm animate-[fadeIn_200ms_ease-out]"

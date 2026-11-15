@@ -3,6 +3,7 @@ import logo from "../../assets/Logo.png";
 import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4";
 import { TransparentLogoVideo } from "./TransparentLogoVideo";
 import { ContactModal } from "./ContactModal";
+import { Footer16 } from "../common/Footer16";
 
 const HERO_VIDEO_URL =
   "https://res.cloudinary.com/dujdjt4l7/video/upload/v1793776799/EXAM_aphxzg.mp4";
@@ -374,7 +375,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
           </video>
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(248,250,255,0.98)_0%,rgba(248,250,255,0.92)_28%,rgba(248,250,255,0.65)_48%,rgba(248,250,255,0.08)_78%,transparent_100%)] max-md:bg-[linear-gradient(180deg,rgba(248,250,255,0.99)_0%,rgba(248,250,255,0.94)_40%,rgba(248,250,255,0.52)_72%,rgba(248,250,255,0.12)_100%)]"
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(248,250,255,0.78)_0%,rgba(248,250,255,0.62)_28%,rgba(248,250,255,0.34)_48%,rgba(248,250,255,0.04)_78%,transparent_100%)] max-md:bg-[linear-gradient(180deg,rgba(248,250,255,0.86)_0%,rgba(248,250,255,0.72)_40%,rgba(248,250,255,0.34)_72%,rgba(248,250,255,0.08)_100%)]"
           />
           <div className="absolute -top-32 right-10 w-96 h-96 bg-primary-fixed-dim/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 left-10 w-80 h-80 bg-tertiary-fixed/30 rounded-full blur-3xl pointer-events-none" />
@@ -382,15 +383,16 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
           <div className="relative z-10 mx-auto grid h-full max-w-7xl grid-cols-1 items-center gap-space-xl lg:grid-cols-12">
             {/* Left Copy & Metric Highlights */}
             <div className="flex max-w-[620px] flex-col gap-space-md lg:col-span-7">
-              <h1 className="font-headline-xl text-[clamp(2.2rem,3.2vw,3.5rem)] leading-[1.08] tracking-tight text-[#14213D]">
-                Launch Your Career in <span className="text-primary font-bold">High-Impact</span>{" "}
-                Software Engineering
+              <h1 className="font-headline-xl text-[clamp(2.2rem,3.2vw,3.5rem)] font-bold leading-[1.08] tracking-tight text-black">
+                Kaizentrix Global Solutions
               </h1>
 
-              <p className="max-w-[580px] font-body-lg text-body-lg leading-relaxed text-[#475569]">
-                From algorithmic mastery to high-throughput distributed microservices. Kaizentrix
-                Global Solutions bridges the gap between academic theory and high-paying engineering roles at top
-                product companies.
+              <p className="max-w-[580px] font-body-lg text-body-lg font-bold leading-relaxed text-black">
+                Kaizentrix Global Solutions is a technology-driven company focused on building innovative products and digital solutions, with expertise across cloud infrastructure, cybersecurity, artificial intelligence and data engineering.
+                <br /><br />
+                Inspired by Kaizen, the Japanese philosophy of continuous improvement, we help businesses transform ideas into practical solutions—from enterprise technology and product development to AI-powered platforms and digital assessment solutions.
+                <br /><br />
+                <strong>Driven by innovation, collaboration and continuous improvement.</strong>
               </p>
 
               {/* Primary Call to Action Buttons */}
@@ -920,21 +922,7 @@ export function LandingPage({ onLogin, onAdminLogin, onRegister }: LandingPagePr
       </main>
 
       {/* GLOBAL FOOTER */}
-      <footer className="w-full bg-surface-container-lowest py-space-lg">
-        <div className="max-w-7xl mx-auto px-margin flex flex-col gap-space-md font-body-sm text-body-sm text-on-surface-variant">
-          <div className="flex flex-wrap items-center justify-center gap-x-space-lg gap-y-2">
-            <a className="hover:text-on-surface transition-colors" href="mailto:enquiry@kaizentrixglobal.com">
-              Campus Assistance
-            </a>
-            <a className="hover:text-on-surface transition-colors" href="/placement-policy">
-              Placement Policy
-            </a>
-          </div>
-          <div className="w-full pt-space-md text-center text-xs text-on-surface-variant">
-            © 2026 Kaizentrix Global Solutions Private Limited. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <Footer16 />
       {selectedProduct && (
         <div
           className="fixed inset-0 z-[90] flex items-center justify-center bg-[#14213D]/40 px-4 backdrop-blur-sm animate-[fadeIn_200ms_ease-out]"
