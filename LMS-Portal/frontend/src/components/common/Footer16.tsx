@@ -67,18 +67,18 @@ export function FooterWaveWordmark() {
 
 export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
   return (
-    <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#434655] border-t border-[#E2E7FF] pt-14 pb-10 px-6 sm:px-12">
+    <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#434655] border-t border-[#E2E7FF] pt-10 pb-6 px-6 sm:px-12">
 
       {/* Decorative 5% Opacity Background Watermark (z-0) */}
       <FooterWaveWordmark />
 
-      <div className="relative z-10 max-w-7xl mx-auto space-y-12">
+      <div className="relative z-10 max-w-7xl mx-auto space-y-8">
 
         {/* UPPER 3-COLUMN ENTERPRISE LAYOUT */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
 
           {/* COLUMN 1: Company Logo, Description, ISO Badges, & Social Icons (5 Cols) */}
-          <div className="lg:col-span-5 space-y-5">
+          <div className="lg:col-span-5 space-y-3.5">
             <div className="flex items-center gap-3">
               <img
                 alt="Kaizentrix Global Solutions"
@@ -95,58 +95,58 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
             </p>
 
             {/* ISO Certification Badges */}
-            <div className="flex flex-wrap items-center gap-2.5 pt-1">
-              <span className="px-3.5 py-1.5 rounded-lg bg-[#F2F3FF] border border-[#E2E7FF] text-xs font-semibold text-[#131B2E] shadow-2xs">
+            <div className="flex flex-wrap items-center gap-2 pt-0.5">
+              <span className="px-3 py-1 rounded-lg bg-[#F2F3FF] border border-[#E2E7FF] text-xs font-semibold text-[#131B2E] shadow-2xs">
                 ISO 9001 – Quality Management
               </span>
-              <span className="px-3.5 py-1.5 rounded-lg bg-[#F2F3FF] border border-[#E2E7FF] text-xs font-semibold text-[#131B2E] shadow-2xs">
+              <span className="px-3 py-1 rounded-lg bg-[#F2F3FF] border border-[#E2E7FF] text-xs font-semibold text-[#131B2E] shadow-2xs">
                 ISO/IEC 27001 – Information Security
               </span>
             </div>
 
             {/* Social Channels */}
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex items-center gap-2.5 pt-0.5">
               <a
                 aria-label="LinkedIn"
-                className="w-10 h-10 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-9 h-9 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/"
                 target="_blank"
                 rel="noreferrer"
               >
-                <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                   <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V8.98h3.42v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.29ZM5.32 7.41a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13ZM7.1 20.45H3.54V8.98H7.1v11.47Z" />
                 </svg>
               </a>
               <a
                 aria-label="GitHub"
-                className="w-10 h-10 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-9 h-9 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://github.com"
                 target="_blank"
                 rel="noreferrer"
               >
-                <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                   <path fillRule="evenodd" d="M12 2C6.48 2 2 6.58 2 12.23c0 4.52 2.87 8.35 6.84 9.71.5.1.68-.22.68-.49 0-.24-.01-1.05-.01-1.9-2.78.62-3.37-1.2-3.37-1.2-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.35 1.12 2.92.85.09-.66.35-1.12.64-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.35 9.35 0 0 1 12 6.96a9.3 9.3 0 0 1 2.5.35c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.35 4.8-4.58 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.59.69.49A10.23 10.23 0 0 0 22 12.23C22 6.58 17.52 2 12 2Z" clipRule="evenodd" />
                 </svg>
               </a>
               <a
                 aria-label="YouTube"
-                className="w-10 h-10 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-9 h-9 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://youtube.com"
                 target="_blank"
                 rel="noreferrer"
               >
-                <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                   <path d="M23.5 6.2a3 3 0 0 0-2.1-2.12C19.55 3.57 12 3.57 12 3.57s-7.55 0-9.4.51A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.12c1.85.51 9.4.51 9.4.51s7.55 0 9.4-.51a3 3 0 0 0 2.1-2.12A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8ZM9.6 15.57V8.43L15.82 12 9.6 15.57Z" />
                 </svg>
               </a>
               <a
                 aria-label="Discord"
-                className="w-10 h-10 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-9 h-9 rounded-xl bg-[#F2F3FF] border border-[#E2E7FF] hover:bg-[#004AC6] hover:text-white hover:border-[#004AC6] text-[#434655] flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://discord.com"
                 target="_blank"
                 rel="noreferrer"
               >
-                <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                   <path d="M20.32 4.37A19.8 19.8 0 0 0 15.44 2.9l-.6 1.22a18.3 18.3 0 0 0-5.67 0L8.56 2.9A19.7 19.7 0 0 0 3.68 4.38C.6 8.96-.23 13.42.18 17.82a19.9 19.9 0 0 0 5.99 3.03l1.46-1.98a12.8 12.8 0 0 1-2.3-1.1l.57-.45c3.96 1.84 8.26 1.84 12.17 0l.58.45c-.74.43-1.5.8-2.3 1.1l1.46 1.98a19.8 19.8 0 0 0 6-3.03c.48-5.1-.83-9.51-3.49-13.45ZM8.02 15.13c-1.2 0-2.18-1.1-2.18-2.45s.96-2.45 2.18-2.45c1.21 0 2.2 1.1 2.18 2.45 0 1.35-.96 2.45-2.18 2.45Zm7.96 0c-1.2 0-2.18-1.1-2.18-2.45s.96-2.45 2.18-2.45c1.22 0 2.2 1.1 2.18 2.45 0 1.35-.96 2.45-2.18 2.45Z" />
                 </svg>
               </a>
@@ -154,11 +154,11 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
           </div>
 
           {/* COLUMN 2: Quick Navigation Links (3 Cols) */}
-          <div className="lg:col-span-3 space-y-4">
+          <div className="lg:col-span-3 space-y-3.5">
             <span className="text-xs font-bold uppercase tracking-wider text-[#131B2E] block mb-2">
               Quick Links
             </span>
-            <ul className="space-y-3 p-0 m-0 list-none text-sm font-semibold">
+            <ul className="space-y-2.5 p-0 m-0 list-none text-sm font-semibold">
               <li>
                 <a
                   className="text-[#434655] hover:text-[#004AC6] transition-colors duration-200"
@@ -203,12 +203,12 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
           </div>
 
           {/* COLUMN 3: Contact Information with Aligned Icons (4 Cols) */}
-          <div className="lg:col-span-4 space-y-4">
+          <div className="lg:col-span-4 space-y-3.5">
             <span className="text-xs font-bold uppercase tracking-wider text-[#131B2E] block mb-2">
               Contact
             </span>
 
-            <div className="space-y-3.5 text-sm font-normal text-[#434655]">
+            <div className="space-y-3 text-sm font-normal text-[#434655]">
               <div className="flex items-start gap-3">
                 <span className="material-symbols-outlined text-[#004AC6] text-[20px] mt-0.5 shrink-0">mail</span>
                 <a
@@ -240,7 +240,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
         </div>
 
         {/* LOWER SECTION: SUBTLE DIVIDER & POLICY / COPYRIGHT BAR */}
-        <div className="pt-7 border-t border-[#E2E7FF] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-[#434655]">
+        <div className="pt-5 border-t border-[#E2E7FF] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-medium text-[#434655]">
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <a
               className="hover:text-[#004AC6] transition-colors duration-200"
