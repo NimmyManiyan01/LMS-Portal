@@ -2867,27 +2867,27 @@ function AdminDashboard({
             </div>
 
             {/* Participation Overview Translucent Light Glass Card */}
-            <div className="bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/80 shadow-[0_10px_35px_-5px_rgba(32,61,57,0.08)] p-6 sm:p-8 flex flex-col justify-between gap-6 relative min-h-[420px]">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#F0EBE1]">
+            <div className="bg-white/50 backdrop-blur-xl rounded-3xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-5 sm:p-6 flex flex-col justify-between gap-5 relative">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#F0EBE1]">
                 <div>
-                  <h3 className="text-xl font-black text-[#203D39] m-0">Participation Overview</h3>
-                  <p className="text-xs text-[#176B58] font-bold mt-0.5 m-0">Daily registrations and completed attempts in selected period</p>
+                  <h3 className="text-xl font-black text-[#1E3A34] m-0">Participation Overview</h3>
+                  <p className="text-xs text-[#057A55] font-bold mt-0.5 m-0">Daily candidate registrations vs completed attempts in selected period</p>
                 </div>
-                <div className="flex items-center gap-4 text-xs font-bold text-[#203D39]">
-                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#176B58]/15 text-[#176B58]">
-                    <i className="w-2.5 h-2.5 rounded-full bg-[#176B58] inline-block shrink-0 shadow-sm" /> Registered
+                <div className="flex items-center gap-4 text-xs font-bold text-[#1E3A34]">
+                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#00D084]/20 text-[#057A55] border border-[#00D084]/30">
+                    <i className="w-2.5 h-2.5 rounded-full bg-[#00D084] inline-block shrink-0 shadow-sm" /> Registered
                   </span>
-                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5A23B]/15 text-[#E5A23B]">
-                    <i className="w-2.5 h-2.5 rounded-full bg-[#E5A23B] inline-block shrink-0 shadow-sm" /> Completed
+                  <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFB800]/20 text-[#D99B00] border border-[#FFB800]/30">
+                    <i className="w-2.5 h-2.5 rounded-full bg-[#FFB800] inline-block shrink-0 shadow-sm" /> Completed
                   </span>
                 </div>
               </div>
 
               {dates.length === 0 ? (
-                <div className="py-20 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#203D39]/70 font-semibold bg-[#F7F4EC]/50 rounded-2xl border border-dashed border-[#E2DBD0]">
-                  <span className="text-3xl text-[#176B58]">📊</span>
-                  <span className="font-bold text-[#203D39]">No activity recorded for this period</span>
-                  <p className="text-[11px] text-[#176B58] font-medium m-0">Try selecting a different date range in the top toolbar filter.</p>
+                <div className="py-16 text-center flex flex-col items-center justify-center gap-2 text-xs text-[#1E3A34]/70 font-semibold bg-[#F6F2E6]/50 rounded-2xl border border-dashed border-[#E2DBD0]">
+                  <span className="text-3xl text-[#057A55]">📊</span>
+                  <span className="font-bold text-[#1E3A34]">No activity recorded for this period</span>
+                  <p className="text-[11px] text-[#057A55] font-medium m-0">Try selecting a different date range in the top toolbar filter.</p>
                 </div>
               ) : (
                 <div
@@ -2897,24 +2897,24 @@ function AdminDashboard({
                   {/* Interactive Tooltip Overlay */}
                   {hoveredChartIndex !== null && regPoints[hoveredChartIndex] && (
                     <div
-                      className="absolute bg-[#203D39] text-white backdrop-blur-md px-4 py-3 rounded-2xl border border-[#176B58]/40 shadow-2xl text-xs space-y-1.5 pointer-events-none transition-all duration-150 z-30"
+                      className="absolute bg-[#1E3A34] text-white backdrop-blur-md px-4 py-3 rounded-2xl border border-[#00D084]/40 shadow-2xl text-xs space-y-1.5 pointer-events-none transition-all duration-150 z-30"
                       style={{
                         left: `${Math.min(Math.max((regPoints[hoveredChartIndex].x / chartWidth) * 85, 5), 72)}%`,
                         top: "10px",
                       }}
                     >
-                      <div className="font-black text-[#E5A23B] border-b border-white/10 pb-1 text-[11px] tracking-wide">
+                      <div className="font-black text-[#FFB800] border-b border-white/10 pb-1 text-[11px] tracking-wide">
                         {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(new Date(`${dates[hoveredChartIndex]}T00:00:00`))}
                       </div>
                       <div className="flex items-center justify-between gap-4 text-[11px]">
                         <span className="flex items-center gap-1.5 font-bold text-emerald-300">
-                          <span className="w-2 h-2 rounded-full bg-[#176B58]" /> Registered:
+                          <span className="w-2 h-2 rounded-full bg-[#00D084]" /> Registered:
                         </span>
                         <span className="font-black text-white">{registrationMap.get(dates[hoveredChartIndex]) || 0}</span>
                       </div>
                       <div className="flex items-center justify-between gap-4 text-[11px]">
                         <span className="flex items-center gap-1.5 font-bold text-amber-300">
-                          <span className="w-2 h-2 rounded-full bg-[#E5A23B]" /> Completed:
+                          <span className="w-2 h-2 rounded-full bg-[#FFB800]" /> Completed:
                         </span>
                         <span className="font-black text-white">{completedMap.get(dates[hoveredChartIndex]) || 0}</span>
                       </div>
@@ -2923,18 +2923,18 @@ function AdminDashboard({
 
                   {/* SVG Area / Line Chart */}
                   <svg
-                    className="w-full h-60 sm:h-68 overflow-visible"
+                    className="w-full h-52 sm:h-60 overflow-visible"
                     viewBox={`0 0 ${chartWidth} ${chartHeight}`}
                     preserveAspectRatio="none"
                   >
                     <defs>
                       <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#176B58" stopOpacity="0.4" />
-                        <stop offset="100%" stopColor="#176B58" stopOpacity="0.0" />
+                        <stop offset="0%" stopColor="#00D084" stopOpacity="0.45" />
+                        <stop offset="100%" stopColor="#00D084" stopOpacity="0.0" />
                       </linearGradient>
                       <linearGradient id="amberGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#E5A23B" stopOpacity="0.4" />
-                        <stop offset="100%" stopColor="#E5A23B" stopOpacity="0.0" />
+                        <stop offset="0%" stopColor="#FFB800" stopOpacity="0.45" />
+                        <stop offset="100%" stopColor="#FFB800" stopOpacity="0.0" />
                       </linearGradient>
                     </defs>
 
@@ -2957,7 +2957,7 @@ function AdminDashboard({
                             x={padLeft - 6}
                             y={gridY + 4}
                             textAnchor="end"
-                            fill="#203D39"
+                            fill="#1E3A34"
                             opacity="0.6"
                             fontSize="10"
                             fontWeight="bold"
@@ -2978,7 +2978,7 @@ function AdminDashboard({
                           x={x}
                           y={chartHeight - 8}
                           textAnchor="middle"
-                          fill="#203D39"
+                          fill="#1E3A34"
                           opacity="0.7"
                           fontSize="9"
                           fontWeight="bold"
@@ -2994,7 +2994,7 @@ function AdminDashboard({
                       <path
                         d={regLineD}
                         fill="none"
-                        stroke="#176B58"
+                        stroke="#057A55"
                         strokeWidth="3.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -3007,7 +3007,7 @@ function AdminDashboard({
                       <path
                         d={compLineD}
                         fill="none"
-                        stroke="#E5A23B"
+                        stroke="#FFB800"
                         strokeWidth="3.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -3040,7 +3040,7 @@ function AdminDashboard({
                               y1={padTop}
                               x2={ptReg.x}
                               y2={bottomY}
-                              stroke="#203D39"
+                              stroke="#1E3A34"
                               strokeWidth="1.5"
                               strokeDasharray="3 3"
                               opacity="0.5"
@@ -3051,7 +3051,7 @@ function AdminDashboard({
                             cx={ptReg.x}
                             cy={ptReg.y}
                             r={isHovered ? "6" : "3.5"}
-                            fill="#176B58"
+                            fill="#057A55"
                             stroke="#FFFFFF"
                             strokeWidth="2"
                             className="transition-all duration-200"
@@ -3061,7 +3061,7 @@ function AdminDashboard({
                             cx={ptComp.x}
                             cy={ptComp.y}
                             r={isHovered ? "6" : "3.5"}
-                            fill="#E5A23B"
+                            fill="#FFB800"
                             stroke="#FFFFFF"
                             strokeWidth="2"
                             className="transition-all duration-200"
