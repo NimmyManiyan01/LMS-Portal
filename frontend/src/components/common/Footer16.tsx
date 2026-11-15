@@ -48,7 +48,7 @@ export function WordmarkDraw({ className = "" }: { className?: string }) {
 
     const observer = new IntersectionObserver(
       ([entry]) => setIsIntersecting(entry.isIntersecting),
-      { threshold: 0.05 },
+      { threshold: 0.01 },
     )
     observer.observe(el)
     return () => observer.disconnect()
@@ -61,62 +61,50 @@ export function WordmarkDraw({ className = "" }: { className?: string }) {
       className={`relative w-full h-full flex items-center justify-center pointer-events-none select-none ${className}`}
     >
       <style>{`
-        :root {
-          --wordmark-stroke: #0B7A4B;
-          --wordmark-fill: rgba(11, 122, 75, 0.07);
-        }
-
         @keyframes kgsDrawSeq {
           0% {
-            stroke-dashoffset: 1;
+            stroke-dashoffset: 1000;
             stroke-opacity: 1;
-            fill: transparent;
-            fill-opacity: 0;
-            will-change: stroke-dashoffset, opacity;
-          }
-          11% {
-            /* 1.1s: DRAW complete */
-            stroke-dashoffset: 0;
-            stroke-opacity: 1;
-            fill: transparent;
             fill-opacity: 0;
           }
           15% {
-            /* 1.5s: FILL IN complete (7% opacity) */
+            /* 1.5s: DRAW complete */
             stroke-dashoffset: 0;
             stroke-opacity: 1;
-            fill: var(--wordmark-stroke);
-            fill-opacity: 0.07;
+            fill-opacity: 0;
+          }
+          20% {
+            /* 2.0s: FILL IN complete (8% opacity) */
+            stroke-dashoffset: 0;
+            stroke-opacity: 1;
+            fill-opacity: 0.08;
           }
           75% {
             /* 7.5s: HOLD phase complete */
             stroke-dashoffset: 0;
             stroke-opacity: 1;
-            fill: var(--wordmark-stroke);
-            fill-opacity: 0.07;
+            fill-opacity: 0.08;
           }
           80% {
             /* 8.0s: FADE OUT phase complete */
             stroke-dashoffset: 0;
             stroke-opacity: 0;
-            fill: var(--wordmark-stroke);
-            fill-opacity: 0;
+            fill-opacity: 0.03;
           }
           100% {
             /* 10.0s: PAUSE complete -> loop restarts */
-            stroke-dashoffset: 1;
+            stroke-dashoffset: 1000;
             stroke-opacity: 0;
-            fill: transparent;
             fill-opacity: 0;
-            will-change: auto;
           }
         }
 
         .kgs-wordmark-path {
-          stroke: var(--wordmark-stroke);
+          stroke: #057A55;
+          fill: #057A55;
           stroke-width: 2px;
-          stroke-dasharray: 1;
-          stroke-dashoffset: 1;
+          stroke-dasharray: 1000;
+          stroke-dashoffset: 1000;
           stroke-linecap: round;
           stroke-linejoin: round;
           vector-effect: non-scaling-stroke;
@@ -128,9 +116,7 @@ export function WordmarkDraw({ className = "" }: { className?: string }) {
             animation: none !important;
             stroke-dashoffset: 0 !important;
             stroke-opacity: 1 !important;
-            fill: var(--wordmark-stroke) !important;
-            fill-opacity: 0.07 !important;
-            will-change: auto !important;
+            fill-opacity: 0.08 !important;
           }
         }
       `}</style>
@@ -139,19 +125,16 @@ export function WordmarkDraw({ className = "" }: { className?: string }) {
         className="w-full h-full select-none"
         viewBox="0 0 1060 220"
         preserveAspectRatio="xMidYMid meet"
-        style={{
-          animationPlayState: isIntersecting ? "running" : "paused",
-        }}
       >
         {WORDMARK_PATHS.map((d, index) => (
           <path
             key={index}
             d={d}
-            pathLength={1}
+            pathLength={1000}
             className="kgs-wordmark-path"
             style={{
               animationDelay: `${(index * 0.09).toFixed(2)}s`,
-              animationPlayState: isIntersecting ? "running" : "paused",
+              animationPlayState: isIntersecting ? "running" : "running",
             }}
           />
         ))}
