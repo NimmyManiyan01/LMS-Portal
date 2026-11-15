@@ -2364,10 +2364,30 @@ function AdminFloatingNavbar({
         <span className="text-lg">☰</span>
       </button>
 
+      {/* Mobile Dropdown Menu Overlay */}
+      {menuOpen && (
+        <div className="absolute left-0 right-0 top-14 z-50 md:hidden bg-white/95 backdrop-blur-2xl border border-white/90 rounded-3xl shadow-2xl p-3 space-y-1">
+          {adminNav.map(([icon, label]) => (
+            <button
+              key={label}
+              onClick={() => {
+                onNav(label)
+                setMenuOpen(false)
+              }}
+              className={`w-full text-left px-4 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+                active === label ? "bg-[#1E3A34] text-white" : "text-[#1E3A34] hover:bg-[#F6F2E6]"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* User Avatar & Logout */}
       <div className="flex items-center gap-2.5 shrink-0">
         <div className="hidden sm:flex items-center gap-2 bg-white/70 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/90 text-[11px] font-extrabold text-[#1E3A34] shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-[#00D084] animate-pulse shadow-[0_0_8px_#00D084]" />
+          <span className="w-2 h-2 rounded-full bg-[#00D084] animate-pulse motion-reduce:animate-none shadow-[0_0_8px_#00D084]" />
           <span className="truncate max-w-[140px]">
             {adminUser?.email || "Administrator"}
           </span>
@@ -2381,6 +2401,7 @@ function AdminFloatingNavbar({
       </div>
     </nav>
   )
+}
 }
 
 function AdminDashboard({
