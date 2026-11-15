@@ -8,127 +8,37 @@ interface Footer16Props {
 
 /**
  * Clean boolean-UNION 10 vector paths for "KAIZENTRIX" (K A I Z E N T R I X).
- * Outlined heavy geometric ExtraBold capitals with zero internal overlap contours.
- * Clockwise perimeter travel starting from top-left.
+ * Outlined heavy geometric ExtraBold capitals stretching edge-to-edge.
+ * ViewBox 0 0 1000 200 with preserveAspectRatio="none".
  */
 const WORDMARK_PATHS = [
   // 1. K
-  "M 30 30 L 62 30 L 62 92 L 95 30 L 130 30 L 85 105 L 132 190 L 97 190 L 62 118 L 62 190 L 30 190 Z",
+  "M 10 5 L 42 5 L 42 85 L 75 5 L 110 5 L 62 90 L 112 195 L 78 195 L 42 118 L 42 195 L 10 195 Z",
   // 2. A (Compound outer + counter hole cutout)
-  "M 195 30 L 205 30 L 245 190 L 213 190 L 204 155 L 166 155 L 157 190 L 125 190 Z M 185 80 L 195 125 L 175 125 Z",
+  "M 145 5 L 160 5 L 205 195 L 172 195 L 163 155 L 125 155 L 116 195 L 83 195 Z M 144 60 L 133 118 L 155 118 Z",
   // 3. I
-  "M 260 30 L 295 30 L 295 190 L 260 190 Z",
+  "M 205 5 L 235 5 L 235 195 L 205 195 Z",
   // 4. Z
-  "M 310 30 L 410 30 L 410 58 L 352 162 L 410 162 L 410 190 L 310 190 L 310 162 L 368 58 L 310 58 Z",
+  "M 245 5 L 335 5 L 335 38 L 285 162 L 335 162 L 335 195 L 245 195 L 245 162 L 295 38 L 245 38 Z",
   // 5. E
-  "M 425 30 L 520 30 L 520 58 L 460 58 L 460 93 L 512 93 L 512 121 L 460 121 L 460 162 L 520 162 L 520 190 L 425 190 Z",
+  "M 345 5 L 435 5 L 435 38 L 382 38 L 382 82 L 428 82 L 428 115 L 382 115 L 382 162 L 435 162 L 435 195 L 345 195 Z",
   // 6. N
-  "M 535 30 L 567 30 L 603 130 L 603 30 L 635 30 L 635 190 L 603 190 L 567 90 L 567 190 L 535 190 Z",
+  "M 445 5 L 478 5 L 512 130 L 512 5 L 545 5 L 545 195 L 512 195 L 478 70 L 478 195 L 445 195 Z",
   // 7. T
-  "M 650 30 L 750 30 L 750 58 L 716 58 L 716 190 L 684 190 L 684 58 L 650 58 Z",
+  "M 555 5 L 655 5 L 655 38 L 620 38 L 620 195 L 590 195 L 590 38 L 555 38 Z",
   // 8. R (Compound outer + counter loop cutout)
-  "M 765 30 L 830 30 C 852 30 865 44 865 65 C 865 85 850 98 830 100 L 865 190 L 830 190 L 801 108 L 797 108 L 797 190 L 765 190 Z M 797 58 L 797 80 L 825 80 C 833 80 837 74 837 69 C 837 64 833 58 825 58 Z",
+  "M 665 5 L 730 5 C 752 5 765 19 765 48 C 765 72 750 88 730 92 L 765 195 L 730 195 L 700 102 L 695 102 L 695 195 L 665 195 Z M 695 35 L 695 72 L 722 72 C 732 72 738 66 738 53 C 738 41 732 35 722 35 Z",
   // 9. I
-  "M 880 30 L 915 30 L 915 190 L 880 190 Z",
+  "M 775 5 L 805 5 L 805 195 L 775 195 Z",
   // 10. X
-  "M 930 30 L 962 30 L 980 82 L 998 30 L 1030 30 L 997 110 L 1030 190 L 998 190 L 980 138 L 962 190 L 930 190 L 963 110 Z",
+  "M 815 5 L 848 5 L 868 78 L 888 5 L 920 5 L 888 98 L 922 195 L 890 195 L 868 118 L 846 195 L 814 195 L 846 98 Z",
 ]
 
 /**
- * Full-bleed animated SVG wave canvas spanning 100% width and 100% height of the footer.
- * Features organic liquid wave layers with emerald (#00D084), cyan (#00C4DF), and amber (#FFB800) accents.
+ * Reusable <FooterWaveWordmark /> Component.
+ * Full-bleed (100% width x 100% height) wave sweep reveal animation.
  */
-export function FooterWaveCanvas() {
-  return (
-    <div
-      aria-hidden="true"
-      className="absolute inset-0 w-full h-full pointer-events-none select-none overflow-hidden z-0"
-    >
-      <style>{`
-        @keyframes kgsWaveFlow1 {
-          0% { transform: translateX(0) scaleY(1); }
-          50% { transform: translateX(-25%) scaleY(1.15); }
-          100% { transform: translateX(0) scaleY(1); }
-        }
-        @keyframes kgsWaveFlow2 {
-          0% { transform: translateX(0) scaleY(1.1); }
-          50% { transform: translateX(20%) scaleY(0.9); }
-          100% { transform: translateX(0) scaleY(1.1); }
-        }
-        @keyframes kgsWaveFlow3 {
-          0% { transform: translateY(0) scaleX(1); }
-          50% { transform: translateY(-12px) scaleX(1.05); }
-          100% { transform: translateY(0) scaleX(1); }
-        }
-        .kgs-wave-layer-1 {
-          animation: kgsWaveFlow1 14s ease-in-out infinite;
-        }
-        .kgs-wave-layer-2 {
-          animation: kgsWaveFlow2 18s ease-in-out infinite;
-        }
-        .kgs-wave-layer-3 {
-          animation: kgsWaveFlow3 22s ease-in-out infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .kgs-wave-layer-1, .kgs-wave-layer-2, .kgs-wave-layer-3 {
-            animation: none !important;
-          }
-        }
-      `}</style>
-
-      <svg
-        className="absolute inset-0 w-[200%] h-full min-h-full"
-        viewBox="0 0 2880 400"
-        preserveAspectRatio="none"
-      >
-        <defs>
-          <linearGradient id="waveEmerald" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#00D084" stopOpacity="0.18" />
-            <stop offset="50%" stopColor="#057A55" stopOpacity="0.12" />
-            <stop offset="100%" stopColor="#00D084" stopOpacity="0.18" />
-          </linearGradient>
-          <linearGradient id="waveCyan" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#00C4DF" stopOpacity="0.15" />
-            <stop offset="50%" stopColor="#008DA1" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="#00C4DF" stopOpacity="0.15" />
-          </linearGradient>
-          <linearGradient id="waveAmber" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#FFB800" stopOpacity="0.12" />
-            <stop offset="50%" stopColor="#FF7A59" stopOpacity="0.06" />
-            <stop offset="100%" stopColor="#FFB800" stopOpacity="0.12" />
-          </linearGradient>
-        </defs>
-
-        {/* Wave 3 (Amber/Peach Accent Back Layer) */}
-        <path
-          d="M 0 160 C 360 80, 720 240, 1080 160 C 1440 80, 1800 240, 2160 160 C 2520 80, 2760 220, 2880 180 L 2880 400 L 0 400 Z"
-          fill="url(#waveAmber)"
-          className="kgs-wave-layer-3"
-        />
-
-        {/* Wave 2 (Cyan Accent Mid Layer) */}
-        <path
-          d="M 0 200 C 400 280, 800 120, 1200 200 C 1600 280, 2000 120, 2400 200 C 2640 250, 2800 160, 2880 200 L 2880 400 L 0 400 Z"
-          fill="url(#waveCyan)"
-          className="kgs-wave-layer-2"
-        />
-
-        {/* Wave 1 (Emerald Accent Front Layer) */}
-        <path
-          d="M 0 240 C 320 180, 640 300, 960 240 C 1280 180, 1600 300, 1920 240 C 2240 180, 2560 280, 2880 240 L 2880 400 L 0 400 Z"
-          fill="url(#waveEmerald)"
-          className="kgs-wave-layer-1"
-        />
-      </svg>
-    </div>
-  )
-}
-
-/**
- * Reusable <WordmarkDraw /> Component.
- * Pure CSS keyframe line-drawing sequence for KAIZENTRIX.
- */
-export function WordmarkDraw({ className = "" }: { className?: string }) {
+export function FooterWaveWordmark() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isIntersecting, setIsIntersecting] = useState(true)
 
@@ -148,87 +58,130 @@ export function WordmarkDraw({ className = "" }: { className?: string }) {
     <div
       ref={containerRef}
       aria-hidden="true"
-      className={`relative w-full h-full flex items-center justify-center pointer-events-none select-none ${className}`}
+      className="absolute inset-0 w-full h-full pointer-events-none select-none overflow-hidden z-0"
     >
       <style>{`
-        @keyframes kgsDrawSeq {
+        :root {
+          --wm-stroke: rgba(11, 122, 75, 0.55);
+          --wm-fill: rgba(11, 122, 75, 0.05);
+        }
+
+        @keyframes kgsWaveSweep {
           0% {
-            stroke-dashoffset: 1000;
-            stroke-opacity: 1;
-            fill-opacity: 0;
+            mask-position: -28% 0;
+            -webkit-mask-position: -28% 0;
           }
-          15% {
-            /* 1.5s: DRAW complete */
-            stroke-dashoffset: 0;
-            stroke-opacity: 1;
-            fill-opacity: 0;
-          }
-          20% {
-            /* 2.0s: FILL IN complete (8% opacity) */
-            stroke-dashoffset: 0;
-            stroke-opacity: 1;
-            fill-opacity: 0.08;
-          }
-          75% {
-            /* 7.5s: HOLD phase complete */
-            stroke-dashoffset: 0;
-            stroke-opacity: 1;
-            fill-opacity: 0.08;
-          }
-          80% {
-            /* 8.0s: FADE OUT phase complete */
-            stroke-dashoffset: 0;
-            stroke-opacity: 0;
-            fill-opacity: 0.03;
+          40% {
+            mask-position: 128% 0;
+            -webkit-mask-position: 128% 0;
           }
           100% {
-            /* 10.0s: PAUSE complete -> loop restarts */
-            stroke-dashoffset: 1000;
-            stroke-opacity: 0;
-            fill-opacity: 0;
+            mask-position: 128% 0;
+            -webkit-mask-position: 128% 0;
           }
         }
 
-        .kgs-wordmark-path {
-          stroke: #057A55;
-          fill: #057A55;
-          stroke-width: 2px;
-          stroke-dasharray: 1000;
-          stroke-dashoffset: 1000;
+        @keyframes kgsWaveSweepCore {
+          0% {
+            mask-position: -14% 0;
+            -webkit-mask-position: -14% 0;
+          }
+          40% {
+            mask-position: 114% 0;
+            -webkit-mask-position: 114% 0;
+          }
+          100% {
+            mask-position: 114% 0;
+            -webkit-mask-position: 114% 0;
+          }
+        }
+
+        .kgs-wave-mask-wrapper {
+          mask-image: linear-gradient(90deg, transparent 0%, #000 35%, #000 65%, transparent 100%);
+          mask-size: 28% 100%;
+          mask-repeat: no-repeat;
+          -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 35%, #000 65%, transparent 100%);
+          -webkit-mask-size: 28% 100%;
+          -webkit-mask-repeat: no-repeat;
+          animation: kgsWaveSweep 8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+          will-change: mask-position, -webkit-mask-position;
+        }
+
+        .kgs-wave-core-wrapper {
+          mask-image: linear-gradient(90deg, transparent 0%, #000 45%, #000 55%, transparent 100%);
+          mask-size: 14% 100%;
+          mask-repeat: no-repeat;
+          -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 45%, #000 55%, transparent 100%);
+          -webkit-mask-size: 14% 100%;
+          -webkit-mask-repeat: no-repeat;
+          animation: kgsWaveSweepCore 8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+          will-change: mask-position, -webkit-mask-position;
+        }
+
+        .kgs-wave-wm-path {
+          stroke: var(--wm-stroke);
+          fill: var(--wm-fill);
+          stroke-width: 1.5px;
           stroke-linecap: round;
           stroke-linejoin: round;
           vector-effect: non-scaling-stroke;
-          animation: kgsDrawSeq 10s cubic-bezier(0.65, 0, 0.35, 1) infinite both;
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .kgs-wordmark-path {
+          .kgs-wave-mask-wrapper, .kgs-wave-core-wrapper {
             animation: none !important;
-            stroke-dashoffset: 0 !important;
-            stroke-opacity: 1 !important;
-            fill-opacity: 0.08 !important;
+            mask-position: 50% 0 !important;
+            -webkit-mask-position: 50% 0 !important;
+            mask-size: 100% 100% !important;
+            -webkit-mask-size: 100% 100% !important;
           }
         }
       `}</style>
 
-      <svg
-        className="w-full h-full select-none"
-        viewBox="0 0 1060 220"
-        preserveAspectRatio="xMidYMid meet"
+      {/* Primary Masked Wave Sweep Layer */}
+      <div
+        className="w-full h-full kgs-wave-mask-wrapper"
+        style={{
+          animationPlayState: isIntersecting ? "running" : "paused",
+        }}
       >
-        {WORDMARK_PATHS.map((d, index) => (
-          <path
-            key={index}
-            d={d}
-            pathLength={1000}
-            className="kgs-wordmark-path"
-            style={{
-              animationDelay: `${(index * 0.09).toFixed(2)}s`,
-              animationPlayState: isIntersecting ? "running" : "running",
-            }}
-          />
-        ))}
-      </svg>
+        <svg
+          className="w-full h-full select-none"
+          viewBox="0 0 1000 200"
+          preserveAspectRatio="none"
+        >
+          {WORDMARK_PATHS.map((d, index) => (
+            <path
+              key={index}
+              d={d}
+              className="kgs-wave-wm-path"
+            />
+          ))}
+        </svg>
+      </div>
+
+      {/* Optional Polish: Bright Center Core Layer */}
+      <div
+        className="absolute inset-0 w-full h-full kgs-wave-core-wrapper opacity-90"
+        style={{
+          animationPlayState: isIntersecting ? "running" : "paused",
+        }}
+      >
+        <svg
+          className="w-full h-full select-none"
+          viewBox="0 0 1000 200"
+          preserveAspectRatio="none"
+        >
+          {WORDMARK_PATHS.map((d, index) => (
+            <path
+              key={index}
+              d={d}
+              className="kgs-wave-wm-path"
+              style={{ strokeOpacity: 1, strokeWidth: "2px" }}
+            />
+          ))}
+        </svg>
+      </div>
     </div>
   )
 }
@@ -237,15 +190,10 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
   return (
     <footer className="relative w-full overflow-hidden bg-white font-sans antialiased text-[#1E3A34] border-t border-slate-200/80 pt-12 pb-8 px-6 sm:px-12">
 
-      {/* Full-Bleed Animated Wave Background Canvas (Spans 100% width and 100% height) */}
-      <FooterWaveCanvas />
+      {/* Wave Sweep Reveal Animated Wordmark Layer (Full-Bleed 100% Edge-to-Edge) */}
+      <FooterWaveWordmark />
 
-      {/* SVG Wordmark Layer */}
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none select-none z-10">
-        <WordmarkDraw className="max-h-[220px]" />
-      </div>
-
-      <div className="relative z-20 max-w-7xl mx-auto space-y-10">
+      <div className="relative z-10 max-w-7xl mx-auto space-y-10">
 
         {/* UPPER CONTENT (Company Logo, Description, ISO Badges, Social Buttons, Quick Links, Contact Details) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
