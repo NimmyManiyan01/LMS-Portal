@@ -6,7 +6,7 @@ interface Footer16Props {
 }
 
 /**
- * Single-contour boolean-UNION 10 vector paths for "KAIZENTRIX" (K A I Z E N T R I X).
+ * Clean boolean-UNION 10 vector paths for "KAIZENTRIX" (K A I Z E N T R I X).
  * Outlined heavy geometric ExtraBold capitals stretching edge-to-edge.
  * ViewBox 0 0 1000 200 with preserveAspectRatio="none".
  */
@@ -35,16 +35,16 @@ const WORDMARK_PATHS = [
 
 /**
  * Reusable <FooterWaveWordmark /> Component.
- * Giant filled & outlined KAIZENTRIX watermark filling the lower footer background.
+ * Darker, subtle, blended KAIZENTRIX watermark filling the bottom half of the deep forest-green footer.
  */
 export function FooterWaveWordmark() {
   return (
     <div
       aria-hidden="true"
-      className="absolute bottom-0 left-0 right-0 h-[70%] w-full pointer-events-none select-none overflow-hidden z-0 opacity-20"
+      className="absolute bottom-0 left-0 right-0 h-[68%] w-full pointer-events-none select-none overflow-hidden z-0"
     >
       <svg
-        className="w-full h-full select-none"
+        className="w-full h-full select-none opacity-45"
         viewBox="0 0 1000 200"
         preserveAspectRatio="none"
       >
@@ -52,12 +52,8 @@ export function FooterWaveWordmark() {
           <path
             key={index}
             d={d}
-            stroke="#00D084"
-            fill="#00D084"
-            strokeWidth="1.5px"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ vectorEffect: "non-scaling-stroke" }}
+            fill="#03140F"
+            stroke="none"
           />
         ))}
       </svg>
@@ -67,9 +63,9 @@ export function FooterWaveWordmark() {
 
 export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
   return (
-    <footer className="relative w-full overflow-hidden bg-[#0A1F1A] font-sans antialiased text-slate-200 pt-14 pb-8 px-6 sm:px-12 border-t border-[#00D084]/20">
+    <footer className="relative w-full overflow-hidden bg-[#0B1F1A] font-sans antialiased text-slate-200 pt-14 pb-8 px-6 sm:px-12 border-t border-[#00D084]/20">
 
-      {/* Giant KAIZENTRIX Background Watermark (z-0) */}
+      {/* Giant Blended KAIZENTRIX Background Watermark (z-0) */}
       <FooterWaveWordmark />
 
       <div className="relative z-10 max-w-7xl mx-auto space-y-12">
@@ -185,7 +181,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               <li>
                 <a
                   className="text-slate-300 hover:text-[#00D084] transition-colors duration-200"
-                  href="https://www.linkedin.com/company/kaizentrixglobal-solutions-pvt-ltd/posts/"
+                  href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/"
                   target="_blank"
                   rel="noreferrer"
                 >
