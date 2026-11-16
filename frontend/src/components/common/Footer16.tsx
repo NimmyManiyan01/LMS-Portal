@@ -41,18 +41,18 @@ export function FooterWaveWordmark() {
   return (
     <div
       aria-hidden="true"
-      className="absolute bottom-0 left-0 right-0 h-[68%] w-full pointer-events-none select-none overflow-hidden z-0"
+      className="footer-watermark absolute bottom-0 left-0 right-0 h-[36%] sm:h-[40%] md:h-[44%] w-full pointer-events-none select-none overflow-hidden z-0 flex items-end translate-y-[6%]"
     >
       <svg
-        className="w-full h-full select-none opacity-45"
-        viewBox="0 0 1000 200"
+        className="w-full h-full select-none"
+        viewBox="0 0 940 200"
         preserveAspectRatio="none"
       >
         {WORDMARK_PATHS.map((d, index) => (
           <path
             key={index}
             d={d}
-            fill="#03140F"
+            fill="currentColor"
             stroke="none"
           />
         ))}
@@ -63,7 +63,7 @@ export function FooterWaveWordmark() {
 
 export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
   return (
-    <footer className="relative w-full overflow-hidden bg-[#0B1F1A] font-sans antialiased text-slate-200 pt-14 pb-8 px-6 sm:px-12 border-t border-[#00D084]/20">
+    <footer className="relative w-full overflow-hidden bg-white border-t border-slate-200 font-sans antialiased text-slate-800 pt-14 pb-8 px-6 sm:px-12">
 
       {/* Giant Blended KAIZENTRIX Background Watermark (z-0) */}
       <FooterWaveWordmark />
@@ -80,25 +80,25 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
                 K
               </div>
               <div>
-                <span className="block text-xl font-extrabold tracking-tight text-white">
+                <span className="block text-xl font-extrabold tracking-tight text-slate-900">
                   Kaizentrix Global Solutions
                 </span>
-                <span className="block text-[9px] font-black tracking-widest text-[#00D084] uppercase">
+                <span className="block text-[9px] font-black tracking-widest text-emerald-700 uppercase">
                   FLUX ENTERPRISE SUITE
                 </span>
               </div>
             </div>
 
-            <p className="text-xs sm:text-sm font-medium text-slate-300 leading-relaxed max-w-md m-0">
+            <p className="text-xs sm:text-sm font-medium text-slate-600 leading-relaxed max-w-md m-0">
               India&apos;s leading specialized accelerator for algorithmic mastery, full-stack systems engineering, and Tier-1 product placement training.
             </p>
 
             {/* ISO Certification Badges */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
-              <span className="px-3 py-1 rounded-full bg-[#132D26] border border-[#00D084]/30 text-xs font-semibold text-emerald-300 shadow-2xs">
+              <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-xs font-semibold text-emerald-800 shadow-2xs">
                 ISO 9001 – Quality Management
               </span>
-              <span className="px-3 py-1 rounded-full bg-[#132D26] border border-[#00D084]/30 text-xs font-semibold text-emerald-300 shadow-2xs">
+              <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-xs font-semibold text-emerald-800 shadow-2xs">
                 ISO/IEC 27001 – Information Security
               </span>
             </div>
@@ -107,7 +107,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
             <div className="flex items-center gap-2.5 pt-2">
               <a
                 aria-label="LinkedIn"
-                className="w-9 h-9 rounded-xl bg-[#132D26] border border-[#00D084]/30 hover:bg-[#00D084] hover:text-[#0A1F1A] text-slate-200 flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 hover:bg-[#00D084] hover:text-white text-slate-700 flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/"
                 target="_blank"
                 rel="noreferrer"
@@ -118,7 +118,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="GitHub"
-                className="w-9 h-9 rounded-xl bg-[#132D26] border border-[#00D084]/30 hover:bg-[#00D084] hover:text-[#0A1F1A] text-slate-200 flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 hover:bg-[#00D084] hover:text-white text-slate-700 flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://github.com"
                 target="_blank"
                 rel="noreferrer"
@@ -129,7 +129,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="YouTube"
-                className="w-9 h-9 rounded-xl bg-[#132D26] border border-[#00D084]/30 hover:bg-[#00D084] hover:text-[#0A1F1A] text-slate-200 flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 hover:bg-[#00D084] hover:text-white text-slate-700 flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://youtube.com"
                 target="_blank"
                 rel="noreferrer"
@@ -140,7 +140,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </a>
               <a
                 aria-label="Discord"
-                className="w-9 h-9 rounded-xl bg-[#132D26] border border-[#00D084]/30 hover:bg-[#00D084] hover:text-[#0A1F1A] text-slate-200 flex items-center justify-center transition-all duration-200 shadow-2xs"
+                className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 hover:bg-[#00D084] hover:text-white text-slate-700 flex items-center justify-center transition-all duration-200 shadow-2xs"
                 href="https://discord.com"
                 target="_blank"
                 rel="noreferrer"
@@ -154,13 +154,13 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
 
           {/* COLUMN 2: QUICK LINKS (3 Cols) */}
           <div className="lg:col-span-3 space-y-3.5">
-            <span className="text-xs font-black uppercase tracking-wider text-[#00D084] block mb-2">
+            <span className="text-xs font-black uppercase tracking-wider text-emerald-700 block mb-2">
               Quick Links
             </span>
             <ul className="space-y-2.5 p-0 m-0 list-none text-xs sm:text-sm font-semibold">
               <li>
                 <a
-                  className="text-slate-300 hover:text-[#00D084] transition-colors duration-200"
+                  className="text-slate-600 hover:text-emerald-700 transition-colors duration-200"
                   href="https://www.kaizentrixglobal.com/"
                   target="_blank"
                   rel="noreferrer"
@@ -172,7 +172,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
                 <li>
                   <button
                     onClick={onOpenContact}
-                    className="cursor-pointer border-0 bg-transparent p-0 text-left text-xs sm:text-sm font-semibold text-slate-300 hover:text-[#00D084] transition-colors duration-200"
+                    className="cursor-pointer border-0 bg-transparent p-0 text-left text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-700 transition-colors duration-200"
                   >
                     Contact Us
                   </button>
@@ -180,7 +180,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               )}
               <li>
                 <a
-                  className="text-slate-300 hover:text-[#00D084] transition-colors duration-200"
+                  className="text-slate-600 hover:text-emerald-700 transition-colors duration-200"
                   href="https://www.linkedin.com/company/kaizentrix-global-solutions-pvt-ltd/posts/"
                   target="_blank"
                   rel="noreferrer"
@@ -192,7 +192,7 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
                 <li>
                   <button
                     onClick={onLogin}
-                    className="cursor-pointer border-0 bg-transparent p-0 text-left text-xs sm:text-sm font-semibold text-[#00D084] hover:underline transition-colors duration-200"
+                    className="cursor-pointer border-0 bg-transparent p-0 text-left text-xs sm:text-sm font-semibold text-emerald-700 hover:underline transition-colors duration-200"
                   >
                     Portal Login
                   </button>
@@ -203,15 +203,15 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
 
           {/* COLUMN 3: CONTACT & INQUIRIES (4 Cols) */}
           <div className="lg:col-span-4 space-y-3.5">
-            <span className="text-xs font-black uppercase tracking-wider text-[#00D084] block mb-2">
+            <span className="text-xs font-black uppercase tracking-wider text-emerald-700 block mb-2">
               Contact &amp; Inquiries
             </span>
 
-            <div className="space-y-3 text-xs sm:text-sm font-medium text-slate-300">
+            <div className="space-y-3 text-xs sm:text-sm font-medium text-slate-600">
               <div className="flex items-start gap-3">
-                <span className="text-base text-[#00D084] shrink-0">✉️</span>
+                <span className="text-base text-emerald-600 shrink-0">✉️</span>
                 <a
-                  className="break-all hover:text-[#00D084] transition-colors duration-200"
+                  className="break-all hover:text-emerald-700 transition-colors duration-200"
                   href="mailto:enquiry@kaizentrixglobal.com"
                 >
                   enquiry@kaizentrixglobal.com
@@ -219,14 +219,14 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
               </div>
 
               <div className="flex items-start gap-3">
-                <span className="text-base text-[#00D084] shrink-0">📞</span>
-                <a className="hover:text-[#00D084] transition-colors duration-200" href="tel:+919187980031">
+                <span className="text-base text-emerald-600 shrink-0">📞</span>
+                <a className="hover:text-emerald-700 transition-colors duration-200" href="tel:+919187980031">
                   080-23143355 / +91 91879 80031
                 </a>
               </div>
 
               <div className="flex items-start gap-3">
-                <span className="text-base text-[#00D084] shrink-0">📍</span>
+                <span className="text-base text-emerald-600 shrink-0">📍</span>
                 <span className="leading-relaxed">
                   100 DC Complex, Chandra Layout,<br />
                   Vijayanagar, Bengaluru,<br />
@@ -239,28 +239,28 @@ export function Footer16({ onLogin, onOpenContact }: Footer16Props) {
         </div>
 
         {/* LOWER SECTION: COPYRIGHT & POLICY BAR */}
-        <div className="pt-6 border-t border-[#00D084]/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-slate-400">
-          <div className="text-center sm:text-left text-xs font-semibold text-slate-300">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-slate-500">
+          <div className="text-center sm:text-left text-xs font-semibold text-slate-600">
             © 2026 Kaizentrix Global Solutions Private Limited. All rights reserved.
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 font-bold">
             <a
-              className="hover:text-[#00D084] transition-colors duration-200"
+              className="hover:text-emerald-700 transition-colors duration-200"
               href="mailto:enquiry@kaizentrixglobal.com"
             >
               Campus Assistance
             </a>
-            <span className="text-slate-600">•</span>
+            <span className="text-slate-300">•</span>
             <a
-              className="hover:text-[#00D084] transition-colors duration-200"
+              className="hover:text-emerald-700 transition-colors duration-200"
               href="/placement-policy"
             >
               Placement Policy
             </a>
-            <span className="text-slate-600">•</span>
+            <span className="text-slate-300">•</span>
             <a
-              className="hover:text-[#00D084] transition-colors duration-200"
+              className="hover:text-emerald-700 transition-colors duration-200"
               href="/policy"
             >
               Privacy &amp; Terms

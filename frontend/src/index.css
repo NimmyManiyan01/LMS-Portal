@@ -310,3 +310,10 @@
     transition: none;
   }
 }
+
+.footer-watermark {
+  color: #0F382E;
+  opacity: 0.10;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+}
