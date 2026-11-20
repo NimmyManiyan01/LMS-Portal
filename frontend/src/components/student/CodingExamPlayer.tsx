@@ -269,7 +269,7 @@ export function CodingExamPlayer({
   const lineCount = code.split("\n").length
 
   return (
-    <div className="relative min-h-screen w-full bg-[#F6F2E6] text-[#1E3A34] font-sans flex flex-col">
+    <div className="relative min-h-screen w-full max-w-full bg-[#F6F2E6] text-[#1E3A34] font-sans flex flex-col overflow-x-hidden">
       {/* Top Header Bar */}
       <header className="h-16 px-6 bg-white/80 backdrop-blur-2xl border-b border-[#E2DBD0] flex items-center justify-between z-20 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
@@ -283,7 +283,7 @@ export function CodingExamPlayer({
 
         <div className="flex items-center gap-3 sm:gap-4 shrink-0">
           {/* Question Selector Pills Q1, Q2, Q3, Q4 */}
-          <div className="hidden md:flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200">
+          <div className="hidden md:flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200 overflow-x-auto whitespace-nowrap scrollbar-thin max-w-[280px]">
             {questions.map((q, idx) => {
               const qId = q._id || q.id
               const isAnswered = Boolean(savedAnswers[qId])
@@ -340,7 +340,7 @@ export function CodingExamPlayer({
           <div className="w-full lg:w-1/2 flex flex-col bg-white/70 backdrop-blur-2xl rounded-3xl border border-white shadow-xl overflow-hidden transition-all">
             {/* Question Selector Tabs for Mobile/Tablet */}
             <div className="p-3 border-b border-[#F0EBE1] flex items-center justify-between gap-2 overflow-x-auto bg-white/40 shrink-0">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-thin py-1">
                 {questions.map((q, idx) => {
                   const qId = q._id || q.id
                   const answered = Boolean(savedAnswers[qId])

@@ -66,9 +66,16 @@ router.get("/:attemptId/questions", authenticate, async (req, res) => {
   const attempt = await findOwnedAttempt(req, res);
   if (!attempt) return;
   const Question = require("../models/Question");
+  const exam = await Exam.findById(attempt.examId).lean();
+  const isCodingExam = exam?.examinationType === "CODING" || exam?.roundNumber === 2;
+
+  const queryFilter = isCodingExam
+    ? { _id: { $in: attempt.assignedQuestionIds || [] }, questionType: "CODING" }
+    : { _id: { $in: attempt.assignedQuestionIds || [] } };
+
   const questions = await Question.collection
     .find(
-      { _id: { $in: attempt.assignedQuestionIds || [] } },
+      queryFilter,
       { projection: { correctOptionId: 0, explanation: 0, referenceSolution: 0, __v: 0 } },
     )
     .toArray();
