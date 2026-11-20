@@ -474,7 +474,7 @@ export function CodingExamPlayer({
                               Runtime: {evalResult.executionTimeMs}ms
                             </span>
                           )}
-                          {evalResult.passed !== undefined && (
+                          {evalResult.passed !== undefined && ((evalResult.evalResult?.testResults || evalResult.testResults)?.length > 0) && (
                             <span className={`px-3 py-1 rounded-full text-xs font-black ${evalResult.passed ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"}`}>
                               {evalResult.passed ? "Passed All Test Cases" : `${evalResult.passCount} / ${evalResult.totalTestCases} Test Cases Passed`}
                             </span>
