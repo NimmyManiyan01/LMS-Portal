@@ -1479,88 +1479,109 @@ function AdminStudents({
         }`}
       >
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Student Management</h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Manage registered students and account activation.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
-            onClick={() => {
-              setModal("import")
-              setMessage("")
-            }}
-          >
-            Import CSV/XLSX
-          </button>
-          <button
-            className="inline-flex items-center justify-center gap-2 h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-all cursor-pointer shadow-sm shadow-blue-500/20 border-none"
-            onClick={() => {
-              setSelected(null)
-              setForm({
-                fullName: "",
-                email: "",
-                phone: "",
-                college: "",
-                branch: "",
-                passOutYear: String(new Date().getFullYear()),
-              })
-              setModal("add")
-              setMessage("")
-            }}
-          >
-            <Icon name="plus" />
-            Add student
-          </button>
+      {/* Hero Header Glass Card matching Question Bank & Paper Sets */}
+      <div className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-6 sm:p-7">
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-0.5 rounded-full bg-[#00D084]/20 text-[#057A55] text-[10px] font-black uppercase tracking-widest border border-[#00D084]/30">
+                Flux Suite
+              </span>
+              <span className="text-xs font-bold text-[#1E3A34]/80">
+                Student Management
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-[#1E3A34] tracking-tight leading-tight m-0">
+              Students
+            </h1>
+            <p className="text-xs sm:text-sm text-[#057A55] font-bold m-0 leading-relaxed max-w-xl">
+              Manage registered student profiles, college affiliations, and account statuses.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <button
+              className="h-11 px-5 text-xs sm:text-sm font-bold rounded-2xl text-[#1E3A34] bg-white/90 hover:bg-white border border-[#E2DBD0] transition-all cursor-pointer shadow-sm"
+              onClick={() => {
+                setModal("import")
+                setMessage("")
+              }}
+            >
+              Import CSV/XLSX
+            </button>
+            <button
+              className="inline-flex items-center justify-center gap-2.5 h-11 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-lg shadow-[#176B58]/20 border-none"
+              onClick={() => {
+                setSelected(null)
+                setForm({
+                  fullName: "",
+                  email: "",
+                  phone: "",
+                  college: "",
+                  branch: "",
+                  passOutYear: String(new Date().getFullYear()),
+                })
+                setModal("add")
+                setMessage("")
+              }}
+            >
+              <Icon name="plus" size={18} />
+              Add Student
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Message Banner */}
       {message && (
-        <div className="p-3.5 px-4 mb-6 text-xs sm:text-sm font-semibold rounded-xl border border-blue-200/80 bg-blue-50 text-blue-800 shadow-sm">
-          {message}
+        <div className="p-4 rounded-2xl border text-xs sm:text-sm font-extrabold flex items-center gap-3 shadow-md backdrop-blur-xl text-emerald-900 bg-emerald-500/15 border-emerald-300">
+          <span className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-black bg-white/80 shrink-0 shadow-xs">
+            ✓
+          </span>
+          <span className="flex-1">{message}</span>
         </div>
       )}
 
-      {/* Filters Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 mb-6 bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          onKeyDown={(event) =>
-            event.key === "Enter" && (setPage(1), void load())
-          }
-          placeholder="Search ID, name, or email"
-          className="flex-1 min-w-[200px] h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
-        />
+      {/* Filter & Search Toolbar */}
+      <div className="flex flex-wrap items-center gap-3 bg-white/60 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-white/80 shadow-[0_8px_30px_-5px_rgba(30,58,52,0.06)]">
+        <div className="relative flex-1 min-w-[240px]">
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            onKeyDown={(event) =>
+              event.key === "Enter" && (setPage(1), void load())
+            }
+            placeholder="Search Student ID, name, or email..."
+            className="w-full h-11 pl-4 pr-4 text-xs sm:text-sm font-medium bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] placeholder:text-slate-400 outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm"
+          />
+        </div>
         <div className="relative">
           <button
             type="button"
             onClick={() => setCollegeMenuOpen((open) => !open)}
-            className="flex h-10 min-w-[250px] max-w-xs items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 text-left text-xs text-slate-900 shadow-sm transition hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="flex h-11 min-w-[220px] max-w-xs items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white/90 px-4 text-left text-xs sm:text-sm font-extrabold text-[#1E3A34] shadow-sm transition outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 cursor-pointer"
           >
             <span className="truncate">
-              {college.length ? `${college.length} colleges selected` : "All colleges"}
+              {college.length ? `${college.length} colleges selected` : "All Colleges"}
             </span>
-            <span className="text-slate-400">⌄</span>
+            <span className="text-[#057A55]">▼</span>
           </button>
           {collegeMenuOpen && (
-            <div className="absolute left-0 top-11 z-30 max-h-72 w-[320px] overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+            <div className="absolute left-0 top-13 z-30 max-h-72 w-[300px] overflow-y-auto rounded-3xl border border-white bg-white/95 backdrop-blur-2xl p-3 shadow-2xl space-y-1">
               <button
                 type="button"
                 onClick={() => {
                   setCollege([])
                   setPage(1)
                 }}
-                className="mb-1 w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-blue-600 hover:bg-blue-50"
+                className="w-full rounded-xl px-3 py-2 text-left text-xs font-black text-[#176B58] hover:bg-[#00D084]/15 transition-colors border-none bg-transparent cursor-pointer"
               >
-                Clear selection / All colleges
+                Clear Selection / All Colleges
               </button>
               {colleges.map((item) => {
                 const checked = college.includes(item.name)
                 return (
-                  <label key={item.name} className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-700 hover:bg-slate-50">
+                  <label key={item.name} className="flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs text-[#1E3A34] font-bold hover:bg-[#00D084]/15 transition-colors">
                     <input
                       type="checkbox"
                       checked={checked}
@@ -1572,10 +1593,10 @@ function AdminStudents({
                         )
                         setPage(1)
                       }}
-                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      className="h-4 w-4 rounded border-slate-300 text-[#057A55] focus:ring-[#00D084]"
                     />
-                    <span className="flex-1">{item.name}</span>
-                    <span className="text-slate-400">{item.count}</span>
+                    <span className="flex-1 truncate">{item.name}</span>
+                    <span className="text-slate-400 font-normal">{item.count}</span>
                   </label>
                 )
               })}
@@ -1588,14 +1609,14 @@ function AdminStudents({
             setStatus(event.target.value)
             setPage(1)
           }}
-          className="h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+          className="h-11 px-4 text-xs sm:text-sm font-extrabold bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm cursor-pointer"
         >
-          <option value="">All statuses</option>
+          <option value="">All Statuses</option>
           <option value="ACTIVE">Active</option>
           <option value="SUSPENDED">Inactive</option>
         </select>
         <button
-          className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
+          className="h-11 px-6 text-xs sm:text-sm font-bold rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-md shadow-[#176B58]/20 border-none"
           onClick={() => {
             setPage(1)
             void load()
@@ -1605,71 +1626,112 @@ function AdminStudents({
         </button>
       </div>
 
-      {/* Table Container */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
-        <div className="flex items-center justify-between p-4 px-5 border-b border-slate-100 bg-slate-50/50 text-xs sm:text-sm">
-          <strong className="font-bold text-slate-900">{pagination.total || 0} registered students</strong>
-          <span className="font-semibold text-slate-500">{colleges.length} colleges</span>
+      {/* Student List Container / Empty State */}
+      <div className="relative overflow-hidden rounded-3xl bg-white/70 backdrop-blur-2xl border border-white/90 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] mb-8">
+        <div className="flex items-center justify-between p-4 px-6 border-b border-[#1E3A34]/10 bg-[#1E3A34]/5 text-xs sm:text-sm">
+          <strong className="font-extrabold text-[#1E3A34]">{pagination.total || 0} Registered Students</strong>
+          <span className="font-bold text-[#057A55]">{colleges.length} Colleges</span>
         </div>
 
         {loading ? (
-          <div className="p-12 text-center text-xs sm:text-sm font-medium text-slate-500">
+          <div className="p-14 text-center text-xs sm:text-sm font-bold text-[#057A55]">
             Loading students...
           </div>
         ) : error ? (
-          <div className="p-12 text-center text-xs sm:text-sm font-medium text-red-600 flex flex-col items-center gap-2">
-            <p>{error}</p>
+          <div className="p-12 text-center text-xs sm:text-sm font-medium text-rose-600 flex flex-col items-center gap-2">
+            <p className="font-bold">{error}</p>
             <button
-              className="h-9 px-4 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
+              className="h-9 px-4 text-xs font-bold rounded-xl text-white bg-rose-600 hover:bg-rose-700 transition-colors cursor-pointer border-none"
               onClick={() => void load()}
             >
               Retry
             </button>
           </div>
         ) : students.length === 0 ? (
-          <div className="p-12 text-center text-xs sm:text-sm font-medium text-slate-500">
-            No students match the selected filters.
+          <div className="py-16 text-center text-xs sm:text-sm text-[#057A55] flex flex-col items-center justify-center gap-3">
+            <h3 className="text-lg font-black text-[#1E3A34]">
+              {search.trim() || status || college.length > 0
+                ? "No students match the selected filters"
+                : "No students registered yet"}
+            </h3>
+            <p className="text-[#057A55] font-bold max-w-md">
+              {search.trim() || status || college.length > 0
+                ? "Try adjusting your search query, college selection, or status filters."
+                : "Add a new student or import candidate records via CSV/XLSX to populate the directory."}
+            </p>
+            {!(search.trim() || status || college.length > 0) && (
+              <div className="flex items-center gap-3 mt-2">
+                <button
+                  className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-[#1E3A34] bg-white border border-[#E2DBD0] hover:bg-slate-50 transition-all cursor-pointer shadow-xs"
+                  onClick={() => {
+                    setModal("import")
+                    setMessage("")
+                  }}
+                >
+                  Import CSV/XLSX
+                </button>
+                <button
+                  className="inline-flex items-center justify-center gap-2.5 h-11 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-lg shadow-[#176B58]/20 border-none"
+                  onClick={() => {
+                    setSelected(null)
+                    setForm({
+                      fullName: "",
+                      email: "",
+                      phone: "",
+                      college: "",
+                      branch: "",
+                      passOutYear: String(new Date().getFullYear()),
+                    })
+                    setModal("add")
+                    setMessage("")
+                  }}
+                >
+                  <Icon name="plus" size={18} />
+                  Add Student
+                </button>
+              </div>
+            )}
           </div>
         ) : (
-          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
+          <div className="overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm border-collapse">
               <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold text-xs uppercase tracking-wider">
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Student ID</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Name</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Email</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">College</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Branch</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Status</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Registered</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Actions</th>
+                <tr className="bg-[#1E3A34]/5 border-b border-[#1E3A34]/10 text-[#1E3A34] font-extrabold text-[11px] uppercase tracking-wider">
+                  <th className="px-5 py-4">Student ID</th>
+                  <th className="px-5 py-4">Name</th>
+                  <th className="px-5 py-4">Email</th>
+                  <th className="px-5 py-4">College</th>
+                  <th className="px-5 py-4">Branch</th>
+                  <th className="px-5 py-4">Status</th>
+                  <th className="px-5 py-4">Registered</th>
+                  <th className="px-5 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100/80">
                 {students.map((student) => (
-                  <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-4 py-3.5 font-mono text-xs font-semibold text-slate-600">{student.studentId}</td>
-                    <td className="px-4 py-3.5 font-semibold text-slate-900">{student.fullName}</td>
-                    <td className="px-4 py-3.5 text-slate-600">{student.email}</td>
-                    <td className="px-4 py-3.5 text-slate-600">{student.college || "—"}</td>
-                    <td className="px-4 py-3.5 text-slate-600">{student.branch || "—"}</td>
-                    <td className="px-4 py-3.5">
+                  <tr key={student.id} className="hover:bg-[#00D084]/5 transition-colors">
+                    <td className="px-5 py-4 font-mono text-xs font-bold text-slate-500">{student.studentId}</td>
+                    <td className="px-5 py-4 font-bold text-[#1E3A34]">{student.fullName}</td>
+                    <td className="px-5 py-4 font-medium text-slate-600">{student.email}</td>
+                    <td className="px-5 py-4 font-medium text-slate-600">{student.college || "—"}</td>
+                    <td className="px-5 py-4 font-medium text-slate-600">{student.branch || "—"}</td>
+                    <td className="px-5 py-4">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
                           student.accountStatus === "ACTIVE"
-                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                            : "bg-red-100 text-red-800 border border-red-200"
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-300/80"
+                            : "bg-rose-100 text-rose-800 border border-rose-300/80"
                         }`}
                       >
                         {student.accountStatus === "ACTIVE" ? "Active" : "Inactive"}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 text-slate-600">
+                    <td className="px-5 py-4 font-medium text-slate-500">
                       {new Date(student.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-3.5 whitespace-nowrap">
+                    <td className="px-5 py-4 text-right whitespace-nowrap">
                       <button
-                        className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors bg-transparent border-none p-0"
+                        className="px-3.5 py-1.5 rounded-xl bg-[#176B58]/10 text-[#176B58] hover:bg-[#176B58] hover:text-white font-extrabold text-xs transition-all cursor-pointer border-none"
                         onClick={() => {
                           setSelected(student)
                           setForm({
@@ -1696,21 +1758,21 @@ function AdminStudents({
         )}
 
         {/* Pagination Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-600 font-medium">
-          <span>{pagination.total || 0} students</span>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 px-6 border-t border-[#1E3A34]/10 bg-white/40 text-xs text-[#1E3A34] font-bold">
+          <span>Showing {students.length} of {pagination.total || 0} students</span>
           <div className="flex items-center gap-3">
             <button
-              className="h-8 px-3 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
+              className="h-9 px-4 text-xs font-bold rounded-xl text-[#1E3A34] bg-white border border-[#E2DBD0] hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
             >
               Previous
             </button>
-            <span>
+            <span className="font-extrabold">
               Page {page} of {pagination.pages || 1}
             </span>
             <button
-              className="h-8 px-3 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
+              className="h-9 px-4 text-xs font-bold rounded-xl text-[#1E3A34] bg-white border border-[#E2DBD0] hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
               disabled={page >= (pagination.pages || 1)}
               onClick={() => setPage(page + 1)}
             >
@@ -1722,61 +1784,61 @@ function AdminStudents({
 
       {/* Add / Edit / Import Modal */}
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
-          <div className="relative w-full max-w-[620px] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="relative w-full max-w-[640px] max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
             <button
-              className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors text-xl font-medium leading-none cursor-pointer focus:outline-none z-10"
+              className="absolute top-5 right-5 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-[#1E3A34] hover:bg-slate-100 transition-colors text-xl font-bold leading-none cursor-pointer focus:outline-none z-10 border-none bg-transparent"
               onClick={() => setModal(null)}
             >
               ×
             </button>
 
             {modal === "import" ? (
-              <div className="p-5 sm:p-7 flex flex-col gap-4 overflow-y-auto min-h-0 flex-1 text-xs sm:text-sm">
+              <div className="p-6 sm:p-8 flex flex-col gap-5 overflow-y-auto min-h-0 flex-1 text-xs sm:text-sm pt-8">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">Import students</h2>
-                  <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-                    Upload a CSV or XLSX with Full Name, Email Address, Phone,
-                    College Name, Branch, and Pass-out Year columns.
+                  <h2 className="text-xl font-black text-[#1E3A34]">Import Students</h2>
+                  <p className="text-xs sm:text-sm text-[#057A55] font-bold mt-1">
+                    Upload a CSV or XLSX file containing Full Name, Email Address, Phone, College Name, Branch, and Pass-out Year.
                   </p>
                 </div>
                 <input
                   type="file"
                   accept=".csv,.xlsx"
                   onChange={parseFile}
-                  className="p-3 border border-slate-200 rounded-xl bg-slate-50 text-xs sm:text-sm text-slate-700 cursor-pointer"
+                  className="p-3 border border-[#E2DBD0] rounded-2xl bg-white/80 text-xs sm:text-sm text-[#1E3A34] font-bold cursor-pointer"
                 />
                 {importRows.length > 0 && (
-                  <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800">
-                    <span>{importRows.length} rows ready for confirmation.</span>
+                  <div className="flex items-center justify-between p-4 bg-emerald-500/15 border border-emerald-300 rounded-2xl text-xs font-extrabold text-emerald-900">
+                    <span>{importRows.length} rows ready for import.</span>
                     <button
-                      className="h-9 px-4 text-xs font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer border-none"
+                      className="h-10 px-5 text-xs font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-colors cursor-pointer border-none shadow-md shadow-[#176B58]/20"
                       onClick={() => void confirmImport()}
                     >
-                      Confirm import
+                      Confirm Import
                     </button>
                   </div>
                 )}
               </div>
             ) : (
               <form onSubmit={submit} className="flex flex-col min-h-0 flex-1">
-                <div className="p-5 sm:p-7 overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm flex-1">
-                  <h2 className="text-xl font-bold text-slate-900">
-                    {selected ? "Edit student" : "Add student"}
+                <div className="p-6 sm:p-8 overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm flex-1 pt-8">
+                  <h2 className="text-xl font-black text-[#1E3A34]">
+                    {selected ? "Edit Student Profile" : "Add New Student"}
                   </h2>
 
                   {selected && (
-                    <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                    <label className="flex flex-col gap-1.5 font-extrabold text-[#1E3A34]">
                       Student ID
                       <input
                         readOnly
                         value={selected.studentId || ""}
-                        className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 font-mono cursor-not-allowed shadow-sm"
+                        className="w-full h-11 px-4 bg-[#F6F2E6]/90 border border-[#E2DBD0] rounded-2xl text-[#1E3A34]/70 font-mono font-bold cursor-not-allowed shadow-inner"
                       />
                     </label>
                   )}
 
-                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                  <label className="flex flex-col gap-1.5 font-extrabold text-[#1E3A34]">
                     Full Name
                     <input
                       required
@@ -1785,11 +1847,11 @@ function AdminStudents({
                       onChange={(event) =>
                         setForm({ ...form, fullName: event.target.value })
                       }
-                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
+                      className="w-full h-11 px-4 text-xs sm:text-sm font-medium bg-white border border-[#E2DBD0] rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm transition-all"
                     />
                   </label>
 
-                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                  <label className="flex flex-col gap-1.5 font-extrabold text-[#1E3A34]">
                     Email Address
                     <input
                       required
@@ -1798,11 +1860,11 @@ function AdminStudents({
                       onChange={(event) =>
                         setForm({ ...form, email: event.target.value })
                       }
-                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
+                      className="w-full h-11 px-4 text-xs sm:text-sm font-medium bg-white border border-[#E2DBD0] rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm transition-all"
                     />
                   </label>
 
-                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                  <label className="flex flex-col gap-1.5 font-extrabold text-[#1E3A34]">
                     Phone Number
                     <input
                       required
@@ -1811,11 +1873,11 @@ function AdminStudents({
                       onChange={(event) =>
                         setForm({ ...form, phone: event.target.value })
                       }
-                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
+                      className="w-full h-11 px-4 text-xs sm:text-sm font-medium bg-white border border-[#E2DBD0] rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm transition-all"
                     />
                   </label>
 
-                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                  <label className="flex flex-col gap-1.5 font-extrabold text-[#1E3A34]">
                     College Name
                     <select
                       required
@@ -1823,9 +1885,9 @@ function AdminStudents({
                       onChange={(event) =>
                         setForm({ ...form, college: event.target.value })
                       }
-                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+                      className="w-full h-11 px-4 text-xs sm:text-sm font-extrabold bg-white border border-[#E2DBD0] rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm transition-all cursor-pointer"
                     >
-                      <option value="">Select college</option>
+                      <option value="">Select College</option>
                       {form.college && !colleges.some((item) => item.name === form.college) && (
                         <option value={form.college}>{form.college}</option>
                       )}
@@ -1837,7 +1899,7 @@ function AdminStudents({
                     </select>
                   </label>
 
-                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                  <label className="flex flex-col gap-1.5 font-extrabold text-[#1E3A34]">
                     Branch
                     <select
                       required
@@ -1845,9 +1907,9 @@ function AdminStudents({
                       onChange={(event) =>
                         setForm({ ...form, branch: event.target.value })
                       }
-                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+                      className="w-full h-11 px-4 text-xs sm:text-sm font-extrabold bg-white border border-[#E2DBD0] rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm transition-all cursor-pointer"
                     >
-                      <option value="">Select branch</option>
+                      <option value="">Select Branch</option>
                       {form.branch && !ADMIN_BRANCH_OPTIONS.includes(form.branch) && (
                         <option value={form.branch}>{form.branch}</option>
                       )}
@@ -1857,7 +1919,7 @@ function AdminStudents({
                     </select>
                   </label>
 
-                  <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
+                  <label className="flex flex-col gap-1.5 font-extrabold text-[#1E3A34]">
                     Pass-out Year
                     <select
                       required
@@ -1865,7 +1927,7 @@ function AdminStudents({
                       onChange={(event) =>
                         setForm({ ...form, passOutYear: event.target.value })
                       }
-                      className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+                      className="w-full h-11 px-4 text-xs sm:text-sm font-extrabold bg-white border border-[#E2DBD0] rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm transition-all cursor-pointer"
                     >
                       {Array.from(
                         { length: 21 },
@@ -1877,8 +1939,8 @@ function AdminStudents({
                   </label>
 
                   {selected && (
-                    <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
-                      Status
+                    <label className="flex flex-col gap-1.5 font-extrabold text-[#1E3A34]">
+                      Account Status
                       <select
                         value={selected.accountStatus}
                         onChange={(event) =>
@@ -1887,7 +1949,7 @@ function AdminStudents({
                             accountStatus: event.target.value,
                           })
                         }
-                        className="w-full h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+                        className="w-full h-11 px-4 text-xs sm:text-sm font-extrabold bg-white border border-[#E2DBD0] rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm transition-all cursor-pointer"
                       >
                         <option value="ACTIVE">Active</option>
                         <option value="SUSPENDED">Inactive</option>
@@ -1896,10 +1958,10 @@ function AdminStudents({
                   )}
                 </div>
 
-                <div className="flex items-center justify-end gap-3 p-4 sm:px-7 sm:py-4 border-t border-slate-100 bg-slate-50/50 flex-none">
+                <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-[#F0EBE1] bg-white/60 flex-none">
                   <button
                     type="button"
-                    className="h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
+                    className="h-11 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm transition-all"
                     onClick={() => {
                       setModal(null)
                       setSelected(null)
@@ -1908,10 +1970,10 @@ function AdminStudents({
                     Cancel
                   </button>
                   <button
-                    className="h-10 px-5 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-sm shadow-blue-500/20 border-none"
+                    className="h-11 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-md shadow-[#176B58]/20 border-none"
                     type="submit"
                   >
-                    {selected ? "Save Changes" : "Save student"}
+                    {selected ? "Save Changes" : "Save Student"}
                   </button>
                 </div>
               </form>
