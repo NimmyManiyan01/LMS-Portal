@@ -71,6 +71,20 @@ export function ExaminationsPage({
     durationMinutes: "60",
     instructions: "Read all questions carefully before submitting.",
   })
+  const [activeCodingQuestions, setActiveCodingQuestions] = useState<any[]>([])
+  const [selectedCodingQuestionIds, setSelectedCodingQuestionIds] = useState<string[]>([])
+
+  const toggleCodingQuestion = (qId: string, qMarks: number) => {
+    const nextIds = selectedCodingQuestionIds.includes(qId)
+      ? selectedCodingQuestionIds.filter(id => id !== qId)
+      : [...selectedCodingQuestionIds, qId]
+    setSelectedCodingQuestionIds(nextIds)
+    const matched = activeCodingQuestions.filter(q => nextIds.includes(q.id || q._id))
+    const total = matched.reduce((sum, q) => sum + Number(q.marks || 10), 0)
+    if (total > 0) {
+      setPaperForm(prev => ({ ...prev, totalMarks: String(total) }))
+    }
+  }
 
   const [form, setForm] = useState<any>({
     name: "",
@@ -280,12 +294,13 @@ export function ExaminationsPage({
     }
   }
 
-  const openPaperModal = (exam: any) => {
+  const openPaperModal = async (exam: any) => {
     setMessage("")
     setSuccessMessage("")
     setPaperModalMessage("")
     setPaperModalSuccess("")
     setPaperModalTarget(exam)
+    setSelectedCodingQuestionIds([])
     const existing = exam.paperSet || (exam.paperSets && exam.paperSets[0])
     setPaperForm({
       name: existing?.name || `Question Paper - ${exam.title || exam.name}`,
@@ -294,6 +309,17 @@ export function ExaminationsPage({
       durationMinutes: String(exam.durationMinutes || 60),
       instructions: "Read all questions carefully before submitting.",
     })
+    if (exam.roundNumber === 2 || exam.examinationType === "CODING") {
+      try {
+        const qRes = await authFetch(`${API}/api/admin/questions?type=CODING&status=ACTIVE`, {}, true)
+        const qData = await qRes.json()
+        if (qRes.ok) {
+          setActiveCodingQuestions(qData.questions || [])
+        }
+      } catch {
+        setActiveCodingQuestions([])
+      }
+    }
   }
 
   const handleCreateAndPublishPaper = async (shouldPublish: boolean) => {
@@ -309,6 +335,11 @@ export function ExaminationsPage({
     if (passing <= 0 || total <= 0 || passing > total) {
       setPaperModalLoading(false)
       return setPaperModalMessage("Passing marks must be > 0 and <= total marks.")
+    }
+
+    if ((paperModalTarget.roundNumber === 2 || paperModalTarget.examinationType === "CODING") && selectedCodingQuestionIds.length === 0) {
+      setPaperModalLoading(false)
+      return setPaperModalMessage("Please select at least one active coding question from the Question Bank before publishing.")
     }
 
     try {
@@ -327,6 +358,7 @@ export function ExaminationsPage({
             passingMarks: passing,
             instructions: [paperForm.instructions],
             automaticRandomization: true,
+            ...(selectedCodingQuestionIds.length ? { questionIds: selectedCodingQuestionIds } : {}),
           }),
         },
         true,
@@ -1235,6 +1267,60 @@ export function ExaminationsPage({
                   </label>
                 </div>
               </div>
+
+              {/* Active Coding Questions Selection Section (For Round 2 / Coding Assessment) */}
+              {(paperModalTarget.roundNumber === 2 || paperModalTarget.examinationType === "CODING") && (
+                <div className="flex flex-col gap-3 pt-3 border-t border-slate-200/80">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider m-0">
+                      Select Active Coding Questions ({selectedCodingQuestionIds.length} Selected)
+                    </h4>
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+                      Auto-calculates total marks
+                    </span>
+                  </div>
+
+                  {activeCodingQuestions.length === 0 ? (
+                    <p className="p-4 text-center text-xs font-bold text-amber-800 bg-amber-50 rounded-xl border border-amber-200">
+                      No ACTIVE coding questions found in the Question Bank. Please create and activate a coding question first.
+                    </p>
+                  ) : (
+                    <div className="max-h-56 overflow-y-auto flex flex-col gap-2 p-2 rounded-xl border border-slate-200 bg-slate-50/50">
+                      {activeCodingQuestions.map((q) => {
+                        const isChecked = selectedCodingQuestionIds.includes(q.id || q._id)
+                        return (
+                          <label
+                            key={q.id || q._id}
+                            className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+                              isChecked ? "bg-emerald-50 border-emerald-400 font-bold" : "bg-white border-slate-200 hover:border-slate-300"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => toggleCodingQuestion(q.id || q._id, Number(q.marks || 10))}
+                              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                            />
+                            <div className="flex-1 min-w-0 flex flex-col gap-1 text-xs">
+                              <span className="font-bold text-slate-900 truncate">
+                                {q.questionTitle || q.questionText}
+                              </span>
+                              <div className="flex items-center gap-2 text-[10px] font-bold">
+                                <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                                  {q.difficulty || "MEDIUM"}
+                                </span>
+                                <span className="text-emerald-800 font-black">
+                                  {q.marks || 10} Marks
+                                </span>
+                              </div>
+                            </div>
+                          </label>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Modal Actions */}
