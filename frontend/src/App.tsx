@@ -1454,7 +1454,7 @@ function AdminStudents({
   }
 
   return (
-    <div className="relative min-h-screen bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8">
+    <div className="relative min-h-screen w-full max-w-full bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-4 sm:p-6 lg:p-8">
       {/* Continuous Full-Page Atmospheric Background Ambient Lighting Blobs */}
       <div className="fixed -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-[#00C4DF]/30 blur-[150px] pointer-events-none z-0" />
       <div className="fixed top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-[#00D084]/30 blur-[160px] pointer-events-none z-0" />
@@ -1474,7 +1474,7 @@ function AdminStudents({
 
       {/* Main Page Content Wrapper */}
       <div
-        className={`relative z-10 max-w-[1550px] mx-auto space-y-6 transition-all duration-300 ease-in-out ${
+        className={`relative z-10 w-full max-w-[1550px] mx-auto space-y-6 transition-all duration-300 ease-in-out ${
           sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
         }`}
       >
@@ -2767,7 +2767,7 @@ function AdminDashboard({
   ] as const
 
   return (
-    <div className="relative min-h-screen bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8">
+    <div className="relative min-h-screen w-full max-w-full bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-4 sm:p-6 lg:p-8">
       {/* Continuous Full-Page Atmospheric Background Vibrant Lighting Blobs */}
       <div className="fixed -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-[#00C4DF]/30 blur-[150px] pointer-events-none z-0" />
       <div className="fixed top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-[#00D084]/30 blur-[160px] pointer-events-none z-0" />
@@ -2787,7 +2787,7 @@ function AdminDashboard({
 
       {/* Main Dashboard Content Wrapper - Optimized spacing and screen width utilization */}
       <div
-        className={`relative z-10 max-w-[1550px] mx-auto space-y-6 transition-all duration-300 ease-in-out ${
+        className={`relative z-10 w-full max-w-[1550px] mx-auto space-y-6 transition-all duration-300 ease-in-out ${
           sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
         }`}
       >
