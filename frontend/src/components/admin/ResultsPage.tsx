@@ -98,6 +98,104 @@ export function ResultsPage({
   const [detail, setDetail] = useState<any>(null)
   const [detailError, setDetailError] = useState("")
   const [publication, setPublication] = useState<any>(null)
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([])
+  const [shortlistModalOpen, setShortlistModalOpen] = useState(false)
+  const [shortlistMode, setShortlistMode] = useState<"manual" | "score_based">("manual")
+  const [cutoffPercentage, setCutoffPercentage] = useState<number>(60)
+  const [shortlistPreview, setShortlistPreview] = useState<any>(null)
+  const [targetRound2ExamId, setTargetRound2ExamId] = useState("")
+
+  const shortlistSelected = async () => {
+    if (!targetRound2ExamId || !selectedStudentIds.length) return
+    setBusy("shortlist")
+    try {
+      const res = await authFetch(
+        `${API_BASE_URL}/api/admin/exams/${targetRound2ExamId}/shortlist`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ studentIds: selectedStudentIds }),
+        },
+        true,
+      )
+      const dataJson = await res.json()
+      if (res.ok) {
+        setNotice(`Shortlisted ${dataJson.addedCount} candidate(s) for Round 2 Coding Assessment!`)
+        setSelectedStudentIds([])
+        setShortlistModalOpen(false)
+      } else {
+        setError(dataJson.error || "Unable to shortlist candidates.")
+      }
+    } catch {
+      setError("Unable to shortlist candidates.")
+    } finally {
+      setBusy("")
+    }
+  }
+
+  const previewScoreBasedShortlist = async () => {
+    if (!examId) return
+    setBusy("preview")
+    try {
+      const res = await authFetch(
+        `${API_BASE_URL}/api/admin/results/preview-shortlist`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            round1ExamId: examId,
+            round2ExamId: targetRound2ExamId,
+            minPercentage: cutoffPercentage,
+          }),
+        },
+        true,
+      )
+      const dataJson = await res.json()
+      if (res.ok) {
+        setShortlistPreview(dataJson)
+      } else {
+        setError(dataJson.error || "Unable to preview shortlisting.")
+      }
+    } catch {
+      setError("Unable to preview shortlisting.")
+    } finally {
+      setBusy("")
+    }
+  }
+
+  const executeScoreBasedShortlist = async () => {
+    if (!examId || !targetRound2ExamId) return
+    setBusy("shortlist")
+    try {
+      const res = await authFetch(
+        `${API_BASE_URL}/api/admin/results/auto-shortlist`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            round1ExamId: examId,
+            round2ExamId: targetRound2ExamId,
+            minPercentage: cutoffPercentage,
+          }),
+        },
+        true,
+      )
+      const dataJson = await res.json()
+      if (res.ok) {
+        setNotice(
+          `Score-based Qualification: Shortlisted ${dataJson.addedCount} candidate(s) (Cutoff ≥ ${cutoffPercentage}%) for Round 2 Coding Assessment!`,
+        )
+        setShortlistModalOpen(false)
+        setShortlistPreview(null)
+      } else {
+        setError(dataJson.error || "Unable to complete auto-shortlisting.")
+      }
+    } catch {
+      setError("Unable to complete auto-shortlisting.")
+    } finally {
+      setBusy("")
+    }
+  }
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -433,6 +531,26 @@ export function ResultsPage({
           </div>
 
           <div className="flex items-center gap-3 self-end sm:self-auto flex-shrink-0">
+            {selectedStudentIds.length > 0 && (
+              <button
+                className="h-11 px-5 text-xs sm:text-sm font-black rounded-2xl text-white bg-purple-700 hover:bg-purple-800 transition-all cursor-pointer shadow-md border-none whitespace-nowrap"
+                onClick={() => {
+                  setShortlistMode("manual")
+                  setShortlistModalOpen(true)
+                }}
+              >
+                Shortlist {selectedStudentIds.length} for Round 2
+              </button>
+            )}
+            <button
+              className="h-11 px-5 text-xs sm:text-sm font-bold rounded-2xl text-[#1E3A34] bg-white/90 hover:bg-white border border-[#E2DBD0] transition-all cursor-pointer shadow-sm border-none whitespace-nowrap"
+              onClick={() => {
+                setShortlistMode("score_based")
+                setShortlistModalOpen(true)
+              }}
+            >
+              Score Cutoff Qualification (%)
+            </button>
             {(marksFilter || minScore || maxScore || examId || college || releaseStatus || search) ? (
               <button
                 className="h-11 px-5 text-xs sm:text-sm font-bold rounded-2xl text-[#1E3A34] bg-white border border-[#E2DBD0] hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
@@ -808,6 +926,139 @@ export function ResultsPage({
                 onClick={() => void publish(publication.exam.id)}
               >
                 {busy ? "Publishing..." : "Confirm Publication"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Shortlist Modal */}
+      {shortlistModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto"
+          onClick={() => !busy && setShortlistModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-[640px] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
+            <div className="p-6 sm:p-8 flex flex-col gap-4 text-xs sm:text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-2xl font-black text-[#1E3A34] m-0">Round 2 Candidate Eligibility</h2>
+                  <p className="text-xs text-[#057A55] font-bold m-0 mt-0.5">
+                    Nominate candidates to attend Round 2 Technical Coding Assessments.
+                  </p>
+                </div>
+                <div className="flex items-center p-1 bg-slate-100 rounded-2xl border border-slate-200 shrink-0">
+                  <button
+                    onClick={() => setShortlistMode("manual")}
+                    className={`px-3 py-1 rounded-xl text-xs font-black transition-all border-none cursor-pointer ${
+                      shortlistMode === "manual" ? "bg-[#176B58] text-white shadow-xs" : "text-slate-600"
+                    }`}
+                  >
+                    Manual ({selectedStudentIds.length})
+                  </button>
+                  <button
+                    onClick={() => setShortlistMode("score_based")}
+                    className={`px-3 py-1 rounded-xl text-xs font-black transition-all border-none cursor-pointer ${
+                      shortlistMode === "score_based" ? "bg-[#176B58] text-white shadow-xs" : "text-slate-600"
+                    }`}
+                  >
+                    Cutoff %
+                  </button>
+                </div>
+              </div>
+
+              <label className="flex flex-col gap-1.5 font-extrabold text-[#1E3A34] mt-1">
+                Target Round 2 Coding Examination
+                <select
+                  value={targetRound2ExamId}
+                  onChange={(e) => setTargetRound2ExamId(e.target.value)}
+                  className="h-11 px-4 text-xs sm:text-sm font-extrabold bg-white border border-[#E2DBD0] rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm cursor-pointer"
+                >
+                  <option value="">Select Scheduled Round 2 Exam</option>
+                  {data.exams
+                    .filter((e: any) => e.roundNumber === 2 || e.examinationType === "CODING")
+                    .map((e: any) => (
+                      <option key={e.id} value={e.id}>
+                        {e.title} ({e.code})
+                      </option>
+                    ))}
+                  {data.exams.map((e: any) => (
+                    <option key={`all-${e.id}`} value={e.id}>
+                      {e.title} ({e.code})
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {shortlistMode === "score_based" && (
+                <div className="space-y-3 p-4 bg-[#F6F2E6]/90 rounded-2xl border border-[#E2DBD0]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                    <label className="flex flex-col gap-1 text-xs font-black text-[#057A55]">
+                      Qualification Cutoff Percentage (%)
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={cutoffPercentage}
+                        onChange={(e) => setCutoffPercentage(Number(e.target.value))}
+                        className="h-10 px-3 bg-white border border-[#E2DBD0] rounded-xl text-[#1E3A34] font-black text-xs outline-none focus:border-[#00D084]"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      disabled={!examId || busy === "preview"}
+                      onClick={() => void previewScoreBasedShortlist()}
+                      className="h-10 px-4 text-xs font-extrabold rounded-xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer border-none shadow-xs self-end disabled:opacity-50"
+                    >
+                      {busy === "preview" ? "Calculating..." : "Preview Cutoff Candidates"}
+                    </button>
+                  </div>
+
+                  {shortlistPreview && (
+                    <div className="p-3.5 bg-white rounded-xl border border-slate-200 text-xs font-bold text-[#1E3A34] space-y-1">
+                      <div className="flex items-center justify-between text-emerald-800 font-extrabold">
+                        <span>{shortlistPreview.eligibleCount} Candidate(s) Eligible for Round 2</span>
+                        <span>Cutoff ≥ {shortlistPreview.cutoffPercentage}%</span>
+                      </div>
+                      <p className="text-slate-500 font-medium text-[11px] m-0">
+                        Calculated from Round 1 Total Marks against candidate scores. Duplicate assignments are automatically prevented.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-[#F0EBE1] bg-white/60">
+              <button
+                className="h-11 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
+                disabled={Boolean(busy)}
+                onClick={() => setShortlistModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="h-11 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-purple-700 hover:bg-purple-800 transition-all cursor-pointer shadow-md border-none disabled:opacity-50"
+                disabled={
+                  Boolean(busy) ||
+                  !targetRound2ExamId ||
+                  (shortlistMode === "manual" && !selectedStudentIds.length)
+                }
+                onClick={() =>
+                  shortlistMode === "manual"
+                    ? void shortlistSelected()
+                    : void executeScoreBasedShortlist()
+                }
+              >
+                {busy === "shortlist"
+                  ? "Shortlisting..."
+                  : shortlistMode === "manual"
+                    ? `Shortlist (${selectedStudentIds.length}) Candidates`
+                    : "Confirm Score-based Shortlist"}
               </button>
             </div>
           </div>

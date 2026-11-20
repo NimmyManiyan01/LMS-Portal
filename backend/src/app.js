@@ -11,6 +11,7 @@ const resultRoutes = require("./routes/resultRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const codingRoutes = require("./routes/codingRoutes");
 const { recordSecurityEvent } = require("./services/securityLogger");
 const { createRateLimiter } = require("./middleware/rateLimit");
 const { csrfProtection } = require("./middleware/csrf");
@@ -148,6 +149,7 @@ app.use("/api/student/results", resultRoutes);
 app.use("/api/student/profile", profileRoutes);
 app.use("/api/admin/reports", reportRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/coding", codingRoutes);
 
 app.use((err, req, res, next) => {
   if (isProduction) console.error("Unhandled API Error");

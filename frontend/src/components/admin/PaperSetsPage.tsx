@@ -695,99 +695,122 @@ export function PaperSetsPage({
 
                 </div>
 
-              {/* Question Selection Section */}
-              <div className="hidden">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3 font-bold text-slate-900 text-xs sm:text-sm">
-                <h3>Automatic Question Allocation</h3>
-                <span className="text-xs font-semibold text-blue-600">
-                  50 questions · category quotas locked
-                </span>
-              </div>
+              {/* Question Selection & Marks Allocation Section */}
+              <div className="flex flex-col gap-3.5 border-t border-[#F0EBE1] pt-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-sm font-black text-[#1E3A34] m-0">Question Selection &amp; Marks Allocation</h3>
+                    <p className="text-xs text-[#057A55] font-bold m-0 mt-0.5">
+                      Select active coding/MCQ questions to include in this paper set.
+                    </p>
+                  </div>
+                  <span className="px-3.5 py-1 rounded-full bg-[#176B58]/15 text-[#176B58] text-xs font-black self-start sm:self-auto">
+                    {form.questionIds.length} Questions Selected
+                  </span>
+                </div>
 
-              <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-medium text-blue-800">
-                Questions are generated per student: Programming 10, Operating Systems 10, Logical 20, Quantitative 10.
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50/60 p-3 rounded-xl border border-slate-200/80">
-                <input
-                  placeholder="Search question ID or text"
-                  value={questionFilters.search}
-                  onChange={(e) =>
-                    setQuestionFilters({
-                      ...questionFilters,
-                      search: e.target.value,
-                    })
-                  }
-                  className="h-9 px-3 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
-                />
-                <select
-                  value={questionFilters.category}
-                  onChange={(e) =>
-                    setQuestionFilters({
-                      ...questionFilters,
-                      category: e.target.value,
-                    })
-                  }
-                  className="h-9 px-3 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm cursor-pointer"
-                >
-                  <option value="">All categories</option>
-                  {categories.map((category) => (
-                    <option key={category}>{category}</option>
-                  ))}
-                </select>
-                <select
-                  value={questionFilters.difficulty}
-                  onChange={(e) =>
-                    setQuestionFilters({
-                      ...questionFilters,
-                      difficulty: e.target.value,
-                    })
-                  }
-                  className="h-9 px-3 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm cursor-pointer"
-                >
-                  <option value="">All difficulty</option>
-                  <option value="EASY">Easy</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HARD">Hard</option>
-                </select>
-              </div>
-
-              {errors.questionIds && (
-                <small className="text-xs font-medium text-red-600 block">{errors.questionIds}</small>
-              )}
-
-              <div className="min-h-[220px] max-h-[48vh] overflow-y-auto p-2 flex flex-col gap-2 rounded-xl border border-slate-200/80 bg-slate-50/30">
-                {visibleQuestions.map((q) => (
-                  <label
-                    key={q.id}
-                    className="group flex items-start gap-3 p-3 rounded-lg border border-slate-200/70 bg-white hover:border-blue-300 hover:bg-blue-50/20 transition-all cursor-pointer"
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white/60 p-3.5 rounded-2xl border border-white">
+                  <input
+                    placeholder="Search question title or text..."
+                    value={questionFilters.search}
+                    onChange={(e) =>
+                      setQuestionFilters({
+                        ...questionFilters,
+                        search: e.target.value,
+                      })
+                    }
+                    className="h-10 px-3.5 text-xs bg-white border border-[#E2DBD0] rounded-xl text-[#1E3A34] outline-none focus:border-[#00D084]"
+                  />
+                  <select
+                    value={questionFilters.category}
+                    onChange={(e) =>
+                      setQuestionFilters({
+                        ...questionFilters,
+                        category: e.target.value,
+                      })
+                    }
+                    className="h-10 px-3.5 text-xs font-extrabold bg-white border border-[#E2DBD0] rounded-xl text-[#1E3A34] outline-none focus:border-[#00D084] cursor-pointer"
                   >
-                    <input
-                      type="checkbox"
-                      checked={form.questionIds.includes(q.id)}
-                      onChange={(e) =>
-                        updateForm(
-                          "questionIds",
-                          e.target.checked
+                    <option value="">All Categories</option>
+                    {categories.map((category) => (
+                      <option key={category}>{category}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={questionFilters.difficulty}
+                    onChange={(e) =>
+                      setQuestionFilters({
+                        ...questionFilters,
+                        difficulty: e.target.value,
+                      })
+                    }
+                    className="h-10 px-3.5 text-xs font-extrabold bg-white border border-[#E2DBD0] rounded-xl text-[#1E3A34] outline-none focus:border-[#00D084] cursor-pointer"
+                  >
+                    <option value="">All Difficulties</option>
+                    <option value="EASY">Easy</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HARD">Hard</option>
+                  </select>
+                </div>
+
+                {errors.questionIds && (
+                  <small className="text-xs font-bold text-rose-600 block">{errors.questionIds}</small>
+                )}
+
+                <div className="min-h-[200px] max-h-[42vh] overflow-y-auto p-3 flex flex-col gap-2.5 rounded-2xl border border-[#E2DBD0] bg-white/60">
+                  {visibleQuestions.map((q) => (
+                    <label
+                      key={q.id}
+                      className={`group flex items-start gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                        form.questionIds.includes(q.id)
+                          ? "bg-emerald-50/90 border-[#00D084]"
+                          : "bg-white/90 border-slate-200/80 hover:border-[#00D084]/60"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={form.questionIds.includes(q.id)}
+                        onChange={(e) => {
+                          const nextIds = e.target.checked
                             ? [...new Set([...form.questionIds, q.id])]
-                            : form.questionIds.filter(
-                                (id: string) => id !== q.id,
-                              ),
-                        )
-                      }
-                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-2 cursor-pointer flex-shrink-0"
-                    />
-                    <span className="flex-1 min-w-0 flex flex-col gap-0.5 text-xs sm:text-sm">
-                      <span className="font-medium text-slate-900">{q.questionText}</span>
-                      <small className="text-xs font-semibold text-slate-500">
-                        {q.category} · {q.difficulty} · {q.marks} marks
-                      </small>
-                    </span>
-                  </label>
-                ))}
-              </div>
-              </div>
+                            : form.questionIds.filter((id: string) => id !== q.id)
+                          updateForm("questionIds", nextIds)
+                        }}
+                        className="mt-1 h-4 w-4 rounded border-slate-300 text-[#057A55] focus:ring-[#00D084] cursor-pointer shrink-0"
+                      />
+                      <span className="flex-1 min-w-0 flex flex-col gap-1 text-xs">
+                        <span className="font-extrabold text-[#1E3A34] text-xs sm:text-sm">
+                          {q.questionTitle || q.questionText}
+                        </span>
+                        <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold">
+                          <span className="px-2 py-0.5 rounded-md bg-[#176B58]/15 text-[#176B58]">
+                            {q.questionType || "MCQ"}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
+                            {q.sectionName || q.category || "General"}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded-md ${
+                              q.difficulty === "EASY"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : q.difficulty === "MEDIUM"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : "bg-rose-100 text-rose-800"
+                            }`}
+                          >
+                            {q.difficulty || "EASY"}
+                          </span>
+                          <span className="font-black text-[#1E3A34]">
+                            {q.marks || 10} Marks
+                          </span>
+                        </div>
+                      </span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
+          </div>
 
             <div className="flex-none flex flex-wrap items-center justify-between gap-3 p-4 sm:px-6 sm:py-4 border-t border-slate-100 bg-slate-50/50">
               <span className="text-xs font-semibold text-slate-600">Automatic allocation · {form.totalMarks || 0} total marks</span>

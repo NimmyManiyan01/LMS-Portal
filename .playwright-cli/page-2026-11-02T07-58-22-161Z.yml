@@ -1,0 +1,65 @@
+- generic [ref=e89]:
+  - banner [ref=e90]:
+    - generic [ref=e91]: All systems operational
+    - button "Log out" [ref=e95] [cursor=pointer]:
+      - generic [ref=e96]: HM
+      - generic [ref=e97]:
+        - generic [ref=e98]: Harshavardhan m v
+        - generic [ref=e99]: KGS-STU-000008
+  - main [ref=e102]:
+    - main [ref=e103]:
+      - navigation "Breadcrumb" [ref=e104]:
+        - generic [ref=e110]: Student Portal
+        - generic [ref=e113]: My Examinations
+      - generic [ref=e114]:
+        - generic [ref=e115]:
+          - generic [ref=e116]: Student workspace
+          - heading "Your examination journey" [level=1] [ref=e118]
+          - paragraph [ref=e119]: Stay ready, track every assessment, and move confidently toward your next opportunity.
+        - generic [ref=e120]:
+          - generic [ref=e121]:
+            - generic [ref=e122]: "1"
+            - text: Available
+          - generic [ref=e123]:
+            - generic [ref=e124]: "0"
+            - text: Upcoming
+          - generic [ref=e125]:
+            - generic [ref=e126]: "0"
+            - text: Completed
+      - generic [ref=e127]:
+        - button "AVAILABLE 1" [ref=e128] [cursor=pointer]:
+          - text: AVAILABLE
+          - generic [ref=e129]: "1"
+        - button "UPCOMING 0" [ref=e130] [cursor=pointer]:
+          - text: UPCOMING
+          - generic [ref=e131]: "0"
+        - button "IN PROGRESS 0" [ref=e132] [cursor=pointer]:
+          - text: IN PROGRESS
+          - generic [ref=e133]: "0"
+        - button "COMPLETED 0" [ref=e134] [cursor=pointer]:
+          - text: COMPLETED
+          - generic [ref=e135]: "0"
+        - button "RESULTS PENDING 0" [ref=e136] [cursor=pointer]:
+          - text: RESULTS PENDING
+          - generic [ref=e137]: "0"
+      - article [ref=e139]:
+        - generic [ref=e140]:
+          - generic [ref=e141]: AVAILABLE
+          - heading "MAHARAJA-COLLEGE" [level=2] [ref=e143]
+          - paragraph [ref=e144]: "Examination ID: EXAM-2026-0002"
+          - generic [ref=e145]:
+            - generic [ref=e146]:
+              - generic [ref=e147]: SCHEDULED
+              - generic [ref=e148]: Nov 2, 2026, 1:07 PM
+            - generic [ref=e149]:
+              - generic [ref=e150]: DURATION
+              - generic [ref=e151]: 60 minutes
+            - generic [ref=e152]:
+              - generic [ref=e153]: QUESTIONS
+              - generic [ref=e154]: "50"
+            - generic [ref=e155]:
+              - generic [ref=e156]: MAXIMUM MARKS
+              - generic [ref=e157]: "100"
+        - generic [ref=e158]:
+          - button "Review details" [ref=e159] [cursor=pointer]
+          - button "Start Examination" [ref=e160] [cursor=pointer]

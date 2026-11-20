@@ -1,0 +1,41 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - button "Back to the Kaizentrix Global Solutions landing page" [ref=e7] [cursor=pointer]:
+        - img "Kaizentrix Global Solutions logo reveal" [ref=e9]
+        - generic [ref=e10]: Kaizentrix Global Solutions
+      - generic [ref=e11]:
+        - button "Portal Login" [ref=e12]
+        - button "New student? Create account" [ref=e14] [cursor=pointer]:
+          - generic [ref=e15]: New student?
+          - generic [ref=e16]: Create account
+        - button "Toggle navigation" [ref=e17] [cursor=pointer]:
+          - generic [ref=e18]: ☰
+  - main [ref=e19]:
+    - generic [ref=e20]:
+      - button "Back to home" [ref=e21] [cursor=pointer]
+      - generic [ref=e24]: Student & Administrator Authentication
+      - heading "Welcome back" [level=1] [ref=e26]:
+        - generic [ref=e27]: Welcome
+        - generic [ref=e28]: back
+      - paragraph [ref=e29]: Sign in securely with your authorised email address and a one-time verification code.
+      - generic [ref=e35]:
+        - strong [ref=e36]: Passwordless access
+        - generic [ref=e37]: Your verification code is single-use and expires after a short period.
+      - list [ref=e38]:
+        - listitem [ref=e39]: Secure & Reliable
+        - listitem [ref=e43]: AI-resistant proctoring
+        - listitem [ref=e47]: Enterprise grade
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - heading "Portal Login" [level=2] [ref=e55]
+        - paragraph [ref=e56]: Enter your email address to receive a verification code.
+      - generic [ref=e57]:
+        - generic [ref=e58]: Email Address *
+        - textbox "Email Address *" [ref=e60]:
+          - /placeholder: e.g. rahul@gmail.com
+      - button "Send Verification OTP" [ref=e61] [cursor=pointer]
+      - paragraph [ref=e64]:
+        - text: New here?
+        - button "Register as Student" [ref=e65] [cursor=pointer]
+  - contentinfo [ref=e66]: © 2026 Kaizentrix Global Solutions. Secure examination infrastructure.

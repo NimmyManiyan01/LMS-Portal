@@ -34,4 +34,22 @@ function recordSecurityEvent(req, statusCode) {
   });
 }
 
-module.exports = { recordSecurityEvent };
+function recordCodeExecutionEvent(req, { attemptId, language, testResults, score }) {
+  void AuditLog.create({
+    actorId: req.auth?.sub || req.student?._id,
+    actorRole: req.auth?.role || "STUDENT",
+    action: "CODE_EXECUTION",
+    entityType: "ATTEMPT",
+    entityId: String(attemptId),
+    metadata: {
+      severity: "INFO",
+      language,
+      passCount: testResults?.filter((t) => t.passed).length || 0,
+      totalTestCases: testResults?.length || 0,
+      score,
+      ip: clientIp(req),
+    },
+  }).catch(() => undefined);
+}
+
+module.exports = { recordSecurityEvent, recordCodeExecutionEvent };

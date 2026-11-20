@@ -4,6 +4,7 @@ import { API_BASE_URL, authFetch, clearAuthToken } from "./api"
 import { SystemCheckModal } from "./components/student/SystemCheckModal"
 import { ExamInstructionsModal } from "./components/student/ExamInstructionsModal"
 import { ExamPlayer } from "./components/student/ExamPlayer"
+import { CodingExamPlayer } from "./components/student/CodingExamPlayer"
 import { SubmissionModal } from "./components/student/SubmissionModal"
 import { ResultsView } from "./components/student/ResultsView"
 const SubmissionConfirmation = lazy(() =>
@@ -824,8 +825,30 @@ export default function App() {
 
   if (entryRoute === "/admin/dashboard" && !admin)
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-900 font-sans">
-        <h2 className="text-xl font-bold">Checking administrator session...</h2>
+      <div className="relative min-h-screen w-full max-w-full bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-6 flex items-center justify-center">
+        <div className="fixed -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-[#00C4DF]/30 blur-[150px] pointer-events-none z-0" />
+        <div className="fixed top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-[#00D084]/30 blur-[160px] pointer-events-none z-0" />
+        <div className="fixed inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/20 pointer-events-none z-0" />
+        <div className="relative z-10 overflow-hidden rounded-3xl bg-white/80 backdrop-blur-3xl border border-white p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(30,58,52,0.18)] max-w-md w-full text-center flex flex-col items-center gap-5">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
+          <div className="relative w-16 h-16 flex items-center justify-center mt-2">
+            <div className="absolute inset-0 rounded-full border-4 border-[#00D084]/20 border-t-[#176B58] animate-spin" />
+            <div className="w-10 h-10 rounded-2xl bg-[#176B58] flex items-center justify-center shadow-lg text-white font-black text-xs shadow-[#176B58]/30">
+              KGS
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <span className="px-3 py-0.5 rounded-full bg-[#00D084]/20 text-[#057A55] text-[10px] font-black uppercase tracking-widest border border-[#00D084]/30">
+              Flux Suite · Admin Portal
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-[#1E3A34] tracking-tight leading-tight m-0 pt-1">
+              Checking Administrator Session
+            </h2>
+            <p className="text-xs text-[#057A55] font-bold m-0 leading-relaxed">
+              Verifying session token and administrative privileges…
+            </p>
+          </div>
+        </div>
       </div>
     )
   if (entryRoute === "/dashboard" && dashboardLoading)
@@ -1040,6 +1063,17 @@ export default function App() {
   }
 
   if (viewState === "EXAM_PLAYER" && selectedExam) {
+    if (selectedExam.roundNumber === 2 || selectedExam.examinationType === "CODING") {
+      return (
+        <CodingExamPlayer
+          exam={selectedExam}
+          questions={examQuestions}
+          attemptId={activeAttemptId}
+          initialRemainingSeconds={Math.max(60, (selectedExam.durationMinutes || 60) * 60)}
+          onSubmitSuccess={() => setViewState("SUBMISSION_SUCCESS")}
+        />
+      )
+    }
     return (
       <ExamPlayer
         exam={selectedExam}
@@ -2684,8 +2718,58 @@ function AdminDashboard({
 
   if (loading)
     return (
-      <div className="p-12 text-center text-xs sm:text-sm font-medium bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/80 shadow-[0_10px_35px_-5px_rgba(32,61,57,0.08)]">
-        <h2 className="text-xl font-bold text-[#203D39] m-0">Loading administrator dashboard...</h2>
+      <div className="relative min-h-screen w-full max-w-full bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-4 sm:p-6 lg:p-8 flex items-center justify-center">
+        {/* Continuous Full-Page Atmospheric Background Ambient Lighting Blobs */}
+        <div className="fixed -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-[#00C4DF]/30 blur-[150px] pointer-events-none z-0" />
+        <div className="fixed top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-[#00D084]/30 blur-[160px] pointer-events-none z-0" />
+        <div className="fixed top-1/2 left-1/3 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[#FFB800]/28 blur-[150px] pointer-events-none z-0" />
+        <div className="fixed -bottom-40 right-10 w-[700px] h-[700px] rounded-full bg-[#FF7A59]/28 blur-[160px] pointer-events-none z-0" />
+        <div className="fixed inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/20 pointer-events-none z-0" />
+
+        {/* Floating Vertical Glass Sidebar */}
+        <AdminFloatingSidebar
+          active={active}
+          onNav={onNav}
+          adminUser={adminUser}
+          onLogout={onLogout}
+          isCollapsed={sidebarCollapsed}
+          setIsCollapsed={setSidebarCollapsed}
+        />
+
+        {/* Loading Card Wrapper */}
+        <div
+          className={`relative z-10 w-full max-w-[1550px] mx-auto transition-all duration-300 ease-in-out flex items-center justify-center min-h-[75vh] ${
+            sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
+          }`}
+        >
+          <div className="relative overflow-hidden rounded-3xl bg-white/80 backdrop-blur-3xl border border-white p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(30,58,52,0.18)] max-w-md w-full text-center flex flex-col items-center gap-5">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
+
+            <div className="relative w-16 h-16 flex items-center justify-center mt-2">
+              <div className="absolute inset-0 rounded-full border-4 border-[#00D084]/20 border-t-[#176B58] animate-spin" />
+              <div className="w-10 h-10 rounded-2xl bg-[#176B58] flex items-center justify-center shadow-lg text-white font-black text-xs shadow-[#176B58]/30">
+                KGS
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="px-3 py-0.5 rounded-full bg-[#00D084]/20 text-[#057A55] text-[10px] font-black uppercase tracking-widest border border-[#00D084]/30">
+                Flux Suite · Admin Portal
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-[#1E3A34] tracking-tight leading-tight m-0 pt-1">
+                Loading Dashboard
+              </h2>
+              <p className="text-xs text-[#057A55] font-bold m-0 leading-relaxed max-w-xs">
+                Connecting to secure administrative telemetry, analytics and candidate records…
+              </p>
+            </div>
+
+            {/* Skeleton Pulse Progress Bar */}
+            <div className="w-full bg-[#1E3A34]/10 h-1.5 rounded-full overflow-hidden mt-1">
+              <div className="h-full bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#176B58] w-2/3 rounded-full animate-pulse" />
+            </div>
+          </div>
+        </div>
       </div>
     )
   if (error)

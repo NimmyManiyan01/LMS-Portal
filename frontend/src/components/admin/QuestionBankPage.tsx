@@ -309,6 +309,18 @@ export function QuestionBankPage({
             />
           </div>
           <select
+            value={filters.type}
+            onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+            className="h-11 px-4 text-xs sm:text-sm font-extrabold bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm cursor-pointer"
+          >
+            <option value="">All Question Types</option>
+            <option value="MCQ">Multiple Choice (MCQ)</option>
+            <option value="MSQ">Multiple Select (MSQ)</option>
+            <option value="TRUE_FALSE">True / False</option>
+            <option value="SHORT_ANSWER">Short Answer</option>
+            <option value="CODING">Coding Problem (Round 2)</option>
+          </select>
+          <select
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
             className="h-11 px-4 text-xs sm:text-sm font-extrabold bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm cursor-pointer"
@@ -469,47 +481,113 @@ export function QuestionBankPage({
 
                 <div className="space-y-1">
                   <h3 className="text-base sm:text-lg font-extrabold text-[#1E3A34] m-0">
-                    {selected.questionText}
+                    {selected.questionTitle || selected.questionText}
                   </h3>
                   <p className="text-xs font-bold text-[#057A55] m-0">
-                    {selected.questionType} · {selected.category} · {selected.difficulty} · {selected.marks} marks
+                    {selected.questionType} · {selected.category || selected.sectionName || "General"} · {selected.difficulty} · {selected.marks} marks
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-2.5">
-                  {["A", "B", "C", "D"].map((id) => {
-                    const option = (selected.options || []).find((o: any) => o.id === id)
-                    const isCorrect =
-                      selected.correctOptionId === id ||
-                      selected.correctOptionIds?.includes(id)
-                    return (
-                      <div
-                        key={id}
-                        className={`flex items-start gap-3 p-3.5 rounded-2xl border text-xs sm:text-sm transition-all ${
-                          isCorrect
-                            ? "bg-emerald-100/60 border-emerald-400/80 text-emerald-950 font-bold"
-                            : "bg-slate-50 border-slate-200/80 text-slate-800"
-                        }`}
-                      >
-                        <b className="flex items-center justify-center w-7 h-7 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs font-black shrink-0 shadow-2xs">
-                          {id}
-                        </b>
-                        <span className="flex-1 font-semibold mt-1">{option?.text || "—"}</span>
-                        {isCorrect && (
-                          <em className="not-italic text-[10px] font-black text-emerald-800 bg-emerald-200/80 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
-                            Correct Choice
-                          </em>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
+                {selected.questionType === "CODING" ? (
+                  <div className="space-y-4">
+                    {/* Problem Description & Details */}
+                    <div className="p-4 rounded-2xl bg-[#F6F2E6] border border-[#E2DBD0] space-y-2">
+                      <b className="block font-black text-[#1E3A34] text-xs uppercase tracking-wider">Problem Description &amp; Details</b>
+                      <p className="text-slate-800 font-medium m-0 leading-relaxed whitespace-pre-wrap text-xs sm:text-sm">
+                        {selected.explanation || selected.problemDescription || selected.questionText}
+                      </p>
+                    </div>
 
-                {selected.explanation && (
-                  <div className="p-4 bg-blue-50/70 border border-blue-200/80 rounded-2xl text-xs sm:text-sm text-blue-950">
-                    <b className="block font-black text-blue-900 mb-1">Explanation</b>
-                    <p className="text-blue-800 font-medium m-0">{selected.explanation}</p>
+                    {/* Input/Output Formats & Constraints */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 space-y-1">
+                        <b className="block font-black text-[#057A55] text-[10px] uppercase">Input Format</b>
+                        <p className="font-medium text-slate-700 m-0 text-xs">{selected.inputFormat || "Standard Input"}</p>
+                      </div>
+                      <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 space-y-1">
+                        <b className="block font-black text-[#057A55] text-[10px] uppercase">Output Format</b>
+                        <p className="font-medium text-slate-700 m-0 text-xs">{selected.outputFormat || "Standard Output"}</p>
+                      </div>
+                    </div>
+
+                    {selected.constraints && (
+                      <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-amber-950 space-y-1">
+                        <b className="block font-black text-amber-800 text-[10px] uppercase">Constraints</b>
+                        <code className="font-mono text-xs font-bold text-amber-900">{selected.constraints}</code>
+                      </div>
+                    )}
+
+                    {/* Sample Input & Expected Output */}
+                    {(selected.sampleInput || selected.sampleOutput) && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+                        <div className="p-3.5 rounded-2xl bg-slate-900 text-slate-200 space-y-1">
+                          <b className="block font-sans font-black text-slate-400 text-[10px] uppercase">Sample Input</b>
+                          <pre className="m-0 font-mono text-emerald-400">{selected.sampleInput || "(empty)"}</pre>
+                        </div>
+                        <div className="p-3.5 rounded-2xl bg-slate-900 text-slate-200 space-y-1">
+                          <b className="block font-sans font-black text-slate-400 text-[10px] uppercase">Expected Output</b>
+                          <pre className="m-0 font-mono text-emerald-400">{selected.sampleOutput || "(empty)"}</pre>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Configured Test Cases */}
+                    <div className="space-y-2">
+                      <b className="block font-black text-[#1E3A34] text-xs uppercase tracking-wider">
+                        Test Cases ({(selected.testCases || []).length})
+                      </b>
+                      {(selected.testCases || []).map((tc: any, idx: number) => (
+                        <div key={idx} className="p-3.5 rounded-2xl bg-white border border-slate-200/80 space-y-1 text-xs font-mono">
+                          <div className="flex items-center justify-between font-sans">
+                            <span className="font-extrabold text-[#1E3A34]">Test Case #{idx + 1}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${tc.isHidden ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>
+                              {tc.isHidden ? "Hidden Test Case" : "Public Sample"}
+                            </span>
+                          </div>
+                          <div><span className="text-slate-400 font-sans">Input:</span> {tc.input}</div>
+                          <div><span className="text-slate-400 font-sans">Expected:</span> {tc.expectedOutput}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 gap-2.5">
+                      {["A", "B", "C", "D"].map((id) => {
+                        const option = (selected.options || []).find((o: any) => o.id === id)
+                        const isCorrect =
+                          selected.correctOptionId === id ||
+                          selected.correctOptionIds?.includes(id)
+                        return (
+                          <div
+                            key={id}
+                            className={`flex items-start gap-3 p-3.5 rounded-2xl border text-xs sm:text-sm transition-all ${
+                              isCorrect
+                                ? "bg-emerald-100/60 border-emerald-400/80 text-emerald-950 font-bold"
+                                : "bg-slate-50 border-slate-200/80 text-slate-800"
+                            }`}
+                          >
+                            <b className="flex items-center justify-center w-7 h-7 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs font-black shrink-0 shadow-2xs">
+                              {id}
+                            </b>
+                            <span className="flex-1 font-semibold mt-1">{option?.text || "—"}</span>
+                            {isCorrect && (
+                              <em className="not-italic text-[10px] font-black text-emerald-800 bg-emerald-200/80 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
+                                Correct Choice
+                              </em>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {selected.explanation && (
+                      <div className="p-4 bg-blue-50/70 border border-blue-200/80 rounded-2xl text-xs sm:text-sm text-blue-950">
+                        <b className="block font-black text-blue-900 mb-1">Explanation</b>
+                        <p className="text-blue-800 font-medium m-0">{selected.explanation}</p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 

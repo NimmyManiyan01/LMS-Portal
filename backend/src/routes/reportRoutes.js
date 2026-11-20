@@ -109,6 +109,8 @@ async function buildWorkbook(filters = {}) {
       College: student?.college || "College Not Specified",
       "Exam Name": exam?.title || "—",
       "Exam Code": exam?.code || String(r.examId || "—"),
+      Round: exam?.roundNumber === 2 ? "Round 2 (Coding)" : "Round 1 (MCQ)",
+      "Examination Type": exam?.examinationType || "MCQ",
       "Attempt ID": r.attemptId,
       "Submission Date": r.submittedAt || r.finalizedAt
         ? new Date(r.submittedAt || r.finalizedAt).toLocaleString()

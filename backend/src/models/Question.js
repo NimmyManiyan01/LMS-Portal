@@ -13,7 +13,7 @@ const schema = new mongoose.Schema(
     negativeMarks: Number,
     questionType: {
       type: String,
-      enum: ["MCQ", "MSQ", "TRUE_FALSE", "SHORT_ANSWER"],
+      enum: ["MCQ", "MSQ", "TRUE_FALSE", "SHORT_ANSWER", "CODING"],
       default: "MCQ",
     },
     difficulty: {
@@ -28,6 +28,38 @@ const schema = new mongoose.Schema(
     },
     correctOptionIds: [{ type: String }],
     acceptedAnswers: [{ type: String, trim: true }],
+    questionTitle: String,
+    inputFormat: String,
+    outputFormat: String,
+    constraints: String,
+    sampleInput: String,
+    sampleOutput: String,
+    referenceSolution: {
+      type: Map,
+      of: String,
+      default: {},
+    },
+    allowedLanguages: {
+      type: [String],
+      default: ["javascript", "python", "java", "cpp", "c"],
+    },
+    starterCode: {
+      type: Map,
+      of: String,
+      default: {},
+    },
+    testCases: [
+      {
+        id: String,
+        input: String,
+        expectedOutput: String,
+        isHidden: { type: Boolean, default: false },
+        weightage: { type: Number, default: 1 },
+        explanation: String,
+      },
+    ],
+    timeLimitSeconds: { type: Number, default: 2 },
+    memoryLimitMB: { type: Number, default: 256 },
   },
   { collection: "questions", timestamps: true },
 );

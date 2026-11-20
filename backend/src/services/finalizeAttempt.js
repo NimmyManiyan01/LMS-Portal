@@ -88,7 +88,13 @@ async function finalizeAttempt({
           (item) => String(item.questionId) === String(questionId),
         );
         const q = byId.get(String(questionId));
-        if (!q || !answer?.selectedOptionId) {
+        if (!q) continue;
+        if (answer?.score !== undefined && answer?.score !== null) {
+          const qScore = Number(answer.score || 0);
+          score += qScore;
+          if (qScore > 0) correctCount++;
+          else unansweredCount++;
+        } else if (!answer?.selectedOptionId) {
           unansweredCount++;
           score += Number(scheme.unansweredMarks || 0);
         } else if (answer.selectedOptionId === q.correctOptionId) {
@@ -106,6 +112,9 @@ async function finalizeAttempt({
         }
       }
       if (scheme.floorNegativeScoreAtZero) score = Math.max(0, score);
+      if (exam?.totalMarks !== undefined && exam?.totalMarks !== null) {
+        score = Math.min(score, Number(exam.totalMarks));
+      }
       const finalizedAt = new Date();
       const receiptToken = `SUB-${crypto.randomBytes(10).toString("hex").toUpperCase()}`;
       attempt.status =

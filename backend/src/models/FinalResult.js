@@ -33,6 +33,20 @@ const schema = new mongoose.Schema(
     },
     reasonDetail: String,
     scoringVersion: { type: Number, required: true },
+    evaluationStatus: {
+      type: String,
+      enum: ["PENDING_EVALUATION", "EVALUATED", "UNDER_REVIEW", "FINALIZED"],
+      default: "FINALIZED",
+    },
+    scoreHistory: [
+      {
+        previousScore: Number,
+        updatedScore: Number,
+        reason: String,
+        adminEmail: String,
+        timestamp: { type: Date, default: Date.now },
+      },
+    ],
     releaseStatus: {
       type: String,
       enum: ["PENDING", "RELEASED"],
@@ -44,4 +58,5 @@ const schema = new mongoose.Schema(
   },
   { collection: "results", timestamps: true },
 );
+
 module.exports = mongoose.model("FinalResult", schema);

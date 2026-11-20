@@ -1,0 +1,67 @@
+- generic [ref=e88]:
+  - generic [ref=e162]:
+    - generic [ref=e163]:
+      - generic [ref=e164]:
+        - generic [ref=e165]: EXAMINATION INFORMATION
+        - heading "MAHARAJA-COLLEGE" [level=2] [ref=e166]
+        - paragraph [ref=e167]: EXAM-2026-0002
+      - button "Close instructions" [ref=e168] [cursor=pointer]: ×
+    - generic [ref=e169]:
+      - generic [ref=e170]:
+        - generic [ref=e171]:
+          - generic [ref=e172]: DURATION
+          - generic [ref=e173]: 60 minutes
+        - generic [ref=e174]:
+          - generic [ref=e175]: QUESTIONS
+          - generic [ref=e176]: "50"
+        - generic [ref=e177]:
+          - generic [ref=e178]: MAXIMUM MARKS
+          - generic [ref=e179]: "100"
+        - generic [ref=e180]:
+          - generic [ref=e181]: QUESTION TYPE
+          - generic [ref=e182]: Single-answer MCQ
+        - generic [ref=e183]:
+          - generic [ref=e184]: CORRECT
+          - generic [ref=e185]: "+1"
+        - generic [ref=e186]:
+          - generic [ref=e187]: INCORRECT
+          - generic [ref=e188]: "0"
+        - generic [ref=e189]:
+          - generic [ref=e190]: UNANSWERED
+          - generic [ref=e191]: "0"
+        - generic [ref=e192]:
+          - generic [ref=e193]: MAXIMUM ATTEMPTS
+          - generic [ref=e194]: "1"
+      - heading "Examination instructions" [level=3] [ref=e195]
+      - list [ref=e196]:
+        - listitem [ref=e197]: Read every question carefully.
+        - listitem [ref=e198]: Select one answer per question.
+        - listitem [ref=e199]: Use Previous and Next to navigate.
+        - listitem [ref=e200]: Use Mark for Review to revisit questions.
+        - listitem [ref=e201]: Answers are saved automatically.
+        - listitem [ref=e202]: The examination timer continues during disconnections.
+        - listitem [ref=e203]: Submit before the deadline.
+        - listitem [ref=e204]: Follow the examination monitoring rules.
+      - generic [ref=e205]:
+        - strong [ref=e206]: Monitoring notice
+        - paragraph [ref=e207]: BASIC monitoring is enabled for this examination. Browser visibility and configured fullscreen events may be recorded as incidents. Tab-switch incidents generate warnings and incident records; they do not automatically submit the examination. Camera or microphone access is requested only when configured. The portal does not claim to monitor activity outside the browser.
+      - generic [ref=e208] [cursor=pointer]:
+        - checkbox "I have read and understood the examination instructions." [ref=e209]
+        - generic [ref=e210]: I have read and understood the examination instructions.
+      - status [ref=e211]: Please acknowledge the examination instructions to continue.
+    - generic [ref=e212]:
+      - button "Cancel" [ref=e213] [cursor=pointer]
+      - button "Continue to System Check →" [disabled] [ref=e214]
+  - generic [ref=e89]:
+    - banner [ref=e90]:
+      - generic [ref=e91]: All systems operational
+      - button "Log out" [ref=e95] [cursor=pointer]:
+        - generic [ref=e96]: HM
+        - generic [ref=e97]:
+          - generic [ref=e98]: Harshavardhan m v
+          - generic [ref=e99]: KGS-STU-000008
+    - main [ref=e102]:
+      - generic [ref=e215]:
+        - heading "My examinations" [level=2] [ref=e219]
+        - paragraph [ref=e220]: This module is fully configured in the KGS portal prototype. Return to Overview to explore the primary student flow.
+        - button "Back to overview" [ref=e221] [cursor=pointer]

@@ -56,6 +56,8 @@ const examSchema = new mongoose.Schema(
       default: "ADMIN_CONTROLLED",
     },
     maxAttempts: { type: Number, default: 1 },
+    roundNumber: { type: Number, default: 1 },
+    qualificationThreshold: { type: Number, default: 50 },
     registrationOpensAt: Date,
     registrationClosesAt: Date,
     closesAt: Date,

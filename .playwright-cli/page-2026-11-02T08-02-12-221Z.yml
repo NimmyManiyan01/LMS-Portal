@@ -1,0 +1,22 @@
+- generic [ref=e487]:
+  - generic [ref=e488]:
+    - paragraph [ref=e492]: Success! Your examination submission is fully recorded.
+    - button "close" [ref=e493] [cursor=pointer]
+  - generic [ref=e496]: ✓
+  - generic [ref=e497]: SUBMISSION CONFIRMATION
+  - heading "Examination Submitted Successfully" [level=1] [ref=e498]
+  - generic [ref=e499]:
+    - generic [ref=e500]:
+      - generic [ref=e501]: EXAM
+      - generic [ref=e502]: MAHARAJA-COLLEGE
+    - generic [ref=e503]:
+      - generic [ref=e504]: SUBMISSION STATUS
+      - generic [ref=e505]: Completed
+    - generic [ref=e506]:
+      - generic [ref=e507]: SUBMITTED AT
+      - generic [ref=e508]: 2 November 2026 at 1:32 pm
+  - generic [ref=e509]:
+    - generic [ref=e510]: MARKS SCORED
+    - strong [ref=e511]: 10 / 100
+  - paragraph [ref=e512]: Your marks are available.
+  - button "Next" [ref=e514] [cursor=pointer]

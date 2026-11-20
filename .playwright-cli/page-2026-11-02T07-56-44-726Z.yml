@@ -1,0 +1,132 @@
+- generic [ref=e88]:
+  - complementary [ref=e90]:
+    - generic [ref=e91]:
+      - generic [ref=e92]:
+        - generic [ref=e93]: K
+        - generic [ref=e95]:
+          - strong [ref=e96]: KGS
+          - generic [ref=e97]: EXAM PORTAL
+      - generic [ref=e98]: ADMIN PORTAL
+      - navigation [ref=e99]:
+        - button "Overview" [ref=e100] [cursor=pointer]
+        - button "Examinations" [ref=e108] [cursor=pointer]
+        - button "Question bank" [ref=e114] [cursor=pointer]
+        - button "Paper sets" [ref=e120] [cursor=pointer]
+        - button "Students" [ref=e126] [cursor=pointer]
+        - button "Administrators" [ref=e133] [cursor=pointer]
+        - button "Live monitoring" [ref=e140] [cursor=pointer]
+        - button "Results" [ref=e145] [cursor=pointer]
+        - button "Feedback" [ref=e151] [cursor=pointer]
+        - button "Reports" [ref=e157] [cursor=pointer]
+        - button "Security & audit" [ref=e162] [cursor=pointer]
+    - generic [ref=e168]:
+      - generic [ref=e173]:
+        - generic [ref=e174]: Examination security
+        - text: Monitoring follows policy
+      - generic [ref=e175]: © 2026 Kaizentrix Global Solutions
+  - generic [ref=e176]:
+    - banner [ref=e177]:
+      - generic [ref=e178]: All systems operational
+      - button "Log out administrator" [ref=e182] [cursor=pointer]:
+        - generic [ref=e183]: AD
+        - generic [ref=e184]:
+          - generic [ref=e185]: harshavardhandevang@gmail.com
+          - generic [ref=e186]: Administrator
+    - main [ref=e189]:
+      - generic [ref=e191]:
+        - generic [ref=e192]: ADMINISTRATION
+        - heading "Examination overview" [level=1] [ref=e193]
+        - paragraph [ref=e194]: Monitor operations and manage the examination lifecycle.
+      - generic [ref=e195]:
+        - generic [ref=e200]:
+          - generic [ref=e201]: 0 examinations currently live
+          - generic [ref=e202]: 0 active attempts · Database-backed status
+        - combobox "Dashboard date range" [ref=e203] [cursor=pointer]:
+          - option "This week"
+          - option "Last 30 days" [selected]
+          - option "Last 90 days"
+      - generic [ref=e204]:
+        - article [ref=e205]:
+          - generic [ref=e211]: Registrations
+          - strong [ref=e212]: "122"
+        - article [ref=e213]:
+          - generic [ref=e218]: Active exams
+          - strong [ref=e219]: "0"
+        - article [ref=e220]:
+          - generic [ref=e224]: Active attempts
+          - strong [ref=e225]: "0"
+        - article [ref=e226]:
+          - generic [ref=e231]: Completed attempts
+          - strong [ref=e232]: "0"
+        - article [ref=e233]:
+          - generic [ref=e238]: Pending reviews
+          - strong [ref=e239]: "8"
+        - article [ref=e240]:
+          - generic [ref=e244]: Latest export
+          - strong [ref=e245]: None
+      - generic [ref=e246]:
+        - generic [ref=e247]:
+          - generic [ref=e248]:
+            - generic [ref=e249]:
+              - heading "Participation overview" [level=3] [ref=e250]
+              - paragraph [ref=e251]: Registrations and completed attempts in the selected period
+            - generic [ref=e252]:
+              - generic [ref=e253]: Registered
+              - generic [ref=e255]: Completed
+          - generic [ref=e258]:
+            - generic [ref=e259]: Nov 2
+            - generic [ref=e260]:
+              - 'generic "Registered: 122" [ref=e261]'
+              - 'generic "Completed: 0"'
+        - generic [ref=e262]:
+          - generic [ref=e263]:
+            - heading "Recent activity" [level=3] [ref=e264]
+            - paragraph [ref=e265]: Latest recorded audit events
+          - generic [ref=e266]:
+            - generic [ref=e267]: AD
+            - generic [ref=e268]:
+              - generic [ref=e269]: EXAM_STUDENTS_ASSIGNED
+              - generic [ref=e270]: Exam
+            - generic [ref=e271]: 11/2/2026, 1:20:35 PM
+          - generic [ref=e272]:
+            - generic [ref=e273]: AD
+            - generic [ref=e274]:
+              - generic [ref=e275]: EXAM_STUDENTS_ASSIGNED
+              - generic [ref=e276]: Exam
+            - generic [ref=e277]: 11/2/2026, 1:15:36 PM
+          - generic [ref=e278]:
+            - generic [ref=e279]: AD
+            - generic [ref=e280]:
+              - generic [ref=e281]: EXAM_STUDENTS_ASSIGNED
+              - generic [ref=e282]: Exam
+            - generic [ref=e283]: 11/2/2026, 1:14:10 PM
+          - generic [ref=e284]:
+            - generic [ref=e285]: AD
+            - generic [ref=e286]:
+              - generic [ref=e287]: EXAM_STUDENTS_ASSIGNED
+              - generic [ref=e288]: Exam
+            - generic [ref=e289]: 11/2/2026, 1:06:36 PM
+          - generic [ref=e290]:
+            - generic [ref=e291]: AD
+            - generic [ref=e292]:
+              - generic [ref=e293]: EXAM_STUDENTS_ASSIGNED
+              - generic [ref=e294]: Exam
+            - generic [ref=e295]: 11/2/2026, 1:06:29 PM
+          - generic [ref=e296]:
+            - generic [ref=e297]: AD
+            - generic [ref=e298]:
+              - generic [ref=e299]: EXAM_STUDENTS_ASSIGNED
+              - generic [ref=e300]: Exam
+            - generic [ref=e301]: 11/2/2026, 1:03:08 PM
+          - generic [ref=e302]:
+            - generic [ref=e303]: AD
+            - generic [ref=e304]:
+              - generic [ref=e305]: EXAM_STUDENTS_ASSIGNED
+              - generic [ref=e306]: Exam
+            - generic [ref=e307]: 11/2/2026, 1:03:01 PM
+          - generic [ref=e308]:
+            - generic [ref=e309]: AD
+            - generic [ref=e310]:
+              - generic [ref=e311]: EXAM_STUDENTS_ASSIGNED
+              - generic [ref=e312]: Exam
+            - generic [ref=e313]: 11/2/2026, 12:52:14 PM

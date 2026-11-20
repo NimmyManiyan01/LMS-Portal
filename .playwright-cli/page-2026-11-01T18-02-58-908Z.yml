@@ -1,0 +1,327 @@
+- generic [ref=e4]:
+  - status "Loading Kaizentrix Global Solutions" [ref=e5]:
+    - img "Kaizentrix Global Solutions logo reveal" [ref=e7]
+  - banner [ref=e9]:
+    - generic [ref=e10]:
+      - link "Go to the Kaizentrix Global Solutions landing page" [ref=e12] [cursor=pointer]:
+        - /url: /
+        - img "Kaizentrix Global Solutions logo reveal" [ref=e14]
+        - generic [ref=e15]: Kaizentrix Global Solutions
+      - generic [ref=e16]:
+        - button "Portal Login" [ref=e17] [cursor=pointer]
+        - button "Toggle Navigation" [ref=e19] [cursor=pointer]:
+          - generic [ref=e20]: menu
+  - main [ref=e21]:
+    - generic [ref=e22]:
+      - img "Student preparing for a software engineering career"
+      - generic [ref=e24]:
+        - heading "Launch Your Career in High-Impact Software Engineering" [level=1] [ref=e25]
+        - paragraph [ref=e26]: From algorithmic mastery to high-throughput distributed microservices. Kaizentrix Global Solutions bridges the gap between academic theory and high-paying engineering roles at top product companies.
+        - button "person Student Portal Login" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: person
+          - generic [ref=e30]: Student Portal Login
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - generic [ref=e33]: 96%
+            - generic [ref=e34]: Placement Rate
+            - generic [ref=e35]: In 90 Days post-grad
+          - generic [ref=e36]:
+            - generic [ref=e37]: 1,200+
+            - generic [ref=e38]: Hiring Partners
+            - generic [ref=e39]: Startups & MNCs
+          - generic [ref=e40]:
+            - generic [ref=e41]: 14.2 LPA
+            - generic [ref=e42]: Highest Package
+            - generic [ref=e43]: "Avg: 7.8 LPA"
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - generic [ref=e46]: "4.8"
+              - generic [ref=e47]: star
+            - generic [ref=e48]: Student Rating
+            - generic [ref=e49]: 5,400+ Alumni
+    - generic [ref=e50]:
+      - generic [ref=e51]: Recruiting & Strategic Engineering Partners
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - generic [ref=e56]: cloud
+          - text: Amazon AWS
+        - generic [ref=e57]:
+          - generic [ref=e58]: hub
+          - text: Cisco Systems
+        - generic [ref=e59]:
+          - generic [ref=e60]: payments
+          - text: Juspay
+        - generic [ref=e61]:
+          - generic [ref=e62]: database
+          - text: Zoho Corp
+        - generic [ref=e63]:
+          - generic [ref=e64]: code_blocks
+          - text: TCS Digital
+        - generic [ref=e65]:
+          - generic [ref=e66]: rocket_launch
+          - text: Razorpay
+        - generic [ref=e67]:
+          - generic [ref=e68]: deployed_code
+          - text: PhonePe
+        - generic [ref=e69]:
+          - generic [ref=e70]: security
+          - text: Swiggy
+        - generic [ref=e71]:
+          - generic [ref=e72]: cloud
+          - text: Amazon AWS
+        - generic [ref=e73]:
+          - generic [ref=e74]: hub
+          - text: Cisco Systems
+        - generic [ref=e75]:
+          - generic [ref=e76]: payments
+          - text: Juspay
+        - generic [ref=e77]:
+          - generic [ref=e78]: database
+          - text: Zoho Corp
+        - generic [ref=e79]:
+          - generic [ref=e80]: code_blocks
+          - text: TCS Digital
+        - generic [ref=e81]:
+          - generic [ref=e82]: rocket_launch
+          - text: Razorpay
+        - generic [ref=e83]:
+          - generic [ref=e84]: deployed_code
+          - text: PhonePe
+        - generic [ref=e85]:
+          - generic [ref=e86]: security
+          - text: Swiggy
+    - generic [ref=e87]:
+      - generic [ref=e88]:
+        - generic [ref=e89]:
+          - generic [ref=e90]:
+            - generic [ref=e91]: verified
+            - text: Verified Outcomes
+          - heading "Achiever Hall of Fame" [level=2] [ref=e92]
+          - paragraph [ref=e93]: Real offers, verified salaries, and actual interview breakthroughs by Kaizentrix Global Solutions engineers.
+        - generic [ref=e94]:
+          - button "Previous Stories" [ref=e95] [cursor=pointer]:
+            - generic [ref=e96]: arrow_back
+          - button "Next Stories" [ref=e97] [cursor=pointer]:
+            - generic [ref=e98]: arrow_forward
+      - generic [ref=e99]:
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - generic [ref=e102]: 14.2 LPA
+            - generic [ref=e104]:
+              - generic [ref=e105]: Sneha Reddy
+              - generic [ref=e106]: Amazon
+            - paragraph [ref=e107]: Cloud Support Engineer II • Bangalore
+            - paragraph [ref=e108]: "\"The continuous mock system-design rounds prepared me for unpredictable AWS distributed concurrency questions.\""
+          - generic [ref=e109]:
+            - generic [ref=e110]: JNTU College of Engg
+            - generic [ref=e111]: Offer Verified
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - generic [ref=e115]: 11.5 LPA
+            - generic [ref=e117]:
+              - generic [ref=e118]: Karthik Varma
+              - generic [ref=e119]: Cisco
+            - paragraph [ref=e120]: Software Engineer (Networks) • Chennai
+            - paragraph [ref=e121]: "\"KGS took me from non-CS background to cracking Cisco's 4-stage technical panel in just 5 months.\""
+          - generic [ref=e122]:
+            - generic [ref=e123]: SRM University
+            - generic [ref=e124]: Offer Verified
+        - generic [ref=e126]:
+          - generic [ref=e127]:
+            - generic [ref=e128]: 10.8 LPA
+            - generic [ref=e130]:
+              - generic [ref=e131]: Divya Menon
+              - generic [ref=e132]: Juspay
+            - paragraph [ref=e133]: Backend Engineer (Haskell / FP) • Remote
+            - paragraph [ref=e134]: "\"Pure functional programming and tree algorithms at KGS were identical to what Juspay interviewed me on.\""
+          - generic [ref=e135]:
+            - generic [ref=e136]: PSG Tech Coimbatore
+            - generic [ref=e137]: Offer Verified
+        - generic [ref=e139]:
+          - generic [ref=e140]:
+            - generic [ref=e141]: 8.5 LPA
+            - generic [ref=e143]:
+              - generic [ref=e144]: Arun Prakash
+              - generic [ref=e145]: Zoho Corp
+            - paragraph [ref=e146]: Full Stack Engineer • Tenkasi Campus
+            - paragraph [ref=e147]: "\"Cleared 3 rounds of Zoho coding tests in a single day thanks to 200+ timed module challenges.\""
+          - generic [ref=e148]:
+            - generic [ref=e149]: Anna University
+            - generic [ref=e150]: Offer Verified
+    - generic [ref=e153]:
+      - generic [ref=e154]:
+        - generic [ref=e155]:
+          - text: Accelerated Curriculum
+          - heading "Upcoming Batches & Engineering Tracks" [level=2] [ref=e156]
+          - paragraph [ref=e157]: Live mentor-led classes, production grade capstones, and direct referral pipeline.
+        - generic [ref=e158]:
+          - button "All Tracks" [ref=e159] [cursor=pointer]
+          - button "Full Stack" [ref=e160] [cursor=pointer]
+          - button "Data & AI" [ref=e161] [cursor=pointer]
+          - button "Cloud" [ref=e162] [cursor=pointer]
+      - generic [ref=e163]:
+        - generic [ref=e164]:
+          - generic [ref=e165]:
+            - generic [ref=e167]:
+              - generic [ref=e168]: terminal
+              - text: Python Full Stack with Gen AI
+            - heading "Python Full Stack with Gen AI" [level=3] [ref=e169]
+            - paragraph [ref=e170]: Build modern web applications with Python, Django, FastAPI, React, and production-ready generative AI integrations.
+          - generic [ref=e171]:
+            - link "download Download Syllabus PDF" [ref=e172] [cursor=pointer]:
+              - /url: "#batches"
+              - generic [ref=e173]: download
+              - generic [ref=e174]: Download Syllabus PDF
+            - button "Apply For Track" [ref=e175] [cursor=pointer]
+        - generic [ref=e176]:
+          - generic [ref=e177]:
+            - generic [ref=e179]:
+              - generic [ref=e180]: coffee
+              - text: Java Full Stack with Gen AI
+            - heading "Java Full Stack with Gen AI" [level=3] [ref=e181]
+            - paragraph [ref=e182]: Master Java, Spring Boot, React, microservices, and intelligent AI-assisted enterprise application development.
+          - generic [ref=e183]:
+            - link "download Download Syllabus PDF" [ref=e184] [cursor=pointer]:
+              - /url: "#batches"
+              - generic [ref=e185]: download
+              - generic [ref=e186]: Download Syllabus PDF
+            - button "Apply For Track" [ref=e187] [cursor=pointer]
+        - generic [ref=e188]:
+          - generic [ref=e189]:
+            - generic [ref=e191]:
+              - generic [ref=e192]: psychology
+              - text: AI/ML Engineer
+            - heading "AI/ML Engineer" [level=3] [ref=e193]
+            - paragraph [ref=e194]: Learn machine learning, deep learning, model deployment, computer vision, NLP, and practical generative AI systems.
+          - generic [ref=e195]:
+            - link "download Download Syllabus PDF" [ref=e196] [cursor=pointer]:
+              - /url: "#batches"
+              - generic [ref=e197]: download
+              - generic [ref=e198]: Download Syllabus PDF
+            - button "Apply For Track" [ref=e199] [cursor=pointer]
+        - generic [ref=e200]:
+          - generic [ref=e201]:
+            - generic [ref=e203]:
+              - generic [ref=e204]: database
+              - text: Data Engineer
+            - heading "Data Engineer" [level=3] [ref=e205]
+            - paragraph [ref=e206]: Design reliable data pipelines with SQL, Python, cloud data platforms, orchestration, analytics, and warehouse engineering.
+          - generic [ref=e207]:
+            - link "download Download Syllabus PDF" [ref=e208] [cursor=pointer]:
+              - /url: "#batches"
+              - generic [ref=e209]: download
+              - generic [ref=e210]: Download Syllabus PDF
+            - button "Apply For Track" [ref=e211] [cursor=pointer]
+    - generic [ref=e214]:
+      - generic [ref=e215]:
+        - generic [ref=e216]:
+          - generic [ref=e217]: devices
+          - text: The Student Operating System
+        - heading "Code Anywhere. Track Every Placement Round in Real Time." [level=2] [ref=e218]
+        - paragraph [ref=e219]: Our multi-platform LMS & Placement Gateway combines automated coding assessment grading, mock AI technical interviews, instant campus announcements, and one-tap interview scheduling.
+        - list [ref=e220]:
+          - listitem [ref=e221]:
+            - generic [ref=e222]: check_circle
+            - generic [ref=e223]: Integrated Web IDE supporting Java, C++, Python, TypeScript, and Go
+          - listitem [ref=e224]:
+            - generic [ref=e225]: check_circle
+            - generic [ref=e226]: Push alerts for exclusive on-campus and virtual hiring drives
+          - listitem [ref=e227]:
+            - generic [ref=e228]: check_circle
+            - generic [ref=e229]: Personalized DSA weakness diagnosis with curated leetcode-grade drills
+        - generic [ref=e230]:
+          - link "android Get it on Google Play" [ref=e231] [cursor=pointer]:
+            - /url: "#lms-preview"
+            - generic [ref=e232]: android
+            - generic [ref=e233]:
+              - generic [ref=e234]: Get it on
+              - generic [ref=e235]: Google Play
+          - link "phone_iphone Download on the Apple App Store" [ref=e236] [cursor=pointer]:
+            - /url: "#lms-preview"
+            - generic [ref=e237]: phone_iphone
+            - generic [ref=e238]:
+              - generic [ref=e239]: Download on the
+              - generic [ref=e240]: Apple App Store
+      - generic [ref=e242]:
+        - generic [ref=e243]:
+          - generic [ref=e244]:
+            - generic [ref=e245]: D
+            - generic [ref=e246]: Student Portal Dashboard
+          - generic [ref=e247]: ● 14 Streak Days
+        - generic [ref=e248]:
+          - generic [ref=e249]:
+            - text: Upcoming Drive
+            - generic [ref=e250]: Recruitment Drive
+            - generic [ref=e251]: 2 November 2026 · 10:30 AM
+            - generic [ref=e252]: AI/ML Research Engineer · Full-Stack Web Developer
+            - generic [ref=e253]: BE, B.Tech, BCA, MCA, M.Tech · 3 Days / 4 Rounds
+            - generic [ref=e254]: Kaizentrix Global Solutions, Bengaluru
+          - generic [ref=e255]:
+            - text: Algorithm Mastery
+            - generic [ref=e256]: "Tier: GOLD (Top 35%)"
+            - generic [ref=e257]: 132 Problems Solved
+        - generic [ref=e258]:
+          - generic [ref=e259]:
+            - generic [ref=e260]:
+              - generic [ref=e261]: task_alt
+              - generic [ref=e262]: "System Design: Distributed Rate Limiter"
+            - generic [ref=e263]: Submitted
+          - generic [ref=e264]:
+            - generic [ref=e265]:
+              - generic [ref=e266]: play_circle
+              - generic [ref=e267]: "Live Masterclass: Concurrency in Go"
+            - generic [ref=e268]: 7:00 PM
+    - generic [ref=e270]:
+      - generic [ref=e271]:
+        - generic [ref=e272]:
+          - img "Kaizentrix Global Solutions" [ref=e273]
+          - generic [ref=e274]: Kaizentrix Global Solutions
+        - paragraph [ref=e275]: India's leading specialized accelerator for algorithmic mastery, full-stack systems engineering, and Tier-1 product placement training.
+        - generic [ref=e276]: ISO 9001:2015 Certified
+        - generic [ref=e278]:
+          - link "LinkedIn" [ref=e279] [cursor=pointer]:
+            - /url: https://linkedin.com
+          - link "GitHub" [ref=e282] [cursor=pointer]:
+            - /url: https://github.com
+          - link "YouTube" [ref=e285] [cursor=pointer]:
+            - /url: https://youtube.com
+          - link "Discord" [ref=e288] [cursor=pointer]:
+            - /url: https://discord.com
+      - generic [ref=e291]:
+        - generic [ref=e292]: Explore
+        - link "About Us" [ref=e293] [cursor=pointer]:
+          - /url: /
+        - link "Batches" [ref=e294] [cursor=pointer]:
+          - /url: /batches
+        - link "Placement Track" [ref=e295] [cursor=pointer]:
+          - /url: /placement-track
+        - button "Contact Us" [ref=e296] [cursor=pointer]
+      - generic [ref=e297]:
+        - generic [ref=e298]: Student Access
+        - link "Achievers" [ref=e299] [cursor=pointer]:
+          - /url: /achievers
+        - link "LMS Gateway" [ref=e300] [cursor=pointer]:
+          - /url: /lms-gateway
+        - button "Contact Us" [ref=e301] [cursor=pointer]
+        - button "Student Portal Login" [ref=e302] [cursor=pointer]
+      - generic [ref=e303]:
+        - generic [ref=e304]: Contact
+        - generic [ref=e305]:
+          - generic [ref=e306]: mail
+          - link "enquiry@kaizentrixglobal.com" [ref=e307] [cursor=pointer]:
+            - /url: mailto:enquiry@kaizentrixglobal.com
+        - generic [ref=e308]:
+          - generic [ref=e309]: call
+          - link "080-23143355 / +91 91879 80031" [ref=e310] [cursor=pointer]:
+            - /url: tel:+919187980031
+        - generic [ref=e311]:
+          - generic [ref=e312]: location_on
+          - generic [ref=e313]: 100 DC Complex, Chandra Layout,Vijayanagar, Bengaluru,Karnataka 560056
+  - contentinfo [ref=e314]:
+    - generic [ref=e315]:
+      - generic [ref=e316]:
+        - link "Campus Assistance" [ref=e317] [cursor=pointer]:
+          - /url: mailto:enquiry@kaizentrixglobal.com
+        - link "Placement Policy" [ref=e318] [cursor=pointer]:
+          - /url: /placement-policy
+      - generic [ref=e319]: © 2026 Kaizentrix Global Solutions Private Limited. All rights reserved.

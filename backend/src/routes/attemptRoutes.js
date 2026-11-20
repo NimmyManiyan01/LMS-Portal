@@ -69,7 +69,7 @@ router.get("/:attemptId/questions", authenticate, async (req, res) => {
   const questions = await Question.collection
     .find(
       { _id: { $in: attempt.assignedQuestionIds || [] } },
-      { projection: { correctOptionId: 0, explanation: 0, __v: 0 } },
+      { projection: { correctOptionId: 0, explanation: 0, referenceSolution: 0, __v: 0 } },
     )
     .toArray();
   const order = new Map(
@@ -82,6 +82,24 @@ router.get("/:attemptId/questions", authenticate, async (req, res) => {
       id: String(question._id),
       questionText:
         question.questionText || question.text || question.question || "",
+      questionTitle: question.questionTitle || question.questionText || "",
+      questionType: question.questionType || "MCQ",
+      inputFormat: question.inputFormat || undefined,
+      outputFormat: question.outputFormat || undefined,
+      constraints: question.constraints || undefined,
+      sampleInput: question.sampleInput || undefined,
+      sampleOutput: question.sampleOutput || undefined,
+      starterCode: question.starterCode || {},
+      allowedLanguages: question.allowedLanguages || ["javascript", "python", "java", "cpp", "c"],
+      testCases: (question.testCases || [])
+        .filter((tc) => !tc.isHidden)
+        .map((tc) => ({
+          id: tc.id || String(tc._id),
+          input: tc.input,
+          expectedOutput: tc.expectedOutput,
+          isHidden: false,
+          explanation: tc.explanation,
+        })),
       options: (question.options || question.choices || []).map(
         (option, optionIndex) =>
           typeof option === "string"
@@ -274,6 +292,119 @@ router.post("/:attemptId/feedback", authenticate, async (req, res) => {
     saved: true,
     feedback: { id: String(feedback._id), rating: feedback.rating },
   });
+});
+
+const { storeStudentSignal, getSessionState, clearSession } = require("../services/webrtcSignaling");
+const { evaluateCode } = require("../services/codeCompilerService");
+
+router.post("/:attemptId/run-code", authenticate, async (req, res) => {
+  const attempt = await findOwnedAttempt(req, res);
+  if (!attempt) return;
+  if (attempt.status !== "IN_PROGRESS") {
+    return res.status(409).json({ error: "Examination attempt is no longer active." });
+  }
+
+  const { questionId, code, language, input } = req.body || {};
+  if (!questionId || !code) {
+    return res.status(400).json({ error: "questionId and code are required." });
+  }
+
+  const question = await Question.findById(questionId).lean();
+  if (!question) return res.status(404).json({ error: "Question not found" });
+
+  const testCasesToRun = input
+    ? [{ id: "custom", input, expectedOutput: "", isHidden: false }]
+    : (question.testCases || []).filter((tc) => !tc.isHidden);
+
+  const evalResult = await evaluateCode({
+    code,
+    language: language || "javascript",
+    testCases: testCasesToRun,
+    timeLimitSeconds: question.timeLimitSeconds || 2,
+  });
+
+  const firstResult = evalResult.testResults[0] || {};
+
+  res.json({
+    jobId: `run_${attempt._id}_${Date.now()}`,
+    attemptId: String(attempt._id),
+    questionId,
+    language: language || "javascript",
+    stdout: firstResult.actualOutput || evalResult.output || "",
+    stderr: firstResult.error || null,
+    executionTimeMs: firstResult.executionTimeMs || 0,
+    evalResult,
+    isPractice: true,
+  });
+});
+
+router.post("/:attemptId/submit-code", authenticate, async (req, res) => {
+  const attempt = await findOwnedAttempt(req, res);
+  if (!attempt) return;
+  const { questionId, code, language } = req.body || {};
+  if (!questionId || !code) {
+    return res.status(400).json({ error: "questionId and code are required." });
+  }
+
+  const question = await Question.findById(questionId).lean();
+  if (!question) return res.status(404).json({ error: "Question not found" });
+
+  const evalResult = await evaluateCode({
+    code,
+    language: language || "javascript",
+    testCases: question.testCases || [],
+    timeLimitSeconds: question.timeLimitSeconds || 2,
+  });
+
+  const questionMarks = Number(question.marks || 10);
+  const calculatedScore = Math.round(evalResult.scoreRatio * questionMarks);
+
+  await Answer.findOneAndUpdate(
+    { attemptId: attempt._id, questionId: question._id },
+    {
+      code,
+      language: language || "javascript",
+      testResults: evalResult.testResults,
+      passCount: evalResult.passCount,
+      totalTestCases: evalResult.totalTestCases,
+      score: calculatedScore,
+      savedAt: new Date(),
+    },
+    { upsert: true, new: true },
+  );
+
+  const { recordCodeExecutionEvent } = require("../services/securityLogger");
+  recordCodeExecutionEvent(req, {
+    attemptId: attempt._id,
+    language: language || "javascript",
+    testResults: evalResult.testResults,
+    score: calculatedScore,
+  });
+
+  res.json({
+    submitted: true,
+    evalResult,
+    score: calculatedScore,
+    questionMarks,
+  });
+});
+
+router.post("/:attemptId/webrtc-signal", authenticate, async (req, res) => {
+  const { offer, candidate, frame } = req.body || {};
+  storeStudentSignal(req.params.attemptId, { offer, candidate, frame });
+  const session = getSessionState(req.params.attemptId);
+  res.json({
+    answer: session?.answer || null,
+    adminCandidates: session?.adminCandidates || [],
+  });
+});
+
+router.post("/:attemptId/stream-frame", authenticate, async (req, res) => {
+  const { frame } = req.body || {};
+  if (frame) {
+    storeStudentSignal(req.params.attemptId, { frame });
+  }
+  res.json({ ok: true });
 });
 
 module.exports = router;

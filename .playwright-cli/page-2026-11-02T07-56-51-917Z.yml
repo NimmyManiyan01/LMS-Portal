@@ -1,0 +1,87 @@
+- generic [ref=e88]:
+  - complementary [ref=e90]:
+    - generic [ref=e91]:
+      - generic [ref=e92]:
+        - generic [ref=e93]: K
+        - generic [ref=e95]:
+          - strong [ref=e96]: KGS
+          - generic [ref=e97]: EXAM PORTAL
+      - generic [ref=e98]: ADMIN PORTAL
+      - navigation [ref=e99]:
+        - button "Overview" [ref=e100] [cursor=pointer]
+        - button "Examinations" [active] [ref=e108] [cursor=pointer]
+        - button "Question bank" [ref=e114] [cursor=pointer]
+        - button "Paper sets" [ref=e120] [cursor=pointer]
+        - button "Students" [ref=e126] [cursor=pointer]
+        - button "Administrators" [ref=e133] [cursor=pointer]
+        - button "Live monitoring" [ref=e140] [cursor=pointer]
+        - button "Results" [ref=e145] [cursor=pointer]
+        - button "Feedback" [ref=e151] [cursor=pointer]
+        - button "Reports" [ref=e157] [cursor=pointer]
+        - button "Security & audit" [ref=e162] [cursor=pointer]
+    - generic [ref=e168]:
+      - generic [ref=e173]:
+        - generic [ref=e174]: Examination security
+        - text: Monitoring follows policy
+      - generic [ref=e175]: © 2026 Kaizentrix Global Solutions
+  - generic [ref=e176]:
+    - banner [ref=e177]:
+      - generic [ref=e178]: All systems operational
+      - button "Log out administrator" [ref=e182] [cursor=pointer]:
+        - generic [ref=e183]: AD
+        - generic [ref=e184]:
+          - generic [ref=e185]: harshavardhandevang@gmail.com
+          - generic [ref=e186]: Administrator
+    - main [ref=e189]:
+      - navigation "Breadcrumb" [ref=e314]:
+        - generic [ref=e320]: Admin Dashboard
+        - generic [ref=e323]: Examinations Management
+      - generic [ref=e325]:
+        - generic [ref=e326]: ADMINISTRATION
+        - heading "Examinations" [level=1] [ref=e327]
+        - paragraph [ref=e328]: Monitor operations and manage the examination lifecycle.
+      - generic [ref=e329]:
+        - generic [ref=e330]:
+          - heading "Examinations" [level=2] [ref=e331]
+          - paragraph [ref=e332]: Manage the examination lifecycle and scheduling.
+        - button "Create Examination" [ref=e333] [cursor=pointer]
+      - generic [ref=e336]:
+        - article [ref=e337]:
+          - generic [ref=e338]: Total Examinations
+          - strong [ref=e339]: "1"
+        - article [ref=e340]:
+          - generic [ref=e341]: Draft
+          - strong [ref=e342]: "0"
+        - article [ref=e343]:
+          - generic [ref=e344]: Scheduled
+          - strong [ref=e345]: "0"
+        - article [ref=e346]:
+          - generic [ref=e347]: Active
+          - strong [ref=e348]: "1"
+        - article [ref=e349]:
+          - generic [ref=e350]: Completed
+          - strong [ref=e351]: "0"
+      - table [ref=e354]:
+        - rowgroup [ref=e355]:
+          - row [ref=e356]:
+            - columnheader "Code" [ref=e357]
+            - columnheader "Name" [ref=e358]
+            - columnheader "Type" [ref=e359]
+            - columnheader "Paper Set" [ref=e360]
+            - columnheader "Start" [ref=e361]
+            - columnheader "Duration" [ref=e362]
+            - columnheader "Status" [ref=e363]
+            - columnheader "Actions" [ref=e364]
+        - rowgroup [ref=e365]:
+          - row [ref=e366]:
+            - cell "EXAM-2026-0002" [ref=e367]
+            - cell "MAHARAJA-COLLEGE" [ref=e368]
+            - cell "MCQ" [ref=e369]
+            - cell "📄 Question Paper - MAHARAJA-COLLEGE (PUBLISHED)" [ref=e370]
+            - cell "11/2/2026, 1:07:00 PM" [ref=e372]
+            - cell "60 min" [ref=e373]
+            - cell "ACTIVE" [ref=e374]
+            - cell [ref=e376]:
+              - button "Edit" [ref=e377] [cursor=pointer]
+              - button "Set Paper" [ref=e378] [cursor=pointer]
+              - button "Assign Students" [ref=e379] [cursor=pointer]

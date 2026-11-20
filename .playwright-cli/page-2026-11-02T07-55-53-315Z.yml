@@ -1,0 +1,40 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - button "Back to the Kaizentrix Global Solutions landing page" [ref=e7] [cursor=pointer]:
+        - img "Kaizentrix Global Solutions logo reveal" [ref=e9]
+        - generic [ref=e10]: Kaizentrix Global Solutions
+      - generic [ref=e11]:
+        - button "New student? Create account" [ref=e12] [cursor=pointer]:
+          - generic [ref=e13]: New student?
+          - generic [ref=e14]: Create account
+        - button "Toggle navigation" [ref=e15] [cursor=pointer]:
+          - generic [ref=e16]: ☰
+  - main [ref=e17]:
+    - generic [ref=e18]:
+      - button "Back to home" [ref=e19] [cursor=pointer]
+      - generic [ref=e22]: Student & Administrator Authentication
+      - heading "Welcome back" [level=1] [ref=e24]:
+        - generic [ref=e25]: Welcome
+        - generic [ref=e26]: back
+      - paragraph [ref=e27]: Sign in securely with your authorised email address and a one-time verification code.
+      - generic [ref=e33]:
+        - strong [ref=e34]: Passwordless access
+        - generic [ref=e35]: Your verification code is single-use and expires after a short period.
+      - list [ref=e36]:
+        - listitem [ref=e37]: Secure & Reliable
+        - listitem [ref=e41]: AI-resistant proctoring
+        - listitem [ref=e45]: Enterprise grade
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - heading "Portal Login" [level=2] [ref=e53]
+        - paragraph [ref=e54]: Enter your email address to receive a verification code.
+      - generic [ref=e55]:
+        - generic [ref=e56]: Email Address *
+        - textbox "Email Address *" [ref=e58]:
+          - /placeholder: e.g. rahul@gmail.com
+      - button "Send Verification OTP" [ref=e59] [cursor=pointer]
+      - paragraph [ref=e62]:
+        - text: New here?
+        - button "Register as Student" [ref=e63] [cursor=pointer]
+  - contentinfo [ref=e64]: © 2026 Kaizentrix Global Solutions. Secure examination infrastructure.

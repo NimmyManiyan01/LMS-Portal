@@ -1,0 +1,47 @@
+- generic [ref=e85]:
+  - banner [ref=e86]:
+    - generic [ref=e87]: All systems operational
+    - button "Log out" [ref=e91] [cursor=pointer]:
+      - generic [ref=e92]: HM
+      - generic [ref=e93]:
+        - generic [ref=e94]: Harshavardhan m v
+        - generic [ref=e95]: KGS-STU-000008
+  - main [ref=e98]:
+    - main [ref=e99]:
+      - navigation "Breadcrumb" [ref=e100]:
+        - generic [ref=e106]: Student Portal
+        - generic [ref=e109]: My Examinations
+      - generic [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e112]: Student workspace
+          - heading "Your examination journey" [level=1] [ref=e114]
+          - paragraph [ref=e115]: Stay ready, track every assessment, and move confidently toward your next opportunity.
+        - generic [ref=e116]:
+          - generic [ref=e117]:
+            - generic [ref=e118]: "0"
+            - text: Available
+          - generic [ref=e119]:
+            - generic [ref=e120]: "0"
+            - text: Upcoming
+          - generic [ref=e121]:
+            - generic [ref=e122]: "0"
+            - text: Completed
+      - generic [ref=e123]:
+        - button "AVAILABLE 0" [ref=e124] [cursor=pointer]:
+          - text: AVAILABLE
+          - generic [ref=e125]: "0"
+        - button "UPCOMING 0" [ref=e126] [cursor=pointer]:
+          - text: UPCOMING
+          - generic [ref=e127]: "0"
+        - button "IN PROGRESS 0" [ref=e128] [cursor=pointer]:
+          - text: IN PROGRESS
+          - generic [ref=e129]: "0"
+        - button "COMPLETED 0" [ref=e130] [cursor=pointer]:
+          - text: COMPLETED
+          - generic [ref=e131]: "0"
+        - button "RESULTS PENDING 0" [ref=e132] [cursor=pointer]:
+          - text: RESULTS PENDING
+          - generic [ref=e133]: "0"
+      - generic [ref=e134]:
+        - heading "No available examinations" [level=3] [ref=e135]
+        - paragraph [ref=e136]: Eligible examinations will appear here when available.

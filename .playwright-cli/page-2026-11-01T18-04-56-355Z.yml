@@ -1,0 +1,92 @@
+- generic [ref=e84]:
+  - complementary [ref=e185]:
+    - generic [ref=e186]:
+      - generic [ref=e187]:
+        - generic [ref=e188]: K
+        - generic [ref=e190]:
+          - strong [ref=e191]: KGS
+          - generic [ref=e192]: EXAM PORTAL
+      - generic [ref=e193]: ADMIN PORTAL
+      - navigation [ref=e194]:
+        - button "Overview" [ref=e195] [cursor=pointer]
+        - button "Examinations" [ref=e203] [cursor=pointer]
+        - button "Question bank" [ref=e209] [cursor=pointer]
+        - button "Paper sets" [ref=e215] [cursor=pointer]
+        - button "Students" [ref=e221] [cursor=pointer]
+        - button "Administrators" [ref=e228] [cursor=pointer]
+        - button "Live monitoring" [ref=e235] [cursor=pointer]
+        - button "Results" [ref=e240] [cursor=pointer]
+        - button "Feedback" [ref=e246] [cursor=pointer]
+        - button "Reports" [ref=e252] [cursor=pointer]
+        - button "Security & audit" [ref=e257] [cursor=pointer]
+    - generic [ref=e263]:
+      - generic [ref=e268]:
+        - generic [ref=e269]: Examination security
+        - text: Monitoring follows policy
+      - generic [ref=e270]: © 2026 Kaizentrix Global Solutions
+  - button "Close navigation" [ref=e271]
+  - generic [ref=e85]:
+    - banner [ref=e86]:
+      - button "Open menu" [active] [ref=e87] [cursor=pointer]
+      - generic [ref=e90]: All systems operational
+      - button "Log out administrator" [ref=e94] [cursor=pointer]:
+        - generic [ref=e95]: AD
+        - generic [ref=e96]:
+          - generic [ref=e97]: harshavardhandevang@gmail.com
+          - generic [ref=e98]: Administrator
+    - main [ref=e101]:
+      - generic [ref=e103]:
+        - generic [ref=e104]: ADMINISTRATION
+        - heading "Examination overview" [level=1] [ref=e105]
+        - paragraph [ref=e106]: Monitor operations and manage the examination lifecycle.
+      - generic [ref=e107]:
+        - generic [ref=e112]:
+          - generic [ref=e113]: 0 examinations currently live
+          - generic [ref=e114]: 0 active attempts · Database-backed status
+        - combobox "Dashboard date range" [ref=e115] [cursor=pointer]:
+          - option "This week"
+          - option "Last 30 days" [selected]
+          - option "Last 90 days"
+      - generic [ref=e116]:
+        - article [ref=e117]:
+          - generic [ref=e123]: Registrations
+          - strong [ref=e124]: "4"
+        - article [ref=e125]:
+          - generic [ref=e130]: Active exams
+          - strong [ref=e131]: "0"
+        - article [ref=e132]:
+          - generic [ref=e136]: Active attempts
+          - strong [ref=e137]: "0"
+        - article [ref=e138]:
+          - generic [ref=e143]: Completed attempts
+          - strong [ref=e144]: "0"
+        - article [ref=e145]:
+          - generic [ref=e150]: Pending reviews
+          - strong [ref=e151]: "10"
+        - article [ref=e152]:
+          - generic [ref=e156]: Latest export
+          - strong [ref=e157]: 11/1/2026, 6:03:03 PM
+      - generic [ref=e158]:
+        - generic [ref=e159]:
+          - generic [ref=e160]:
+            - generic [ref=e161]:
+              - heading "Participation overview" [level=3] [ref=e162]
+              - paragraph [ref=e163]: Registrations and completed attempts in the selected period
+            - generic [ref=e164]:
+              - generic [ref=e165]: Registered
+              - generic [ref=e167]: Completed
+          - generic [ref=e170]:
+            - generic [ref=e171]: Nov 1
+            - generic [ref=e172]:
+              - 'generic "Registered: 4" [ref=e173]'
+              - 'generic "Completed: 0"'
+        - generic [ref=e174]:
+          - generic [ref=e175]:
+            - heading "Recent activity" [level=3] [ref=e176]
+            - paragraph [ref=e177]: Latest recorded audit events
+          - generic [ref=e178]:
+            - generic [ref=e179]: AD
+            - generic [ref=e180]:
+              - generic [ref=e181]: EXAM_STUDENTS_ASSIGNED
+              - generic [ref=e182]: Exam
+            - generic [ref=e183]: 11/1/2026, 5:20:20 PM

@@ -1,0 +1,50 @@
+- generic [ref=e88]:
+  - generic [ref=e223]:
+    - generic [ref=e224]:
+      - generic [ref=e225]:
+        - generic [ref=e226]: PRE-EXAM DIAGNOSTICS
+        - heading "System Readiness Verification" [level=2] [ref=e227]
+        - paragraph [ref=e228]: MAHARAJA-COLLEGE
+      - button "Close readiness check" [ref=e229] [cursor=pointer]: ×
+    - generic "Readiness checks" [ref=e230]:
+      - button "✓ Browser PASSED" [ref=e260] [cursor=pointer]:
+        - generic [ref=e232]: ✓
+        - generic [ref=e233]: Browser
+        - generic [ref=e234]: PASSED
+      - button "N Network PENDING" [ref=e235] [cursor=pointer]:
+        - generic [ref=e236]: "N"
+        - generic [ref=e237]: Network
+        - generic [ref=e238]: PENDING
+      - button "C Camera PENDING" [ref=e239] [cursor=pointer]:
+        - generic [ref=e240]: C
+        - generic [ref=e241]: Camera
+        - generic [ref=e242]: PENDING
+      - button "M Microphone PENDING" [ref=e243] [cursor=pointer]:
+        - generic [ref=e244]: M
+        - generic [ref=e245]: Microphone
+        - generic [ref=e246]: PENDING
+      - button "F Fullscreen PENDING" [ref=e247] [cursor=pointer]:
+        - generic [ref=e248]: F
+        - generic [ref=e249]: Fullscreen
+        - generic [ref=e250]: PENDING
+    - generic [ref=e252]:
+      - heading "Browser compatibility" [level=4] [ref=e253]
+      - paragraph [ref=e254]: We verify the browser capabilities required by this examination.
+      - generic [ref=e255]: ✓ Google Chrome supports the required capabilities.
+      - button "Run Browser Check →" [active] [ref=e256] [cursor=pointer]
+    - generic [ref=e257]:
+      - button "Cancel" [ref=e258] [cursor=pointer]
+      - button "Launch Exam Environment →" [disabled] [ref=e259]
+  - generic [ref=e89]:
+    - banner [ref=e90]:
+      - generic [ref=e91]: All systems operational
+      - button "Log out" [ref=e95] [cursor=pointer]:
+        - generic [ref=e96]: HM
+        - generic [ref=e97]:
+          - generic [ref=e98]: Harshavardhan m v
+          - generic [ref=e99]: KGS-STU-000008
+    - main [ref=e102]:
+      - generic [ref=e215]:
+        - heading "My examinations" [level=2] [ref=e219]
+        - paragraph [ref=e220]: This module is fully configured in the KGS portal prototype. Return to Overview to explore the primary student flow.
+        - button "Back to overview" [ref=e221] [cursor=pointer]

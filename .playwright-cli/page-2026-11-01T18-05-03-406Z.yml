@@ -1,0 +1,62 @@
+- generic [ref=e85]:
+  - banner [ref=e86]:
+    - button "Open menu" [ref=e87] [cursor=pointer]
+    - generic [ref=e90]: All systems operational
+    - button "Log out administrator" [ref=e94] [cursor=pointer]:
+      - generic [ref=e95]: AD
+      - generic [ref=e96]:
+        - generic [ref=e97]: harshavardhandevang@gmail.com
+        - generic [ref=e98]: Administrator
+  - main [ref=e101]:
+    - navigation "Breadcrumb" [ref=e272]:
+      - generic [ref=e278]: Admin Dashboard
+      - generic [ref=e281]: Examinations Management
+    - generic [ref=e283]:
+      - generic [ref=e284]: ADMINISTRATION
+      - heading "Examinations" [level=1] [ref=e285]
+      - paragraph [ref=e286]: Monitor operations and manage the examination lifecycle.
+    - generic [ref=e287]:
+      - generic [ref=e288]:
+        - heading "Examinations" [level=2] [ref=e289]
+        - paragraph [ref=e290]: Manage the examination lifecycle and scheduling.
+      - button "Create Examination" [ref=e291] [cursor=pointer]
+    - generic [ref=e294]:
+      - article [ref=e295]:
+        - generic [ref=e296]: Total Examinations
+        - strong [ref=e297]: "1"
+      - article [ref=e298]:
+        - generic [ref=e299]: Draft
+        - strong [ref=e300]: "0"
+      - article [ref=e301]:
+        - generic [ref=e302]: Scheduled
+        - strong [ref=e303]: "0"
+      - article [ref=e304]:
+        - generic [ref=e305]: Active
+        - strong [ref=e306]: "1"
+      - article [ref=e307]:
+        - generic [ref=e308]: Completed
+        - strong [ref=e309]: "0"
+    - table [ref=e312]:
+      - rowgroup [ref=e313]:
+        - row [ref=e314]:
+          - columnheader "Code" [ref=e315]
+          - columnheader "Name" [ref=e316]
+          - columnheader "Type" [ref=e317]
+          - columnheader "Paper Set" [ref=e318]
+          - columnheader "Start" [ref=e319]
+          - columnheader "Duration" [ref=e320]
+          - columnheader "Status" [ref=e321]
+          - columnheader "Actions" [ref=e322]
+      - rowgroup [ref=e323]:
+        - row [ref=e324]:
+          - cell "EXAM-2026-0004" [ref=e325]
+          - cell "Maharaja college" [ref=e326]
+          - cell "MCQ" [ref=e327]
+          - cell "📄 paper-1 (PUBLISHED)" [ref=e328]
+          - cell "11/1/2026, 11:13:00 PM" [ref=e330]
+          - cell "46 min" [ref=e331]
+          - cell "ACTIVE" [ref=e332]
+          - cell [ref=e334]:
+            - button "Edit" [ref=e335] [cursor=pointer]
+            - button "Set Paper" [ref=e336] [cursor=pointer]
+            - button "Assign Students" [ref=e337] [cursor=pointer]

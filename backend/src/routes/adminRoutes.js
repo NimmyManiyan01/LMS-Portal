@@ -387,6 +387,14 @@ router.get("/results/:resultId", authenticate, adminOnly, async (req, res) => {
     .populate("studentId", "studentId fullName email college")
     .lean();
   if (!result) return res.status(404).json({ error: "Result not found" });
+
+  const attempt = await Attempt.findById(result.attemptId).lean();
+  const answers = await Answer.find({ attemptId: result.attemptId }).lean();
+  const questions = attempt?.assignedQuestionIds?.length
+    ? await Question.find({ _id: { $in: attempt.assignedQuestionIds } }).lean()
+    : [];
+  const incidents = await IntegrityEvent.find({ attemptId: result.attemptId }).sort({ recordedAt: -1 }).lean();
+
   const publishedSet = result.examId?._id
     ? await PaperSet.findOne({
         examId: result.examId._id,
@@ -397,6 +405,7 @@ router.get("/results/:resultId", authenticate, adminOnly, async (req, res) => {
         .sort({ updatedAt: -1 })
         .lean()
     : null;
+
   res.json({
     result: {
       resultId: String(result._id),
@@ -420,9 +429,70 @@ router.get("/results/:resultId", authenticate, adminOnly, async (req, res) => {
         publishedSet?.totalMarks ??
         null,
       submittedAt: result.submittedAt || result.finalizedAt,
-      evaluationStatus: "FINALIZED",
+      evaluationStatus: result.evaluationStatus || "FINALIZED",
       releaseStatus: result.releaseStatus || "PENDING",
+      scoreHistory: result.scoreHistory || [],
+      answers: answers.map((a) => ({
+        questionId: String(a.questionId),
+        code: a.code || "",
+        language: a.language || "javascript",
+        testResults: a.testResults || [],
+        passCount: a.passCount || 0,
+        totalTestCases: a.totalTestCases || 0,
+        score: a.score || 0,
+        savedAt: a.savedAt,
+      })),
+      questions: questions.map((q) => ({
+        id: String(q._id),
+        questionTitle: q.questionTitle || q.questionText || "Question",
+        questionText: q.questionText || q.text || "",
+        marks: q.marks || 10,
+        testCases: q.testCases || [],
+      })),
+      incidents: incidents.map((ev) => ({
+        id: String(ev._id),
+        eventType: ev.eventType,
+        action: ev.action,
+        timestamp: ev.recordedAt || ev.clientTimestamp || new Date(),
+      })),
     },
+  });
+});
+
+router.put("/results/:resultId/adjust", authenticate, adminOnly, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.resultId))
+    return res.status(400).json({ error: "Invalid result ID" });
+  const { newScore, reason } = req.body || {};
+  if (newScore === undefined || !reason || !String(reason).trim()) {
+    return res.status(400).json({ error: "newScore and a valid adjustment reason are required." });
+  }
+  const result = await FinalResult.findById(req.params.resultId);
+  if (!result) return res.status(404).json({ error: "Result not found" });
+
+  const previousScore = result.marksScored;
+  const updatedScore = Number(newScore);
+  const adjustmentEntry = {
+    previousScore,
+    updatedScore,
+    reason: String(reason).trim(),
+    adminEmail: req.admin?.email || "admin@kgs.com",
+    timestamp: new Date(),
+  };
+
+  result.marksScored = updatedScore;
+  result.score = updatedScore;
+  result.evaluationStatus = "UNDER_REVIEW";
+  if (!result.scoreHistory) result.scoreHistory = [];
+  result.scoreHistory.push(adjustmentEntry);
+  await result.save();
+
+  res.json({
+    adjusted: true,
+    resultId: String(result._id),
+    previousScore,
+    updatedScore,
+    evaluationStatus: result.evaluationStatus,
+    scoreHistory: result.scoreHistory,
   });
 });
 router.post(
@@ -490,12 +560,22 @@ router.get(
       .sort({ recordedAt: -1 })
       .lean();
 
+    const answers = await Answer.find({ attemptId: { $in: ids } }).lean();
+    const answersByAttempt = new Map();
+    answers.forEach((ans) => {
+      const key = String(ans.attemptId);
+      if (!answersByAttempt.has(key)) answersByAttempt.set(key, []);
+      answersByAttempt.get(key).push(ans);
+    });
+
     const byAttempt = new Map();
     events.forEach((event) => {
       const key = String(event.attemptId);
       if (!byAttempt.has(key)) byAttempt.set(key, []);
       byAttempt.get(key).push(event);
     });
+
+    const { getSessionState } = require("../services/webrtcSignaling");
 
     res
       .set("Cache-Control", "no-store")
@@ -504,6 +584,17 @@ router.get(
           const student = attempt.studentId || {};
           const exam = attempt.examId || {};
           const incidentList = byAttempt.get(String(attempt._id)) || [];
+          const attemptAnswers = answersByAttempt.get(String(attempt._id)) || [];
+          const session = getSessionState(String(attempt._id));
+          const hasFreshFrame = Boolean(session?.frame && Date.now() - (session.lastFrameAt || 0) < 10000);
+          const hasLiveStream = Boolean(attempt.status === "IN_PROGRESS" && (session?.offer || hasFreshFrame));
+
+          const attemptedCount = attemptAnswers.filter((a) => a.code || a.selectedOptionId).length;
+          const submittedCount = attemptAnswers.filter((a) => a.passCount !== undefined || a.score !== undefined).length;
+          const latestAnswer = attemptAnswers.sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0))[0] || null;
+          const lastAutosaveAt = latestAnswer?.savedAt || null;
+          const lastExecutionStatus = latestAnswer?.testResults?.[0]?.status || (latestAnswer?.passCount !== undefined ? "EVALUATED" : "IN_PROGRESS");
+          const remainingSeconds = attempt.expiresAt ? Math.max(0, Math.ceil((new Date(attempt.expiresAt).getTime() - Date.now()) / 1000)) : 0;
 
           return {
             id: String(attempt._id),
@@ -513,6 +604,12 @@ router.get(
             expiresAt: attempt.expiresAt,
             submittedAt: attempt.submittedAt,
             answeredCount: attempt.answers ? Object.keys(attempt.answers).length : 0,
+            attemptedCount,
+            submittedCount,
+            totalAssignedQuestions: attempt.assignedQuestionIds?.length || 0,
+            lastAutosaveAt,
+            lastExecutionStatus,
+            remainingSeconds,
             integrityCounts: attempt.integrityCounts || {},
             exam,
             student,
@@ -522,6 +619,8 @@ router.get(
             examTitle: exam.title || exam.code || "—",
             incidentCount: incidentList.length,
             latestIncident: incidentList[0] || null,
+            hasLiveStream,
+            liveFrame: hasFreshFrame ? session.frame : null,
           };
         }),
         pagination: {
@@ -548,12 +647,18 @@ router.get(
     const events = await IntegrityEvent.find({ attemptId: attempt._id })
       .sort({ recordedAt: -1 })
       .lean();
+    const { getSessionState } = require("../services/webrtcSignaling");
+    const session = getSessionState(req.params.attemptId);
+    const hasFreshFrame = Boolean(session?.frame && Date.now() - (session.lastFrameAt || 0) < 10000);
+
     res.json({
       attempt: {
         attemptId: String(attempt._id),
         status: attempt.status,
         exam: attempt.examId,
         student: attempt.studentId,
+        hasLiveStream: Boolean(attempt.status === "IN_PROGRESS" && (session?.offer || hasFreshFrame)),
+        liveFrame: hasFreshFrame ? session.frame : null,
       },
       events: events.map((ev) => ({
         eventId: ev.eventId || String(ev._id),
@@ -562,6 +667,224 @@ router.get(
         details: ev.action ? `${ev.eventType} (Action: ${ev.action})` : ev.eventType,
         timestamp: ev.recordedAt || ev.clientTimestamp || new Date(),
       })),
+    });
+  },
+);
+
+router.get(
+  "/monitoring/attempts/:attemptId/code-review",
+  authenticate,
+  adminOnly,
+  async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.attemptId)) {
+      return res.status(400).json({ error: "Invalid attempt ID" });
+    }
+    const attempt = await Attempt.findById(req.params.attemptId)
+      .populate("examId", "title code")
+      .populate("studentId", "studentId fullName email")
+      .lean();
+    if (!attempt) return res.status(404).json({ error: "Attempt not found" });
+
+    const answers = await Answer.find({ attemptId: attempt._id }).lean();
+    res.json({
+      attemptId: String(attempt._id),
+      student: attempt.studentId,
+      exam: attempt.examId,
+      answers: answers.map((ans) => ({
+        questionId: String(ans.questionId),
+        code: ans.code || "",
+        language: ans.language || "javascript",
+        passCount: ans.passCount || 0,
+        totalTestCases: ans.totalTestCases || 0,
+        score: ans.score || 0,
+        testResults: ans.testResults || [],
+        savedAt: ans.savedAt,
+      })),
+    });
+  },
+);
+
+router.post(
+  "/exams/:id/shortlist",
+  authenticate,
+  adminOnly,
+  async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ error: "Invalid exam ID" });
+    }
+    const { studentIds = [] } = req.body || {};
+    const validStudentIds = (Array.isArray(studentIds) ? studentIds : [studentIds])
+      .filter((id) => mongoose.isValidObjectId(id));
+
+    if (!validStudentIds.length) {
+      return res.status(400).json({ error: "No valid student IDs provided" });
+    }
+
+    const exam = await Exam.findById(req.params.id);
+    if (!exam) return res.status(404).json({ error: "Exam not found" });
+
+    if (!exam.eligibility) exam.eligibility = {};
+    if (!Array.isArray(exam.eligibility.studentIds)) exam.eligibility.studentIds = [];
+
+    const existingSet = new Set(exam.eligibility.studentIds.map(String));
+    let addedCount = 0;
+    const newlyAddedIds = [];
+
+    for (const sid of validStudentIds) {
+      if (!existingSet.has(String(sid))) {
+        exam.eligibility.studentIds.push(sid);
+        existingSet.add(String(sid));
+        newlyAddedIds.push(sid);
+        addedCount += 1;
+      }
+    }
+
+    await exam.save();
+
+    if (newlyAddedIds.length) {
+      const { sendRound2NotificationEmail } = require("../services/auth/brevoEmail");
+      const newlyShortlistedStudents = await Student.find({ _id: { $in: newlyAddedIds } }).select("fullName email").lean();
+      for (const student of newlyShortlistedStudents) {
+        void sendRound2NotificationEmail({
+          to: student.email,
+          name: student.fullName,
+          examTitle: exam.title || exam.code || "Round 2 Coding Assessment",
+          scheduledAt: exam.scheduledAt,
+        }).catch(() => undefined);
+      }
+    }
+
+    res.json({
+      shortlisted: true,
+      addedCount,
+      totalEligible: exam.eligibility.studentIds.length,
+    });
+  },
+);
+
+router.post(
+  "/results/preview-shortlist",
+  authenticate,
+  adminOnly,
+  async (req, res) => {
+    const { round1ExamId, round2ExamId, minPercentage = 60 } = req.body || {};
+    if (!mongoose.isValidObjectId(round1ExamId)) {
+      return res.status(400).json({ error: "Invalid Round 1 exam ID" });
+    }
+
+    const [round2Exam, results] = await Promise.all([
+      round2ExamId && mongoose.isValidObjectId(round2ExamId) ? Exam.findById(round2ExamId).lean() : null,
+      FinalResult.find({ examId: round1ExamId })
+        .populate("studentId", "studentId fullName email college")
+        .lean(),
+    ]);
+
+    const existingSet = new Set(
+      (round2Exam?.eligibility?.studentIds || []).map(String),
+    );
+
+    const previews = results.map((r) => {
+      const student = r.studentId || {};
+      const maxMarks = Number(r.maximumMarks || 100);
+      const scored = Number(r.marksScored || 0);
+      const percentage = maxMarks > 0 ? (scored / maxMarks) * 100 : 0;
+      const isEligible = percentage >= minPercentage;
+      const alreadyAssigned = existingSet.has(String(student._id || r.studentId));
+
+      return {
+        studentId: String(student._id || r.studentId),
+        studentName: student.fullName || "—",
+        registrationId: student.studentId || "—",
+        college: student.college || "—",
+        marksScored: scored,
+        maximumMarks: maxMarks,
+        percentage: Math.round(percentage),
+        isEligible,
+        alreadyAssigned,
+      };
+    });
+
+    res.json({
+      previews,
+      cutoffPercentage: minPercentage,
+      eligibleCount: previews.filter((p) => p.isEligible && !p.alreadyAssigned).length,
+    });
+  },
+);
+
+router.post(
+  "/results/auto-shortlist",
+  authenticate,
+  adminOnly,
+  async (req, res) => {
+    const { round1ExamId, round2ExamId, minPercentage = 60 } = req.body || {};
+    if (!mongoose.isValidObjectId(round1ExamId) || !mongoose.isValidObjectId(round2ExamId)) {
+      return res.status(400).json({ error: "Invalid round1ExamId or round2ExamId" });
+    }
+
+    const [round2Exam, results] = await Promise.all([
+      Exam.findById(round2ExamId),
+      FinalResult.find({ examId: round1ExamId }).lean(),
+    ]);
+
+    if (!round2Exam) return res.status(404).json({ error: "Round 2 exam not found" });
+
+    const qualifiedStudentIds = results
+      .filter((r) => r.maximumMarks && (r.marksScored / r.maximumMarks) * 100 >= minPercentage)
+      .map((r) => String(r.studentId));
+
+    if (!round2Exam.eligibility) round2Exam.eligibility = {};
+    if (!Array.isArray(round2Exam.eligibility.studentIds)) round2Exam.eligibility.studentIds = [];
+
+    const existingSet = new Set(round2Exam.eligibility.studentIds.map(String));
+    let addedCount = 0;
+    const newlyAddedIds = [];
+
+    for (const sid of qualifiedStudentIds) {
+      if (!existingSet.has(sid)) {
+        round2Exam.eligibility.studentIds.push(sid);
+        existingSet.add(sid);
+        newlyAddedIds.push(sid);
+        addedCount += 1;
+      }
+    }
+
+    await round2Exam.save();
+
+    if (newlyAddedIds.length) {
+      const { sendRound2NotificationEmail } = require("../services/auth/brevoEmail");
+      const newlyShortlistedStudents = await Student.find({ _id: { $in: newlyAddedIds } }).select("fullName email").lean();
+      for (const student of newlyShortlistedStudents) {
+        void sendRound2NotificationEmail({
+          to: student.email,
+          name: student.fullName,
+          examTitle: round2Exam.title || round2Exam.code || "Round 2 Coding Assessment",
+          scheduledAt: round2Exam.scheduledAt,
+        }).catch(() => undefined);
+      }
+    }
+
+    res.json({
+      autoShortlisted: true,
+      addedCount,
+      totalQualified: qualifiedStudentIds.length,
+      totalEligible: round2Exam.eligibility.studentIds.length,
+    });
+  },
+);
+router.post(
+  "/monitoring/attempts/:attemptId/webrtc-signal",
+  authenticate,
+  adminOnly,
+  async (req, res) => {
+    const { storeAdminSignal, getSessionState } = require("../services/webrtcSignaling");
+    const { answer, candidate } = req.body || {};
+    storeAdminSignal(req.params.attemptId, { answer, candidate });
+    const session = getSessionState(req.params.attemptId);
+    res.json({
+      offer: session?.offer || null,
+      studentCandidates: session?.studentCandidates || [],
+      frame: session?.frame || null,
     });
   },
 );
@@ -1387,10 +1710,21 @@ router.post("/questions", authenticate, adminOnly, async (req, res) => {
         .map((answer) => String(answer).trim())
         .filter(Boolean)
     : [];
+  const testCases = Array.isArray(req.body.testCases)
+    ? req.body.testCases.map((tc, idx) => ({
+        id: String(tc.id || `tc_${idx + 1}`),
+        input: String(tc.input || ""),
+        expectedOutput: String(tc.expectedOutput || ""),
+        isHidden: Boolean(tc.isHidden),
+        weightage: Number(tc.weightage || 1),
+        explanation: String(tc.explanation || ""),
+      }))
+    : [];
+
   if (
     !questionText ||
     !category ||
-    !["MCQ", "MSQ", "TRUE_FALSE", "SHORT_ANSWER"].includes(questionType) ||
+    !["MCQ", "MSQ", "TRUE_FALSE", "SHORT_ANSWER", "CODING"].includes(questionType) ||
     !["EASY", "MEDIUM", "HARD"].includes(difficulty) ||
     !Number.isFinite(marks) ||
     marks <= 0 ||
@@ -1433,6 +1767,12 @@ router.post("/questions", authenticate, adminOnly, async (req, res) => {
       .json({
         error: "Short-answer questions require at least one accepted answer.",
       });
+  if (questionType === "CODING" && !testCases.length)
+    return res
+      .status(400)
+      .json({
+        error: "Coding questions require at least one test case.",
+      });
   if (
     status === "ACTIVE" &&
     (!questionText ||
@@ -1451,6 +1791,18 @@ router.post("/questions", authenticate, adminOnly, async (req, res) => {
       : options;
   const question = await Question.create({
     questionText,
+    questionTitle: String(req.body.questionTitle || questionText).trim(),
+    inputFormat: String(req.body.inputFormat || "").trim(),
+    outputFormat: String(req.body.outputFormat || "").trim(),
+    constraints: String(req.body.constraints || "").trim(),
+    sampleInput: String(req.body.sampleInput || "").trim(),
+    sampleOutput: String(req.body.sampleOutput || "").trim(),
+    allowedLanguages: Array.isArray(req.body.allowedLanguages) ? req.body.allowedLanguages : ["javascript", "python", "java", "cpp", "c"],
+    starterCode: req.body.starterCode || {},
+    referenceSolution: req.body.referenceSolution || {},
+    testCases,
+    timeLimitSeconds: Number(req.body.timeLimitSeconds || 2),
+    memoryLimitMB: Number(req.body.memoryLimitMB || 256),
     options: normalizedOptions,
     correctOptionId: questionType === "MCQ" ? correctOptionIds[0] : undefined,
     correctOptionIds,

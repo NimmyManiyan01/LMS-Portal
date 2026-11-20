@@ -121,6 +121,8 @@ export function ExaminationsPage({
       code: d.code,
       description: "",
       examinationType: "MCQ",
+      roundNumber: 1,
+      allowedLanguages: ["python", "java", "cpp", "javascript"],
       startAt: "",
       endAt: "",
       durationMinutes: "",
@@ -166,17 +168,20 @@ export function ExaminationsPage({
     const calculated = durationBetween(form.startAt, form.endAt)
     const errors: string[] = []
 
-    if (!form.name.trim()) errors.push("Examination name is required.")
+    if (!form.name.trim()) errors.push("Assessment name is mandatory.")
     if (!form.startAt) errors.push("Start date and time are required.")
     if (!form.endAt) errors.push("End date and time are required.")
     if (!editing && form.startAt && start <= new Date())
       errors.push("Start date must be in the future.")
     if (calculated === null || calculated <= 0)
-      errors.push("End Date & Time must be later than Start Date & Time.")
-    if (!Number.isInteger(Number(calculated)) || Number(calculated) <= 0)
       errors.push("Duration must be a positive number of minutes.")
     if (Number(form.maxAttempts) < 1)
       errors.push("Maximum attempts must be at least 1.")
+    if (
+      (form.examinationType === "CODING" || form.examinationType === "MIXED") &&
+      (!form.allowedLanguages || !form.allowedLanguages.length)
+    )
+      errors.push("At least one supported programming language must be selected.")
     if (
       !Number.isInteger(Number(form.integrityRules?.tabSwitchThreshold)) ||
       Number(form.integrityRules?.tabSwitchThreshold) < 1
@@ -220,6 +225,8 @@ export function ExaminationsPage({
       code: e.code || "",
       description: e.description || "",
       examinationType: e.examinationType || "MCQ",
+      roundNumber: e.roundNumber || (e.examinationType === "CODING" ? 2 : 1),
+      allowedLanguages: e.allowedLanguages || ["python", "java", "cpp", "javascript"],
       startAt: e.scheduledAt ? formatLocalDateTime(e.scheduledAt) : "",
       endAt: e.closesAt ? formatLocalDateTime(e.closesAt) : "",
       durationMinutes: e.durationMinutes || "",
@@ -795,13 +802,59 @@ export function ExaminationsPage({
                 Examination Type
                 <select
                   value={form.examinationType}
-                  onChange={(e) => setForm({ ...form, examinationType: e.target.value })}
-                  className="w-full h-10 px-3.5 text-xs sm:text-sm bg-white/80 border border-[#E2DBD0] rounded-xl text-[#1E3A34] focus:outline-none focus:border-[#00D084] focus:ring-2 focus:ring-[#00D084]/20 transition-all shadow-sm"
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      examinationType: e.target.value,
+                      roundNumber: e.target.value === "CODING" ? 2 : 1,
+                    })
+                  }
+                  className="w-full h-10 px-3.5 text-xs sm:text-sm bg-white/80 border border-[#E2DBD0] rounded-xl text-[#1E3A34] focus:outline-none focus:border-[#00D084] focus:ring-2 focus:ring-[#00D084]/20 transition-all shadow-sm cursor-pointer"
                 >
-                  <option>MCQ</option>
-                  <option>Assessment</option>
+                  <option value="MCQ">Round 1 — MCQ Assessment</option>
+                  <option value="CODING">Round 2 — Coding Assessment</option>
+                  <option value="MIXED">Mixed Assessment (MCQ + Coding)</option>
+                  <option value="Assessment">Standard Assessment</option>
                 </select>
               </label>
+
+              {/* Allowed Programming Languages Section */}
+              {(form.examinationType === "CODING" || form.examinationType === "MIXED") && (
+                <section className="p-4 sm:p-5 rounded-2xl border border-white bg-white/60 backdrop-blur-md flex flex-col gap-3 shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#00D084] animate-pulse" />
+                    <h3 className="text-sm font-black text-[#1E3A34] m-0">Allowed Programming Languages</h3>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {[
+                      ["python", "Python"],
+                      ["java", "Java"],
+                      ["cpp", "C++"],
+                      ["javascript", "JavaScript"],
+                      ["c", "C"],
+                      ["csharp", "C#"],
+                    ].map(([langKey, langLabel]) => {
+                      const checked = (form.allowedLanguages || []).includes(langKey)
+                      return (
+                        <label key={langKey} className="flex items-center gap-2.5 text-xs sm:text-sm font-extrabold text-[#1E3A34] cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              const next = e.target.checked
+                                ? [...(form.allowedLanguages || []), langKey]
+                                : (form.allowedLanguages || []).filter((l: string) => l !== langKey)
+                              setForm({ ...form, allowedLanguages: next })
+                            }}
+                            className="h-4 w-4 rounded border-slate-300 text-[#057A55] focus:ring-[#00D084] focus:ring-2 cursor-pointer"
+                          />
+                          <span>{langLabel}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                </section>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
                 <DateTimePicker

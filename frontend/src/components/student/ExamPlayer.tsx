@@ -264,6 +264,108 @@ export function ExamPlayer({
     return () => window.clearInterval(timer)
   }, [cameraStatus, exam.readinessRequirements?.camera])
 
+  // WebRTC Peer Connection & Real-time Live Camera Streaming Worker
+  useEffect(() => {
+    if (!exam.readinessRequirements?.camera || cameraStatus !== "active" || !cameraStreamRef.current) return
+    const stream = cameraStreamRef.current
+    const videoTrack = stream.getVideoTracks()[0]
+    if (!videoTrack) return
+
+    let pc: RTCPeerConnection | null = null
+    let active = true
+
+    // Offscreen video element attached directly to camera stream for 100% reliable frame capture
+    const offscreenVideo = document.createElement("video")
+    offscreenVideo.muted = true
+    offscreenVideo.playsInline = true
+    offscreenVideo.srcObject = stream
+    void offscreenVideo.play().catch(() => undefined)
+
+    const initWebRTC = async () => {
+      try {
+        const PeerConnection = window.RTCPeerConnection || (window as any).webkitRTCPeerConnection
+        if (!PeerConnection) return
+
+        pc = new PeerConnection({
+          iceServers: [
+            { urls: "stun:stun.l.google.com:19020" },
+            { urls: "stun:stun1.l.google.com:19020" },
+          ],
+        })
+
+        pc.addTrack(videoTrack, stream)
+
+        pc.onicecandidate = (event) => {
+          if (event.candidate && active) {
+            void authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/webrtc-signal`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ candidate: event.candidate }),
+            }).catch(() => undefined)
+          }
+        }
+
+        const offer = await pc.createOffer()
+        await pc.setLocalDescription(offer)
+
+        const res = await authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/webrtc-signal`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ offer: pc.localDescription }),
+        })
+        const data = await res.json().catch(() => ({}))
+
+        if (data.answer && pc && pc.signalingState !== "closed") {
+          await pc.setRemoteDescription(new RTCSessionDescription(data.answer)).catch(() => undefined)
+        }
+      } catch {
+        // Fallback to frame stream
+      }
+    }
+
+    void initWebRTC()
+
+    const canvas = document.createElement("canvas")
+    canvas.width = 320
+    canvas.height = 240
+    const ctx = canvas.getContext("2d")
+
+    const frameTimer = window.setInterval(() => {
+      if (!active) return
+      const video = cameraVideoRef.current || offscreenVideo
+      if (
+        !video ||
+        video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA ||
+        !video.videoWidth ||
+        !video.videoHeight ||
+        !ctx
+      )
+        return
+      try {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+        const frameData = canvas.toDataURL("image/jpeg", 0.5)
+        void authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/webrtc-signal`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ frame: frameData }),
+        }).catch(() => undefined)
+      } catch {
+        // Ignore frame errors
+      }
+    }, 1000)
+
+    return () => {
+      active = false
+      window.clearInterval(frameTimer)
+      offscreenVideo.pause()
+      offscreenVideo.srcObject = null
+      if (pc) {
+        pc.close()
+        pc = null
+      }
+    }
+  }, [attemptId, cameraStatus, exam.readinessRequirements?.camera])
+
   useEffect(() => {
     if (!exam.readinessRequirements?.camera || cameraStatus !== "active") return
     const FaceDetectorConstructor = (window as any).FaceDetector

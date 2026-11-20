@@ -260,84 +260,124 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {filtered.map((exam) => (
-            <article
-              className="group relative overflow-hidden p-5 sm:p-6 bg-white rounded-[24px] border border-white shadow-[0_10px_30px_rgba(79,70,229,.07)] hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(79,70,229,.12)] transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6"
-              key={exam.id}
-            >
-              <div className="flex flex-col gap-3 min-w-0 flex-1">
-                <div>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide ${
-                      exam.status === "AVAILABLE"
-                        ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                        : exam.status === "IN_PROGRESS"
-                          ? "bg-blue-100 text-blue-800 border border-blue-200"
-                          : "bg-slate-100 text-slate-600 border border-slate-200"
-                    }`}
-                  >
-                    {label(exam.status)}
-                  </span>
-                </div>
-                <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-tight m-0">{exam.title}</h2>
-                <p className="text-xs font-mono font-medium text-slate-500 m-0">
-                  Examination ID: {exam.code || exam.examCode || exam.id}
-                </p>
+          {filtered.map((exam) => {
+            const isCoding = exam.roundNumber === 2 || exam.examinationType === "CODING"
+            const scheduled = exam.scheduledAt ? new Date(exam.scheduledAt) : null
+            const closes = exam.closesAt ? new Date(exam.closesAt) : null
+            const now = new Date()
+            const isWindowActive = !scheduled || (scheduled <= now && (!closes || now <= closes))
+            const isUpcoming = scheduled && now < scheduled
+            const languagesDisplay = (exam.allowedLanguages || ["python", "java", "cpp", "javascript"])
+              .map((l: string) => (l === "cpp" ? "C++" : l === "csharp" ? "C#" : l.charAt(0).toUpperCase() + l.slice(1)))
+              .join(", ")
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/80 mt-1">
-                  <span className="flex flex-col">
-                    <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SCHEDULED</small>
-                    <b className="text-xs font-medium text-slate-900 mt-0.5">{date(exam)}</b>
-                  </span>
-                  <span className="flex flex-col">
-                    <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">DURATION</small>
-                    <b className="text-xs font-bold text-slate-900 mt-0.5">{exam.durationMinutes} minutes</b>
-                  </span>
-                  <span className="flex flex-col">
-                    <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">QUESTIONS</small>
-                    <b className="text-xs font-bold text-slate-900 mt-0.5">{exam.totalQuestions || 0}</b>
-                  </span>
-                  <span className="flex flex-col">
-                    <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">MAXIMUM MARKS</small>
-                    <b className="text-xs font-bold text-slate-900 mt-0.5">{exam.totalMarks || 0}</b>
-                  </span>
-                </div>
-              </div>
+            return (
+              <article
+                className="group relative overflow-hidden p-5 sm:p-6 bg-white rounded-[24px] border border-white shadow-[0_10px_30px_rgba(79,70,229,.07)] hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(79,70,229,.12)] transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6"
+                key={exam.id}
+              >
+                <div className="flex flex-col gap-3 min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide ${
+                        exam.status === "AVAILABLE"
+                          ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                          : exam.status === "IN_PROGRESS"
+                            ? "bg-blue-100 text-blue-800 border border-blue-200"
+                            : "bg-slate-100 text-slate-600 border border-slate-200"
+                      }`}
+                    >
+                      {exam.status === "AVAILABLE" ? "Assigned" : label(exam.status)}
+                    </span>
+                    {isCoding && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide bg-purple-100 text-purple-800 border border-purple-200">
+                        Round 2 — Technical Coding Assessment
+                      </span>
+                    )}
+                  </div>
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-tight m-0">{exam.title}</h2>
+                  <p className="text-xs font-mono font-medium text-slate-500 m-0">
+                    Examination ID: {exam.code || exam.examCode || exam.id}
+                  </p>
 
-              <div className="flex flex-wrap sm:flex-nowrap lg:flex-col items-stretch justify-end gap-2.5 shrink-0 lg:min-w-[180px]">
-                <button
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/80 mt-1">
+                    <span className="flex flex-col">
+                      <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SCHEDULED</small>
+                      <b className="text-xs font-medium text-slate-900 mt-0.5">{date(exam)}</b>
+                    </span>
+                    <span className="flex flex-col">
+                      <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">DURATION</small>
+                      <b className="text-xs font-bold text-slate-900 mt-0.5">{exam.durationMinutes || 90} min</b>
+                    </span>
+                    <span className="flex flex-col">
+                      <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">QUESTIONS</small>
+                      <b className="text-xs font-bold text-slate-900 mt-0.5">{exam.totalQuestions || 4}</b>
+                    </span>
+                    <span className="flex flex-col">
+                      <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">MAXIMUM MARKS</small>
+                      <b className="text-xs font-bold text-slate-900 mt-0.5">{exam.totalMarks || 100}</b>
+                    </span>
+                  </div>
+
+                  {isCoding && (
+                    <div className="text-xs font-bold text-[#057A55] bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-200/60 flex items-center gap-2">
+                      <span>Supported Languages:</span>
+                      <span className="font-extrabold text-[#1E3A34]">{languagesDisplay}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap sm:flex-nowrap lg:flex-col items-stretch justify-end gap-2.5 shrink-0 lg:min-w-[180px]">
+                  <button
                     className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-xl text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
-                  onClick={() => setSelected(exam)}
-                >
-                  Review details
-                </button>
-                {exam.nextAction === "RESUME_EXAM" && (
-                  <button
-                    className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
-                    onClick={() => onStartExam(exam)}
+                    onClick={() => setSelected(exam)}
                   >
-                    Resume Examination
+                    Review details
                   </button>
-                )}
-                {exam.nextAction === "VIEW_MARKS" && (
-                  <button
-                    className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
-                    onClick={() => onViewMarks(exam)}
-                  >
-                    View Marks
-                  </button>
-                )}
-                {exam.status === "AVAILABLE" && (
-                  <button
-                    className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
-                    onClick={() => onStartExam(exam)}
-                  >
-                    Start Examination
-                  </button>
-                )}
-              </div>
-            </article>
-          ))}
+                  {exam.nextAction === "RESUME_EXAM" && (
+                    <button
+                      className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
+                      onClick={() => onStartExam(exam)}
+                    >
+                      Resume Examination
+                    </button>
+                  )}
+                  {exam.nextAction === "VIEW_MARKS" && (
+                    <button
+                      className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
+                      onClick={() => onViewMarks(exam)}
+                    >
+                      View Marks
+                    </button>
+                  )}
+                  {exam.status === "AVAILABLE" && (
+                    isWindowActive ? (
+                      <button
+                        className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none"
+                        onClick={() => onStartExam(exam)}
+                      >
+                        {isCoding ? "Start Coding Assessment" : "Start Examination"}
+                      </button>
+                    ) : isUpcoming ? (
+                      <button
+                        disabled
+                        className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-slate-400 bg-slate-100 border border-slate-200 opacity-60 cursor-not-allowed border-none"
+                      >
+                        Upcoming ({scheduled?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })})
+                      </button>
+                    ) : (
+                      <button
+                        disabled
+                        className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-slate-400 bg-slate-100 border border-slate-200 opacity-60 cursor-not-allowed border-none"
+                      >
+                        Window Closed
+                      </button>
+                    )
+                  )}
+                </div>
+              </article>
+            )
+          })}
         </div>
       )}
 

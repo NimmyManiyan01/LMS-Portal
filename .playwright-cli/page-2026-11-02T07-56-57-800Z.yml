@@ -1,0 +1,462 @@
+- generic [ref=e88]:
+  - complementary [ref=e90]:
+    - generic [ref=e91]:
+      - generic [ref=e92]:
+        - generic [ref=e93]: K
+        - generic [ref=e95]:
+          - strong [ref=e96]: KGS
+          - generic [ref=e97]: EXAM PORTAL
+      - generic [ref=e98]: ADMIN PORTAL
+      - navigation [ref=e99]:
+        - button "Overview" [ref=e100] [cursor=pointer]
+        - button "Examinations" [ref=e108] [cursor=pointer]
+        - button "Question bank" [ref=e114] [cursor=pointer]
+        - button "Paper sets" [ref=e120] [cursor=pointer]
+        - button "Students" [ref=e126] [cursor=pointer]
+        - button "Administrators" [ref=e133] [cursor=pointer]
+        - button "Live monitoring" [ref=e140] [cursor=pointer]
+        - button "Results" [ref=e145] [cursor=pointer]
+        - button "Feedback" [ref=e151] [cursor=pointer]
+        - button "Reports" [ref=e157] [cursor=pointer]
+        - button "Security & audit" [ref=e162] [cursor=pointer]
+    - generic [ref=e168]:
+      - generic [ref=e173]:
+        - generic [ref=e174]: Examination security
+        - text: Monitoring follows policy
+      - generic [ref=e175]: © 2026 Kaizentrix Global Solutions
+  - generic [ref=e176]:
+    - banner [ref=e177]:
+      - generic [ref=e178]: All systems operational
+      - button "Log out administrator" [ref=e182] [cursor=pointer]:
+        - generic [ref=e183]: AD
+        - generic [ref=e184]:
+          - generic [ref=e185]: harshavardhandevang@gmail.com
+          - generic [ref=e186]: Administrator
+    - main [ref=e189]:
+      - navigation "Breadcrumb" [ref=e314]:
+        - generic [ref=e320]: Admin Dashboard
+        - generic [ref=e323]: Examinations Management
+      - generic [ref=e325]:
+        - generic [ref=e326]: ADMINISTRATION
+        - heading "Examinations" [level=1] [ref=e327]
+        - paragraph [ref=e328]: Monitor operations and manage the examination lifecycle.
+      - generic [ref=e329]:
+        - generic [ref=e330]:
+          - heading "Examinations" [level=2] [ref=e331]
+          - paragraph [ref=e332]: Manage the examination lifecycle and scheduling.
+        - button "Create Examination" [ref=e333] [cursor=pointer]
+      - generic [ref=e336]:
+        - article [ref=e337]:
+          - generic [ref=e338]: Total Examinations
+          - strong [ref=e339]: "1"
+        - article [ref=e340]:
+          - generic [ref=e341]: Draft
+          - strong [ref=e342]: "0"
+        - article [ref=e343]:
+          - generic [ref=e344]: Scheduled
+          - strong [ref=e345]: "0"
+        - article [ref=e346]:
+          - generic [ref=e347]: Active
+          - strong [ref=e348]: "1"
+        - article [ref=e349]:
+          - generic [ref=e350]: Completed
+          - strong [ref=e351]: "0"
+      - table [ref=e354]:
+        - rowgroup [ref=e355]:
+          - row [ref=e356]:
+            - columnheader "Code" [ref=e357]
+            - columnheader "Name" [ref=e358]
+            - columnheader "Type" [ref=e359]
+            - columnheader "Paper Set" [ref=e360]
+            - columnheader "Start" [ref=e361]
+            - columnheader "Duration" [ref=e362]
+            - columnheader "Status" [ref=e363]
+            - columnheader "Actions" [ref=e364]
+        - rowgroup [ref=e365]:
+          - row [ref=e366]:
+            - cell "EXAM-2026-0002" [ref=e367]
+            - cell "MAHARAJA-COLLEGE" [ref=e368]
+            - cell "MCQ" [ref=e369]
+            - cell "📄 Question Paper - MAHARAJA-COLLEGE (PUBLISHED)" [ref=e370]
+            - cell "11/2/2026, 1:07:00 PM" [ref=e372]
+            - cell "60 min" [ref=e373]
+            - cell "ACTIVE" [ref=e374]
+            - cell [ref=e376]:
+              - button "Edit" [ref=e377] [cursor=pointer]
+              - button "Set Paper" [ref=e378] [cursor=pointer]
+              - button "Assign Students" [ref=e379] [cursor=pointer]
+      - dialog [ref=e381]:
+        - generic [ref=e382]:
+          - generic [ref=e383]:
+            - generic [ref=e384]: EXAMINATION ASSIGNMENT
+            - heading "Assign Students" [level=2] [ref=e385]
+            - paragraph [ref=e386]: MAHARAJA-COLLEGE · EXAM-2026-0002
+          - button "Close assignment modal" [active] [ref=e387] [cursor=pointer]: ×
+        - generic [ref=e388]:
+          - generic [ref=e389]:
+            - generic [ref=e390]:
+              - text: Filter by College
+              - combobox "Filter by College" [ref=e391]:
+                - option "All Colleges" [selected]
+                - option "Independent registration (6)"
+                - option "MAHARAJA INSTITUTE OF TECNOLOGY MYSORE (1)"
+                - option "MAHARAJA INSTITUTION OF TECHNOLOGY OF MYSORE (1)"
+                - option "MIT College Mysore (1)"
+                - option "MIT DEGREE OF COLLEGE MYSORE (2)"
+                - option "MIT Degree (1)"
+                - option "MIT Degree College (12)"
+                - option "MIT Degree College, Mysore. (1)"
+                - option "MIT Mysore (4)"
+                - option "MIT college (1)"
+                - option "MITM (21)"
+                - option "Maharaj Institute Of Technology Mysuru (1)"
+                - option "Maharaja Institute of Technology,Mysore (1)"
+                - option "Maharaja Institute of Techonology (1)"
+                - option "Maharaja Institute og Technology Mysore (1)"
+                - option "Maharaja Institution of Technology (3)"
+                - option "Maharaja institute of technology (9)"
+                - option "Maharaja institute of technology mysore (29)"
+                - option "Maharaja institute of technology, mysore (1)"
+                - option "Maharaja institution of technology (MIT) (1)"
+                - option "Maharajaraja Institute Of Technology Mysore (1)"
+                - option "Maharja institute of Technology Mysore (1)"
+                - option "SJBIT (1)"
+                - option "maharaja Institute Of Technology Mysuru (2)"
+                - option "maharaja institude of technology mysore (1)"
+                - option "maharaja institue of technology (1)"
+                - option "maharaja institute od technology mysore (3)"
+                - option "maharaja institution of technology mysore (2)"
+                - option "mharaja institute of technology mysore (1)"
+                - option "mit degree college mysore (9)"
+                - option "student (2)"
+            - generic [ref=e392]:
+              - text: Search students
+              - textbox "Search students" [ref=e393]:
+                - /placeholder: Search student ID, name, or email
+          - generic [ref=e394]:
+            - strong [ref=e395]: 2 selected
+            - generic [ref=e396]:
+              - button "Select all eligible" [ref=e397] [cursor=pointer]
+              - button "Clear" [ref=e398] [cursor=pointer]
+          - generic [ref=e399]:
+            - generic [ref=e400]:
+              - generic [ref=e401]:
+                - button "Maharaja Institution of Technology 1 students · 0 selected" [expanded] [ref=e402] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=e403]: ▾
+                  - generic [ref=e404]: Maharaja Institution of Technology
+                  - generic [ref=e405]: 1 students · 0 selected
+                - button "Select all eligible" [ref=e406] [cursor=pointer]
+              - generic [ref=e408] [cursor=pointer]:
+                - checkbox "Abhishek S KGS-STU-000017 abhishekjoel143@gmail.com ACTIVE" [ref=e409]
+                - generic [ref=e410]:
+                  - strong [ref=e411]: Abhishek S
+                  - generic [ref=e412]: KGS-STU-000017
+                  - generic [ref=e413]: abhishekjoel143@gmail.com
+                  - emphasis [ref=e414]: ACTIVE
+            - generic [ref=e416]:
+              - button "Maharaj Institute Of Technology Mysuru 1 students · 0 selected" [ref=e417] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e418]: ▸
+                - generic [ref=e419]: Maharaj Institute Of Technology Mysuru
+                - generic [ref=e420]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e421] [cursor=pointer]
+            - generic [ref=e423]:
+              - button "Maharaja Institute of Technology Mysore 10 students · 0 selected" [ref=e424] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e425]: ▸
+                - generic [ref=e426]: Maharaja Institute of Technology Mysore
+                - generic [ref=e427]: 10 students · 0 selected
+              - button "Select all eligible" [ref=e428] [cursor=pointer]
+            - generic [ref=e430]:
+              - button "MIT degree college mysore 1 students · 0 selected" [ref=e431] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e432]: ▸
+                - generic [ref=e433]: MIT degree college mysore
+                - generic [ref=e434]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e435] [cursor=pointer]
+            - generic [ref=e437]:
+              - button "Maharaja institute of technology, mysore 1 students · 0 selected" [ref=e438] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e439]: ▸
+                - generic [ref=e440]: Maharaja institute of technology, mysore
+                - generic [ref=e441]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e442] [cursor=pointer]
+            - generic [ref=e444]:
+              - button "Maharaja institute of technology mysore 3 students · 0 selected" [ref=e445] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e446]: ▸
+                - generic [ref=e447]: Maharaja institute of technology mysore
+                - generic [ref=e448]: 3 students · 0 selected
+              - button "Select all eligible" [ref=e449] [cursor=pointer]
+            - generic [ref=e451]:
+              - button "MITM 21 students · 0 selected" [ref=e452] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e453]: ▸
+                - generic [ref=e454]: MITM
+                - generic [ref=e455]: 21 students · 0 selected
+              - button "Select all eligible" [ref=e456] [cursor=pointer]
+            - generic [ref=e458]:
+              - button "MIT Degree College 3 students · 0 selected" [ref=e459] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e460]: ▸
+                - generic [ref=e461]: MIT Degree College
+                - generic [ref=e462]: 3 students · 0 selected
+              - button "Select all eligible" [ref=e463] [cursor=pointer]
+            - generic [ref=e465]:
+              - button "Maharaja institute of technology Mysore 3 students · 0 selected" [ref=e466] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e467]: ▸
+                - generic [ref=e468]: Maharaja institute of technology Mysore
+                - generic [ref=e469]: 3 students · 0 selected
+              - button "Select all eligible" [ref=e470] [cursor=pointer]
+            - generic [ref=e472]:
+              - button "Maharaja Institution Of Technology Mysore 1 students · 0 selected" [ref=e473] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e474]: ▸
+                - generic [ref=e475]: Maharaja Institution Of Technology Mysore
+                - generic [ref=e476]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e477] [cursor=pointer]
+            - generic [ref=e479]:
+              - button "Maharajaraja Institute Of Technology Mysore 1 students · 0 selected" [ref=e480] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e481]: ▸
+                - generic [ref=e482]: Maharajaraja Institute Of Technology Mysore
+                - generic [ref=e483]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e484] [cursor=pointer]
+            - generic [ref=e486]:
+              - button "Maharaja institute of technology 3 students · 0 selected" [ref=e487] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e488]: ▸
+                - generic [ref=e489]: Maharaja institute of technology
+                - generic [ref=e490]: 3 students · 0 selected
+              - button "Select all eligible" [ref=e491] [cursor=pointer]
+            - generic [ref=e493]:
+              - button "Maharaja institute of technology Mysuru 1 students · 0 selected" [ref=e494] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e495]: ▸
+                - generic [ref=e496]: Maharaja institute of technology Mysuru
+                - generic [ref=e497]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e498] [cursor=pointer]
+            - generic [ref=e500]:
+              - button "maharaja institute of technology mysore 10 students · 0 selected" [ref=e501] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e502]: ▸
+                - generic [ref=e503]: maharaja institute of technology mysore
+                - generic [ref=e504]: 10 students · 0 selected
+              - button "Select all eligible" [ref=e505] [cursor=pointer]
+            - generic [ref=e507]:
+              - button "MIT degree college 3 students · 0 selected" [ref=e508] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e509]: ▸
+                - generic [ref=e510]: MIT degree college
+                - generic [ref=e511]: 3 students · 0 selected
+              - button "Select all eligible" [ref=e512] [cursor=pointer]
+            - generic [ref=e514]:
+              - button "maharaja institute od technology mysore 3 students · 0 selected" [ref=e515] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e516]: ▸
+                - generic [ref=e517]: maharaja institute od technology mysore
+                - generic [ref=e518]: 3 students · 0 selected
+              - button "Select all eligible" [ref=e519] [cursor=pointer]
+            - generic [ref=e521]:
+              - button "MAHARAJA INSTITUTION OF TECHNOLOGY OF MYSORE 1 students · 0 selected" [ref=e522] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e523]: ▸
+                - generic [ref=e524]: MAHARAJA INSTITUTION OF TECHNOLOGY OF MYSORE
+                - generic [ref=e525]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e526] [cursor=pointer]
+            - generic [ref=e528]:
+              - button "mit mysore 2 students · 0 selected" [ref=e529] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e530]: ▸
+                - generic [ref=e531]: mit mysore
+                - generic [ref=e532]: 2 students · 0 selected
+              - button "Select all eligible" [ref=e533] [cursor=pointer]
+            - generic [ref=e535]:
+              - button "Maharaja institute Of Technology Mysore 1 students · 0 selected" [ref=e536] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e537]: ▸
+                - generic [ref=e538]: Maharaja institute Of Technology Mysore
+                - generic [ref=e539]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e540] [cursor=pointer]
+            - generic [ref=e542]:
+              - button "Mit degree college mysore 1 students · 0 selected" [ref=e543] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e544]: ▸
+                - generic [ref=e545]: Mit degree college mysore
+                - generic [ref=e546]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e547] [cursor=pointer]
+            - generic [ref=e549]:
+              - button "mit degree college mysore 4 students · 0 selected" [ref=e550] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e551]: ▸
+                - generic [ref=e552]: mit degree college mysore
+                - generic [ref=e553]: 4 students · 0 selected
+              - button "Select all eligible" [ref=e554] [cursor=pointer]
+            - generic [ref=e556]:
+              - button "Maharaja Institute Of Technology 1 students · 0 selected" [ref=e557] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e558]: ▸
+                - generic [ref=e559]: Maharaja Institute Of Technology
+                - generic [ref=e560]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e561] [cursor=pointer]
+            - generic [ref=e563]:
+              - button "student 1 students · 0 selected" [ref=e564] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e565]: ▸
+                - generic [ref=e566]: student
+                - generic [ref=e567]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e568] [cursor=pointer]
+            - generic [ref=e570]:
+              - button "MIT Degree College Mysore 1 students · 0 selected" [ref=e571] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e572]: ▸
+                - generic [ref=e573]: MIT Degree College Mysore
+                - generic [ref=e574]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e575] [cursor=pointer]
+            - generic [ref=e577]:
+              - button "MIT DEGREE COLLEGE 4 students · 0 selected" [ref=e578] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e579]: ▸
+                - generic [ref=e580]: MIT DEGREE COLLEGE
+                - generic [ref=e581]: 4 students · 0 selected
+              - button "Select all eligible" [ref=e582] [cursor=pointer]
+            - generic [ref=e584]:
+              - button "Maharaja Institute og Technology Mysore 1 students · 0 selected" [ref=e585] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e586]: ▸
+                - generic [ref=e587]: Maharaja Institute og Technology Mysore
+                - generic [ref=e588]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e589] [cursor=pointer]
+            - generic [ref=e591]:
+              - button "Independent registration 6 students · 1 selected" [ref=e592] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e593]: ▸
+                - generic [ref=e594]: Independent registration
+                - generic [ref=e595]: 6 students · 1 selected
+              - button "Select all eligible" [ref=e596] [cursor=pointer]
+            - generic [ref=e598]:
+              - button "Maharja institute of Technology Mysore 1 students · 0 selected" [ref=e599] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e600]: ▸
+                - generic [ref=e601]: Maharja institute of Technology Mysore
+                - generic [ref=e602]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e603] [cursor=pointer]
+            - generic [ref=e605]:
+              - button "Maharaja Institute of Techonology 1 students · 0 selected" [ref=e606] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e607]: ▸
+                - generic [ref=e608]: Maharaja Institute of Techonology
+                - generic [ref=e609]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e610] [cursor=pointer]
+            - generic [ref=e612]:
+              - button "Maharaja institution of technology 2 students · 0 selected" [ref=e613] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e614]: ▸
+                - generic [ref=e615]: Maharaja institution of technology
+                - generic [ref=e616]: 2 students · 0 selected
+              - button "Select all eligible" [ref=e617] [cursor=pointer]
+            - generic [ref=e619]:
+              - button "Maharaja institution of technology (MIT) 1 students · 0 selected" [ref=e620] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e621]: ▸
+                - generic [ref=e622]: Maharaja institution of technology (MIT)
+                - generic [ref=e623]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e624] [cursor=pointer]
+            - generic [ref=e626]:
+              - button "MIT college 1 students · 0 selected" [ref=e627] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e628]: ▸
+                - generic [ref=e629]: MIT college
+                - generic [ref=e630]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e631] [cursor=pointer]
+            - generic [ref=e633]:
+              - button "MIT College Mysore 1 students · 0 selected" [ref=e634] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e635]: ▸
+                - generic [ref=e636]: MIT College Mysore
+                - generic [ref=e637]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e638] [cursor=pointer]
+            - generic [ref=e640]:
+              - button "Mit degree college Mysore 2 students · 0 selected" [ref=e641] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e642]: ▸
+                - generic [ref=e643]: Mit degree college Mysore
+                - generic [ref=e644]: 2 students · 0 selected
+              - button "Select all eligible" [ref=e645] [cursor=pointer]
+            - generic [ref=e647]:
+              - button "MIT Degree College, Mysore. 1 students · 0 selected" [ref=e648] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e649]: ▸
+                - generic [ref=e650]: MIT Degree College, Mysore.
+                - generic [ref=e651]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e652] [cursor=pointer]
+            - generic [ref=e654]:
+              - button "MIT Mysore 2 students · 0 selected" [ref=e655] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e656]: ▸
+                - generic [ref=e657]: MIT Mysore
+                - generic [ref=e658]: 2 students · 0 selected
+              - button "Select all eligible" [ref=e659] [cursor=pointer]
+            - generic [ref=e661]:
+              - button "MIT DEGREE OF COLLEGE MYSORE 2 students · 0 selected" [ref=e662] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e663]: ▸
+                - generic [ref=e664]: MIT DEGREE OF COLLEGE MYSORE
+                - generic [ref=e665]: 2 students · 0 selected
+              - button "Select all eligible" [ref=e666] [cursor=pointer]
+            - generic [ref=e668]:
+              - button "MIT Degree 1 students · 0 selected" [ref=e669] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e670]: ▸
+                - generic [ref=e671]: MIT Degree
+                - generic [ref=e672]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e673] [cursor=pointer]
+            - generic [ref=e675]:
+              - button "MAHARAJA INSTITUTE OF TECHNOLOGY MYSORE 1 students · 0 selected" [ref=e676] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e677]: ▸
+                - generic [ref=e678]: MAHARAJA INSTITUTE OF TECHNOLOGY MYSORE
+                - generic [ref=e679]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e680] [cursor=pointer]
+            - generic [ref=e682]:
+              - button "Maharaja Institute of Technology 3 students · 0 selected" [ref=e683] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e684]: ▸
+                - generic [ref=e685]: Maharaja Institute of Technology
+                - generic [ref=e686]: 3 students · 0 selected
+              - button "Select all eligible" [ref=e687] [cursor=pointer]
+            - generic [ref=e689]:
+              - button "Mit degree college 2 students · 0 selected" [ref=e690] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e691]: ▸
+                - generic [ref=e692]: Mit degree college
+                - generic [ref=e693]: 2 students · 0 selected
+              - button "Select all eligible" [ref=e694] [cursor=pointer]
+            - generic [ref=e696]:
+              - button "maharaja institution of technology mysore 1 students · 0 selected" [ref=e697] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e698]: ▸
+                - generic [ref=e699]: maharaja institution of technology mysore
+                - generic [ref=e700]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e701] [cursor=pointer]
+            - button "SJBIT 1 students · 1 selected" [ref=e704] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e705]: ▸
+              - generic [ref=e706]: SJBIT
+              - generic [ref=e707]: 1 students · 1 selected
+            - generic [ref=e709]:
+              - button "mharaja institute of technology mysore 1 students · 0 selected" [ref=e710] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e711]: ▸
+                - generic [ref=e712]: mharaja institute of technology mysore
+                - generic [ref=e713]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e714] [cursor=pointer]
+            - generic [ref=e716]:
+              - button "Maharaja Institute Of Technology Mysore 1 students · 0 selected" [ref=e717] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e718]: ▸
+                - generic [ref=e719]: Maharaja Institute Of Technology Mysore
+                - generic [ref=e720]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e721] [cursor=pointer]
+            - generic [ref=e723]:
+              - button "maharaja Institute Of Technology Mysuru 1 students · 0 selected" [ref=e724] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e725]: ▸
+                - generic [ref=e726]: maharaja Institute Of Technology Mysuru
+                - generic [ref=e727]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e728] [cursor=pointer]
+            - generic [ref=e730]:
+              - button "Maharaja Institute of Technology,Mysore 1 students · 0 selected" [ref=e731] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e732]: ▸
+                - generic [ref=e733]: Maharaja Institute of Technology,Mysore
+                - generic [ref=e734]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e735] [cursor=pointer]
+            - generic [ref=e737]:
+              - button "maharaja institude of technology mysore 1 students · 0 selected" [ref=e738] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e739]: ▸
+                - generic [ref=e740]: maharaja institude of technology mysore
+                - generic [ref=e741]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e742] [cursor=pointer]
+            - generic [ref=e744]:
+              - button "maharaja institue of technology 1 students · 0 selected" [ref=e745] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e746]: ▸
+                - generic [ref=e747]: maharaja institue of technology
+                - generic [ref=e748]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e749] [cursor=pointer]
+            - generic [ref=e751]:
+              - button "maharaja institute of technology 2 students · 0 selected" [ref=e752] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e753]: ▸
+                - generic [ref=e754]: maharaja institute of technology
+                - generic [ref=e755]: 2 students · 0 selected
+              - button "Select all eligible" [ref=e756] [cursor=pointer]
+            - generic [ref=e758]:
+              - button "Student 1 students · 0 selected" [ref=e759] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e760]: ▸
+                - generic [ref=e761]: Student
+                - generic [ref=e762]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e763] [cursor=pointer]
+            - generic [ref=e765]:
+              - button "MAHARAJA INSTITUTE OF TECNOLOGY MYSORE 1 students · 0 selected" [ref=e766] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e767]: ▸
+                - generic [ref=e768]: MAHARAJA INSTITUTE OF TECNOLOGY MYSORE
+                - generic [ref=e769]: 1 students · 0 selected
+              - button "Select all eligible" [ref=e770] [cursor=pointer]
+        - generic [ref=e771]:
+          - button "Cancel" [ref=e772] [cursor=pointer]
+          - button "Assign / Reset Students" [ref=e773] [cursor=pointer]

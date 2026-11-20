@@ -1,0 +1,171 @@
+- generic [ref=e287]:
+  - generic [aria-hidden]:
+    - generic:
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+      - generic: Harshavardhan m v · 446ede05
+  - banner [ref=e288]:
+    - generic [ref=e289]:
+      - heading "MAHARAJA-COLLEGE" [level=2] [ref=e290]
+      - generic [ref=e291]: EXAM-2026-0002
+      - generic [ref=e292]: Fullscreen active
+    - generic [ref=e293]:
+      - generic [ref=e294]: ✓ All changes saved
+      - generic [ref=e295]:
+        - generic [ref=e296]: TIME REMAINING
+        - generic [ref=e297]: 59:18
+      - button "Hide Palette" [ref=e298] [cursor=pointer]
+      - button "Submit Exam" [ref=e299] [cursor=pointer]
+  - generic [ref=e300]:
+    - main [ref=e301]:
+      - generic [ref=e302]:
+        - generic [ref=e303]:
+          - text: "SECTION:"
+          - strong [ref=e304]: quantitative
+        - generic [ref=e305]:
+          - generic [ref=e306]:
+            - text: "Marks:"
+            - strong [ref=e307]: "+1"
+          - generic [ref=e308]:
+            - text: "Neg:"
+            - strong [ref=e309]: "-0"
+      - generic [ref=e310]:
+        - generic [ref=e311]:
+          - generic [ref=e312]: Question 34 of 50
+          - button "🚩 Mark for Review" [ref=e313] [cursor=pointer]
+        - generic [ref=e314]: In a village three people contested for the post of village Pradhan. Due to their own interest, all the voters voted and no one vote was invalid. The losing candidate got 30% votes. What could be the minimum absolute margin of votes by which the winning candidate led by the nearest rival, if each candidate got an integral per cent of votes?
+        - generic [ref=e315]:
+          - generic [ref=e316] [cursor=pointer]:
+            - radio "A 4" [checked] [ref=e430]
+            - generic [ref=e318]: A
+            - generic [ref=e319]: "4"
+          - generic [ref=e320] [cursor=pointer]:
+            - radio "B 2" [ref=e431]
+            - generic [ref=e322]: B
+            - generic [ref=e323]: "2"
+          - generic [ref=e324] [cursor=pointer]:
+            - radio "C 1" [ref=e432]
+            - generic [ref=e326]: C
+            - generic [ref=e327]: "1"
+          - generic [ref=e328] [cursor=pointer]:
+            - radio "D None of these" [ref=e433]
+            - generic [ref=e330]: D
+            - generic [ref=e331]: None of these
+      - generic [ref=e332]:
+        - generic [ref=e333]:
+          - button "← Previous" [ref=e334] [cursor=pointer]
+          - button "Clear Response" [ref=e335] [cursor=pointer]
+        - generic [ref=e336]:
+          - button "Mark for Review & Next" [ref=e337] [cursor=pointer]
+          - button "Save & Next →" [ref=e338] [cursor=pointer]
+    - complementary [ref=e339]:
+      - generic [ref=e340]:
+        - heading "Question Palette" [level=4] [ref=e341]
+        - paragraph [ref=e342]:
+          - text: "Candidate:"
+          - strong [ref=e343]: Harshavardhan m v
+      - status [ref=e344]:
+        - generic "Live camera preview" [ref=e346]
+        - strong [ref=e349]: Camera Active
+      - generic [ref=e352]:
+        - generic [ref=e353]:
+          - generic [ref=e354]: Question progress
+          - generic [ref=e355]: 34 / 50 answered
+        - progressbar "Answered question progress" [ref=e356]
+        - generic [ref=e357]:
+          - generic [ref=e358]: 34 visited
+          - generic [ref=e359]: 68% complete
+      - generic [ref=e360]:
+        - generic [ref=e361]: Answered (34)
+        - generic [ref=e363]: Not Answered (0)
+        - generic [ref=e365]: Marked (0)
+        - generic [ref=e367]: Not Visited (16)
+      - generic [ref=e369]:
+        - button "1" [ref=e370] [cursor=pointer]
+        - button "2" [ref=e371] [cursor=pointer]
+        - button "3" [ref=e372] [cursor=pointer]
+        - button "4" [ref=e373] [cursor=pointer]
+        - button "5" [ref=e374] [cursor=pointer]
+        - button "6" [ref=e375] [cursor=pointer]
+        - button "7" [ref=e376] [cursor=pointer]
+        - button "8" [ref=e377] [cursor=pointer]
+        - button "9" [ref=e378] [cursor=pointer]
+        - button "10" [ref=e379] [cursor=pointer]
+        - button "11" [ref=e380] [cursor=pointer]
+        - button "12" [ref=e381] [cursor=pointer]
+        - button "13" [ref=e382] [cursor=pointer]
+        - button "14" [ref=e383] [cursor=pointer]
+        - button "15" [ref=e384] [cursor=pointer]
+        - button "16" [ref=e385] [cursor=pointer]
+        - button "17" [ref=e386] [cursor=pointer]
+        - button "18" [ref=e387] [cursor=pointer]
+        - button "19" [ref=e388] [cursor=pointer]
+        - button "20" [ref=e389] [cursor=pointer]
+        - button "21" [ref=e390] [cursor=pointer]
+        - button "22" [ref=e391] [cursor=pointer]
+        - button "23" [ref=e392] [cursor=pointer]
+        - button "24" [ref=e393] [cursor=pointer]
+        - button "25" [ref=e394] [cursor=pointer]
+        - button "26" [ref=e395] [cursor=pointer]
+        - button "27" [ref=e396] [cursor=pointer]
+        - button "28" [ref=e397] [cursor=pointer]
+        - button "29" [ref=e398] [cursor=pointer]
+        - button "30" [ref=e399] [cursor=pointer]
+        - button "31" [ref=e400] [cursor=pointer]
+        - button "32" [ref=e401] [cursor=pointer]
+        - button "33" [ref=e402] [cursor=pointer]
+        - button "34" [ref=e403] [cursor=pointer]
+        - button "35" [ref=e404] [cursor=pointer]
+        - button "36" [ref=e405] [cursor=pointer]
+        - button "37" [ref=e406] [cursor=pointer]
+        - button "38" [ref=e407] [cursor=pointer]
+        - button "39" [ref=e408] [cursor=pointer]
+        - button "40" [ref=e409] [cursor=pointer]
+        - button "41" [ref=e410] [cursor=pointer]
+        - button "42" [ref=e411] [cursor=pointer]
+        - button "43" [ref=e412] [cursor=pointer]
+        - button "44" [ref=e413] [cursor=pointer]
+        - button "45" [ref=e414] [cursor=pointer]
+        - button "46" [ref=e415] [cursor=pointer]
+        - button "47" [ref=e416] [cursor=pointer]
+        - button "48" [ref=e417] [cursor=pointer]
+        - button "49" [ref=e418] [cursor=pointer]
+        - button "50" [ref=e419] [cursor=pointer]
+      - generic [ref=e420]:
+        - generic [ref=e421]: 🛡️ Automated Proctoring Active
+        - generic [ref=e422]:
+          - text: "Tab-switch incidents:"
+          - strong [ref=e423]: "0"

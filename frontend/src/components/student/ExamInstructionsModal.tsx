@@ -24,19 +24,35 @@ export function ExamInstructionsModal({
     incorrectMarks: exam.negativeMarking ? -exam.negativeMarking : 0,
     unansweredMarks: 0,
   };
+  const isCoding = exam.roundNumber === 2 || exam.examinationType === "CODING"
+  const allowedLangsDisplay = (exam.allowedLanguages || ["python", "java", "cpp", "javascript"])
+    .map((l) => (l === "cpp" ? "C++" : l === "csharp" ? "C#" : l.charAt(0).toUpperCase() + l.slice(1)))
+    .join(", ")
+
   const instructions =
     Array.isArray(exam.instructions) && exam.instructions.length > 0
       ? exam.instructions
-      : [
-          "Read every question carefully.",
-          "Select one answer per question.",
-          "Use Previous and Next to navigate.",
-          "Use Mark for Review to revisit questions.",
-          "Answers are saved automatically.",
-          "The examination timer continues during disconnections.",
-          "Submit before the deadline.",
-          "Follow the examination monitoring rules.",
-        ];
+      : isCoding
+        ? [
+            "Read the problem statement, constraints, and sample test cases carefully.",
+            `Allowed programming languages: ${allowedLangsDisplay}.`,
+            "Use the 'Run Code' button to test your code against sample inputs.",
+            "Click 'Submit Solution' to evaluate your code against all public & hidden test cases.",
+            "Your code is automatically saved in the background every 30 seconds.",
+            "Camera monitoring and fullscreen mode are required throughout the session.",
+            "Tab switching and window exits are logged as proctoring incidents.",
+            "The timer begins only after your session attempt is confirmed by the server.",
+          ]
+        : [
+            "Read every question carefully.",
+            "Select one answer per question.",
+            "Use Previous and Next to navigate.",
+            "Use Mark for Review to revisit questions.",
+            "Answers are saved automatically.",
+            "The examination timer continues during disconnections.",
+            "Submit before the deadline.",
+            "Follow the examination monitoring rules.",
+          ];
 
   return (
     <div
@@ -99,10 +115,10 @@ export function ExamInstructionsModal({
             </div>
             <div className="flex flex-col gap-0.5">
               <small className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                QUESTION TYPE
+                ASSESSMENT TYPE
               </small>
               <b className="text-xs sm:text-sm font-bold text-slate-900">
-                Single-answer MCQ
+                {isCoding ? "Round 2 Coding" : "Single-answer MCQ"}
               </b>
             </div>
             <div className="flex flex-col gap-0.5">
