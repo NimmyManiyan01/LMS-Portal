@@ -168,7 +168,7 @@ export function QuestionBankPage({
         : "error"
 
   return (
-    <>
+    <div className="space-y-6">
       <PageHead
         admin
         student={null}
@@ -177,147 +177,193 @@ export function QuestionBankPage({
         showCreateAction={false}
       />
 
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Question Bank</h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
-            Import and manage examination questions from approved templates.
-          </p>
+      {/* Hero Header Glass Card matching Admin Overview */}
+      <div className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-6 sm:p-7">
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-0.5 rounded-full bg-[#00D084]/20 text-[#057A55] text-[10px] font-black uppercase tracking-widest border border-[#00D084]/30">
+                Question Bank
+              </span>
+              <span className="text-xs font-bold text-[#1E3A34]/80">
+                Examination Repository
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#1E3A34] tracking-tight leading-tight m-0">
+              Question Management
+            </h2>
+            <p className="text-xs sm:text-sm text-[#057A55] font-bold m-0 leading-relaxed max-w-xl">
+              Import, audit, and organize structured examination questions from verified templates.
+            </p>
+          </div>
+          <button
+            className="inline-flex items-center justify-center gap-2.5 h-11 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-lg shadow-[#176B58]/20 flex-shrink-0 border-none"
+            onClick={() => setImportOpen(true)}
+          >
+            <Icon name="plus" size={18} />
+            Import Questions
+          </button>
         </div>
-        <button
-          className="inline-flex items-center justify-center gap-2 h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-sm shadow-blue-500/20 flex-shrink-0"
-          onClick={() => setImportOpen(true)}
-        >
-          <Icon name="plus" />
-          Import Questions
-        </button>
       </div>
 
-      {/* KPI Stats Grid */}
-      <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
-        <article className="flex flex-col p-4 bg-white rounded-xl border border-slate-200/80 shadow-sm hover:border-slate-300 transition-all">
-          <small className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Questions</small>
-          <strong className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{stats.total || 0}</strong>
-        </article>
-        <article className="flex flex-col p-4 bg-white rounded-xl border border-slate-200/80 shadow-sm hover:border-slate-300 transition-all">
-          <small className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Active Questions</small>
-          <strong className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{stats.active || 0}</strong>
-        </article>
-        <article className="flex flex-col p-4 bg-white rounded-xl border border-slate-200/80 shadow-sm hover:border-slate-300 transition-all">
-          <small className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Draft Questions</small>
-          <strong className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{stats.draft || 0}</strong>
-        </article>
-        <article className="flex flex-col p-4 bg-white rounded-xl border border-slate-200/80 shadow-sm hover:border-slate-300 transition-all">
-          <small className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Question Types</small>
-          <strong className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{(stats.byType || []).length}</strong>
-        </article>
+      {/* KPI Stats Grid matching Overview Cards */}
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          {
+            label: "Total Questions",
+            value: stats.total || 0,
+            icon: "book",
+            badgeBg: "bg-[#176B58]/15 text-[#176B58]",
+          },
+          {
+            label: "Active Questions",
+            value: stats.active || 0,
+            icon: "check",
+            badgeBg: "bg-[#00D084]/20 text-[#057A55]",
+          },
+          {
+            label: "Draft Questions",
+            value: stats.draft || 0,
+            icon: "review",
+            badgeBg: "bg-[#E5A23B]/15 text-[#E5A23B]",
+          },
+          {
+            label: "Question Types",
+            value: (stats.byType || []).length,
+            icon: "pulse",
+            badgeBg: "bg-[#203D39]/15 text-[#203D39]",
+          },
+        ].map((item, idx) => (
+          <article
+            key={idx}
+            className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 p-5 shadow-[0_10px_30px_-5px_rgba(30,58,52,0.08)] transition-all hover:scale-[1.02] hover:shadow-[0_16px_40px_-5px_rgba(30,58,52,0.12)] flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-black text-[#057A55] uppercase tracking-wider">
+                {item.label}
+              </span>
+              <span className={`w-9 h-9 rounded-2xl flex items-center justify-center ${item.badgeBg}`}>
+                <Icon name={item.icon} size={18} />
+              </span>
+            </div>
+            <strong className="text-2xl sm:text-3xl font-black text-[#1E3A34] leading-none">
+              {item.value}
+            </strong>
+          </article>
+        ))}
       </section>
 
-      {/* Message Notice */}
+      {/* Notification Banner */}
       {message && (
         <div
-          className={`p-3.5 px-4 mb-6 text-xs sm:text-sm font-semibold rounded-xl border flex items-center gap-2.5 shadow-sm ${
+          className={`p-4 rounded-2xl border text-xs sm:text-sm font-extrabold flex items-center gap-3 shadow-md backdrop-blur-xl ${
             notice === "success"
-              ? "text-emerald-800 bg-emerald-50 border-emerald-200/80"
+              ? "text-emerald-900 bg-emerald-500/15 border-emerald-300"
               : notice === "warning"
-                ? "text-amber-800 bg-amber-50 border-amber-200/80"
-                : "text-red-800 bg-red-50 border-red-200/80"
+                ? "text-amber-900 bg-amber-500/15 border-amber-300"
+                : "text-rose-900 bg-rose-500/15 border-rose-300"
           }`}
         >
-          <span className="flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold bg-white/60">
-            {notice === "success" ? "✓" : "×"}
+          <span className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-black bg-white/80 shrink-0 shadow-xs">
+            {notice === "success" ? "✓" : "!"}
           </span>
-          {message}
+          <span className="flex-1">{message}</span>
         </div>
       )}
 
-      {/* Search & Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-6 bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
-        <input
-          placeholder="Search question ID or text"
-          value={filters.search}
-          onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-          onKeyDown={(e) => e.key === "Enter" && void load(1)}
-          className="flex-1 min-w-[220px] h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
-        />
+      {/* Filter & Search Toolbar */}
+      <div className="flex flex-wrap items-center gap-3 bg-white/60 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-white/80 shadow-[0_8px_30px_-5px_rgba(30,58,52,0.06)]">
+        <div className="relative flex-1 min-w-[240px]">
+          <input
+            placeholder="Search question ID or text..."
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            onKeyDown={(e) => e.key === "Enter" && void load(1)}
+            className="w-full h-11 pl-4 pr-4 text-xs sm:text-sm font-medium bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] placeholder:text-slate-400 outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm"
+          />
+        </div>
         <select
           value={filters.status}
           onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          className="h-10 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm cursor-pointer"
+          className="h-11 px-4 text-xs sm:text-sm font-extrabold bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm cursor-pointer"
         >
-          <option value="">All statuses</option>
+          <option value="">All Statuses</option>
           <option value="ACTIVE">Active</option>
           <option value="INACTIVE">Inactive</option>
           <option value="DRAFT">Draft</option>
         </select>
         <button
-          className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer shadow-sm"
+          className="h-11 px-6 text-xs sm:text-sm font-bold rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-md shadow-[#176B58]/20 border-none"
           onClick={() => void load(1)}
         >
           Search
         </button>
       </div>
 
-      {/* Questions Table Container */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
+      {/* Questions Data Table matching Admin Overview Tables */}
+      <div className="relative overflow-hidden rounded-3xl bg-white/70 backdrop-blur-2xl border border-white/90 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)]">
         {loading ? (
-          <div className="p-12 text-center text-xs sm:text-sm font-medium text-slate-500">
+          <div className="p-14 text-center text-xs sm:text-sm font-bold text-[#057A55]">
             Loading question bank...
           </div>
         ) : error ? (
-          <div className="p-12 text-center text-xs sm:text-sm font-medium text-red-600">
+          <div className="p-14 text-center text-xs sm:text-sm font-bold text-rose-600">
             {error}
           </div>
         ) : (
-          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
+          <div className="overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm border-collapse">
               <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold text-xs uppercase tracking-wider">
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Question ID</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Question Preview</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Type</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Category</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Difficulty</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Marks</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Status</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Created Date</th>
-                  <th className="px-4 py-3.5 font-bold text-slate-600 border-b border-slate-200/80">Actions</th>
+                <tr className="bg-[#1E3A34]/5 border-b border-[#1E3A34]/10 text-[#1E3A34] font-extrabold text-[11px] uppercase tracking-wider">
+                  <th className="px-5 py-4">ID</th>
+                  <th className="px-5 py-4">Question Preview</th>
+                  <th className="px-5 py-4">Type</th>
+                  <th className="px-5 py-4">Category</th>
+                  <th className="px-5 py-4">Difficulty</th>
+                  <th className="px-5 py-4">Marks</th>
+                  <th className="px-5 py-4">Status</th>
+                  <th className="px-5 py-4">Created</th>
+                  <th className="px-5 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100/80">
                 {rows.map((row) => (
-                  <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-4 py-3.5 font-mono text-xs font-semibold text-slate-600">{row.questionId.slice(-8)}</td>
-                    <td className="px-4 py-3.5 font-medium text-slate-900 max-w-xs truncate">{row.questionText}</td>
-                    <td className="px-4 py-3.5 text-slate-600">{row.questionType}</td>
-                    <td className="px-4 py-3.5 text-slate-600">{row.category}</td>
-                    <td className="px-4 py-3.5 text-slate-600">{row.difficulty}</td>
-                    <td className="px-4 py-3.5 font-semibold text-slate-900">{row.marks}</td>
-                    <td className="px-4 py-3.5">
+                  <tr key={row.id} className="hover:bg-[#00D084]/5 transition-colors">
+                    <td className="px-5 py-4 font-mono text-xs font-bold text-slate-500">
+                      {row.questionId.slice(-8)}
+                    </td>
+                    <td className="px-5 py-4 font-bold text-[#1E3A34] max-w-xs truncate">
+                      {row.questionText}
+                    </td>
+                    <td className="px-5 py-4 font-semibold text-slate-600">{row.questionType}</td>
+                    <td className="px-5 py-4 font-semibold text-slate-600">{row.category}</td>
+                    <td className="px-5 py-4 font-semibold text-slate-600">{row.difficulty}</td>
+                    <td className="px-5 py-4 font-black text-[#1E3A34]">{row.marks}</td>
+                    <td className="px-5 py-4">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide ${
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
                           row.status === "ACTIVE"
-                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-300/80"
                             : row.status === "INACTIVE"
-                              ? "bg-red-100 text-red-800 border border-red-200"
-                              : "bg-slate-100 text-slate-600 border border-slate-200"
+                              ? "bg-rose-100 text-rose-800 border border-rose-300/80"
+                              : "bg-amber-100 text-amber-800 border border-amber-300/80"
                         }`}
                       >
                         {row.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 text-slate-600">
+                    <td className="px-5 py-4 font-medium text-slate-500">
                       {row.createdAt
                         ? new Date(row.createdAt).toLocaleDateString()
                         : "—"}
                     </td>
-                    <td className="px-4 py-3.5 whitespace-nowrap">
+                    <td className="px-5 py-4 text-right whitespace-nowrap">
                       <button
-                        className="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors bg-transparent border-none p-0"
+                        className="px-3.5 py-1.5 rounded-xl bg-[#176B58]/10 text-[#176B58] hover:bg-[#176B58] hover:text-white font-extrabold text-xs transition-all cursor-pointer border-none"
                         onClick={() => void view(row)}
                       >
-                        View
+                        View Details
                       </button>
                     </td>
                   </tr>
@@ -328,21 +374,21 @@ export function QuestionBankPage({
         )}
 
         {/* Pagination Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-600 font-medium">
-          <span>{page.total || 0} questions</span>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 px-6 border-t border-slate-100 bg-white/40 text-xs text-[#1E3A34] font-bold">
+          <span>Total {page.total || 0} questions</span>
           <div className="flex items-center gap-3">
             <button
-              className="h-8 px-3 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
+              className="h-9 px-4 text-xs font-bold rounded-xl text-[#1E3A34] bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
               disabled={(page.page || 1) <= 1}
               onClick={() => void load((page.page || 1) - 1)}
             >
               Previous
             </button>
-            <span>
+            <span className="font-extrabold">
               Page {page.page || 1} of {page.pages || 1}
             </span>
             <button
-              className="h-8 px-3 text-xs font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
+              className="h-9 px-4 text-xs font-bold rounded-xl text-[#1E3A34] bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
               disabled={(page.page || 1) >= (page.pages || 1)}
               onClick={() => void load((page.page || 1) + 1)}
             >
@@ -354,41 +400,58 @@ export function QuestionBankPage({
 
       {/* Question Details Modal */}
       {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
-          <div className="relative w-full max-w-[680px] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="relative w-full max-w-[700px] max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#FF7A59]" />
             <button
-              className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors text-xl font-medium leading-none cursor-pointer focus:outline-none z-10"
+              className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors text-xl font-bold cursor-pointer border-none z-10"
               onClick={() => setSelected(null)}
             >
               ×
             </button>
 
-            <div className="p-5 sm:p-7 overflow-y-auto min-h-0 flex-1 flex flex-col gap-4 text-xs sm:text-sm">
-              <h2 className="text-xl font-bold text-slate-900 leading-tight">Question Details</h2>
+            <div className="p-6 sm:p-8 overflow-y-auto min-h-0 flex-1 flex flex-col gap-5 text-xs sm:text-sm pt-8">
+              <h2 className="text-2xl font-black text-[#1E3A34] leading-tight m-0">
+                Question Details
+              </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-                <span className="flex flex-col text-xs text-slate-500">
-                  <b className="font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-0.5">Question ID</b>
-                  <span className="font-mono text-slate-900 font-medium truncate">{selected.questionId}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-emerald-50/50 rounded-2xl border border-emerald-200/60">
+                <span className="flex flex-col text-xs">
+                  <b className="font-black text-[#057A55] uppercase tracking-wider text-[10px] mb-0.5">
+                    Question ID
+                  </b>
+                  <span className="font-mono text-[#1E3A34] font-bold truncate">
+                    {selected.questionId}
+                  </span>
                 </span>
-                <span className="flex flex-col text-xs text-slate-500">
-                  <b className="font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-0.5">Status</b>
-                  <span className="font-semibold text-slate-900">{selected.status}</span>
+                <span className="flex flex-col text-xs">
+                  <b className="font-black text-[#057A55] uppercase tracking-wider text-[10px] mb-0.5">
+                    Status
+                  </b>
+                  <span className="font-extrabold text-[#1E3A34]">
+                    {selected.status}
+                  </span>
                 </span>
-                <span className="flex flex-col text-xs text-slate-500">
-                  <b className="font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-0.5">Created</b>
-                  <span className="text-slate-900 font-medium">
+                <span className="flex flex-col text-xs">
+                  <b className="font-black text-[#057A55] uppercase tracking-wider text-[10px] mb-0.5">
+                    Created Date
+                  </b>
+                  <span className="text-[#1E3A34] font-bold">
                     {selected.createdAt ? new Date(selected.createdAt).toLocaleString() : "—"}
                   </span>
                 </span>
               </div>
 
-              <h3 className="text-base font-bold text-slate-900">{selected.questionText}</h3>
-              <p className="text-xs font-semibold text-slate-500">
-                {selected.questionType} · {selected.category} · {selected.difficulty} · {selected.marks} marks
-              </p>
+              <div className="space-y-1">
+                <h3 className="text-base sm:text-lg font-extrabold text-[#1E3A34] m-0">
+                  {selected.questionText}
+                </h3>
+                <p className="text-xs font-bold text-[#057A55] m-0">
+                  {selected.questionType} · {selected.category} · {selected.difficulty} · {selected.marks} marks
+                </p>
+              </div>
 
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 gap-2.5">
                 {["A", "B", "C", "D"].map((id) => {
                   const option = (selected.options || []).find((o: any) => o.id === id)
                   const isCorrect =
@@ -397,19 +460,19 @@ export function QuestionBankPage({
                   return (
                     <div
                       key={id}
-                      className={`flex items-start gap-3 p-3 rounded-xl border text-xs sm:text-sm transition-all ${
+                      className={`flex items-start gap-3 p-3.5 rounded-2xl border text-xs sm:text-sm transition-all ${
                         isCorrect
-                          ? "bg-emerald-50/80 border-emerald-300 text-emerald-900"
-                          : "bg-slate-50/60 border-slate-200/80 text-slate-800"
+                          ? "bg-emerald-100/60 border-emerald-400/80 text-emerald-950 font-bold"
+                          : "bg-slate-50 border-slate-200/80 text-slate-800"
                       }`}
                     >
-                      <b className="flex items-center justify-center w-6 h-6 rounded-md bg-white border border-slate-200 text-slate-700 text-xs font-bold shrink-0">
+                      <b className="flex items-center justify-center w-7 h-7 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs font-black shrink-0 shadow-2xs">
                         {id}
                       </b>
-                      <span className="flex-1 font-medium mt-0.5">{option?.text || "—"}</span>
+                      <span className="flex-1 font-semibold mt-1">{option?.text || "—"}</span>
                       {isCorrect && (
-                        <em className="not-italic text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md shrink-0">
-                          Correct answer
+                        <em className="not-italic text-[10px] font-black text-emerald-800 bg-emerald-200/80 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
+                          Correct Choice
                         </em>
                       )}
                     </div>
@@ -418,26 +481,26 @@ export function QuestionBankPage({
               </div>
 
               {selected.explanation && (
-                <div className="mt-1 p-3.5 bg-blue-50/60 border border-blue-200/80 rounded-xl text-xs sm:text-sm text-blue-900">
-                  <b className="block font-bold text-blue-950 mb-1">Explanation</b>
-                  <p className="text-blue-800 font-medium">{selected.explanation}</p>
+                <div className="p-4 bg-blue-50/70 border border-blue-200/80 rounded-2xl text-xs sm:text-sm text-blue-950">
+                  <b className="block font-black text-blue-900 mb-1">Explanation</b>
+                  <p className="text-blue-800 font-medium m-0">{selected.explanation}</p>
                 </div>
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-4 sm:px-7 sm:py-4 border-t border-slate-100 bg-slate-50/50 flex-none">
+            <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex-none">
               <button
-                className="h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all cursor-pointer shadow-sm"
+                className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
                 onClick={() => setSelected(null)}
               >
                 Close
               </button>
               {selected.status !== "PUBLISHED" && (
                 <button
-                  className={`h-10 px-5 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white transition-all cursor-pointer shadow-sm disabled:opacity-50 ${
+                  className={`h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white transition-all cursor-pointer shadow-md disabled:opacity-50 border-none ${
                     selected.status === "ACTIVE"
-                      ? "bg-red-600 hover:bg-red-700 active:bg-red-800 shadow-red-500/20"
-                      : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-blue-500/20"
+                      ? "bg-rose-600 hover:bg-rose-700 shadow-rose-600/20"
+                      : "bg-[#176B58] hover:bg-[#125445] shadow-[#176B58]/20"
                   }`}
                   disabled={saving}
                   onClick={() =>
@@ -456,32 +519,33 @@ export function QuestionBankPage({
 
       {/* Confirmation Modal */}
       {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
-          <div className="relative w-full max-w-[500px] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
-            <div className="p-5 sm:p-7 overflow-y-auto flex flex-col gap-3 text-xs sm:text-sm">
-              <h2 className="text-xl font-bold text-slate-900 leading-tight">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="relative w-full max-w-[500px] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#FF7A59]" />
+            <div className="p-6 sm:p-8 flex flex-col gap-3 text-xs sm:text-sm pt-8">
+              <h2 className="text-xl font-black text-[#1E3A34] m-0">
                 {confirmAction === "ACTIVE" ? "Activate Question" : "Deactivate Question"}
               </h2>
-              <p className="text-slate-600 font-medium leading-relaxed">
+              <p className="text-slate-600 font-medium leading-relaxed m-0">
                 {confirmAction === "ACTIVE"
                   ? "Are you sure you want to activate this question? Once activated, it will become available for selection in new examination papers."
                   : "Are you sure you want to deactivate this question? It will no longer be available for selection in new examination papers."}
               </p>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-4 sm:px-7 sm:py-4 border-t border-slate-100 bg-slate-50/50 flex-none">
+            <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex-none">
               <button
-                className="h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:opacity-50 transition-all cursor-pointer shadow-sm"
+                className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
                 disabled={saving}
                 onClick={() => setConfirmAction(null)}
               >
                 Cancel
               </button>
               <button
-                className={`h-10 px-5 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white transition-all cursor-pointer shadow-sm disabled:opacity-50 ${
+                className={`h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white transition-all cursor-pointer shadow-md disabled:opacity-50 border-none ${
                   confirmAction === "ACTIVE"
-                    ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-blue-500/20"
-                    : "bg-red-600 hover:bg-red-700 active:bg-red-800 shadow-red-500/20"
+                    ? "bg-[#176B58] hover:bg-[#125445] shadow-[#176B58]/20"
+                    : "bg-rose-600 hover:bg-rose-700 shadow-rose-600/20"
                 }`}
                 disabled={saving}
                 onClick={() => void updateStatus()}
@@ -499,40 +563,44 @@ export function QuestionBankPage({
 
       {/* Import Questions Modal */}
       {importOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
-          <div className="relative w-full max-w-[720px] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="relative w-full max-w-[720px] max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#FF7A59]" />
             <button
-              className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors text-xl font-medium leading-none cursor-pointer focus:outline-none z-10"
+              className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors text-xl font-bold cursor-pointer border-none z-10"
               onClick={() => setImportOpen(false)}
             >
               ×
             </button>
 
-            <div className="p-5 sm:p-7 overflow-y-auto min-h-0 flex-1 flex flex-col gap-4 text-xs sm:text-sm">
-              <h2 className="text-xl font-bold text-slate-900">Import Questions</h2>
+            <div className="p-6 sm:p-8 overflow-y-auto min-h-0 flex-1 flex flex-col gap-5 text-xs sm:text-sm pt-8">
+              <h2 className="text-2xl font-black text-[#1E3A34] m-0">Import Questions</h2>
 
-              <div className="flex flex-wrap items-center gap-2.5 pb-1">
+              <div className="flex flex-wrap items-center gap-3">
                 <button
-                  className="text-xs font-bold text-blue-600 hover:text-blue-700 underline cursor-pointer bg-transparent border-none p-0 mr-2"
+                  className="text-xs font-extrabold text-[#176B58] hover:underline cursor-pointer bg-transparent border-none p-0"
                   onClick={() => void download("pdf")}
                 >
-                  Download PDF Template
+                  📥 Download PDF Template
                 </button>
+                <span className="text-slate-300">•</span>
                 <button
-                  className="text-xs font-bold text-blue-600 hover:text-blue-700 underline cursor-pointer bg-transparent border-none p-0 mr-2"
+                  className="text-xs font-extrabold text-[#176B58] hover:underline cursor-pointer bg-transparent border-none p-0"
                   onClick={() => void download("csv")}
                 >
-                  Download CSV Template
+                  📥 Download CSV Template
                 </button>
+                <span className="text-slate-300">•</span>
                 <button
-                  className="text-xs font-bold text-blue-600 hover:text-blue-700 underline cursor-pointer bg-transparent border-none p-0"
+                  className="text-xs font-extrabold text-[#176B58] hover:underline cursor-pointer bg-transparent border-none p-0"
                   onClick={() => void download("xlsx")}
                 >
-                  Download XLSX Template
+                  📥 Download XLSX Template
                 </button>
               </div>
 
-              <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl bg-slate-50/60 hover:bg-blue-50/20 text-slate-600 hover:text-blue-600 font-semibold cursor-pointer transition-all text-xs sm:text-sm text-center">
+              <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[#00D084]/40 hover:border-[#00D084] rounded-3xl bg-emerald-50/40 hover:bg-emerald-50/70 text-[#1E3A34] font-bold cursor-pointer transition-all text-xs sm:text-sm text-center">
+                <span className="text-2xl mb-2">📄</span>
                 <span>{file ? file.name : "Choose or drag a CSV, XLSX, or PDF file"}</span>
                 <input
                   type="file"
@@ -545,14 +613,14 @@ export function QuestionBankPage({
               </label>
 
               {processing && (
-                <p className="text-xs font-medium text-slate-500 animate-pulse text-center">
-                  Processing file...
+                <p className="text-xs font-extrabold text-[#057A55] animate-pulse text-center m-0">
+                  Processing question template file...
                 </p>
               )}
 
               {preview && (
                 <>
-                  <div className="p-3 bg-slate-100 rounded-xl text-xs font-semibold text-slate-700">
+                  <div className="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200/60 text-xs font-extrabold text-[#1E3A34]">
                     Total: {preview.total || 0} · Valid: {preview.valid?.length || 0} · Invalid:{" "}
                     {preview.invalid?.length || 0} · Duplicate: {preview.duplicates?.length || 0}
                   </div>
@@ -564,12 +632,12 @@ export function QuestionBankPage({
                       ...(preview.duplicates || []),
                     ].map((r: any) => (
                       <article
-                        className="p-3 rounded-xl border border-slate-200/80 bg-slate-50/50 flex flex-col gap-1 text-xs"
+                        className="p-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 flex flex-col gap-1 text-xs"
                         key={`${r.rowNumber}-${r.questionText}`}
                       >
-                        <b className="font-bold text-slate-900">Question {r.rowNumber}</b>
+                        <b className="font-extrabold text-[#1E3A34]">Row {r.rowNumber}</b>
                         <strong className="font-semibold text-slate-800">{r.questionText}</strong>
-                        <span className="text-slate-500 font-medium">
+                        <span className="text-[#057A55] font-bold">
                           {r.result || r.errors?.join("; ") || "Valid"}
                         </span>
                       </article>
@@ -579,15 +647,15 @@ export function QuestionBankPage({
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-4 sm:px-7 sm:py-4 border-t border-slate-100 bg-slate-50/50 flex-none">
+            <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex-none">
               <button
-                className="h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all cursor-pointer shadow-sm"
+                className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
                 onClick={() => setImportOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="h-10 px-5 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm shadow-blue-500/20"
+                className="h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] shadow-md shadow-[#176B58]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer border-none"
                 disabled={processing || !preview?.valid?.length}
                 onClick={() => void confirmImport()}
               >
@@ -597,6 +665,6 @@ export function QuestionBankPage({
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }
