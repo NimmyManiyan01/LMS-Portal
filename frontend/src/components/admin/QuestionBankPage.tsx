@@ -1,15 +1,25 @@
 import { useEffect, useState } from "react"
 import { API_BASE_URL, authFetch } from "../../api"
+import { AdminFloatingSidebar } from "../../App"
 
 const API = API_BASE_URL
 
 export function QuestionBankPage({
   Icon,
   PageHead,
+  active = "Question bank",
+  onNav = () => {},
+  adminUser = null,
+  onLogout = () => {},
 }: {
   Icon: any
   PageHead: any
+  active?: string
+  onNav?: (v: string) => void
+  adminUser?: { email: string; role: string } | null
+  onLogout?: () => void
 }) {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [rows, setRows] = useState<any[]>([])
   const [stats, setStats] = useState<any>({})
   const [page, setPage] = useState<any>({ page: 1, pages: 1, total: 0 })
@@ -168,503 +178,527 @@ export function QuestionBankPage({
         : "error"
 
   return (
-    <div className="space-y-6">
-      <PageHead
-        admin
-        student={null}
-        title="Question Bank"
-        description="Create, organize, and manage examination questions."
-        showCreateAction={false}
+    <div className="relative min-h-screen bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8">
+      {/* Continuous Full-Page Atmospheric Background Ambient Lighting Blobs */}
+      <div className="fixed -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-[#00C4DF]/30 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-[#00D084]/30 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed top-1/2 left-1/3 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[#FFB800]/28 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed -bottom-40 right-10 w-[700px] h-[700px] rounded-full bg-[#FF7A59]/28 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/20 pointer-events-none z-0" />
+
+      {/* Floating Vertical Glass Sidebar */}
+      <AdminFloatingSidebar
+        active={active}
+        onNav={onNav}
+        adminUser={adminUser}
+        onLogout={onLogout}
+        isCollapsed={sidebarCollapsed}
+        setIsCollapsed={setSidebarCollapsed}
       />
 
-      {/* Hero Header Glass Card matching Admin Overview */}
-      <div className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-6 sm:p-7">
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-          <div className="space-y-1.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-0.5 rounded-full bg-[#00D084]/20 text-[#057A55] text-[10px] font-black uppercase tracking-widest border border-[#00D084]/30">
-                Question Bank
-              </span>
-              <span className="text-xs font-bold text-[#1E3A34]/80">
-                Examination Repository
-              </span>
+      {/* Main Page Content Wrapper */}
+      <div
+        className={`relative z-10 max-w-[1550px] mx-auto space-y-6 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
+        }`}
+      >
+        <PageHead
+          admin
+          student={null}
+          title="Question Bank"
+          description="Create, organize, and manage examination questions."
+          showCreateAction={false}
+        />
+
+        {/* Hero Header Glass Card matching Admin Overview */}
+        <div className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-6 sm:p-7">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-3 py-0.5 rounded-full bg-[#00D084]/20 text-[#057A55] text-[10px] font-black uppercase tracking-widest border border-[#00D084]/30">
+                  Flux Suite
+                </span>
+                <span className="text-xs font-bold text-[#1E3A34]/80">
+                  Examination Repository
+                </span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-[#1E3A34] tracking-tight leading-tight m-0">
+                Question Management
+              </h2>
+              <p className="text-xs sm:text-sm text-[#057A55] font-bold m-0 leading-relaxed max-w-xl">
+                Import, audit, and organize structured examination questions from verified templates.
+              </p>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#1E3A34] tracking-tight leading-tight m-0">
-              Question Management
-            </h2>
-            <p className="text-xs sm:text-sm text-[#057A55] font-bold m-0 leading-relaxed max-w-xl">
-              Import, audit, and organize structured examination questions from verified templates.
-            </p>
+            <button
+              className="inline-flex items-center justify-center gap-2.5 h-11 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-lg shadow-[#176B58]/20 flex-shrink-0 border-none"
+              onClick={() => setImportOpen(true)}
+            >
+              <Icon name="plus" size={18} />
+              Import Questions
+            </button>
           </div>
-          <button
-            className="inline-flex items-center justify-center gap-2.5 h-11 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-lg shadow-[#176B58]/20 flex-shrink-0 border-none"
-            onClick={() => setImportOpen(true)}
+        </div>
+
+        {/* KPI Stats Grid matching Overview Cards */}
+        <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            {
+              label: "Total Questions",
+              value: stats.total || 0,
+              icon: "book",
+              badgeBg: "bg-[#176B58]/15 text-[#176B58]",
+            },
+            {
+              label: "Active Questions",
+              value: stats.active || 0,
+              icon: "check",
+              badgeBg: "bg-[#00D084]/20 text-[#057A55]",
+            },
+            {
+              label: "Draft Questions",
+              value: stats.draft || 0,
+              icon: "review",
+              badgeBg: "bg-[#E5A23B]/15 text-[#E5A23B]",
+            },
+            {
+              label: "Question Types",
+              value: (stats.byType || []).length,
+              icon: "pulse",
+              badgeBg: "bg-[#203D39]/15 text-[#203D39]",
+            },
+          ].map((item, idx) => (
+            <article
+              key={idx}
+              className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 p-5 shadow-[0_10px_30px_-5px_rgba(30,58,52,0.08)] transition-all hover:scale-[1.02] hover:shadow-[0_16px_40px_-5px_rgba(30,58,52,0.12)] flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-black text-[#057A55] uppercase tracking-wider">
+                  {item.label}
+                </span>
+                <span className={`w-9 h-9 rounded-2xl flex items-center justify-center ${item.badgeBg}`}>
+                  <Icon name={item.icon} size={18} />
+                </span>
+              </div>
+              <strong className="text-2xl sm:text-3xl font-black text-[#1E3A34] leading-none">
+                {item.value}
+              </strong>
+            </article>
+          ))}
+        </section>
+
+        {/* Notification Banner */}
+        {message && (
+          <div
+            className={`p-4 rounded-2xl border text-xs sm:text-sm font-extrabold flex items-center gap-3 shadow-md backdrop-blur-xl ${
+              notice === "success"
+                ? "text-emerald-900 bg-emerald-500/15 border-emerald-300"
+                : notice === "warning"
+                  ? "text-amber-900 bg-amber-500/15 border-amber-300"
+                  : "text-rose-900 bg-rose-500/15 border-rose-300"
+            }`}
           >
-            <Icon name="plus" size={18} />
-            Import Questions
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Stats Grid matching Overview Cards */}
-      <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          {
-            label: "Total Questions",
-            value: stats.total || 0,
-            icon: "book",
-            badgeBg: "bg-[#176B58]/15 text-[#176B58]",
-          },
-          {
-            label: "Active Questions",
-            value: stats.active || 0,
-            icon: "check",
-            badgeBg: "bg-[#00D084]/20 text-[#057A55]",
-          },
-          {
-            label: "Draft Questions",
-            value: stats.draft || 0,
-            icon: "review",
-            badgeBg: "bg-[#E5A23B]/15 text-[#E5A23B]",
-          },
-          {
-            label: "Question Types",
-            value: (stats.byType || []).length,
-            icon: "pulse",
-            badgeBg: "bg-[#203D39]/15 text-[#203D39]",
-          },
-        ].map((item, idx) => (
-          <article
-            key={idx}
-            className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 p-5 shadow-[0_10px_30px_-5px_rgba(30,58,52,0.08)] transition-all hover:scale-[1.02] hover:shadow-[0_16px_40px_-5px_rgba(30,58,52,0.12)] flex flex-col justify-between"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-black text-[#057A55] uppercase tracking-wider">
-                {item.label}
-              </span>
-              <span className={`w-9 h-9 rounded-2xl flex items-center justify-center ${item.badgeBg}`}>
-                <Icon name={item.icon} size={18} />
-              </span>
-            </div>
-            <strong className="text-2xl sm:text-3xl font-black text-[#1E3A34] leading-none">
-              {item.value}
-            </strong>
-          </article>
-        ))}
-      </section>
-
-      {/* Notification Banner */}
-      {message && (
-        <div
-          className={`p-4 rounded-2xl border text-xs sm:text-sm font-extrabold flex items-center gap-3 shadow-md backdrop-blur-xl ${
-            notice === "success"
-              ? "text-emerald-900 bg-emerald-500/15 border-emerald-300"
-              : notice === "warning"
-                ? "text-amber-900 bg-amber-500/15 border-amber-300"
-                : "text-rose-900 bg-rose-500/15 border-rose-300"
-          }`}
-        >
-          <span className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-black bg-white/80 shrink-0 shadow-xs">
-            {notice === "success" ? "✓" : "!"}
-          </span>
-          <span className="flex-1">{message}</span>
-        </div>
-      )}
-
-      {/* Filter & Search Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 bg-white/60 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-white/80 shadow-[0_8px_30px_-5px_rgba(30,58,52,0.06)]">
-        <div className="relative flex-1 min-w-[240px]">
-          <input
-            placeholder="Search question ID or text..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            onKeyDown={(e) => e.key === "Enter" && void load(1)}
-            className="w-full h-11 pl-4 pr-4 text-xs sm:text-sm font-medium bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] placeholder:text-slate-400 outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm"
-          />
-        </div>
-        <select
-          value={filters.status}
-          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          className="h-11 px-4 text-xs sm:text-sm font-extrabold bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm cursor-pointer"
-        >
-          <option value="">All Statuses</option>
-          <option value="ACTIVE">Active</option>
-          <option value="INACTIVE">Inactive</option>
-          <option value="DRAFT">Draft</option>
-        </select>
-        <button
-          className="h-11 px-6 text-xs sm:text-sm font-bold rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-md shadow-[#176B58]/20 border-none"
-          onClick={() => void load(1)}
-        >
-          Search
-        </button>
-      </div>
-
-      {/* Questions Data Table matching Admin Overview Tables */}
-      <div className="relative overflow-hidden rounded-3xl bg-white/70 backdrop-blur-2xl border border-white/90 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)]">
-        {loading ? (
-          <div className="p-14 text-center text-xs sm:text-sm font-bold text-[#057A55]">
-            Loading question bank...
-          </div>
-        ) : error ? (
-          <div className="p-14 text-center text-xs sm:text-sm font-bold text-rose-600">
-            {error}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm border-collapse">
-              <thead>
-                <tr className="bg-[#1E3A34]/5 border-b border-[#1E3A34]/10 text-[#1E3A34] font-extrabold text-[11px] uppercase tracking-wider">
-                  <th className="px-5 py-4">ID</th>
-                  <th className="px-5 py-4">Question Preview</th>
-                  <th className="px-5 py-4">Type</th>
-                  <th className="px-5 py-4">Category</th>
-                  <th className="px-5 py-4">Difficulty</th>
-                  <th className="px-5 py-4">Marks</th>
-                  <th className="px-5 py-4">Status</th>
-                  <th className="px-5 py-4">Created</th>
-                  <th className="px-5 py-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100/80">
-                {rows.map((row) => (
-                  <tr key={row.id} className="hover:bg-[#00D084]/5 transition-colors">
-                    <td className="px-5 py-4 font-mono text-xs font-bold text-slate-500">
-                      {row.questionId.slice(-8)}
-                    </td>
-                    <td className="px-5 py-4 font-bold text-[#1E3A34] max-w-xs truncate">
-                      {row.questionText}
-                    </td>
-                    <td className="px-5 py-4 font-semibold text-slate-600">{row.questionType}</td>
-                    <td className="px-5 py-4 font-semibold text-slate-600">{row.category}</td>
-                    <td className="px-5 py-4 font-semibold text-slate-600">{row.difficulty}</td>
-                    <td className="px-5 py-4 font-black text-[#1E3A34]">{row.marks}</td>
-                    <td className="px-5 py-4">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          row.status === "ACTIVE"
-                            ? "bg-emerald-100 text-emerald-800 border border-emerald-300/80"
-                            : row.status === "INACTIVE"
-                              ? "bg-rose-100 text-rose-800 border border-rose-300/80"
-                              : "bg-amber-100 text-amber-800 border border-amber-300/80"
-                        }`}
-                      >
-                        {row.status}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 font-medium text-slate-500">
-                      {row.createdAt
-                        ? new Date(row.createdAt).toLocaleDateString()
-                        : "—"}
-                    </td>
-                    <td className="px-5 py-4 text-right whitespace-nowrap">
-                      <button
-                        className="px-3.5 py-1.5 rounded-xl bg-[#176B58]/10 text-[#176B58] hover:bg-[#176B58] hover:text-white font-extrabold text-xs transition-all cursor-pointer border-none"
-                        onClick={() => void view(row)}
-                      >
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <span className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-black bg-white/80 shrink-0 shadow-xs">
+              {notice === "success" ? "✓" : "!"}
+            </span>
+            <span className="flex-1">{message}</span>
           </div>
         )}
 
-        {/* Pagination Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 px-6 border-t border-slate-100 bg-white/40 text-xs text-[#1E3A34] font-bold">
-          <span>Total {page.total || 0} questions</span>
-          <div className="flex items-center gap-3">
-            <button
-              className="h-9 px-4 text-xs font-bold rounded-xl text-[#1E3A34] bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
-              disabled={(page.page || 1) <= 1}
-              onClick={() => void load((page.page || 1) - 1)}
-            >
-              Previous
-            </button>
-            <span className="font-extrabold">
-              Page {page.page || 1} of {page.pages || 1}
-            </span>
-            <button
-              className="h-9 px-4 text-xs font-bold rounded-xl text-[#1E3A34] bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
-              disabled={(page.page || 1) >= (page.pages || 1)}
-              onClick={() => void load((page.page || 1) + 1)}
-            >
-              Next
-            </button>
+        {/* Filter & Search Toolbar */}
+        <div className="flex flex-wrap items-center gap-3 bg-white/60 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-white/80 shadow-[0_8px_30px_-5px_rgba(30,58,52,0.06)]">
+          <div className="relative flex-1 min-w-[240px]">
+            <input
+              placeholder="Search question ID or text..."
+              value={filters.search}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              onKeyDown={(e) => e.key === "Enter" && void load(1)}
+              className="w-full h-11 pl-4 pr-4 text-xs sm:text-sm font-medium bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] placeholder:text-slate-400 outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm"
+            />
+          </div>
+          <select
+            value={filters.status}
+            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+            className="h-11 px-4 text-xs sm:text-sm font-extrabold bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm cursor-pointer"
+          >
+            <option value="">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="DRAFT">Draft</option>
+          </select>
+          <button
+            className="h-11 px-6 text-xs sm:text-sm font-bold rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-md shadow-[#176B58]/20 border-none"
+            onClick={() => void load(1)}
+          >
+            Search
+          </button>
+        </div>
+
+        {/* Questions Data Table matching Admin Overview Tables */}
+        <div className="relative overflow-hidden rounded-3xl bg-white/70 backdrop-blur-2xl border border-white/90 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)]">
+          {loading ? (
+            <div className="p-14 text-center text-xs sm:text-sm font-bold text-[#057A55]">
+              Loading question bank...
+            </div>
+          ) : error ? (
+            <div className="p-14 text-center text-xs sm:text-sm font-bold text-rose-600">
+              {error}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                <thead>
+                  <tr className="bg-[#1E3A34]/5 border-b border-[#1E3A34]/10 text-[#1E3A34] font-extrabold text-[11px] uppercase tracking-wider">
+                    <th className="px-5 py-4">ID</th>
+                    <th className="px-5 py-4">Question Preview</th>
+                    <th className="px-5 py-4">Type</th>
+                    <th className="px-5 py-4">Category</th>
+                    <th className="px-5 py-4">Difficulty</th>
+                    <th className="px-5 py-4">Marks</th>
+                    <th className="px-5 py-4">Status</th>
+                    <th className="px-5 py-4">Created</th>
+                    <th className="px-5 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100/80">
+                  {rows.map((row) => (
+                    <tr key={row.id} className="hover:bg-[#00D084]/5 transition-colors">
+                      <td className="px-5 py-4 font-mono text-xs font-bold text-slate-500">
+                        {row.questionId.slice(-8)}
+                      </td>
+                      <td className="px-5 py-4 font-bold text-[#1E3A34] max-w-xs truncate">
+                        {row.questionText}
+                      </td>
+                      <td className="px-5 py-4 font-semibold text-slate-600">{row.questionType}</td>
+                      <td className="px-5 py-4 font-semibold text-slate-600">{row.category}</td>
+                      <td className="px-5 py-4 font-semibold text-slate-600">{row.difficulty}</td>
+                      <td className="px-5 py-4 font-black text-[#1E3A34]">{row.marks}</td>
+                      <td className="px-5 py-4">
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                            row.status === "ACTIVE"
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-300/80"
+                              : row.status === "INACTIVE"
+                                ? "bg-rose-100 text-rose-800 border border-rose-300/80"
+                                : "bg-amber-100 text-amber-800 border border-amber-300/80"
+                          }`}
+                        >
+                          {row.status}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 font-medium text-slate-500">
+                        {row.createdAt
+                          ? new Date(row.createdAt).toLocaleDateString()
+                          : "—"}
+                      </td>
+                      <td className="px-5 py-4 text-right whitespace-nowrap">
+                        <button
+                          className="px-3.5 py-1.5 rounded-xl bg-[#176B58]/10 text-[#176B58] hover:bg-[#176B58] hover:text-white font-extrabold text-xs transition-all cursor-pointer border-none"
+                          onClick={() => void view(row)}
+                        >
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Pagination Bar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 px-6 border-t border-slate-100 bg-white/40 text-xs text-[#1E3A34] font-bold">
+            <span>Total {page.total || 0} questions</span>
+            <div className="flex items-center gap-3">
+              <button
+                className="h-9 px-4 text-xs font-bold rounded-xl text-[#1E3A34] bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
+                disabled={(page.page || 1) <= 1}
+                onClick={() => void load((page.page || 1) - 1)}
+              >
+                Previous
+              </button>
+              <span className="font-extrabold">
+                Page {page.page || 1} of {page.pages || 1}
+              </span>
+              <button
+                className="h-9 px-4 text-xs font-bold rounded-xl text-[#1E3A34] bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
+                disabled={(page.page || 1) >= (page.pages || 1)}
+                onClick={() => void load((page.page || 1) + 1)}
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Question Details Modal */}
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="relative w-full max-w-[700px] max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#FF7A59]" />
-            <button
-              className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors text-xl font-bold cursor-pointer border-none z-10"
-              onClick={() => setSelected(null)}
-            >
-              ×
-            </button>
-
-            <div className="p-6 sm:p-8 overflow-y-auto min-h-0 flex-1 flex flex-col gap-5 text-xs sm:text-sm pt-8">
-              <h2 className="text-2xl font-black text-[#1E3A34] leading-tight m-0">
-                Question Details
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-emerald-50/50 rounded-2xl border border-emerald-200/60">
-                <span className="flex flex-col text-xs">
-                  <b className="font-black text-[#057A55] uppercase tracking-wider text-[10px] mb-0.5">
-                    Question ID
-                  </b>
-                  <span className="font-mono text-[#1E3A34] font-bold truncate">
-                    {selected.questionId}
-                  </span>
-                </span>
-                <span className="flex flex-col text-xs">
-                  <b className="font-black text-[#057A55] uppercase tracking-wider text-[10px] mb-0.5">
-                    Status
-                  </b>
-                  <span className="font-extrabold text-[#1E3A34]">
-                    {selected.status}
-                  </span>
-                </span>
-                <span className="flex flex-col text-xs">
-                  <b className="font-black text-[#057A55] uppercase tracking-wider text-[10px] mb-0.5">
-                    Created Date
-                  </b>
-                  <span className="text-[#1E3A34] font-bold">
-                    {selected.createdAt ? new Date(selected.createdAt).toLocaleString() : "—"}
-                  </span>
-                </span>
-              </div>
-
-              <div className="space-y-1">
-                <h3 className="text-base sm:text-lg font-extrabold text-[#1E3A34] m-0">
-                  {selected.questionText}
-                </h3>
-                <p className="text-xs font-bold text-[#057A55] m-0">
-                  {selected.questionType} · {selected.category} · {selected.difficulty} · {selected.marks} marks
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 gap-2.5">
-                {["A", "B", "C", "D"].map((id) => {
-                  const option = (selected.options || []).find((o: any) => o.id === id)
-                  const isCorrect =
-                    selected.correctOptionId === id ||
-                    selected.correctOptionIds?.includes(id)
-                  return (
-                    <div
-                      key={id}
-                      className={`flex items-start gap-3 p-3.5 rounded-2xl border text-xs sm:text-sm transition-all ${
-                        isCorrect
-                          ? "bg-emerald-100/60 border-emerald-400/80 text-emerald-950 font-bold"
-                          : "bg-slate-50 border-slate-200/80 text-slate-800"
-                      }`}
-                    >
-                      <b className="flex items-center justify-center w-7 h-7 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs font-black shrink-0 shadow-2xs">
-                        {id}
-                      </b>
-                      <span className="flex-1 font-semibold mt-1">{option?.text || "—"}</span>
-                      {isCorrect && (
-                        <em className="not-italic text-[10px] font-black text-emerald-800 bg-emerald-200/80 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
-                          Correct Choice
-                        </em>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-
-              {selected.explanation && (
-                <div className="p-4 bg-blue-50/70 border border-blue-200/80 rounded-2xl text-xs sm:text-sm text-blue-950">
-                  <b className="block font-black text-blue-900 mb-1">Explanation</b>
-                  <p className="text-blue-800 font-medium m-0">{selected.explanation}</p>
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex-none">
+        {/* Question Details Modal */}
+        {selected && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
+            <div className="relative w-full max-w-[700px] max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#FF7A59]" />
               <button
-                className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
+                className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors text-xl font-bold cursor-pointer border-none z-10"
                 onClick={() => setSelected(null)}
               >
-                Close
+                ×
               </button>
-              {selected.status !== "PUBLISHED" && (
-                <button
-                  className={`h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white transition-all cursor-pointer shadow-md disabled:opacity-50 border-none ${
-                    selected.status === "ACTIVE"
-                      ? "bg-rose-600 hover:bg-rose-700 shadow-rose-600/20"
-                      : "bg-[#176B58] hover:bg-[#125445] shadow-[#176B58]/20"
-                  }`}
-                  disabled={saving}
-                  onClick={() =>
-                    setConfirmAction(
-                      selected.status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
+
+              <div className="p-6 sm:p-8 overflow-y-auto min-h-0 flex-1 flex flex-col gap-5 text-xs sm:text-sm pt-8">
+                <h2 className="text-2xl font-black text-[#1E3A34] leading-tight m-0">
+                  Question Details
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-emerald-50/50 rounded-2xl border border-emerald-200/60">
+                  <span className="flex flex-col text-xs">
+                    <b className="font-black text-[#057A55] uppercase tracking-wider text-[10px] mb-0.5">
+                      Question ID
+                    </b>
+                    <span className="font-mono text-[#1E3A34] font-bold truncate">
+                      {selected.questionId}
+                    </span>
+                  </span>
+                  <span className="flex flex-col text-xs">
+                    <b className="font-black text-[#057A55] uppercase tracking-wider text-[10px] mb-0.5">
+                      Status
+                    </b>
+                    <span className="font-extrabold text-[#1E3A34]">
+                      {selected.status}
+                    </span>
+                  </span>
+                  <span className="flex flex-col text-xs">
+                    <b className="font-black text-[#057A55] uppercase tracking-wider text-[10px] mb-0.5">
+                      Created Date
+                    </b>
+                    <span className="text-[#1E3A34] font-bold">
+                      {selected.createdAt ? new Date(selected.createdAt).toLocaleString() : "—"}
+                    </span>
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <h3 className="text-base sm:text-lg font-extrabold text-[#1E3A34] m-0">
+                    {selected.questionText}
+                  </h3>
+                  <p className="text-xs font-bold text-[#057A55] m-0">
+                    {selected.questionType} · {selected.category} · {selected.difficulty} · {selected.marks} marks
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-2.5">
+                  {["A", "B", "C", "D"].map((id) => {
+                    const option = (selected.options || []).find((o: any) => o.id === id)
+                    const isCorrect =
+                      selected.correctOptionId === id ||
+                      selected.correctOptionIds?.includes(id)
+                    return (
+                      <div
+                        key={id}
+                        className={`flex items-start gap-3 p-3.5 rounded-2xl border text-xs sm:text-sm transition-all ${
+                          isCorrect
+                            ? "bg-emerald-100/60 border-emerald-400/80 text-emerald-950 font-bold"
+                            : "bg-slate-50 border-slate-200/80 text-slate-800"
+                        }`}
+                      >
+                        <b className="flex items-center justify-center w-7 h-7 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs font-black shrink-0 shadow-2xs">
+                          {id}
+                        </b>
+                        <span className="flex-1 font-semibold mt-1">{option?.text || "—"}</span>
+                        {isCorrect && (
+                          <em className="not-italic text-[10px] font-black text-emerald-800 bg-emerald-200/80 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
+                            Correct Choice
+                          </em>
+                        )}
+                      </div>
                     )
-                  }
-                >
-                  {selected.status === "ACTIVE" ? "Deactivate Question" : "Activate Question"}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+                  })}
+                </div>
 
-      {/* Confirmation Modal */}
-      {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="relative w-full max-w-[500px] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#FF7A59]" />
-            <div className="p-6 sm:p-8 flex flex-col gap-3 text-xs sm:text-sm pt-8">
-              <h2 className="text-xl font-black text-[#1E3A34] m-0">
-                {confirmAction === "ACTIVE" ? "Activate Question" : "Deactivate Question"}
-              </h2>
-              <p className="text-slate-600 font-medium leading-relaxed m-0">
-                {confirmAction === "ACTIVE"
-                  ? "Are you sure you want to activate this question? Once activated, it will become available for selection in new examination papers."
-                  : "Are you sure you want to deactivate this question? It will no longer be available for selection in new examination papers."}
-              </p>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex-none">
-              <button
-                className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
-                disabled={saving}
-                onClick={() => setConfirmAction(null)}
-              >
-                Cancel
-              </button>
-              <button
-                className={`h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white transition-all cursor-pointer shadow-md disabled:opacity-50 border-none ${
-                  confirmAction === "ACTIVE"
-                    ? "bg-[#176B58] hover:bg-[#125445] shadow-[#176B58]/20"
-                    : "bg-rose-600 hover:bg-rose-700 shadow-rose-600/20"
-                }`}
-                disabled={saving}
-                onClick={() => void updateStatus()}
-              >
-                {saving
-                  ? "Saving..."
-                  : confirmAction === "ACTIVE"
-                    ? "Confirm Activation"
-                    : "Confirm Deactivation"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Import Questions Modal */}
-      {importOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="relative w-full max-w-[720px] max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#FF7A59]" />
-            <button
-              className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors text-xl font-bold cursor-pointer border-none z-10"
-              onClick={() => setImportOpen(false)}
-            >
-              ×
-            </button>
-
-            <div className="p-6 sm:p-8 overflow-y-auto min-h-0 flex-1 flex flex-col gap-5 text-xs sm:text-sm pt-8">
-              <h2 className="text-2xl font-black text-[#1E3A34] m-0">Import Questions</h2>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  className="text-xs font-extrabold text-[#176B58] hover:underline cursor-pointer bg-transparent border-none p-0"
-                  onClick={() => void download("pdf")}
-                >
-                  📥 Download PDF Template
-                </button>
-                <span className="text-slate-300">•</span>
-                <button
-                  className="text-xs font-extrabold text-[#176B58] hover:underline cursor-pointer bg-transparent border-none p-0"
-                  onClick={() => void download("csv")}
-                >
-                  📥 Download CSV Template
-                </button>
-                <span className="text-slate-300">•</span>
-                <button
-                  className="text-xs font-extrabold text-[#176B58] hover:underline cursor-pointer bg-transparent border-none p-0"
-                  onClick={() => void download("xlsx")}
-                >
-                  📥 Download XLSX Template
-                </button>
+                {selected.explanation && (
+                  <div className="p-4 bg-blue-50/70 border border-blue-200/80 rounded-2xl text-xs sm:text-sm text-blue-950">
+                    <b className="block font-black text-blue-900 mb-1">Explanation</b>
+                    <p className="text-blue-800 font-medium m-0">{selected.explanation}</p>
+                  </div>
+                )}
               </div>
 
-              <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[#00D084]/40 hover:border-[#00D084] rounded-3xl bg-emerald-50/40 hover:bg-emerald-50/70 text-[#1E3A34] font-bold cursor-pointer transition-all text-xs sm:text-sm text-center">
-                <span className="text-2xl mb-2">📄</span>
-                <span>{file ? file.name : "Choose or drag a CSV, XLSX, or PDF file"}</span>
-                <input
-                  type="file"
-                  accept=".csv,.xlsx,.pdf"
-                  className="hidden"
-                  onChange={(e) =>
-                    e.target.files?.[0] && void parse(e.target.files[0])
-                  }
-                />
-              </label>
-
-              {processing && (
-                <p className="text-xs font-extrabold text-[#057A55] animate-pulse text-center m-0">
-                  Processing question template file...
-                </p>
-              )}
-
-              {preview && (
-                <>
-                  <div className="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200/60 text-xs font-extrabold text-[#1E3A34]">
-                    Total: {preview.total || 0} · Valid: {preview.valid?.length || 0} · Invalid:{" "}
-                    {preview.invalid?.length || 0} · Duplicate: {preview.duplicates?.length || 0}
-                  </div>
-
-                  <div className="max-h-60 overflow-y-auto flex flex-col gap-2 p-1">
-                    {[
-                      ...(preview.valid || []),
-                      ...(preview.invalid || []),
-                      ...(preview.duplicates || []),
-                    ].map((r: any) => (
-                      <article
-                        className="p-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 flex flex-col gap-1 text-xs"
-                        key={`${r.rowNumber}-${r.questionText}`}
-                      >
-                        <b className="font-extrabold text-[#1E3A34]">Row {r.rowNumber}</b>
-                        <strong className="font-semibold text-slate-800">{r.questionText}</strong>
-                        <span className="text-[#057A55] font-bold">
-                          {r.result || r.errors?.join("; ") || "Valid"}
-                        </span>
-                      </article>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex-none">
-              <button
-                className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
-                onClick={() => setImportOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] shadow-md shadow-[#176B58]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer border-none"
-                disabled={processing || !preview?.valid?.length}
-                onClick={() => void confirmImport()}
-              >
-                Confirm Import
-              </button>
+              <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex-none">
+                <button
+                  className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
+                  onClick={() => setSelected(null)}
+                >
+                  Close
+                </button>
+                {selected.status !== "PUBLISHED" && (
+                  <button
+                    className={`h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white transition-all cursor-pointer shadow-md disabled:opacity-50 border-none ${
+                      selected.status === "ACTIVE"
+                        ? "bg-rose-600 hover:bg-rose-700 shadow-rose-600/20"
+                        : "bg-[#176B58] hover:bg-[#125445] shadow-[#176B58]/20"
+                    }`}
+                    disabled={saving}
+                    onClick={() =>
+                      setConfirmAction(
+                        selected.status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
+                      )
+                    }
+                  >
+                    {selected.status === "ACTIVE" ? "Deactivate Question" : "Activate Question"}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Confirmation Modal */}
+        {confirmAction && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
+            <div className="relative w-full max-w-[500px] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#FF7A59]" />
+              <div className="p-6 sm:p-8 flex flex-col gap-3 text-xs sm:text-sm pt-8">
+                <h2 className="text-xl font-black text-[#1E3A34] m-0">
+                  {confirmAction === "ACTIVE" ? "Activate Question" : "Deactivate Question"}
+                </h2>
+                <p className="text-slate-600 font-medium leading-relaxed m-0">
+                  {confirmAction === "ACTIVE"
+                    ? "Are you sure you want to activate this question? Once activated, it will become available for selection in new examination papers."
+                    : "Are you sure you want to deactivate this question? It will no longer be available for selection in new examination papers."}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex-none">
+                <button
+                  className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
+                  disabled={saving}
+                  onClick={() => setConfirmAction(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className={`h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white transition-all cursor-pointer shadow-md disabled:opacity-50 border-none ${
+                    confirmAction === "ACTIVE"
+                      ? "bg-[#176B58] hover:bg-[#125445] shadow-[#176B58]/20"
+                      : "bg-rose-600 hover:bg-rose-700 shadow-rose-600/20"
+                  }`}
+                  disabled={saving}
+                  onClick={() => void updateStatus()}
+                >
+                  {saving
+                    ? "Saving..."
+                    : confirmAction === "ACTIVE"
+                      ? "Confirm Activation"
+                      : "Confirm Deactivation"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Import Questions Modal */}
+        {importOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
+            <div className="relative w-full max-w-[720px] max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#FF7A59]" />
+              <button
+                className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors text-xl font-bold cursor-pointer border-none z-10"
+                onClick={() => setImportOpen(false)}
+              >
+                ×
+              </button>
+
+              <div className="p-6 sm:p-8 overflow-y-auto min-h-0 flex-1 flex flex-col gap-5 text-xs sm:text-sm pt-8">
+                <h2 className="text-2xl font-black text-[#1E3A34] m-0">Import Questions</h2>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    className="text-xs font-extrabold text-[#176B58] hover:underline cursor-pointer bg-transparent border-none p-0"
+                    onClick={() => void download("pdf")}
+                  >
+                    📥 Download PDF Template
+                  </button>
+                  <span className="text-slate-300">•</span>
+                  <button
+                    className="text-xs font-extrabold text-[#176B58] hover:underline cursor-pointer bg-transparent border-none p-0"
+                    onClick={() => void download("csv")}
+                  >
+                    📥 Download CSV Template
+                  </button>
+                  <span className="text-slate-300">•</span>
+                  <button
+                    className="text-xs font-extrabold text-[#176B58] hover:underline cursor-pointer bg-transparent border-none p-0"
+                    onClick={() => void download("xlsx")}
+                  >
+                    📥 Download XLSX Template
+                  </button>
+                </div>
+
+                <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[#00D084]/40 hover:border-[#00D084] rounded-3xl bg-emerald-50/40 hover:bg-emerald-50/70 text-[#1E3A34] font-bold cursor-pointer transition-all text-xs sm:text-sm text-center">
+                  <span className="text-2xl mb-2">📄</span>
+                  <span>{file ? file.name : "Choose or drag a CSV, XLSX, or PDF file"}</span>
+                  <input
+                    type="file"
+                    accept=".csv,.xlsx,.pdf"
+                    className="hidden"
+                    onChange={(e) =>
+                      e.target.files?.[0] && void parse(e.target.files[0])
+                    }
+                  />
+                </label>
+
+                {processing && (
+                  <p className="text-xs font-extrabold text-[#057A55] animate-pulse text-center m-0">
+                    Processing question template file...
+                  </p>
+                )}
+
+                {preview && (
+                  <>
+                    <div className="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200/60 text-xs font-extrabold text-[#1E3A34]">
+                      Total: {preview.total || 0} · Valid: {preview.valid?.length || 0} · Invalid:{" "}
+                      {preview.invalid?.length || 0} · Duplicate: {preview.duplicates?.length || 0}
+                    </div>
+
+                    <div className="max-h-60 overflow-y-auto flex flex-col gap-2 p-1">
+                      {[
+                        ...(preview.valid || []),
+                        ...(preview.invalid || []),
+                        ...(preview.duplicates || []),
+                      ].map((r: any) => (
+                        <article
+                          className="p-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 flex flex-col gap-1 text-xs"
+                          key={`${r.rowNumber}-${r.questionText}`}
+                        >
+                          <b className="font-extrabold text-[#1E3A34]">Row {r.rowNumber}</b>
+                          <strong className="font-semibold text-slate-800">{r.questionText}</strong>
+                          <span className="text-[#057A55] font-bold">
+                            {r.result || r.errors?.join("; ") || "Valid"}
+                          </span>
+                        </article>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex-none">
+                <button
+                  className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
+                  onClick={() => setImportOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] shadow-md shadow-[#176B58]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer border-none"
+                  disabled={processing || !preview?.valid?.length}
+                  onClick={() => void confirmImport()}
+                >
+                  Confirm Import
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

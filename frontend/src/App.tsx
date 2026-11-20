@@ -1179,7 +1179,14 @@ export default function App() {
           ) : admin &&
             active === "Question bank" &&
             viewState === "DASHBOARD" ? (
-            <QuestionBankPage Icon={Icon} PageHead={PageHead} />
+            <QuestionBankPage
+              Icon={Icon}
+              PageHead={PageHead}
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
           ) : admin && active === "Paper sets" && viewState === "DASHBOARD" ? (
             <PaperSetsPage Icon={Icon} PageHead={PageHead} />
           ) : admin &&
