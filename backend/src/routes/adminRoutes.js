@@ -1618,10 +1618,19 @@ router.get("/questions", authenticate, adminOnly, async (req, res) => {
   });
 });
 
+async function findQuestion(id) {
+  let question = null;
+  if (require("mongoose").isValidObjectId(id)) {
+    question = await Question.findById(id);
+  }
+  if (!question) {
+    question = await Question.findOne({ questionId: String(id) });
+  }
+  return question;
+}
+
 router.get("/questions/:id", authenticate, adminOnly, async (req, res) => {
-  if (!require("mongoose").isValidObjectId(req.params.id))
-    return res.status(400).json({ error: "Invalid question ID" });
-  const question = await Question.findById(req.params.id).lean();
+  const question = await findQuestion(req.params.id);
   if (!question) return res.status(404).json({ error: "Question not found" });
   res.json({ question: questionView(question) });
 });
@@ -1631,14 +1640,12 @@ router.patch(
   authenticate,
   adminOnly,
   async (req, res) => {
-    if (!require("mongoose").isValidObjectId(req.params.id))
-      return res.status(400).json({ error: "Invalid question ID" });
     const status = String(req.body.status || "").toUpperCase();
     if (!["ACTIVE", "INACTIVE"].includes(status))
       return res
         .status(400)
         .json({ error: "Status must be ACTIVE or INACTIVE" });
-    const question = await Question.findById(req.params.id);
+    const question = await findQuestion(req.params.id);
     if (!question) return res.status(404).json({ error: "Question not found" });
     if (status === "ACTIVE") {
       const options = Array.isArray(question.options)
@@ -1712,10 +1719,8 @@ router.patch(
   },
 );
 
-router.put("/questions/:id", authenticate, adminOnly, async (req, res) => {
-  if (!require("mongoose").isValidObjectId(req.params.id))
-    return res.status(400).json({ error: "Invalid question ID" });
-  const question = await Question.findById(req.params.id);
+const handleQuestionUpdate = async (req, res) => {
+  const question = await findQuestion(req.params.id);
   if (!question) return res.status(404).json({ error: "Question not found" });
   if (question.status === "ACTIVE" || question.status === "PUBLISHED") {
     return res.status(400).json({ error: "Only draft or inactive questions can be edited." });
@@ -1766,7 +1771,10 @@ router.put("/questions/:id", authenticate, adminOnly, async (req, res) => {
 
   await question.save();
   res.json({ updated: true, question: questionView(question) });
-});
+};
+
+router.put("/questions/:id", authenticate, adminOnly, handleQuestionUpdate);
+router.patch("/questions/:id", authenticate, adminOnly, handleQuestionUpdate);
 
 router.post("/questions", authenticate, adminOnly, async (req, res) => {
   const questionText = String(req.body.questionText || "").trim();
