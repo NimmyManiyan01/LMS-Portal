@@ -499,59 +499,69 @@ export function CodingExamPlayer({
                       )}
 
                       {/* Test Case Execution Table */}
-                      {(evalResult.evalResult?.testResults || evalResult.testResults) && (
-                        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
-                          <table className="w-full text-left text-xs font-mono border-collapse">
-                            <thead>
-                              <tr className="bg-[#1E3A34]/5 border-b border-[#1E3A34]/10 text-[#1E3A34] font-sans font-black text-[10px] uppercase">
-                                <th className="px-4 py-2.5">Test Case</th>
-                                <th className="px-4 py-2.5">Result</th>
-                                <th className="px-4 py-2.5">Input</th>
-                                <th className="px-4 py-2.5">Expected Output</th>
-                                <th className="px-4 py-2.5">Actual Output</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                              {(evalResult.evalResult?.testResults || evalResult.testResults).map((tr: any, idx: number) => {
-                                const status = tr.status || (tr.passed ? "ACCEPTED" : "WRONG_ANSWER")
-                                const statusClass =
-                                  status === "ACCEPTED"
-                                    ? "bg-emerald-100 text-emerald-800"
-                                    : status === "WRONG_ANSWER"
-                                      ? "bg-rose-100 text-rose-800"
-                                      : status === "TIME_LIMIT_EXCEEDED"
-                                        ? "bg-purple-100 text-purple-800"
-                                        : status === "COMPILATION_ERROR"
-                                          ? "bg-amber-100 text-amber-800"
-                                          : status === "RUNTIME_ERROR"
-                                            ? "bg-rose-200 text-rose-900"
-                                            : "bg-slate-200 text-slate-800"
-                                return (
-                                <tr key={idx} className={tr.passed ? "bg-emerald-50/40" : "bg-rose-50/40"}>
-                                  <td className="px-4 py-2.5 font-bold text-[#1E3A34] font-sans">
-                                    Sample Test {idx + 1} {tr.isHidden && "(Hidden)"}
-                                    {tr.languageVersion && <small className="block text-[9px] opacity-70 font-mono">{tr.languageVersion}</small>}
-                                  </td>
-                                  <td className="px-4 py-2.5">
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${statusClass}`}>
-                                      {status.replace(/_/g, " ")}
-                                    </span>
-                                  </td>
-                                  <td className="px-4 py-2.5 text-slate-600">
-                                    {tr.isHidden ? "—" : (tr.input || "(empty)")}
-                                  </td>
-                                  <td className="px-4 py-2.5 text-emerald-800 font-bold">
-                                    {tr.isHidden ? "—" : (tr.expectedOutput || "(empty)")}
-                                  </td>
-                                  <td className="px-4 py-2.5 text-slate-800 font-bold">
-                                    {tr.isHidden ? (tr.passed ? "Match" : "Mismatch") : (tr.actualOutput || "(empty)")}
-                                  </td>
+                      {(() => {
+                        const results = evalResult.evalResult?.testResults || evalResult.testResults || [];
+                        if (results.length === 0) {
+                          return (
+                            <div className="p-4 rounded-2xl border border-slate-200 bg-white text-center text-xs font-bold text-slate-500">
+                              No test cases configured.
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
+                            <table className="w-full text-left text-xs font-mono border-collapse">
+                              <thead>
+                                <tr className="bg-[#1E3A34]/5 border-b border-[#1E3A34]/10 text-[#1E3A34] font-sans font-black text-[10px] uppercase">
+                                  <th className="px-4 py-2.5">Test Case</th>
+                                  <th className="px-4 py-2.5">Result</th>
+                                  <th className="px-4 py-2.5">Input</th>
+                                  <th className="px-4 py-2.5">Expected Output</th>
+                                  <th className="px-4 py-2.5">Actual Output</th>
                                 </tr>
-                              )})}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
+                              </thead>
+                              <tbody className="divide-y divide-slate-100">
+                                {results.map((tr: any, idx: number) => {
+                                  const status = tr.status || (tr.passed ? "ACCEPTED" : "WRONG_ANSWER");
+                                  const statusClass =
+                                    status === "ACCEPTED"
+                                      ? "bg-emerald-100 text-emerald-800"
+                                      : status === "WRONG_ANSWER"
+                                        ? "bg-rose-100 text-rose-800"
+                                        : status === "TIME_LIMIT_EXCEEDED"
+                                          ? "bg-purple-100 text-purple-800"
+                                          : status === "COMPILATION_ERROR"
+                                            ? "bg-amber-100 text-amber-800"
+                                            : status === "RUNTIME_ERROR"
+                                              ? "bg-rose-200 text-rose-900"
+                                              : "bg-slate-200 text-slate-800";
+                                  return (
+                                    <tr key={idx} className={tr.passed ? "bg-emerald-50/40" : "bg-rose-50/40"}>
+                                      <td className="px-4 py-2.5 font-bold text-[#1E3A34] font-sans">
+                                        Test Case {idx + 1} {tr.isHidden && "(Hidden)"}
+                                      </td>
+                                      <td className="px-4 py-2.5">
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${statusClass}`}>
+                                          {status.replace(/_/g, " ")}
+                                        </span>
+                                      </td>
+                                      <td className="px-4 py-2.5 text-slate-600">
+                                        {tr.isHidden ? "—" : (tr.input || "(empty)")}
+                                      </td>
+                                      <td className="px-4 py-2.5 text-emerald-800 font-bold">
+                                        {tr.isHidden ? "—" : (tr.expectedOutput || "(empty)")}
+                                      </td>
+                                      <td className="px-4 py-2.5 text-slate-800 font-bold">
+                                        {tr.isHidden ? (tr.passed ? "Match" : "Mismatch") : (tr.actualOutput || "(empty)")}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 </>
