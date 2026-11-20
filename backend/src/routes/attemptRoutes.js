@@ -323,6 +323,10 @@ router.post("/:attemptId/run-code", authenticate, async (req, res) => {
     ? [{ id: "custom", input, expectedOutput: "", isHidden: false }]
     : (question.testCases || []).filter((tc) => !tc.isHidden);
 
+  if (!input && testCasesToRun.length === 0) {
+    return res.status(400).json({ error: `Question ${questionId} has no configured public test cases. Please report to admin.` });
+  }
+
   const evalResult = await evaluateCode({
     code,
     language: language || "javascript",
@@ -356,8 +360,9 @@ router.post("/:attemptId/submit-code", authenticate, async (req, res) => {
   const question = await Question.findById(questionId).lean();
   if (!question) return res.status(404).json({ error: "Question not found" });
 
-  const evalResult = await evaluateCode({
-    code,
+  if (!question.testCases || question.testCases.length === 0) {
+    return res.status(400).json({ error: `Question ${questionId} has no configured test cases. Please report to admin.` });
+  }
     language: language || "javascript",
     testCases: question.testCases || [],
     timeLimitSeconds: question.timeLimitSeconds || 2,
