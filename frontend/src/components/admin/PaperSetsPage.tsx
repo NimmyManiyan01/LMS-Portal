@@ -575,7 +575,7 @@ export function PaperSetsPage({
       {/* Create / Edit Paper Set Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
-          <div className="relative w-full max-w-[1200px] max-h-[90vh] flex flex-col bg-white rounded-xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
+          <div className="relative w-[95%] sm:w-[90%] max-w-[1100px] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
             <div className="flex-none flex items-center justify-between gap-4 p-5 sm:px-7 sm:py-6 border-b border-slate-100 bg-slate-50/50">
               <h2 className="text-xl font-bold text-slate-900">
                 {editingId ? "Edit Paper Set" : "Create Paper Set"}
@@ -589,9 +589,8 @@ export function PaperSetsPage({
               </button>
             </div>
 
-            <div className="p-4 sm:p-6 overflow-y-auto min-h-0 flex-1 text-xs sm:text-sm">
-              <div className="grid grid-cols-1 gap-6 lg:gap-7">
-                <div className="flex flex-col gap-3.5">
+            <div className="p-4 sm:p-6 overflow-y-auto min-h-0 flex-1 text-xs sm:text-sm space-y-6">
+              <div className="flex flex-col gap-3.5">
               <label className="flex flex-col gap-1.5 font-semibold text-slate-700">
                 Paper Set Name
                 <input
@@ -810,7 +809,6 @@ export function PaperSetsPage({
                 </div>
               </div>
             </div>
-          </div>
 
             <div className="flex-none flex flex-wrap items-center justify-between gap-3 p-4 sm:px-6 sm:py-4 border-t border-slate-100 bg-slate-50/50">
               <span className="text-xs font-semibold text-slate-600">Automatic allocation · {form.totalMarks || 0} total marks</span>
