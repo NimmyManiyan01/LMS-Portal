@@ -338,13 +338,6 @@ export function PaperSetsPage({
           sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
         }`}
       >
-        <PageHead
-          admin
-          student={null}
-          title="Paper Sets"
-          description="Build, validate, and publish examination paper sets."
-          showCreateAction={false}
-        />
 
         {/* Hero Header Glass Card matching Admin Overview */}
         <div className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-6 sm:p-7">

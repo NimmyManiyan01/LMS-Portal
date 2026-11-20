@@ -202,14 +202,6 @@ export function QuestionBankPage({
           sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
         }`}
       >
-        <PageHead
-          admin
-          student={null}
-          title="Question Bank"
-          description="Create, organize, and manage examination questions."
-          showCreateAction={false}
-        />
-
         {/* Hero Header Glass Card matching Admin Overview */}
         <div className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-6 sm:p-7">
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
@@ -227,7 +219,7 @@ export function QuestionBankPage({
                 Question Management
               </h2>
               <p className="text-xs sm:text-sm text-[#057A55] font-bold m-0 leading-relaxed max-w-xl">
-                Import, audit, and organize structured examination questions from verified templates.
+                Manage, import, organize and review examination questions.
               </p>
             </div>
             <button

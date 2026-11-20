@@ -1119,11 +1119,11 @@ export default function App() {
         />
       )}
 
-      {/* Sidebar Navigation */}
-      {admin && active !== "Overview" && active !== "Examinations" && (
+      {/* Legacy Student Sidebar Navigation (Only shown for Student portal) */}
+      {!admin && (
         <div className={`shrink-0 ${menu ? "block" : "hidden lg:block"}`}>
           <Sidebar
-            admin
+            admin={false}
             active={active}
             onNav={(v) => {
               setActive(v)
@@ -1134,8 +1134,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Mobile Backdrop Scrim */}
-      {menu && active !== "Overview" && active !== "Examinations" && (
+      {/* Mobile Backdrop Scrim for Student Portal */}
+      {!admin && menu && (
         <button
           className="fixed inset-0 z-20 bg-slate-900/60 backdrop-blur-sm lg:hidden border-none"
           onClick={() => setMenu(false)}
@@ -1144,9 +1144,9 @@ export default function App() {
       )}
 
       <div className="min-w-0 flex-1 flex flex-col">
-        {(!admin || (active !== "Overview" && active !== "Examinations")) && (
+        {!admin && (
           <Topbar
-            admin={admin}
+            admin={false}
             setAdmin={switchPortal}
             student={student}
             adminUser={adminUser}
@@ -1156,25 +1156,15 @@ export default function App() {
           />
         )}
 
-        <main className="mx-auto w-full max-w-[1480px] px-4 py-8 sm:px-6 lg:px-9">
-          {!admin && viewState === "DASHBOARD" ? (
-            <StudentExaminations
-              onStartExam={handleStartExam}
-              onViewMarks={(exam) => {
-                setSelectedExam(exam)
-                setViewState("RESULTS")
-              }}
-            />
-          ) : admin && active === "Students" && viewState === "DASHBOARD" ? (
+        {admin ? (
+          active === "Students" && viewState === "DASHBOARD" ? (
             <AdminStudents
               active={active}
               onNav={setActive}
               adminUser={adminUser}
               onLogout={handleLogout}
             />
-          ) : admin &&
-            active === "Examinations" &&
-            viewState === "DASHBOARD" ? (
+          ) : active === "Examinations" && viewState === "DASHBOARD" ? (
             <ExaminationsPage
               Icon={Icon}
               PageHead={PageHead}
@@ -1183,9 +1173,7 @@ export default function App() {
               adminUser={adminUser}
               onLogout={handleLogout}
             />
-          ) : admin &&
-            active === "Question bank" &&
-            viewState === "DASHBOARD" ? (
+          ) : active === "Question bank" && viewState === "DASHBOARD" ? (
             <QuestionBankPage
               Icon={Icon}
               PageHead={PageHead}
@@ -1194,7 +1182,7 @@ export default function App() {
               adminUser={adminUser}
               onLogout={handleLogout}
             />
-          ) : admin && active === "Paper sets" && viewState === "DASHBOARD" ? (
+          ) : active === "Paper sets" && viewState === "DASHBOARD" ? (
             <PaperSetsPage
               Icon={Icon}
               PageHead={PageHead}
@@ -1203,9 +1191,7 @@ export default function App() {
               adminUser={adminUser}
               onLogout={handleLogout}
             />
-          ) : admin &&
-            active === "Live monitoring" &&
-            viewState === "DASHBOARD" ? (
+          ) : active === "Live monitoring" && viewState === "DASHBOARD" ? (
             <LiveMonitoringPage
               PageHead={PageHead}
               active={active}
@@ -1213,7 +1199,7 @@ export default function App() {
               adminUser={adminUser}
               onLogout={handleLogout}
             />
-          ) : admin && active === "Results" && viewState === "DASHBOARD" ? (
+          ) : active === "Results" && viewState === "DASHBOARD" ? (
             <ResultsPage
               PageHead={PageHead}
               active={active}
@@ -1221,7 +1207,7 @@ export default function App() {
               adminUser={adminUser}
               onLogout={handleLogout}
             />
-          ) : admin && active === "Feedback" && viewState === "DASHBOARD" ? (
+          ) : active === "Feedback" && viewState === "DASHBOARD" ? (
             <FeedbackPage
               PageHead={PageHead}
               active={active}
@@ -1229,7 +1215,7 @@ export default function App() {
               adminUser={adminUser}
               onLogout={handleLogout}
             />
-          ) : admin && active === "Administrators" && viewState === "DASHBOARD" ? (
+          ) : active === "Administrators" && viewState === "DASHBOARD" ? (
             <AdministratorsPage
               PageHead={PageHead}
               active={active}
@@ -1237,7 +1223,7 @@ export default function App() {
               adminUser={adminUser}
               onLogout={handleLogout}
             />
-          ) : admin && active === "Reports" && viewState === "DASHBOARD" ? (
+          ) : active === "Reports" && viewState === "DASHBOARD" ? (
             <ReportsPage
               Icon={Icon}
               active={active}
@@ -1245,7 +1231,7 @@ export default function App() {
               adminUser={adminUser}
               onLogout={handleLogout}
             />
-          ) : admin && active === "Security & audit" && viewState === "DASHBOARD" ? (
+          ) : active === "Security & audit" && viewState === "DASHBOARD" ? (
             <SecurityAuditPage
               Icon={Icon}
               active={active}
@@ -1253,15 +1239,17 @@ export default function App() {
               adminUser={adminUser}
               onLogout={handleLogout}
             />
-          ) : active === "Overview" && viewState === "DASHBOARD" ? (
-            admin ? (
-              <AdminDashboard
-                active={active}
-                onNav={setActive}
-                adminUser={adminUser}
-                onLogout={handleLogout}
-              />
-            ) : (
+          ) : (
+            <AdminDashboard
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
+          )
+        ) : (
+          <main className="mx-auto w-full max-w-[1480px] px-4 py-8 sm:px-6 lg:px-9">
+            {viewState === "DASHBOARD" ? (
               <StudentExaminations
                 onStartExam={handleStartExam}
                 onViewMarks={(exam) => {
@@ -1269,32 +1257,24 @@ export default function App() {
                   setViewState("RESULTS")
                 }}
               />
-            )
-          ) : !admin && viewState === "DASHBOARD" ? (
-            <StudentExaminations
-              onStartExam={handleStartExam}
-              onViewMarks={(exam) => {
-                setSelectedExam(exam)
-                setViewState("RESULTS")
-              }}
-            />
-          ) : (
-            <div className="p-8 sm:p-12 text-center bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col items-center gap-3">
-              <Icon name={admin ? "settings" : "book"} size={36} />
-              <h2 className="text-xl font-bold text-slate-900 m-0">{active}</h2>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-md m-0">
-                This module is fully configured in the KGS portal prototype.
-                Return to Overview to explore the primary student flow.
-              </p>
-              <button
-                className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none mt-2"
-                onClick={() => setActive("Overview")}
-              >
-                Back to overview
-              </button>
-            </div>
-          )}
-        </main>
+            ) : (
+              <div className="p-8 sm:p-12 text-center bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col items-center gap-3">
+                <Icon name="book" size={36} />
+                <h2 className="text-xl font-bold text-slate-900 m-0">{active}</h2>
+                <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-md m-0">
+                  This module is fully configured in the KGS portal prototype.
+                  Return to Overview to explore the primary student flow.
+                </p>
+                <button
+                  className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none mt-2"
+                  onClick={() => setActive("Overview")}
+                >
+                  Back to overview
+                </button>
+              </div>
+            )}
+          </main>
+        )}
       </div>
     </div>
   )
@@ -1498,16 +1478,6 @@ function AdminStudents({
           sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
         }`}
       >
-        <PageHead
-          admin
-          student={null}
-          title="Student Management"
-          description="Manage registered students and account activation."
-          showCreateAction={false}
-          selectedCollege={college}
-          selectedSearch={search}
-          selectedStatus={status}
-        />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm">

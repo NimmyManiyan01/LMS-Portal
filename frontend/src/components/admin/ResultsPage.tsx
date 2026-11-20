@@ -203,11 +203,26 @@ export function ResultsPage({
           sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
         }`}
       >
-        <PageHead
-          eyebrow="ADMINISTRATION"
-          title="Results"
-          subtitle="Review finalized examination results and release statuses."
-        />
+        {/* Hero Header Glass Card matching Admin Overview */}
+        <div className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-6 sm:p-7">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-0.5 rounded-full bg-[#00D084]/20 text-[#057A55] text-[10px] font-black uppercase tracking-widest border border-[#00D084]/30">
+                Flux Suite
+              </span>
+              <span className="text-xs font-bold text-[#1E3A34]/80">
+                Performance Analytics
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#1E3A34] tracking-tight leading-tight m-0">
+              Results &amp; Analytics
+            </h2>
+            <p className="text-xs sm:text-sm text-[#057A55] font-bold m-0 leading-relaxed max-w-xl">
+              Review finalized examination results, score distributions, and publish result releases.
+            </p>
+          </div>
+        </div>
 
       {/* KPI Stats Grid */}
       <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6">

@@ -94,11 +94,6 @@ export function LiveMonitoringPage({
           sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
         }`}
       >
-        <PageHead
-          eyebrow="ADMINISTRATION"
-          title="Live monitoring"
-          subtitle="Review active examination attempts and recorded integrity incidents."
-        />
 
         {/* Hero Header Glass Card */}
         <div className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-6 sm:p-7">
