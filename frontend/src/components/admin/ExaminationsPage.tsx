@@ -908,25 +908,6 @@ export function ExaminationsPage({
                 </small>
               </section>
 
-              <label className="flex items-center gap-2.5 text-xs sm:text-sm font-extrabold text-[#1E3A34] cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={form.resultReleasePolicy === "IMMEDIATE"}
-                  disabled={Boolean(editing)}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      resultReleasePolicy: e.target.checked ? "IMMEDIATE" : "ADMIN_CONTROLLED",
-                    })
-                  }
-                  className="h-4 w-4 rounded border-slate-300 text-[#057A55] focus:ring-[#00D084] focus:ring-2 cursor-pointer disabled:cursor-not-allowed"
-                />
-                <span>
-                  Show Marks Immediately After Submission
-                  {editing && <small className="text-[#1E3A34]/60 font-normal ml-1">Existing examination policy is preserved.</small>}
-                </span>
-              </label>
-
               <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-extrabold text-[#1E3A34]">
                 Instructions
                 <textarea

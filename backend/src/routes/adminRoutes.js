@@ -589,10 +589,7 @@ router.post("/exams", authenticate, adminOnly, async (req, res) => {
       readinessRequirements: req.body.readinessRequirements,
       integrityProfile: req.body.integrityProfile,
       integrityRules: req.body.integrityRules,
-      resultReleasePolicy:
-        req.body.resultReleasePolicy === "IMMEDIATE"
-          ? "IMMEDIATE"
-          : "ADMIN_CONTROLLED",
+      resultReleasePolicy: "ADMIN_CONTROLLED",
       status: "DRAFT",
       createdBy: req.admin?._id,
     });

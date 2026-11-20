@@ -134,8 +134,8 @@ async function finalizeAttempt({
             reasonDetail,
             scoringVersion: Number(scheme.scoringVersion || 1),
             // Scores are calculated against the persisted answer key at finalization
-            // and are available to the candidate immediately after submission.
-            releaseStatus: "RELEASED",
+            // and require administrator publication to be released to candidates.
+            releaseStatus: "PENDING",
             submittedAt: finalizedAt,
             receiptToken,
             finalizedAt,
