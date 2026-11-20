@@ -1006,12 +1006,12 @@ export function QuestionBankPage({
                               <label className="flex items-center gap-1.5 text-xs font-bold cursor-pointer">
                                 <input
                                   type="checkbox"
-                                  checked={Boolean(tc.isHidden)}
-                                  onChange={(e) => updateTestCase(index, "isHidden", e.target.checked)}
-                                  className="rounded text-[#176B58] focus:ring-0"
+                                  checked={!Boolean(tc.isHidden)}
+                                  onChange={(e) => updateTestCase(index, "isHidden", !e.target.checked)}
+                                  className="rounded text-[#176B58] focus:ring-0 cursor-pointer"
                                 />
-                                <span className={tc.isHidden ? "text-amber-800 font-black" : "text-emerald-800 font-bold"}>
-                                  {tc.isHidden ? "Hidden Test Case" : "Sample Test Case"}
+                                <span className={!tc.isHidden ? "text-emerald-800 font-black" : "text-amber-800 font-bold"}>
+                                  {!tc.isHidden ? "Sample Test Case (Visible to Students)" : "Hidden Test Case (Evaluated Secretly)"}
                                 </span>
                               </label>
                               <button
