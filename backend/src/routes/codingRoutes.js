@@ -6,9 +6,16 @@ const PaperSet = require("../models/PaperSet");
 const Attempt = require("../models/Attempt");
 const Answer = require("../models/Answer");
 const FinalResult = require("../models/FinalResult");
-const { authenticate, adminOnly } = require("../middleware/auth");
+const { authenticate } = require("../middleware/auth");
 const { evaluateCode } = require("../services/codeCompilerService");
 const { finalizeAttempt } = require("../services/finalizeAttempt");
+
+const adminOnly = (req, res, next) => {
+  if (!req.admin || req.auth?.role !== "ADMIN") {
+    return res.status(403).json({ error: "Administrator access required" });
+  }
+  next();
+};
 
 function studentMatch(student) {
   if (!student) return null;
@@ -257,7 +264,7 @@ router.get("/admin/coding/monitoring", authenticate, adminOnly, async (req, res)
 });
 
 // 15. GET /api/admin/coding/results — Retrieve coding results
-router.get("/admin/coding/results", authenticate, adminOnly, async (req, res) => {
+router.get("/api/admin/coding/results", authenticate, adminOnly, async (req, res) => {
   const results = await FinalResult.find()
     .populate("examId", "title code")
     .populate("studentId", "fullName studentId college")
