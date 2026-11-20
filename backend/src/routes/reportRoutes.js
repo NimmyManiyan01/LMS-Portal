@@ -265,6 +265,22 @@ async function buildWorkbook(filters = {}) {
 
   return workbook;
 }
+router.get(
+  "/exports",
+  ...requirePermission("reports:read"),
+  async (req, res) => {
+    try {
+      const exports = await ReportExport.find()
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .lean()
+      res.json({ exports })
+    } catch (error) {
+      res.status(500).json({ error: "Unable to list report exports." })
+    }
+  },
+)
+
 router.post(
   "/exports",
   ...requirePermission("reports:read"),
@@ -298,10 +314,7 @@ router.get(
   "/exports/:exportId",
   ...requirePermission("reports:read"),
   async (req, res) => {
-    const record = await ReportExport.findOne({
-      _id: req.params.exportId,
-      requestedBy: req.auth.sub,
-    });
+    const record = await ReportExport.findById(req.params.exportId);
     if (!record) return res.status(404).json({ error: "Export not found" });
     res.json(record);
   },
@@ -312,7 +325,6 @@ router.get(
   async (req, res) => {
     const record = await ReportExport.findOne({
       _id: req.params.exportId,
-      requestedBy: req.auth.sub,
       status: "READY",
     });
     if (!record)
@@ -320,7 +332,7 @@ router.get(
     const workbook = await buildWorkbook(
       record.filters || { examId: record.examId },
     );
-    res.attachment(record.fileName);
+    res.attachment(record.fileName || "kgs-examination-report.xlsx");
     await workbook.xlsx.write(res);
     res.end();
   },
