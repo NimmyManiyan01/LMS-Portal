@@ -46,17 +46,49 @@ export function QuestionBankPage({
 
   const startEdit = (q: any) => {
     setEditForm({
-      questionText: q.questionText || "",
+      questionTitle: q.questionTitle || q.questionText || "",
+      explanation: q.explanation || q.problemDescription || q.questionText || "",
       category: q.category || "General",
       difficulty: q.difficulty || "MEDIUM",
       marks: q.marks || 10,
       inputFormat: q.inputFormat || "",
       outputFormat: q.outputFormat || "",
       constraints: q.constraints || "",
+      allowedLanguages: q.allowedLanguages || ["python", "javascript", "cpp", "java", "c"],
       testCases: q.testCases || [],
-      explanation: q.explanation || "",
     })
     setEditModalOpen(true)
+  }
+
+  const addTestCase = () => {
+    setEditForm({
+      ...editForm,
+      testCases: [
+        ...(editForm.testCases || []),
+        { id: `tc_${Date.now()}`, input: "", expectedOutput: "", isHidden: false, weightage: 1 }
+      ]
+    })
+  }
+
+  const updateTestCase = (index: number, field: string, value: any) => {
+    const updated = [...(editForm.testCases || [])]
+    updated[index] = { ...updated[index], [field]: value }
+    setEditForm({ ...editForm, testCases: updated })
+  }
+
+  const removeTestCase = (index: number) => {
+    const updated = [...(editForm.testCases || [])]
+    updated.splice(index, 1)
+    setEditForm({ ...editForm, testCases: updated })
+  }
+
+  const toggleLanguage = (langKey: string) => {
+    const langs = editForm.allowedLanguages || []
+    if (langs.includes(langKey)) {
+      setEditForm({ ...editForm, allowedLanguages: langs.filter((l: string) => l !== langKey) })
+    } else {
+      setEditForm({ ...editForm, allowedLanguages: [...langs, langKey] })
+    }
   }
 
   const saveEdit = async () => {
@@ -837,7 +869,7 @@ export function QuestionBankPage({
         {/* Edit Question Modal */}
         {editModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
-            <div className="relative w-full max-w-[700px] max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
+            <div className="relative w-full max-w-[760px] max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#FF7A59]" />
               <button
                 className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors text-xl font-bold cursor-pointer border-none z-10"
@@ -846,27 +878,45 @@ export function QuestionBankPage({
                 ×
               </button>
 
-              <div className="p-6 sm:p-8 overflow-y-auto min-h-0 flex-1 flex flex-col gap-4 text-xs sm:text-sm pt-8">
-                <h2 className="text-2xl font-black text-[#1E3A34] m-0">Edit Coding Question</h2>
+              <div className="p-6 sm:p-8 overflow-y-auto min-h-0 flex-1 flex flex-col gap-5 text-xs sm:text-sm pt-8">
+                <div>
+                  <span className="text-xs font-black uppercase tracking-wider text-[#057A55]">Question Editor</span>
+                  <h2 className="text-2xl font-black text-[#1E3A34] m-0 leading-tight">Edit Coding Question</h2>
+                </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  {/* Problem Title */}
                   <div>
-                    <label className="block text-xs font-black uppercase text-[#057A55] mb-1">Problem Title / Statement</label>
-                    <textarea
-                      rows={3}
-                      value={editForm.questionText || ""}
-                      onChange={(e) => setEditForm({ ...editForm, questionText: e.target.value })}
-                      className="w-full p-3 bg-white border border-slate-200 rounded-2xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
+                    <label className="block text-xs font-black uppercase text-[#057A55] mb-1">Problem Title</label>
+                    <input
+                      value={editForm.questionTitle || ""}
+                      onChange={(e) => setEditForm({ ...editForm, questionTitle: e.target.value })}
+                      placeholder="e.g. Sum of Array Elements"
+                      className="w-full h-11 px-4 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold text-[#1E3A34] outline-none focus:border-[#00D084]"
                     />
                   </div>
 
+                  {/* Problem Description */}
+                  <div>
+                    <label className="block text-xs font-black uppercase text-[#057A55] mb-1">Problem Description / Statement</label>
+                    <textarea
+                      rows={4}
+                      value={editForm.explanation || ""}
+                      onChange={(e) => setEditForm({ ...editForm, explanation: e.target.value, questionText: e.target.value })}
+                      placeholder="Detailed problem description..."
+                      className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm font-medium text-[#1E3A34] outline-none focus:border-[#00D084] leading-relaxed"
+                    />
+                  </div>
+
+                  {/* Input Format, Output Format, Constraints, Marks */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-black uppercase text-[#057A55] mb-1">Input Format</label>
                       <input
                         value={editForm.inputFormat || ""}
                         onChange={(e) => setEditForm({ ...editForm, inputFormat: e.target.value })}
-                        className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
+                        placeholder="e.g. N integers"
+                        className="w-full h-11 px-4 bg-white border border-slate-200 rounded-2xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
                       />
                     </div>
                     <div>
@@ -874,7 +924,8 @@ export function QuestionBankPage({
                       <input
                         value={editForm.outputFormat || ""}
                         onChange={(e) => setEditForm({ ...editForm, outputFormat: e.target.value })}
-                        className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
+                        placeholder="e.g. Integer sum"
+                        className="w-full h-11 px-4 bg-white border border-slate-200 rounded-2xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
                       />
                     </div>
                   </div>
@@ -885,7 +936,8 @@ export function QuestionBankPage({
                       <input
                         value={editForm.constraints || ""}
                         onChange={(e) => setEditForm({ ...editForm, constraints: e.target.value })}
-                        className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
+                        placeholder="e.g. 1 <= N <= 100000"
+                        className="w-full h-11 px-4 bg-white border border-slate-200 rounded-2xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
                       />
                     </div>
                     <div>
@@ -894,8 +946,108 @@ export function QuestionBankPage({
                         type="number"
                         value={editForm.marks || 10}
                         onChange={(e) => setEditForm({ ...editForm, marks: Number(e.target.value) })}
-                        className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
+                        className="w-full h-11 px-4 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-[#1E3A34] outline-none focus:border-[#00D084]"
                       />
+                    </div>
+                  </div>
+
+                  {/* Supported Programming Languages */}
+                  <div>
+                    <label className="block text-xs font-black uppercase text-[#057A55] mb-2">Supported Programming Languages</label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { key: "python", label: "Python 3" },
+                        { key: "javascript", label: "JavaScript (Node.js)" },
+                        { key: "java", label: "Java" },
+                        { key: "cpp", label: "C++" },
+                        { key: "c", label: "C" },
+                      ].map((lang) => {
+                        const selectedLangs = editForm.allowedLanguages || []
+                        const isSelected = selectedLangs.includes(lang.key)
+                        return (
+                          <button
+                            key={lang.key}
+                            type="button"
+                            onClick={() => toggleLanguage(lang.key)}
+                            className={`h-9 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                              isSelected
+                                ? "bg-[#176B58] text-white border-[#176B58] shadow-sm"
+                                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                            }`}
+                          >
+                            {isSelected ? "✓ " : "+ "}{lang.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Test Cases Management (Sample & Hidden) */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-black uppercase text-[#057A55]">
+                        Test Cases ({(editForm.testCases || []).length})
+                      </label>
+                      <button
+                        type="button"
+                        onClick={addTestCase}
+                        className="h-8 px-3 rounded-xl text-xs font-black bg-emerald-100 text-emerald-900 hover:bg-emerald-200 transition-all cursor-pointer border border-emerald-300"
+                      >
+                        + Add Test Case
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {(editForm.testCases || []).map((tc: any, index: number) => (
+                        <div key={tc.id || index} className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="font-black text-xs text-[#1E3A34]">Test Case #{index + 1}</span>
+                            <div className="flex items-center gap-2">
+                              <label className="flex items-center gap-1.5 text-xs font-bold cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={Boolean(tc.isHidden)}
+                                  onChange={(e) => updateTestCase(index, "isHidden", e.target.checked)}
+                                  className="rounded text-[#176B58] focus:ring-0"
+                                />
+                                <span className={tc.isHidden ? "text-amber-800 font-black" : "text-emerald-800 font-bold"}>
+                                  {tc.isHidden ? "Hidden Test Case" : "Sample Test Case"}
+                                </span>
+                              </label>
+                              <button
+                                type="button"
+                                onClick={() => removeTestCase(index)}
+                                className="h-7 px-2.5 rounded-lg text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 cursor-pointer"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+                            <div>
+                              <span className="block font-sans font-bold text-slate-500 text-[10px] uppercase mb-1">Input</span>
+                              <textarea
+                                rows={2}
+                                value={tc.input || ""}
+                                onChange={(e) => updateTestCase(index, "input", e.target.value)}
+                                placeholder="Test input..."
+                                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-[#1E3A34] outline-none focus:border-[#00D084]"
+                              />
+                            </div>
+                            <div>
+                              <span className="block font-sans font-bold text-slate-500 text-[10px] uppercase mb-1">Expected Output</span>
+                              <textarea
+                                rows={2}
+                                value={tc.expectedOutput || ""}
+                                onChange={(e) => updateTestCase(index, "expectedOutput", e.target.value)}
+                                placeholder="Expected output..."
+                                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-[#1E3A34] outline-none focus:border-[#00D084]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -903,12 +1055,14 @@ export function QuestionBankPage({
 
               <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex-none">
                 <button
+                  type="button"
                   className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
                   onClick={() => setEditModalOpen(false)}
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   className="h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] shadow-md shadow-[#176B58]/20 disabled:opacity-50 cursor-pointer border-none"
                   disabled={saving}
                   onClick={() => void saveEdit()}

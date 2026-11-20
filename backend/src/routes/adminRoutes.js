@@ -1730,28 +1730,39 @@ router.put("/questions/:id", authenticate, adminOnly, async (req, res) => {
     inputFormat,
     outputFormat,
     constraints,
-    sampleInput,
-    sampleOutput,
-    starterCode,
     allowedLanguages,
     testCases,
     explanation,
   } = req.body || {};
 
-  if (questionText !== undefined) question.questionText = String(questionText).trim();
-  if (questionTitle !== undefined) question.questionTitle = String(questionTitle).trim();
+  if (questionTitle !== undefined) {
+    question.questionTitle = String(questionTitle).trim();
+  }
+  if (questionText !== undefined) {
+    question.questionText = String(questionText).trim();
+  }
+  if (explanation !== undefined) {
+    question.explanation = String(explanation).trim();
+  }
   if (category !== undefined) question.sectionName = String(category).trim();
   if (difficulty !== undefined) question.difficulty = String(difficulty).toUpperCase();
   if (marks !== undefined) question.marks = Number(marks);
   if (inputFormat !== undefined) question.inputFormat = String(inputFormat).trim();
   if (outputFormat !== undefined) question.outputFormat = String(outputFormat).trim();
   if (constraints !== undefined) question.constraints = String(constraints).trim();
-  if (sampleInput !== undefined) question.sampleInput = String(sampleInput).trim();
-  if (sampleOutput !== undefined) question.sampleOutput = String(sampleOutput).trim();
-  if (starterCode !== undefined) question.starterCode = starterCode;
   if (allowedLanguages !== undefined) question.allowedLanguages = allowedLanguages;
-  if (testCases !== undefined) question.testCases = testCases;
-  if (explanation !== undefined) question.explanation = String(explanation).trim();
+  if (testCases !== undefined) {
+    question.testCases = Array.isArray(testCases)
+      ? testCases.map((tc, idx) => ({
+          id: String(tc.id || `tc_${idx + 1}`),
+          input: String(tc.input || ""),
+          expectedOutput: String(tc.expectedOutput || ""),
+          isHidden: Boolean(tc.isHidden),
+          weightage: Number(tc.weightage || 1),
+          explanation: String(tc.explanation || ""),
+        }))
+      : [];
+  }
 
   await question.save();
   res.json({ updated: true, question: questionView(question) });
