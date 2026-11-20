@@ -223,10 +223,10 @@ export function StudentLoginPage({
     }
   };
 
-  const verifyOtp = async (event: FormEvent) => {
-    event.preventDefault();
+  const submitOtpVerification = async (otpToVerify?: string) => {
+    const targetOtp = otpToVerify || otp.join("");
     setError("");
-    if (otp.join("").length !== 6) {
+    if (targetOtp.length !== 6) {
       setError("Enter the six-digit verification code.");
       return;
     }
@@ -238,7 +238,7 @@ export function StudentLoginPage({
         credentials: "include",
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
-          otp: otp.join(""),
+          otp: targetOtp,
         }),
       });
       const data = await response.json();
@@ -256,12 +256,22 @@ export function StudentLoginPage({
     }
   };
 
+  const verifyOtp = async (event: FormEvent) => {
+    event.preventDefault();
+    await submitOtpVerification();
+  };
+
   const updateOtp = (index: number, value: string) => {
     const next = [...otp];
     next[index] = value.replace(/\D/g, "").slice(-1);
     setOtp(next);
     if (next[index] && index < 5)
       document.getElementById(`student-login-otp-${index + 1}`)?.focus();
+
+    const codeStr = next.join("");
+    if (codeStr.length === 6) {
+      void submitOtpVerification(codeStr);
+    }
   };
 
   const onOtpKeyDown = (
@@ -284,8 +294,12 @@ export function StudentLoginPage({
     digits.split("").forEach((d, i) => (next[i] = d));
     setOtp(next);
     document
-      .getElementById(`student-login-otp-${Math.min(digits.length, 5)}`)
+      .getElementById(`student-login-otp-${Math.min(digits.length - 1, 5)}`)
       ?.focus();
+
+    if (digits.length === 6) {
+      void submitOtpVerification(digits);
+    }
   };
 
   const inputBase =
@@ -539,19 +553,11 @@ export function StudentLoginPage({
                 )}
               </p>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="h-11 w-full cursor-pointer rounded-full border border-emerald-400/30 bg-[#057A55] px-6 text-xs sm:text-sm font-black text-white shadow-md hover:bg-[#035E41] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  "Verifying code..."
-                ) : (
-                  <>
-                    Verify OTP &amp; Continue <Icon name="arrow" size={18} />
-                  </>
-                )}
-              </button>
+              {loading && (
+                <div className="my-1 flex items-center justify-center gap-2 rounded-2xl border border-emerald-300/60 bg-emerald-500/10 py-3 text-xs font-extrabold text-[#057A55]">
+                  <span className="animate-spin text-sm">⏳</span> Verifying verification code...
+                </div>
+              )}
 
               {message && (
                 <p className="m-0 rounded-2xl border border-emerald-300/60 bg-emerald-500/10 p-3 text-center text-xs font-bold text-emerald-700">
