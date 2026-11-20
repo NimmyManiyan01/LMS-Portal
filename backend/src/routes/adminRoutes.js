@@ -459,50 +459,71 @@ router.get(
   async (req, res) => {
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 25));
-    const filter = req.query.status
-      ? { status: String(req.query.status).toUpperCase() }
-      : { status: "IN_PROGRESS" };
-    const [attempts, total] = await Promise.all([
-      Attempt.find(filter)
-        .populate(
-          "examId",
-          "title code scheduledAt closesAt readinessRequirements",
-        )
-        .populate("studentId", "studentId fullName email")
-        .sort({ updatedAt: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .lean(),
-      Attempt.countDocuments(filter),
-    ]);
-    const ids = attempts.map((attempt) => attempt._id);
+    const statusQuery = req.query.status ? String(req.query.status).toUpperCase() : "IN_PROGRESS";
+    const filter = statusQuery ? { status: statusQuery } : {};
+
+    const rawAttempts = await Attempt.find(filter)
+      .populate("examId", "title code status scheduledAt closesAt readinessRequirements")
+      .populate("studentId", "studentId fullName email college registrationId branch")
+      .sort({ updatedAt: -1 })
+      .lean();
+
+    // Filter valid attempts with non-null exam and student, deduplicate by attempt ID
+    const seenIds = new Set();
+    const validAttempts = [];
+
+    for (const attempt of rawAttempts) {
+      if (!attempt._id || seenIds.has(String(attempt._id))) continue;
+      if (!attempt.examId || !attempt.studentId) continue;
+      // For IN_PROGRESS attempts, verify attempt belongs to an active examination session
+      if (statusQuery === "IN_PROGRESS" && attempt.examId.status === "CLOSED") continue;
+
+      seenIds.add(String(attempt._id));
+      validAttempts.push(attempt);
+    }
+
+    const total = validAttempts.length;
+    const paginated = validAttempts.slice((page - 1) * limit, page * limit);
+    const ids = paginated.map((attempt) => attempt._id);
+
     const events = await IntegrityEvent.find({ attemptId: { $in: ids } })
       .sort({ recordedAt: -1 })
       .lean();
+
     const byAttempt = new Map();
     events.forEach((event) => {
       const key = String(event.attemptId);
       if (!byAttempt.has(key)) byAttempt.set(key, []);
       byAttempt.get(key).push(event);
     });
+
     res
       .set("Cache-Control", "no-store")
       .json({
-        attempts: attempts.map((attempt) => ({
-          id: String(attempt._id),
-          attemptId: String(attempt._id),
-          status: attempt.status,
-          startedAt: attempt.startedAt,
-          expiresAt: attempt.expiresAt,
-          submittedAt: attempt.submittedAt,
-          answeredCount: attempt.answers
-            ? Object.keys(attempt.answers).length
-            : 0,
-          integrityCounts: attempt.integrityCounts || {},
-          exam: attempt.examId,
-          student: attempt.studentId,
-          latestIncident: byAttempt.get(String(attempt._id))?.[0] || null,
-        })),
+        attempts: paginated.map((attempt) => {
+          const student = attempt.studentId || {};
+          const exam = attempt.examId || {};
+          const incidentList = byAttempt.get(String(attempt._id)) || [];
+
+          return {
+            id: String(attempt._id),
+            attemptId: String(attempt._id),
+            status: attempt.status,
+            startedAt: attempt.startedAt,
+            expiresAt: attempt.expiresAt,
+            submittedAt: attempt.submittedAt,
+            answeredCount: attempt.answers ? Object.keys(attempt.answers).length : 0,
+            integrityCounts: attempt.integrityCounts || {},
+            exam,
+            student,
+            studentName: student.fullName || "—",
+            registrationId: student.studentId || student.registrationId || "—",
+            college: student.college || "—",
+            examTitle: exam.title || exam.code || "—",
+            incidentCount: incidentList.length,
+            latestIncident: incidentList[0] || null,
+          };
+        }),
         pagination: {
           page,
           limit,
@@ -521,7 +542,7 @@ router.get(
       return res.status(400).json({ error: "Invalid attempt ID" });
     const attempt = await Attempt.findById(req.params.attemptId)
       .populate("examId", "title code")
-      .populate("studentId", "studentId fullName email")
+      .populate("studentId", "studentId fullName email college registrationId branch")
       .lean();
     if (!attempt) return res.status(404).json({ error: "Attempt not found" });
     const events = await IntegrityEvent.find({ attemptId: attempt._id })
@@ -534,7 +555,13 @@ router.get(
         exam: attempt.examId,
         student: attempt.studentId,
       },
-      events,
+      events: events.map((ev) => ({
+        eventId: ev.eventId || String(ev._id),
+        eventType: ev.eventType,
+        action: ev.action,
+        details: ev.action ? `${ev.eventType} (Action: ${ev.action})` : ev.eventType,
+        timestamp: ev.recordedAt || ev.clientTimestamp || new Date(),
+      })),
     });
   },
 );

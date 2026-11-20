@@ -197,42 +197,59 @@ export function LiveMonitoringPage({
                       </td>
                     </tr>
                   ) : (
-                    attempts.map((attempt) => (
-                      <tr key={attempt.attemptId} className="hover:bg-[#00D084]/5 transition-colors">
-                        <td className="px-5 py-4 font-bold text-[#1E3A34]">
-                          {attempt.studentName || "Candidate"}
-                        </td>
-                        <td className="px-5 py-4 text-slate-600 font-semibold">
-                          {attempt.registrationId || attempt.college || "—"}
-                        </td>
-                        <td className="px-5 py-4 font-extrabold text-[#1E3A34]">{attempt.examTitle}</td>
-                        <td className="px-5 py-4 font-medium text-slate-500">
-                          {new Date(attempt.startedAt).toLocaleTimeString()}
-                        </td>
-                        <td className="px-5 py-4">
-                          <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                              attempt.status === "IN_PROGRESS"
-                                ? "bg-emerald-100 text-emerald-800 border border-emerald-300/80"
-                                : "bg-blue-100 text-blue-800 border border-blue-300/80"
-                            }`}
-                          >
-                            {attempt.status}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4 font-black text-amber-700">
-                          {attempt.incidentCount || 0} incidents
-                        </td>
-                        <td className="px-5 py-4 text-right whitespace-nowrap">
-                          <button
-                            className="px-3.5 py-1.5 rounded-xl bg-[#176B58]/10 text-[#176B58] hover:bg-[#176B58] hover:text-white font-extrabold text-xs transition-all cursor-pointer border-none"
-                            onClick={() => void viewEvents(attempt)}
-                          >
-                            View Logs
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                    attempts.map((attempt) => {
+                      const studentName = attempt.studentName || attempt.student?.fullName || "—"
+                      const regId = attempt.registrationId || attempt.student?.studentId || attempt.student?.registrationId
+                      const col = attempt.college || attempt.student?.college
+                      let collegeRegDisplay = "—"
+                      if (regId && col && regId !== "—" && col !== "—") {
+                        collegeRegDisplay = `${regId} · ${col}`
+                      } else if (regId && regId !== "—") {
+                        collegeRegDisplay = regId
+                      } else if (col && col !== "—") {
+                        collegeRegDisplay = col
+                      }
+                      const examTitle = attempt.examTitle || attempt.exam?.title || attempt.exam?.code || "—"
+                      const startedAtDisplay = attempt.startedAt ? new Date(attempt.startedAt).toLocaleTimeString() : "—"
+                      const incidentCount = attempt.incidentCount ?? (attempt.integrityCounts ? Object.values(attempt.integrityCounts).reduce((a, b) => Number(a) + Number(b), 0) : 0)
+
+                      return (
+                        <tr key={attempt.attemptId || attempt.id} className="hover:bg-[#00D084]/5 transition-colors">
+                          <td className="px-5 py-4 font-bold text-[#1E3A34]">
+                            {studentName}
+                          </td>
+                          <td className="px-5 py-4 text-slate-600 font-semibold">
+                            {collegeRegDisplay}
+                          </td>
+                          <td className="px-5 py-4 font-extrabold text-[#1E3A34]">{examTitle}</td>
+                          <td className="px-5 py-4 font-medium text-slate-500">
+                            {startedAtDisplay}
+                          </td>
+                          <td className="px-5 py-4">
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                attempt.status === "IN_PROGRESS"
+                                  ? "bg-emerald-100 text-emerald-800 border border-emerald-300/80"
+                                  : "bg-blue-100 text-blue-800 border border-blue-300/80"
+                              }`}
+                            >
+                              {attempt.status}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 font-black text-amber-700">
+                            {incidentCount} incidents
+                          </td>
+                          <td className="px-5 py-4 text-right whitespace-nowrap">
+                            <button
+                              className="px-3.5 py-1.5 rounded-xl bg-[#176B58]/10 text-[#176B58] hover:bg-[#176B58] hover:text-white font-extrabold text-xs transition-all cursor-pointer border-none"
+                              onClick={() => void viewEvents(attempt)}
+                            >
+                              View Logs
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })
                   )}
                 </tbody>
               </table>
