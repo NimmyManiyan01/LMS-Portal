@@ -907,17 +907,6 @@ export function ExaminationsPage({
                   Tab-switch monitoring follows the selected backend integrity profile.
                 </small>
               </section>
-
-              <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-extrabold text-[#1E3A34]">
-                Instructions
-                <textarea
-                  value={form.instructions}
-                  rows={3}
-                  onChange={(e) => setForm({ ...form, instructions: e.target.value })}
-                  placeholder="Enter candidate instructions..."
-                  className="w-full p-3.5 text-xs sm:text-sm bg-white/80 border border-[#E2DBD0] rounded-xl text-[#1E3A34] placeholder:text-slate-400 focus:outline-none focus:border-[#00D084] focus:ring-2 focus:ring-[#00D084]/20 transition-all shadow-sm resize-y"
-                />
-              </label>
             </div>
 
             {/* Fixed Modal Actions Footer */}
@@ -1192,16 +1181,6 @@ export function ExaminationsPage({
                     />
                   </label>
                 </div>
-
-                <label className="flex flex-col gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
-                  Candidate Instructions
-                  <textarea
-                    rows={2}
-                    value={paperForm.instructions}
-                    onChange={(e) => setPaperForm({ ...paperForm, instructions: e.target.value })}
-                    className="w-full p-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm resize-y"
-                  />
-                </label>
               </div>
             </div>
 
