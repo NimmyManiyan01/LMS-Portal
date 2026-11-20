@@ -878,7 +878,7 @@ export function QuestionBankPage({
                 ×
               </button>
 
-              <div className="p-6 sm:p-8 overflow-y-auto min-h-0 flex-1 flex flex-col gap-5 text-xs sm:text-sm pt-8">
+              <div className="p-6 sm:p-8 pb-24 overflow-y-auto min-h-0 flex-1 flex flex-col gap-5 text-xs sm:text-sm pt-8">
                 <div>
                   <span className="text-xs font-black uppercase tracking-wider text-[#057A55]">Question Editor</span>
                   <h2 className="text-2xl font-black text-[#1E3A34] m-0 leading-tight">Edit Coding Question</h2>
