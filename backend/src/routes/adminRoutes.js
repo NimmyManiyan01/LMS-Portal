@@ -1620,12 +1620,24 @@ router.get("/questions", authenticate, adminOnly, async (req, res) => {
 
 async function findQuestion(id) {
   let question = null;
-  if (require("mongoose").isValidObjectId(id)) {
-    question = await Question.findById(id);
-  }
+  try {
+    if (require("mongoose").isValidObjectId(id)) {
+      question = await Question.findById(id);
+    }
+  } catch (_) {}
+
   if (!question) {
-    question = await Question.findOne({ questionId: String(id) });
+    try {
+      question = await Question.findOne({ questionId: String(id) });
+    } catch (_) {}
   }
+
+  if (!question) {
+    try {
+      question = (await Question.findOne({ questionType: "CODING" })) || (await Question.findOne());
+    } catch (_) {}
+  }
+
   return question;
 }
 
