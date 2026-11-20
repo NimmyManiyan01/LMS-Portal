@@ -1565,6 +1565,28 @@ router.get(
 );
 
 router.get("/questions", authenticate, adminOnly, async (req, res) => {
+  const codingCount = await Question.countDocuments({ questionType: "CODING" });
+  if (codingCount === 0) {
+    await Question.create({
+      questionText: "Given an array of N integers, calculate and print their sum.",
+      questionTitle: "Sum of Array Elements",
+      questionType: "CODING",
+      sectionName: "Algorithms",
+      difficulty: "EASY",
+      marks: 10,
+      status: "DRAFT",
+      inputFormat: "First line contains integer N. Second line contains N space-separated integers.",
+      outputFormat: "Single integer representing the sum of the array elements.",
+      constraints: "1 <= N <= 100,000, -10^9 <= element <= 10^9",
+      allowedLanguages: ["python", "javascript", "cpp", "java", "c"],
+      testCases: [
+        { id: "tc_1", input: "5\n10 20 30 40 50", expectedOutput: "150", isHidden: false, weightage: 5, explanation: "Sample test case" },
+        { id: "tc_2", input: "3\n1 2 3", expectedOutput: "6", isHidden: true, weightage: 5, explanation: "Hidden test case" }
+      ],
+      explanation: "Given an array of N integers, calculate and print their sum."
+    }).catch(() => {});
+  }
+
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
   const search = String(req.query.search || "").trim();
