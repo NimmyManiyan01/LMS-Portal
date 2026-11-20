@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { createPortal } from "react-dom"
 import { API_BASE_URL, authFetch } from "../../api"
 import { AdminFloatingSidebar } from "../../App"
 
@@ -573,9 +574,13 @@ export function PaperSetsPage({
       </div>
 
       {/* Create / Edit Paper Set Modal */}
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
-          <div className="relative w-[95%] sm:w-[90%] max-w-[1100px] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900">
+      {open &&
+        createPortal(
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto">
+            <div
+              className="relative flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-slate-900"
+              style={{ width: "min(95vw, 1100px)", maxHeight: "90vh" }}
+            >
             <div className="flex-none flex items-center justify-between gap-4 p-5 sm:px-7 sm:py-6 border-b border-slate-100 bg-slate-50/50">
               <h2 className="text-xl font-bold text-slate-900">
                 {editingId ? "Edit Paper Set" : "Create Paper Set"}
@@ -831,7 +836,8 @@ export function PaperSetsPage({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* View Paper Set Modal */}
