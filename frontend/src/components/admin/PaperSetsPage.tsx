@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { API_BASE_URL, authFetch } from "../../api"
+import { AdminFloatingSidebar } from "../../App"
 
 const API = API_BASE_URL
 type Notice = { type: "success" | "error" | "warning"; text: string }
@@ -14,7 +15,22 @@ const emptyForm = {
   questionIds: [] as string[],
 }
 
-export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) {
+export function PaperSetsPage({
+  Icon,
+  PageHead,
+  active = "Paper sets",
+  onNav = () => {},
+  adminUser = null,
+  onLogout = () => {},
+}: {
+  Icon: any
+  PageHead: any
+  active?: string
+  onNav?: (v: string) => void
+  adminUser?: { email: string; role: string } | null
+  onLogout?: () => void
+}) {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [sets, setSets] = useState<any[]>([])
   const [stats, setStats] = useState<any>({})
   const [exams, setExams] = useState<any[]>([])
@@ -298,29 +314,67 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
   }
 
   return (
-    <>
-      <PageHead
-        admin
-        student={null}
-        title="Paper Sets"
-        description="Build, validate, and publish examination paper sets."
-        showCreateAction={false}
+    <div className="relative min-h-screen bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8">
+      {/* Continuous Full-Page Atmospheric Background Ambient Lighting Blobs */}
+      <div className="fixed -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-[#00C4DF]/30 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-[#00D084]/30 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed top-1/2 left-1/3 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[#FFB800]/28 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed -bottom-40 right-10 w-[700px] h-[700px] rounded-full bg-[#FF7A59]/28 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/20 pointer-events-none z-0" />
+
+      {/* Floating Vertical Glass Sidebar */}
+      <AdminFloatingSidebar
+        active={active}
+        onNav={onNav}
+        adminUser={adminUser}
+        onLogout={onLogout}
+        isCollapsed={sidebarCollapsed}
+        setIsCollapsed={setSidebarCollapsed}
       />
 
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Paper Sets</h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Manage examination papers using active Question Bank records.</p>
+      {/* Main Page Content Wrapper */}
+      <div
+        className={`relative z-10 max-w-[1550px] mx-auto space-y-6 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
+        }`}
+      >
+        <PageHead
+          admin
+          student={null}
+          title="Paper Sets"
+          description="Build, validate, and publish examination paper sets."
+          showCreateAction={false}
+        />
+
+        {/* Hero Header Glass Card matching Admin Overview */}
+        <div className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(30,58,52,0.12)] p-6 sm:p-7">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] via-[#FFB800] to-[#FF7A59]" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-3 py-0.5 rounded-full bg-[#00D084]/20 text-[#057A55] text-[10px] font-black uppercase tracking-widest border border-[#00D084]/30">
+                  Flux Suite
+                </span>
+                <span className="text-xs font-bold text-[#1E3A34]/80">
+                  Paper Set Management
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-[#1E3A34] tracking-tight leading-tight m-0">
+                Paper Sets
+              </h1>
+              <p className="text-xs sm:text-sm text-[#057A55] font-bold m-0 leading-relaxed max-w-xl">
+                Manage examination papers using active Question Bank records and automated validations.
+              </p>
+            </div>
+            <button
+              className="inline-flex items-center justify-center gap-2.5 h-11 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-lg shadow-[#176B58]/20 flex-shrink-0 border-none"
+              onClick={openCreate}
+            >
+              <Icon name="plus" size={18} />
+              Create Paper Set
+            </button>
+          </div>
         </div>
-        <button
-          className="inline-flex items-center justify-center gap-2 h-10 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-sm shadow-blue-500/20 flex-shrink-0"
-          onClick={openCreate}
-        >
-          <Icon name="plus" />
-          Create Paper Set
-        </button>
-      </div>
 
       {/* KPI Stats Grid */}
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
@@ -1004,6 +1058,7 @@ export function PaperSetsPage({ Icon, PageHead }: { Icon: any; PageHead: any }) 
           </div>
         </div>
       )}
-    </>
+      </div>
+    </div>
   )
 }

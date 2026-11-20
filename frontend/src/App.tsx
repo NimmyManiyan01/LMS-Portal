@@ -29,6 +29,8 @@ import { LiveMonitoringPage } from "./components/admin/LiveMonitoringPage"
 import { ResultsPage } from "./components/admin/ResultsPage"
 import { FeedbackPage } from "./components/admin/FeedbackPage"
 import { AdministratorsPage } from "./components/admin/AdministratorsPage"
+import { ReportsPage } from "./components/admin/ReportsPage"
+import { SecurityAuditPage } from "./components/admin/SecurityAuditPage"
 
 type IconName =
   | "grid"
@@ -1164,7 +1166,12 @@ export default function App() {
               }}
             />
           ) : admin && active === "Students" && viewState === "DASHBOARD" ? (
-            <AdminStudents />
+            <AdminStudents
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
           ) : admin &&
             active === "Examinations" &&
             viewState === "DASHBOARD" ? (
@@ -1188,17 +1195,64 @@ export default function App() {
               onLogout={handleLogout}
             />
           ) : admin && active === "Paper sets" && viewState === "DASHBOARD" ? (
-            <PaperSetsPage Icon={Icon} PageHead={PageHead} />
+            <PaperSetsPage
+              Icon={Icon}
+              PageHead={PageHead}
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
           ) : admin &&
             active === "Live monitoring" &&
             viewState === "DASHBOARD" ? (
-            <LiveMonitoringPage PageHead={PageHead} />
+            <LiveMonitoringPage
+              PageHead={PageHead}
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
           ) : admin && active === "Results" && viewState === "DASHBOARD" ? (
-            <ResultsPage PageHead={PageHead} />
+            <ResultsPage
+              PageHead={PageHead}
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
           ) : admin && active === "Feedback" && viewState === "DASHBOARD" ? (
-            <FeedbackPage PageHead={PageHead} />
+            <FeedbackPage
+              PageHead={PageHead}
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
           ) : admin && active === "Administrators" && viewState === "DASHBOARD" ? (
-            <AdministratorsPage PageHead={PageHead} />
+            <AdministratorsPage
+              PageHead={PageHead}
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
+          ) : admin && active === "Reports" && viewState === "DASHBOARD" ? (
+            <ReportsPage
+              Icon={Icon}
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
+          ) : admin && active === "Security & audit" && viewState === "DASHBOARD" ? (
+            <SecurityAuditPage
+              Icon={Icon}
+              active={active}
+              onNav={setActive}
+              adminUser={adminUser}
+              onLogout={handleLogout}
+            />
           ) : active === "Overview" && viewState === "DASHBOARD" ? (
             admin ? (
               <AdminDashboard
@@ -1260,7 +1314,18 @@ const ADMIN_BRANCH_OPTIONS = [
   "Other",
 ]
 
-function AdminStudents() {
+function AdminStudents({
+  active = "Students",
+  onNav = () => {},
+  adminUser = null,
+  onLogout = () => {},
+}: {
+  active?: string
+  onNav?: (v: string) => void
+  adminUser?: { email: string; role: string } | null
+  onLogout?: () => void
+}) {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const importPreviewDuplicates = useRef({ count: 0, invalid: 0 })
   const api = API_BASE_URL
   const [students, setStudents] = useState<any[]>([])
@@ -1409,17 +1474,40 @@ function AdminStudents() {
   }
 
   return (
-    <>
-      <PageHead
-        admin
-        student={null}
-        title="Student Management"
-        description="Manage registered students and account activation."
-        showCreateAction={false}
-        selectedCollege={college}
-        selectedSearch={search}
-        selectedStatus={status}
+    <div className="relative min-h-screen bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8">
+      {/* Continuous Full-Page Atmospheric Background Ambient Lighting Blobs */}
+      <div className="fixed -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-[#00C4DF]/30 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-[#00D084]/30 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed top-1/2 left-1/3 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[#FFB800]/28 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed -bottom-40 right-10 w-[700px] h-[700px] rounded-full bg-[#FF7A59]/28 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/20 pointer-events-none z-0" />
+
+      {/* Floating Vertical Glass Sidebar */}
+      <AdminFloatingSidebar
+        active={active}
+        onNav={onNav}
+        adminUser={adminUser}
+        onLogout={onLogout}
+        isCollapsed={sidebarCollapsed}
+        setIsCollapsed={setSidebarCollapsed}
       />
+
+      {/* Main Page Content Wrapper */}
+      <div
+        className={`relative z-10 max-w-[1550px] mx-auto space-y-6 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
+        }`}
+      >
+        <PageHead
+          admin
+          student={null}
+          title="Student Management"
+          description="Manage registered students and account activation."
+          showCreateAction={false}
+          selectedCollege={college}
+          selectedSearch={search}
+          selectedStatus={status}
+        />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
@@ -1861,7 +1949,8 @@ function AdminStudents() {
           </div>
         </div>
       )}
-    </>
+      </div>
+    </div>
   )
 }
 

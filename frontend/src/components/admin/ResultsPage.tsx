@@ -1,8 +1,23 @@
 import { useCallback, useEffect, useState, type ComponentType } from "react"
 import { API_BASE_URL, authFetch } from "../../api"
-type Props = { PageHead: ComponentType<any> }
+import { AdminFloatingSidebar } from "../../App"
 
-export function ResultsPage({ PageHead }: Props) {
+type Props = {
+  PageHead: ComponentType<any>
+  active?: string
+  onNav?: (v: string) => void
+  adminUser?: { email: string; role: string } | null
+  onLogout?: () => void
+}
+
+export function ResultsPage({
+  PageHead,
+  active = "Results",
+  onNav = () => {},
+  adminUser = null,
+  onLogout = () => {},
+}: Props) {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [data, setData] = useState<any>({
     rows: [],
     exams: [],
@@ -164,12 +179,35 @@ export function ResultsPage({ PageHead }: Props) {
   const rows = data.rows || []
 
   return (
-    <>
-      <PageHead
-        eyebrow="ADMINISTRATION"
-        title="Results"
-        subtitle="Review finalized examination results and release statuses."
+    <div className="relative min-h-screen bg-[#F6F2E6] text-[#1E3A34] font-sans overflow-x-hidden p-4 sm:p-8 -m-4 sm:-m-8">
+      {/* Continuous Full-Page Atmospheric Background Ambient Lighting Blobs */}
+      <div className="fixed -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-[#00C4DF]/30 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-[#00D084]/30 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed top-1/2 left-1/3 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[#FFB800]/28 blur-[150px] pointer-events-none z-0" />
+      <div className="fixed -bottom-40 right-10 w-[700px] h-[700px] rounded-full bg-[#FF7A59]/28 blur-[160px] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/20 pointer-events-none z-0" />
+
+      {/* Floating Vertical Glass Sidebar */}
+      <AdminFloatingSidebar
+        active={active}
+        onNav={onNav}
+        adminUser={adminUser}
+        onLogout={onLogout}
+        isCollapsed={sidebarCollapsed}
+        setIsCollapsed={setSidebarCollapsed}
       />
+
+      {/* Main Page Content Wrapper */}
+      <div
+        className={`relative z-10 max-w-[1550px] mx-auto space-y-6 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? "lg:pl-24" : "lg:pl-68"
+        }`}
+      >
+        <PageHead
+          eyebrow="ADMINISTRATION"
+          title="Results"
+          subtitle="Review finalized examination results and release statuses."
+        />
 
       {/* KPI Stats Grid */}
       <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6">
@@ -665,6 +703,7 @@ export function ResultsPage({ PageHead }: Props) {
           </div>
         </div>
       )}
-    </>
+      </div>
+    </div>
   )
 }
