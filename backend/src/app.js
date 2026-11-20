@@ -146,8 +146,8 @@ app.use("/api/attempts", attemptRoutes);
 app.use("/api/attempts", integrityRoutes);
 app.use("/api/student/results", resultRoutes);
 app.use("/api/student/profile", profileRoutes);
-app.use("/api/admin", adminRoutes);
 app.use("/api/admin/reports", reportRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use((err, req, res, next) => {
   if (isProduction) console.error("Unhandled API Error");
