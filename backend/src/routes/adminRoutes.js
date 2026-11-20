@@ -1253,6 +1253,14 @@ const questionView = (question) => ({
   correctOptionIds: question.correctOptionIds || [],
   acceptedAnswers: question.acceptedAnswers || [],
   explanation: question.explanation || "",
+  inputFormat: question.inputFormat || "",
+  outputFormat: question.outputFormat || "",
+  constraints: question.constraints || "",
+  sampleInput: question.sampleInput || "",
+  sampleOutput: question.sampleOutput || "",
+  starterCode: question.starterCode || {},
+  allowedLanguages: question.allowedLanguages || ["python", "javascript", "cpp", "java", "c"],
+  testCases: question.testCases || [],
   createdAt: question.createdAt || null,
 });
 const normalizeImportHeader = (value) =>
@@ -1671,6 +1679,25 @@ router.patch(
           .status(400)
           .json({ error: "This question is missing required information." });
     }
+    if (question.questionType === "CODING" && status === "ACTIVE") {
+      const testCases = Array.isArray(question.testCases) ? question.testCases : [];
+      const hasSample = testCases.some((tc) => !tc.isHidden && String(tc.input || "").trim() && String(tc.expectedOutput || "").trim());
+      const hasHidden = testCases.some((tc) => tc.isHidden && String(tc.input || "").trim() && String(tc.expectedOutput || "").trim());
+      if (
+        !String(question.questionText || "").trim() ||
+        !String(question.inputFormat || "").trim() ||
+        !String(question.outputFormat || "").trim() ||
+        !String(question.constraints || "").trim() ||
+        !Number.isFinite(Number(question.marks)) ||
+        Number(question.marks) <= 0 ||
+        !hasSample ||
+        !hasHidden
+      ) {
+        return res.status(400).json({
+          error: "Coding questions require a complete problem description, input/output specifications, constraints, at least one sample test case, and at least one hidden test case before activation.",
+        });
+      }
+    }
     question.status = status;
     await question.save();
     await AuditLog.create({
@@ -1684,6 +1711,51 @@ router.patch(
     res.json({ question: questionView(question) });
   },
 );
+
+router.put("/questions/:id", authenticate, adminOnly, async (req, res) => {
+  if (!require("mongoose").isValidObjectId(req.params.id))
+    return res.status(400).json({ error: "Invalid question ID" });
+  const question = await Question.findById(req.params.id);
+  if (!question) return res.status(404).json({ error: "Question not found" });
+  if (question.status === "ACTIVE" || question.status === "PUBLISHED") {
+    return res.status(400).json({ error: "Only draft or inactive questions can be edited." });
+  }
+
+  const {
+    questionText,
+    questionTitle,
+    category,
+    difficulty,
+    marks,
+    inputFormat,
+    outputFormat,
+    constraints,
+    sampleInput,
+    sampleOutput,
+    starterCode,
+    allowedLanguages,
+    testCases,
+    explanation,
+  } = req.body || {};
+
+  if (questionText !== undefined) question.questionText = String(questionText).trim();
+  if (questionTitle !== undefined) question.questionTitle = String(questionTitle).trim();
+  if (category !== undefined) question.sectionName = String(category).trim();
+  if (difficulty !== undefined) question.difficulty = String(difficulty).toUpperCase();
+  if (marks !== undefined) question.marks = Number(marks);
+  if (inputFormat !== undefined) question.inputFormat = String(inputFormat).trim();
+  if (outputFormat !== undefined) question.outputFormat = String(outputFormat).trim();
+  if (constraints !== undefined) question.constraints = String(constraints).trim();
+  if (sampleInput !== undefined) question.sampleInput = String(sampleInput).trim();
+  if (sampleOutput !== undefined) question.sampleOutput = String(sampleOutput).trim();
+  if (starterCode !== undefined) question.starterCode = starterCode;
+  if (allowedLanguages !== undefined) question.allowedLanguages = allowedLanguages;
+  if (testCases !== undefined) question.testCases = testCases;
+  if (explanation !== undefined) question.explanation = String(explanation).trim();
+
+  await question.save();
+  res.json({ updated: true, question: questionView(question) });
+});
 
 router.post("/questions", authenticate, adminOnly, async (req, res) => {
   const questionText = String(req.body.questionText || "").trim();

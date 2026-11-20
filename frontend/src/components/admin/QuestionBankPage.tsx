@@ -41,6 +41,62 @@ export function QuestionBankPage({
   const [file, setFile] = useState<any>(null)
   const [preview, setPreview] = useState<any>(null)
   const [processing, setProcessing] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editForm, setEditForm] = useState<any>({})
+
+  const startEdit = (q: any) => {
+    setEditForm({
+      questionText: q.questionText || "",
+      category: q.category || "General",
+      difficulty: q.difficulty || "MEDIUM",
+      marks: q.marks || 10,
+      inputFormat: q.inputFormat || "",
+      outputFormat: q.outputFormat || "",
+      constraints: q.constraints || "",
+      testCases: q.testCases || [],
+      explanation: q.explanation || "",
+    })
+    setEditModalOpen(true)
+  }
+
+  const saveEdit = async () => {
+    if (!selected || saving) return
+    setSaving(true)
+    try {
+      const r = await authFetch(
+        `${API}/api/admin/questions/${selected.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editForm),
+        },
+        true,
+      )
+      const d = await r.json()
+      if (!r.ok) throw Error(d.error || "Unable to update question.")
+      setSelected(d.question)
+      setEditModalOpen(false)
+      setMessage("Question updated successfully.")
+      await load(page.page || 1)
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Unable to update question.")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const isCodingValidForActivation = (q: any) => {
+    if (q.questionType !== "CODING") return true
+    const hasText = Boolean(String(q.questionText || "").trim())
+    const hasInput = Boolean(String(q.inputFormat || "").trim())
+    const hasOutput = Boolean(String(q.outputFormat || "").trim())
+    const hasConstraints = Boolean(String(q.constraints || "").trim())
+    const hasMarks = Number(q.marks || 0) > 0
+    const testCases = Array.isArray(q.testCases) ? q.testCases : []
+    const hasSample = testCases.some((tc) => !tc.isHidden && String(tc.input || "").trim() && String(tc.expectedOutput || "").trim())
+    const hasHidden = testCases.some((tc) => tc.isHidden && String(tc.input || "").trim() && String(tc.expectedOutput || "").trim())
+    return hasText && hasInput && hasOutput && hasConstraints && hasMarks && hasSample && hasHidden
+  }
 
   const load = async (p = 1) => {
     setLoading(true)
@@ -598,6 +654,14 @@ export function QuestionBankPage({
                 >
                   Close
                 </button>
+                {selected.status !== "PUBLISHED" && selected.questionType === "CODING" && (selected.status === "DRAFT" || selected.status === "INACTIVE") && (
+                  <button
+                    className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-[#1E3A34] bg-emerald-100 hover:bg-emerald-200 transition-all cursor-pointer shadow-xs border border-emerald-300"
+                    onClick={() => startEdit(selected)}
+                  >
+                    Edit Question
+                  </button>
+                )}
                 {selected.status !== "PUBLISHED" && (
                   <button
                     className={`h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white transition-all cursor-pointer shadow-md disabled:opacity-50 border-none ${
@@ -605,7 +669,8 @@ export function QuestionBankPage({
                         ? "bg-rose-600 hover:bg-rose-700 shadow-rose-600/20"
                         : "bg-[#176B58] hover:bg-[#125445] shadow-[#176B58]/20"
                     }`}
-                    disabled={saving}
+                    disabled={saving || (selected.status !== "ACTIVE" && selected.questionType === "CODING" && !isCodingValidForActivation(selected))}
+                    title={selected.status !== "ACTIVE" && selected.questionType === "CODING" && !isCodingValidForActivation(selected) ? "Activation requires a complete problem description, input/output specifications, constraints, at least one sample test case, and at least one hidden test case." : ""}
                     onClick={() =>
                       setConfirmAction(
                         selected.status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
@@ -763,6 +828,92 @@ export function QuestionBankPage({
                   onClick={() => void confirmImport()}
                 >
                   Confirm Import
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Question Modal */}
+        {editModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E3A34]/40 backdrop-blur-md p-4 overflow-y-auto">
+            <div className="relative w-full max-w-[700px] max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white overflow-hidden text-[#1E3A34]">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00C4DF] via-[#00D084] to-[#FF7A59]" />
+              <button
+                className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors text-xl font-bold cursor-pointer border-none z-10"
+                onClick={() => setEditModalOpen(false)}
+              >
+                ×
+              </button>
+
+              <div className="p-6 sm:p-8 overflow-y-auto min-h-0 flex-1 flex flex-col gap-4 text-xs sm:text-sm pt-8">
+                <h2 className="text-2xl font-black text-[#1E3A34] m-0">Edit Coding Question</h2>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-black uppercase text-[#057A55] mb-1">Problem Title / Statement</label>
+                    <textarea
+                      rows={3}
+                      value={editForm.questionText || ""}
+                      onChange={(e) => setEditForm({ ...editForm, questionText: e.target.value })}
+                      className="w-full p-3 bg-white border border-slate-200 rounded-2xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-black uppercase text-[#057A55] mb-1">Input Format</label>
+                      <input
+                        value={editForm.inputFormat || ""}
+                        onChange={(e) => setEditForm({ ...editForm, inputFormat: e.target.value })}
+                        className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-black uppercase text-[#057A55] mb-1">Output Format</label>
+                      <input
+                        value={editForm.outputFormat || ""}
+                        onChange={(e) => setEditForm({ ...editForm, outputFormat: e.target.value })}
+                        className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-black uppercase text-[#057A55] mb-1">Constraints</label>
+                      <input
+                        value={editForm.constraints || ""}
+                        onChange={(e) => setEditForm({ ...editForm, constraints: e.target.value })}
+                        className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-black uppercase text-[#057A55] mb-1">Marks</label>
+                      <input
+                        type="number"
+                        value={editForm.marks || 10}
+                        onChange={(e) => setEditForm({ ...editForm, marks: Number(e.target.value) })}
+                        className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-[#1E3A34] outline-none focus:border-[#00D084]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 p-4 sm:px-8 sm:py-5 border-t border-slate-100 bg-slate-50/50 flex-none">
+                <button
+                  className="h-10 px-5 text-xs sm:text-sm font-bold rounded-2xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer shadow-sm"
+                  onClick={() => setEditModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="h-10 px-6 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] shadow-md shadow-[#176B58]/20 disabled:opacity-50 cursor-pointer border-none"
+                  disabled={saving}
+                  onClick={() => void saveEdit()}
+                >
+                  {saving ? "Saving..." : "Save Question Edits"}
                 </button>
               </div>
             </div>
