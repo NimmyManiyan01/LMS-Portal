@@ -234,26 +234,41 @@ router.post(
         a.allocationCount - b.allocationCount || crypto.randomInt(-1, 2),
     )[0];
 
-    const categoryPools = await Question.find({ status: "ACTIVE" })
-      .select("_id marks questionType sectionName")
-      .lean();
-    const randomizedQuestionIds = [];
-    for (const [category, quota] of Object.entries(GLOBAL_CATEGORY_QUOTAS)) {
-      const pool = shuffle(
-        categoryPools.filter(
-          (question) => normalizeCategory(question.sectionName) === category,
-        ),
-      );
-      if (pool.length < quota) {
+    let assignedQuestionIds;
+    if (exam.examinationType === "CODING" || exam.roundNumber === 2) {
+      const codingQuestions = await Question.find({
+        _id: { $in: paperSet.questionIds },
+        questionType: "CODING",
+        "testCases.0": { $exists: true },
+      }).select("_id").lean();
+      if (!codingQuestions.length || codingQuestions.length !== paperSet.questionIds.length) {
         return res.status(409).json({
-          error: `Not enough active questions in the ${category} category. Required ${quota}, available ${pool.length}.`,
+          error: "The coding examination requires a published paper set containing coding questions with test cases.",
         });
       }
-      randomizedQuestionIds.push(
-        ...pool.slice(0, quota).map((question) => question._id),
-      );
+      assignedQuestionIds = shuffle(paperSet.questionIds);
+    } else {
+      const categoryPools = await Question.find({ status: "ACTIVE" })
+        .select("_id marks questionType sectionName")
+        .lean();
+      const randomizedQuestionIds = [];
+      for (const [category, quota] of Object.entries(GLOBAL_CATEGORY_QUOTAS)) {
+        const pool = shuffle(
+          categoryPools.filter(
+            (question) => normalizeCategory(question.sectionName) === category,
+          ),
+        );
+        if (pool.length < quota) {
+          return res.status(409).json({
+            error: `Not enough active questions in the ${category} category. Required ${quota}, available ${pool.length}.`,
+          });
+        }
+        randomizedQuestionIds.push(
+          ...pool.slice(0, quota).map((question) => question._id),
+        );
+      }
+      assignedQuestionIds = shuffle(randomizedQuestionIds);
     }
-    const assignedQuestionIds = shuffle(randomizedQuestionIds);
 
     const startedAt = new Date();
     const expiresAt = new Date(

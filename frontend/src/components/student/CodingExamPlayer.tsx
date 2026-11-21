@@ -23,6 +23,7 @@ export function CodingExamPlayer({
   const [customInput, setCustomInput] = useState("")
   const [running, setRunning] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [submissionError, setSubmissionError] = useState("")
   const [evalResult, setEvalResult] = useState<any>(null)
   const [savedAnswers, setSavedAnswers] = useState<Record<string, any>>({})
   const [cameraStatus, setCameraStatus] = useState<"active" | "starting" | "denied" | "interrupted">("starting")
@@ -78,6 +79,7 @@ export function CodingExamPlayer({
       setLanguage(activeLang)
     }
     setEvalResult(existing?.evalResult || null)
+    setSubmissionError("")
   }, [currentIndex, currentQuestion])
 
   // Sync language template if student changes language manually
@@ -217,6 +219,11 @@ export function CodingExamPlayer({
 
   const submitQuestionCode = async () => {
     if (!currentQuestion || submitting) return
+    setSubmissionError("")
+    if (!code.trim()) {
+      setSubmissionError("Enter code before submitting.")
+      return
+    }
     const qId = currentQuestion._id || currentQuestion.id
     setSubmitting(true)
     setAutosaveStatus("saving")
@@ -241,9 +248,11 @@ export function CodingExamPlayer({
         }))
       } else {
         setAutosaveStatus("error")
+        setSubmissionError(data.error || "Unable to submit code.")
       }
     } catch {
       setAutosaveStatus("error")
+      setSubmissionError("Unable to submit code. Please try again.")
     } finally {
       setSubmitting(false)
     }
@@ -685,6 +694,12 @@ export function CodingExamPlayer({
               }`}
             />
           </div>
+
+          {submissionError && (
+            <p role="alert" className={`px-4 text-sm ${theme === "dark" ? "text-rose-300" : "text-rose-800"}`}>
+              {submissionError}
+            </p>
+          )}
 
           {/* Action Footer Bar */}
           <div className={`p-4 border-t flex items-center justify-between gap-3 shrink-0 ${

@@ -5,6 +5,7 @@ const Attempt = require("../models/Attempt");
 const Answer = require("../models/Answer");
 const Question = require("../models/Question");
 const Exam = require("../models/Exam");
+const PaperSet = require("../models/PaperSet");
 const { authenticate } = require("../middleware/auth");
 const { finalizeAttempt } = require("../services/finalizeAttempt");
 
@@ -26,7 +27,7 @@ async function findOwnedAttempt(req, res) {
     _id: req.params.attemptId,
     studentId: studentMatch(req.student),
   })
-    .select("-paperSetId -__v")
+    .select("-__v")
     .lean();
   if (!attempt) {
     res.status(404).json({ error: "Attempt not found" });
@@ -65,28 +66,40 @@ router.get("/:attemptId", authenticate, async (req, res) => {
 router.get("/:attemptId/questions", authenticate, async (req, res) => {
   const attempt = await findOwnedAttempt(req, res);
   if (!attempt) return;
-  const Question = require("../models/Question");
   const exam = await Exam.findById(attempt.examId).lean();
   const isCodingExam = exam?.examinationType === "CODING" || exam?.roundNumber === 2;
+  const codingFilter = isCodingExam
+    ? { questionType: "CODING", "testCases.0": { $exists: true } }
+    : {};
+  const loadQuestions = (ids) => Question.collection.find(
+    { _id: { $in: ids }, ...codingFilter },
+    { projection: { correctOptionId: 0, explanation: 0, referenceSolution: 0, __v: 0 } },
+  ).toArray();
 
   let assignedIds = attempt.assignedQuestionIds || [];
-  if (assignedIds.length === 0 && isCodingExam) {
-    const defaultCodingQ = await Question.findOne({ questionType: "CODING" }).lean();
-    if (defaultCodingQ) {
-      assignedIds = [defaultCodingQ._id];
-      await Attempt.updateOne({ _id: attempt._id }, { $set: { assignedQuestionIds: assignedIds } });
+  let questions = await loadQuestions(assignedIds);
+  if (isCodingExam && (!questions.length || questions.length !== assignedIds.length) &&
+      attempt.status === "IN_PROGRESS") {
+    const paperSet = await PaperSet.findOne({
+      _id: attempt.paperSetId, examId: attempt.examId,
+    }).lean();
+    const paperIds = paperSet?.questionIds || [];
+    const paperQuestions = await loadQuestions(paperIds);
+    if (paperQuestions.length && paperQuestions.length === paperIds.length) {
+      const updated = await Attempt.updateOne(
+        { _id: attempt._id, status: "IN_PROGRESS", assignedQuestionIds: assignedIds },
+        { $set: { assignedQuestionIds: paperIds } },
+      );
+      if (!updated.matchedCount) {
+        return res.status(409).json({ error: "The attempt changed. Reopen the examination to reload its questions." });
+      }
+      assignedIds = paperIds;
+      questions = paperQuestions;
     }
   }
 
-  let questions = await Question.collection
-    .find(
-      { _id: { $in: assignedIds } },
-      { projection: { correctOptionId: 0, explanation: 0, referenceSolution: 0, __v: 0 } },
-    )
-    .toArray();
-
-  if (questions.length === 0) {
-    questions = await Question.collection.find({}, { limit: 4 }).toArray();
+  if (!questions.length || (isCodingExam && questions.length !== assignedIds.length)) {
+    return res.status(409).json({ error: "The assigned paper has no valid question set. Please contact the examination administrator." });
   }
 
   const order = new Map(assignedIds.map((id, index) => [String(id), index]));
@@ -97,14 +110,14 @@ router.get("/:attemptId/questions", authenticate, async (req, res) => {
     questions: questions.map((question, index) => ({
       id: String(question._id),
       questionText:
-        question.questionText || question.text || question.question || "Given N integers, calculate and print their sum.",
-      questionTitle: question.questionTitle || question.questionText || "Sum of Array Elements",
-      questionType: isCodingExam ? "CODING" : (question.questionType || "MCQ"),
-      inputFormat: question.inputFormat || "First line contains N. Second line contains N space-separated integers.",
-      outputFormat: question.outputFormat || "Single integer sum.",
-      constraints: question.constraints || "1 <= N <= 100000",
-      sampleInput: question.sampleInput || "5\n10 20 30 40 50",
-      sampleOutput: question.sampleOutput || "150",
+        question.questionText || question.text || question.question || "",
+      questionTitle: question.questionTitle || question.questionText || "",
+      questionType: question.questionType || "MCQ",
+      inputFormat: question.inputFormat,
+      outputFormat: question.outputFormat,
+      constraints: question.constraints,
+      sampleInput: question.sampleInput,
+      sampleOutput: question.sampleOutput,
       starterCode: question.starterCode || {},
       allowedLanguages: question.allowedLanguages || ["javascript", "python", "java", "cpp", "c"],
       testCases: (question.testCases && question.testCases.length > 0)
@@ -115,9 +128,7 @@ router.get("/:attemptId/questions", authenticate, async (req, res) => {
             isHidden: false,
             explanation: tc.explanation,
           }))
-        : [
-            { id: "tc_1", input: "5\n10 20 30 40 50", expectedOutput: "150", isHidden: false },
-          ],
+        : [],
       options: (isCodingExam || question.questionType === "CODING" ? [] : (question.options || [])).map(
         (option, optionIndex) =>
           typeof option === "string"
@@ -327,7 +338,10 @@ router.post("/:attemptId/run-code", authenticate, async (req, res) => {
     return res.status(400).json({ error: "questionId and code are required." });
   }
 
-  const question = await Question.findById(questionId).lean();
+  if (!attempt.assignedQuestionIds?.some((id) => String(id) === String(questionId))) {
+    return res.status(404).json({ error: "Question is not assigned to this attempt." });
+  }
+  const question = await Question.findOne({ _id: questionId, questionType: "CODING" }).lean();
   if (!question) return res.status(404).json({ error: "Question not found" });
 
   const testCasesToRun = input
@@ -363,12 +377,18 @@ router.post("/:attemptId/run-code", authenticate, async (req, res) => {
 router.post("/:attemptId/submit-code", authenticate, async (req, res) => {
   const attempt = await findOwnedAttempt(req, res);
   if (!attempt) return;
+  if (attempt.status !== "IN_PROGRESS") {
+    return res.status(409).json({ error: "Examination attempt is no longer active." });
+  }
   const { questionId, code, language } = req.body || {};
   if (!questionId || !code) {
     return res.status(400).json({ error: "questionId and code are required." });
   }
 
-  const question = await Question.findById(questionId).lean();
+  if (!attempt.assignedQuestionIds?.some((id) => String(id) === String(questionId))) {
+    return res.status(404).json({ error: "Question is not assigned to this attempt." });
+  }
+  const question = await Question.findOne({ _id: questionId, questionType: "CODING" }).lean();
   if (!question) return res.status(404).json({ error: "Question not found" });
 
   if (!question.testCases || question.testCases.length === 0) {
