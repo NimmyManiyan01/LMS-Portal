@@ -118,7 +118,7 @@ router.get("/:attemptId/questions", authenticate, async (req, res) => {
         : [
             { id: "tc_1", input: "5\n10 20 30 40 50", expectedOutput: "150", isHidden: false },
           ],
-      options: [],
+      options: (isCodingExam || question.questionType === "CODING" ? [] : (question.options || [])).map(
         (option, optionIndex) =>
           typeof option === "string"
             ? { id: String.fromCharCode(65 + optionIndex), text: option }
