@@ -371,12 +371,13 @@ export function SystemCheckModal({
               </div>
               {req.fullscreen && (
                 <button
-                  className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none self-start mt-1"
+                  className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer shadow-md shadow-blue-500/20 border-none self-start mt-1 disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={checks.fullscreen === "PASSED"}
                   onClick={() => {
                     void runFullscreen()
                   }}
                 >
-                  Test Fullscreen Mode
+                  {checks.fullscreen === "PASSED" ? "Fullscreen Verified ✓" : "Test Fullscreen Mode"}
                 </button>
               )}
             </div>
