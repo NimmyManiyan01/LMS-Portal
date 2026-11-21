@@ -50,14 +50,16 @@ export function StudentExaminations({ onStartExam, onViewMarks }: Props) {
       const r = await authFetch(`${API_BASE_URL}/api/student/exams`)
       if (!r.ok) throw new Error("Unable to load your examinations.")
       const data = await r.json()
-      setExams(
-        (data.exams || []).map((exam: any) => ({
-          ...exam,
-          id: String(exam.id || exam._id),
-          examCode: exam.code || exam.examCode || String(exam.id || exam._id),
-          activeAttempt: exam.activeAttempt || null,
-        })),
-      )
+      const list = (data.exams || []).map((exam: any) => ({
+        ...exam,
+        id: String(exam.id || exam._id),
+        examCode: exam.code || exam.examCode || String(exam.id || exam._id),
+        activeAttempt: exam.activeAttempt || null,
+      }))
+      setExams(list)
+      if (list.some((e: any) => e.status === "IN_PROGRESS")) {
+        setTab("IN_PROGRESS")
+      }
     } catch (e) {
       setError(
         e instanceof Error ? e.message : "Unable to load your examinations.",
