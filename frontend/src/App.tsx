@@ -872,9 +872,9 @@ export default function App() {
       </div>
     )
 
-  const handleStartExam = (exam: Exam) => {
+  const handleStartExam = (exam: Exam & { status?: string; nextAction?: string; activeAttempt?: any }) => {
     setSelectedExam(exam)
-    if ((exam as Exam & { status?: string }).status === "IN_PROGRESS") {
+    if (exam.status === "IN_PROGRESS" || exam.nextAction === "RESUME_EXAM" || exam.activeAttempt?.attemptId) {
       void handleProceedToExam(exam)
       return
     }

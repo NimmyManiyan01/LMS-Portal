@@ -377,7 +377,7 @@ export function SystemCheckModal({
                     void runFullscreen()
                   }}
                 >
-                  {checks.fullscreen === "PASSED" ? "Fullscreen Verified ✓" : "Test Fullscreen Mode"}
+                  Test Fullscreen Mode
                 </button>
               )}
             </div>
