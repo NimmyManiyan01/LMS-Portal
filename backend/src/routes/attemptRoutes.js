@@ -363,6 +363,9 @@ router.post("/:attemptId/submit-code", authenticate, async (req, res) => {
   if (!question.testCases || question.testCases.length === 0) {
     return res.status(400).json({ error: `Question ${questionId} has no configured test cases. Please report to admin.` });
   }
+
+  const evalResult = await evaluateCode({
+    code,
     language: language || "javascript",
     testCases: question.testCases || [],
     timeLimitSeconds: question.timeLimitSeconds || 2,
