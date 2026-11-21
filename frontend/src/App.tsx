@@ -947,14 +947,16 @@ export default function App() {
           ),
         }),
       )
+      const isCodingAssessment = exam.roundNumber === 2 || exam.examinationType === "CODING" || normalizedQuestions.some((q: any) => q.questionType === "CODING");
       if (
         !normalizedQuestions.length ||
-        normalizedQuestions.some(
-          (question: any) =>
-            !question.questionText.trim() ||
-            !question.options.length ||
-            question.options.some((option: any) => !option.text.trim()),
-        )
+        normalizedQuestions.some((question: any) => {
+          if (!question.questionText || !String(question.questionText).trim()) return true;
+          if (isCodingAssessment || question.questionType === "CODING") {
+            return false;
+          }
+          return !question.options || !question.options.length || question.options.some((option: any) => !option.text.trim());
+        })
       )
         throw new Error(
           "The assigned examination questions are incomplete. Please retry or contact support.",
