@@ -4,7 +4,7 @@ name: Build and deploy KGS LMS Backend to Azure
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
