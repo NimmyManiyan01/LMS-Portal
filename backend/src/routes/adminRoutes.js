@@ -1303,35 +1303,129 @@ const parseCsvLine = (line) => {
   values.push(value.trim());
   return values;
 };
+const decodeImportText = (value) =>
+  String(value || "")
+    .replace(/\\r\\n/g, "\n")
+    .replace(/\\n/g, "\n");
+const parseImportJson = (value, fallback, errors, label) => {
+  const source = String(value || "").trim();
+  if (!source) return fallback;
+  try {
+    return JSON.parse(source);
+  } catch {
+    errors.push(`${label} must contain valid JSON`);
+    return fallback;
+  }
+};
 const importQuestionRow = (row, rowNumber) => {
   const get = (name) => String(row[normalizeImportHeader(name)] ?? "").trim();
-  const options = ["A", "B", "C", "D"].map((id) => ({
-    id,
-    text: get(`Option ${id}`),
-  }));
   const errors = [];
-  const text = get("Question Text");
+  const text = decodeImportText(get("Question Text"));
   const type = get("Question Type").toUpperCase() || "MCQ";
   const category = get("Category");
   const difficulty = get("Difficulty").toUpperCase();
   const status = get("Status").toUpperCase() || "DRAFT";
   const marks = Number(get("Marks"));
-  const correct = get("Correct Answer").toUpperCase();
   if (!text) errors.push("Question text is required");
-  if (type !== "MCQ") errors.push("Question Type must be MCQ");
+  if (!["MCQ", "CODING"].includes(type))
+    errors.push("Question Type must be MCQ or CODING");
   if (!category) errors.push("Category is required");
   if (!["EASY", "MEDIUM", "HARD"].includes(difficulty))
     errors.push("Difficulty must be Easy, Medium, or Hard");
   if (!Number.isFinite(marks) || marks <= 0)
     errors.push("Marks must be positive");
+  if (!["DRAFT", "ACTIVE"].includes(status))
+    errors.push("Status must be Draft or Active");
+
+  if (type === "CODING") {
+    const questionTitle = get("Question Title") || text.split("\n")[0];
+    const inputFormat = decodeImportText(get("Input Format"));
+    const outputFormat = decodeImportText(get("Output Format"));
+    const constraints = decodeImportText(get("Constraints"));
+    const allowedLanguages = get("Allowed Languages")
+      .split(/[|,;]/)
+      .map((language) => language.trim().toLowerCase())
+      .filter(Boolean);
+    const supportedLanguages = ["javascript", "python", "java", "cpp", "c", "csharp"];
+    if (!questionTitle) errors.push("Question Title is required for coding questions");
+    if (!inputFormat) errors.push("Input Format is required for coding questions");
+    if (!outputFormat) errors.push("Output Format is required for coding questions");
+    if (!constraints) errors.push("Constraints are required for coding questions");
+    if (!allowedLanguages.length)
+      errors.push("Allowed Languages are required for coding questions");
+    if (allowedLanguages.some((language) => !supportedLanguages.includes(language)))
+      errors.push("Allowed Languages contains an unsupported language");
+
+    const starterCode = parseImportJson(get("Starter Code JSON"), {}, errors, "Starter Code JSON");
+    const referenceSolution = parseImportJson(
+      get("Reference Solution JSON"),
+      {},
+      errors,
+      "Reference Solution JSON",
+    );
+    const testCases = parseImportJson(get("Test Cases JSON"), [], errors, "Test Cases JSON");
+    if (!Array.isArray(testCases)) errors.push("Test Cases JSON must be an array");
+    const normalizedTestCases = Array.isArray(testCases)
+      ? testCases.map((testCase, index) => ({
+          id: String(testCase?.id || `tc-${index + 1}`),
+          input: decodeImportText(testCase?.input),
+          expectedOutput: decodeImportText(testCase?.expectedOutput),
+          isHidden: Boolean(testCase?.isHidden),
+          weightage: Number(testCase?.weightage || 1),
+          explanation: decodeImportText(testCase?.explanation),
+        }))
+      : [];
+    if (normalizedTestCases.some((testCase) => !testCase.input || !testCase.expectedOutput))
+      errors.push("Every coding test case requires input and expectedOutput");
+    if (!normalizedTestCases.some((testCase) => !testCase.isHidden))
+      errors.push("At least one public sample test case is required");
+    if (!normalizedTestCases.some((testCase) => testCase.isHidden))
+      errors.push("At least one hidden test case is required");
+
+    const timeLimitSeconds = Number(get("Time Limit Seconds") || 2);
+    const memoryLimitMB = Number(get("Memory Limit MB") || 256);
+    if (!Number.isFinite(timeLimitSeconds) || timeLimitSeconds <= 0)
+      errors.push("Time Limit Seconds must be positive");
+    if (!Number.isFinite(memoryLimitMB) || memoryLimitMB <= 0)
+      errors.push("Memory Limit MB must be positive");
+    if (!starterCode || typeof starterCode !== "object" || Array.isArray(starterCode))
+      errors.push("Starter Code JSON must be an object keyed by language");
+
+    return {
+      rowNumber,
+      questionText: text,
+      questionTitle,
+      questionType: "CODING",
+      category,
+      difficulty,
+      marks,
+      inputFormat,
+      outputFormat,
+      constraints,
+      explanation: decodeImportText(get("Explanation")),
+      allowedLanguages,
+      starterCode,
+      referenceSolution,
+      testCases: normalizedTestCases,
+      timeLimitSeconds,
+      memoryLimitMB,
+      status,
+      options: [],
+      errors,
+    };
+  }
+
+  const options = ["A", "B", "C", "D"].map((id) => ({
+    id,
+    text: get(`Option ${id}`),
+  }));
+  const correct = get("Correct Answer").toUpperCase();
   if (options.some((option) => !option.text))
     errors.push("Options A, B, C, and D are required");
   if (new Set(options.map((option) => option.text.toLowerCase())).size !== 4)
     errors.push("Options must be distinct");
   if (!["A", "B", "C", "D"].includes(correct))
     errors.push("Correct Answer must be A, B, C, or D");
-  if (!["DRAFT", "ACTIVE"].includes(status))
-    errors.push("Status must be Draft or Active");
   return {
     rowNumber,
     questionText: text,
@@ -1341,7 +1435,7 @@ const importQuestionRow = (row, rowNumber) => {
     marks,
     options,
     correctOptionId: correct,
-    explanation: get("Explanation"),
+    explanation: decodeImportText(get("Explanation")),
     status,
     errors,
   };
@@ -1422,18 +1516,17 @@ router.post(
           }
         });
       }
+      const duplicateKey = (question) => {
+        const type = String(question.questionType || "MCQ").toUpperCase();
+        const text = String(question.questionText || "").trim().toLowerCase();
+        if (type === "CODING") return `${type}|${text}`;
+        return `${type}|${text}|${(question.options || [])
+          .map((option) => String(option.text || "").trim().toLowerCase())
+          .join("|")}`;
+      };
       const existing = new Set(
-        (await Question.find({}).select("questionText options").lean()).map(
-          (question) =>
-            `${String(question.questionText || "")
-              .trim()
-              .toLowerCase()}|${(question.options || [])
-              .map((option) =>
-                String(option.text || "")
-                  .trim()
-                  .toLowerCase(),
-              )
-              .join("|")}`,
+        (await Question.find({}).select("questionText questionType options").lean()).map(
+          duplicateKey,
         ),
       );
       const seen = new Set();
@@ -1441,7 +1534,7 @@ router.post(
       const invalid = [];
       const duplicates = [];
       rows.forEach((row) => {
-        const key = `${row.questionText.toLowerCase()}|${row.options.map((option) => option.text.toLowerCase()).join("|")}`;
+        const key = duplicateKey(row);
         if (row.errors.length) invalid.push(row);
         else if (seen.has(key) || existing.has(key))
           duplicates.push({ ...row, errors: ["Duplicate question"] });
@@ -1465,21 +1558,33 @@ router.post("/questions/import", authenticate, adminOnly, async (req, res) => {
   if (!rows.length)
     return res.status(400).json({ error: "No valid questions were supplied." });
   const imported = [];
-  for (const row of rows)
+  for (const row of rows) {
+    const isCoding = row.questionType === "CODING";
     imported.push(
       await Question.create({
         questionText: row.questionText,
-        questionType: "MCQ",
+        questionTitle: isCoding ? row.questionTitle : undefined,
+        questionType: isCoding ? "CODING" : "MCQ",
         sectionName: row.category,
         difficulty: row.difficulty,
         marks: row.marks,
-        options: row.options,
-        correctOptionId: row.correctOptionId,
-        correctOptionIds: [row.correctOptionId],
+        options: isCoding ? [] : row.options,
+        correctOptionId: isCoding ? undefined : row.correctOptionId,
+        correctOptionIds: isCoding ? [] : [row.correctOptionId],
         explanation: row.explanation,
+        inputFormat: isCoding ? row.inputFormat : undefined,
+        outputFormat: isCoding ? row.outputFormat : undefined,
+        constraints: isCoding ? row.constraints : undefined,
+        allowedLanguages: isCoding ? row.allowedLanguages : undefined,
+        starterCode: isCoding ? row.starterCode : undefined,
+        referenceSolution: isCoding ? row.referenceSolution : undefined,
+        testCases: isCoding ? row.testCases : undefined,
+        timeLimitSeconds: isCoding ? row.timeLimitSeconds : undefined,
+        memoryLimitMB: isCoding ? row.memoryLimitMB : undefined,
         status: row.status,
       }),
     );
+  }
   res
     .status(201)
     .json({
@@ -1493,8 +1598,114 @@ router.get(
   adminOnly,
   async (req, res) => {
     const format = String(req.query.format || "csv").toLowerCase();
-    const headers =
-      "Question Text,Question Type,Category,Difficulty,Marks,Option A,Option B,Option C,Option D,Correct Answer,Explanation,Status\n";
+    const templateHeaders = [
+      "Question Text",
+      "Question Type",
+      "Category",
+      "Difficulty",
+      "Marks",
+      "Option A",
+      "Option B",
+      "Option C",
+      "Option D",
+      "Correct Answer",
+      "Explanation",
+      "Status",
+      "Question Title",
+      "Input Format",
+      "Output Format",
+      "Constraints",
+      "Allowed Languages",
+      "Time Limit Seconds",
+      "Memory Limit MB",
+      "Starter Code JSON",
+      "Reference Solution JSON",
+      "Test Cases JSON",
+    ];
+    const codingStarterCode = {
+      javascript:
+        'function solve(input) {\n  const values = input.trim().split(/\\s+/).map(Number);\n  return String(values.slice(1).reduce((sum, value) => sum + value, 0));\n}',
+      python:
+        'def solve(input_data):\n    values = list(map(int, input_data.split()))\n    return str(sum(values[1:]))',
+      cpp:
+        '#include <bits/stdc++.h>\nusing namespace std;\nint main() { int n; cin >> n; long long sum = 0, value; while (n-- && cin >> value) sum += value; cout << sum; }',
+      java:
+        'import java.util.*;\npublic class Solution { public static void main(String[] args) { Scanner sc = new Scanner(System.in); int n = sc.nextInt(); long sum = 0; while (n-- > 0) sum += sc.nextLong(); System.out.print(sum); } }',
+      c: '#include <stdio.h>\nint main(void) { int n; long long value, sum = 0; scanf("%d", &n); while (n-- && scanf("%lld", &value) == 1) sum += value; printf("%lld", sum); return 0; }',
+    };
+    const templateRows = [
+      [
+        "Read N integers and print their sum.",
+        "CODING",
+        "Algorithms",
+        "EASY",
+        20,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Add every supplied integer and print the total.",
+        "DRAFT",
+        "Sum of Numbers",
+        "The first value is N, followed by N space-separated integers.",
+        "Print one integer: the sum of the N values.",
+        "1 <= N <= 100000; -1000000000 <= value <= 1000000000",
+        "javascript|python|cpp|java|c",
+        2,
+        256,
+        JSON.stringify(codingStarterCode),
+        JSON.stringify({ javascript: codingStarterCode.javascript }),
+        JSON.stringify([
+          {
+            id: "sample-1",
+            input: "5 1 2 3 4 5",
+            expectedOutput: "15",
+            isHidden: false,
+            weightage: 1,
+            explanation: "1 + 2 + 3 + 4 + 5 = 15",
+          },
+          {
+            id: "hidden-1",
+            input: "3 -5 0 10",
+            expectedOutput: "5",
+            isHidden: true,
+            weightage: 1,
+          },
+        ]),
+      ],
+      [
+        "Which data structure follows FIFO order?",
+        "MCQ",
+        "Data Structures",
+        "EASY",
+        1,
+        "Stack",
+        "Queue",
+        "Tree",
+        "Graph",
+        "B",
+        "A queue processes the earliest inserted element first.",
+        "DRAFT",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+      ],
+    ];
+    const csvValue = (value) => {
+      const text = String(value ?? "");
+      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    };
+    const csv = [templateHeaders, ...templateRows]
+      .map((row) => row.map(csvValue).join(","))
+      .join("\r\n");
     if (format === "csv")
       return res
         .type("text/csv")
@@ -1502,22 +1713,80 @@ router.get(
           "Content-Disposition",
           'attachment; filename="kgs-question-import-template.csv"',
         )
-        .send(headers);
+        .send(`${csv}\r\n`);
     if (format === "xlsx") {
       const workbook = new ExcelJS.Workbook();
       const sheet = workbook.addWorksheet("Questions");
-      sheet.addRow(headers.trim().split(","));
+      sheet.addRow(templateHeaders);
+      sheet.addRows(templateRows);
       sheet.getRow(1).font = { bold: true };
       sheet.getRow(1).fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FFE6F1FB" },
+        fgColor: { argb: "FF176B58" },
       };
-      sheet.columns = headers
-        .trim()
-        .split(",")
-        .map(() => ({ width: 20 }));
+      sheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
+      sheet.getRow(1).alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+      sheet.getRow(1).height = 36;
+      sheet.columns = templateHeaders.map((header) => ({
+        width: ["Question Text", "Explanation", "Constraints"].includes(header)
+          ? 38
+          : header.endsWith("JSON")
+            ? 55
+            : 22,
+      }));
+      sheet.getRows(2, templateRows.length)?.forEach((row) => {
+        row.alignment = { vertical: "top", wrapText: true };
+        row.height = 72;
+      });
       sheet.views = [{ state: "frozen", ySplit: 1 }];
+      sheet.autoFilter = { from: "A1", to: `V${templateRows.length + 1}` };
+      sheet.getColumn(2).eachCell({ includeEmpty: true }, (cell, rowNumber) => {
+        if (rowNumber > 1)
+          cell.dataValidation = {
+            type: "list",
+            allowBlank: false,
+            formulae: ['"MCQ,CODING"'],
+          };
+      });
+      sheet.getColumn(4).eachCell({ includeEmpty: true }, (cell, rowNumber) => {
+        if (rowNumber > 1)
+          cell.dataValidation = {
+            type: "list",
+            allowBlank: false,
+            formulae: ['"EASY,MEDIUM,HARD"'],
+          };
+      });
+      sheet.getColumn(12).eachCell({ includeEmpty: true }, (cell, rowNumber) => {
+        if (rowNumber > 1)
+          cell.dataValidation = {
+            type: "list",
+            allowBlank: false,
+            formulae: ['"DRAFT,ACTIVE"'],
+          };
+      });
+
+      const instructions = workbook.addWorksheet("Instructions");
+      instructions.addRows([
+        ["KGS question import template"],
+        ["Use one row per question. Keep the Questions sheet as the first worksheet."],
+        ["Question type", "Required fields"],
+        ["MCQ", "Question Text, Category, Difficulty, Marks, Options A-D, Correct Answer, and Status."],
+        ["CODING", "Question Text, Question Title, Category, Difficulty, Marks, Input Format, Output Format, Constraints, Allowed Languages, limits, Starter Code JSON, and Test Cases JSON."],
+        ["Allowed Languages", "Use pipe-separated values: javascript|python|cpp|java|c|csharp"],
+        ["Test Cases JSON", "Provide a JSON array with at least one public case (isHidden false) and one hidden case (isHidden true). Every case needs input and expectedOutput."],
+        ["Starter Code JSON", "Provide a JSON object keyed by language. Use \\n inside JSON strings for line breaks."],
+        ["Status", "Use DRAFT while reviewing. ACTIVE coding rows must contain the complete required configuration."],
+      ]);
+      instructions.mergeCells("A1:B1");
+      instructions.getCell("A1").font = { bold: true, size: 16, color: { argb: "FF176B58" } };
+      instructions.getRow(3).font = { bold: true, color: { argb: "FFFFFFFF" } };
+      instructions.getRow(3).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF176B58" } };
+      instructions.columns = [{ width: 24 }, { width: 100 }];
+      instructions.eachRow((row) => {
+        row.alignment = { vertical: "top", wrapText: true };
+      });
+      instructions.views = [{ state: "frozen", ySplit: 3 }];
       const buffer = await workbook.xlsx.writeBuffer();
       return res
         .set(
