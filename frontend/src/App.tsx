@@ -899,6 +899,7 @@ export default function App() {
   const handleProceedToExam = async (examOverride?: Exam) => {
     const exam = examOverride || selectedExam
     if (!exam) return
+    setSelectedExam(exam)
     setExamActionError("")
     setViewState("EXAM_LOADING")
     const base = API_BASE_URL
@@ -908,20 +909,31 @@ export default function App() {
     let attemptId = activeAttempt?.attemptId
     let deadline = activeAttempt?.deadline
     try {
-      if (!attemptId) {
-        if (!exam.id)
-          throw new Error("This examination has no valid identifier.")
+      if (!exam.id)
+        throw new Error("This examination has no valid identifier.")
+
+      const isResume = Boolean(
+        attemptId ||
+          (exam as Exam & { status?: string; nextAction?: string }).status ===
+            "IN_PROGRESS" ||
+          (exam as Exam & { status?: string; nextAction?: string }).nextAction ===
+            "RESUME_EXAM",
+      )
+
+      if (!attemptId || isResume) {
         const start = await authFetch(`${base}/api/exams/${exam.id}/start`, {
           method: "POST",
         })
-        if (!start.ok)
+        if (!start.ok && !attemptId)
           throw new Error(
             (await start.json().catch(() => null))?.error ||
               "Unable to resume this examination.",
           )
-        const attempt = await start.json()
-        attemptId = attempt.attemptId
-        deadline = attempt.deadline
+        if (start.ok) {
+          const attempt = await start.json()
+          attemptId = attempt.attemptId
+          deadline = attempt.deadline
+        }
       }
       if (!attemptId)
         throw new Error(
