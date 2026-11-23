@@ -660,6 +660,7 @@ export default function App() {
   const [lastAnswers, setLastAnswers] = useState<Record<string, AnswerState>>(
     {},
   )
+  const [codingDeadline, setCodingDeadline] = useState<number | null>(null)
   const [examQuestions, setExamQuestions] =
     useState<import("./types").Question[]>([])
   const [submissionLoading, setSubmissionLoading] = useState(false)
@@ -680,7 +681,7 @@ export default function App() {
           setAdmin(true)
           setActive("Overview")
         })
-        .catch(() => navigateEntry("/login"))
+        .catch(() => navigateEntry("/admin"))
       return
     }
     if (entryRoute !== "/dashboard") return
@@ -696,8 +697,18 @@ export default function App() {
           navigateEntry("/login")
           return
         }
+        if (meResponse.status === 403) {
+          navigateEntry("/login")
+          return
+        }
         if (!meResponse.ok) throw new Error("Unable to load your session.")
         const me = await meResponse.json()
+        if (me.user?.role !== "STUDENT") {
+          navigateEntry("/login")
+          return
+        }
+        setAdmin(false)
+        setActive("My examinations")
         setStudent(me.user)
       } catch (error) {
         setDashboardError(
@@ -726,7 +737,7 @@ export default function App() {
   const handleLogout = async () => {
     const logoutUrl = `${API_BASE_URL}${admin ? "/api/auth/admin/logout" : "/api/auth/logout"}`
     void authFetch(logoutUrl, { method: "POST" }, admin).catch(() => undefined)
-    clearAuthToken()
+    clearAuthToken(admin)
     setStudent(null)
     setAdmin(false)
     setAdminUser(null)
@@ -738,7 +749,7 @@ export default function App() {
     return (
       <LandingPage
         onLogin={() => navigateEntry("/login")}
-        onAdminLogin={() => navigateEntry("/login")}
+        onAdminLogin={() => navigateEntry("/admin")}
         onRegister={() => navigateEntry("/register")}
       />
     )
@@ -804,6 +815,9 @@ export default function App() {
     if (entryRoute === "/login" || entryRoute === "/admin")
       return (
         <StudentLoginPage
+          key={entryRoute}
+          adminLogin={entryRoute === "/admin"}
+          allowRegistration={entryRoute !== "/admin"}
           initialEmail={loginEmail}
           onBackToLanding={() => navigateEntry("/")}
           onRegister={() => navigateEntry("/register")}
@@ -888,9 +902,10 @@ export default function App() {
     setViewState("EXAM_LOADING")
     const base = API_BASE_URL
     const activeAttempt = (exam as Exam & {
-      activeAttempt?: { attemptId?: string }
+      activeAttempt?: { attemptId?: string; deadline?: string }
     }).activeAttempt
     let attemptId = activeAttempt?.attemptId
+    let deadline = activeAttempt?.deadline
     try {
       if (!attemptId) {
         if (!exam.id)
@@ -905,12 +920,15 @@ export default function App() {
           )
         const attempt = await start.json()
         attemptId = attempt.attemptId
+        deadline = attempt.deadline
       }
       if (!attemptId)
         throw new Error(
           "The active examination attempt could not be identified.",
         )
       setActiveAttemptId(attemptId)
+      const parsedDeadline = deadline ? Date.parse(deadline) : NaN
+      setCodingDeadline(Number.isFinite(parsedDeadline) ? parsedDeadline : null)
       const response = await authFetch(
         `${base}/api/attempts/${attemptId}/questions`,
       )
@@ -1071,7 +1089,7 @@ export default function App() {
           exam={selectedExam}
           questions={examQuestions}
           attemptId={activeAttemptId}
-          initialRemainingSeconds={Math.max(60, (selectedExam.durationMinutes || 60) * 60)}
+          deadline={codingDeadline ?? Date.now() + (selectedExam.durationMinutes || 60) * 60_000}
           onSubmitSuccess={() => setViewState("SUBMISSION_SUCCESS")}
         />
       )

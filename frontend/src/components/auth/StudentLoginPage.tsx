@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { StudentProfile } from "../../types";
-import { API_BASE_URL, getCsrfHeaders, setAuthToken } from "../../api";
+import { API_BASE_URL, authFetch, getCsrfHeaders, setAuthToken } from "../../api";
 import logoRevealVideo from "../../assets/KGS_logo_reveal_animation_3b0e3d6c_1080p.mp4";
 import { TransparentLogoVideo } from "../public/TransparentLogoVideo";
 
@@ -17,6 +17,7 @@ interface Props {
   onBackToLanding: () => void;
   onRegister: () => void;
   onAuthenticated: (user: any) => void;
+  adminLogin?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -124,6 +125,7 @@ const alertBox = "rounded-xl border px-4 py-3 text-sm font-semibold";
 export function StudentLoginPage({
   initialEmail = "",
   allowRegistration = true,
+  adminLogin = false,
   onBackToLanding,
   onRegister,
   onAuthenticated,
@@ -144,20 +146,13 @@ export function StudentLoginPage({
 
   /* Existing session check */
   useEffect(() => {
-    const token = localStorage.getItem("kgs_token");
-    if (!token) return;
-
     let cancelled = false;
-    fetch(`${api}/api/auth/me`, {
-      credentials: "include",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const path = adminLogin ? "admin/me" : "me";
+    authFetch(`${api}/api/auth/${path}`, { cache: "no-store" }, adminLogin)
       .then(async (response) => {
         if (!response.ok || cancelled) return;
         const data = await response.json();
-        if (data.user?.role) onAuthenticated(data.user);
+        if (!cancelled && data.user?.role === (adminLogin ? "ADMIN" : "STUDENT")) onAuthenticated(data.user);
       })
       .catch(() => {
         /* No active session: show the OTP form. */
@@ -165,7 +160,7 @@ export function StudentLoginPage({
     return () => {
       cancelled = true;
     };
-  }, [api, onAuthenticated]);
+  }, [adminLogin, api, onAuthenticated]);
 
   /* 1s ticker while on the OTP step */
   useEffect(() => {
@@ -195,7 +190,8 @@ export function StudentLoginPage({
     }
     setLoading(true);
     try {
-      const response = await fetch(`${api}/api/auth/${endpoint}`, {
+      const path = adminLogin ? "admin/request-otp" : endpoint;
+      const response = await fetch(`${api}/api/auth/${path}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getCsrfHeaders() },
         credentials: "include",
@@ -232,7 +228,8 @@ export function StudentLoginPage({
     }
     setLoading(true);
     try {
-      const response = await fetch(`${api}/api/auth/verify-otp`, {
+      const path = adminLogin ? "admin/verify-otp" : "verify-otp";
+      const response = await fetch(`${api}/api/auth/${path}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getCsrfHeaders() },
         credentials: "include",

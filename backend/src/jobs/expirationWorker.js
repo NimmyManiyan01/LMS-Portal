@@ -4,7 +4,10 @@ const { finalizeAttempt } = require("../services/finalizeAttempt");
 async function processExpiredAttempts() {
   try {
     const expired = await Attempt.find({
-      status: "IN_PROGRESS",
+      $or: [
+        { status: "IN_PROGRESS" },
+        { status: "AUTO_SUBMITTED", submissionReason: { $exists: false } },
+      ],
       expiresAt: { $lte: new Date() },
     })
       .select("_id studentId")

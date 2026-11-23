@@ -184,6 +184,7 @@ export function LiveMonitoringPage({
                     <th className="px-5 py-4 align-middle whitespace-nowrap">Exam Name</th>
                     <th className="px-5 py-4 align-middle whitespace-nowrap text-center">Started At</th>
                     <th className="px-5 py-4 align-middle whitespace-nowrap text-center">Status</th>
+                    <th className="px-5 py-4 align-middle whitespace-nowrap">Question Progress</th>
                     <th className="px-5 py-4 align-middle whitespace-nowrap text-center">Flags</th>
                     <th className="px-5 py-4 align-middle whitespace-nowrap text-right">Actions</th>
                   </tr>
@@ -191,7 +192,7 @@ export function LiveMonitoringPage({
                 <tbody className="divide-y divide-slate-100/80">
                   {attempts.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-16 text-center text-xs sm:text-sm text-[#057A55] align-middle">
+                      <td colSpan={8} className="py-16 text-center text-xs sm:text-sm text-[#057A55] align-middle">
                         <div className="flex flex-col items-center justify-center gap-2 max-w-md mx-auto">
                           <h3 className="text-lg font-black text-[#1E3A34] m-0">
                             {status === "IN_PROGRESS"
@@ -237,6 +238,8 @@ export function LiveMonitoringPage({
                           </td>
                           <td className="px-5 py-4 align-middle font-extrabold text-[#1E3A34] max-w-[240px] truncate">
                             {examTitle}
+                            {attempt.exam?.code && <div className="text-xs font-medium text-slate-600">{attempt.exam.code}</div>}
+                            <div className="text-[11px] font-mono text-slate-600">{attempt.attemptId || attempt.id}</div>
                           </td>
                           <td className="px-5 py-4 align-middle font-medium text-slate-500 text-center whitespace-nowrap">
                             {startedAtDisplay}
@@ -252,17 +255,30 @@ export function LiveMonitoringPage({
                               {attempt.status}
                             </span>
                           </td>
+                          <td className="px-5 py-4 align-middle whitespace-nowrap text-slate-700">
+                            <div>{attempt.attemptedCount ?? 0} / {attempt.totalAssignedQuestions ?? 0} attempted</div>
+                            <div>{attempt.submittedCount ?? 0} submitted</div>
+                            {attempt.lastAutosaveAt && (
+                              <div className="text-xs text-slate-500">
+                                Last autosave: {new Date(attempt.lastAutosaveAt).toLocaleTimeString()}
+                              </div>
+                            )}
+                          </td>
                           <td className="px-5 py-4 align-middle font-black text-amber-700 text-center whitespace-nowrap">
                             {incidentCount} incidents
                           </td>
                           <td className="px-5 py-4 align-middle text-right whitespace-nowrap">
                             <div className="flex items-center justify-end gap-2">
+                              {attempt.exam?.readinessRequirements?.camera === false && !attempt.hasLiveStream ? (
+                                <span className="text-xs text-slate-600">Camera not required</span>
+                              ) : (
                               <button
                                 className="px-3 py-1.5 rounded-xl bg-[#00D084]/20 text-[#057A55] hover:bg-[#00D084] hover:text-white font-extrabold text-xs transition-all cursor-pointer border-none whitespace-nowrap"
                                 onClick={() => setCameraModalTarget({ ...attempt, studentName, registrationId: collegeRegDisplay, examTitle, incidentCount })}
                               >
                                 View Live Camera
                               </button>
+                              )}
                               <button
                                 className="px-3 py-1.5 rounded-xl bg-[#176B58]/10 text-[#176B58] hover:bg-[#176B58] hover:text-white font-extrabold text-xs transition-all cursor-pointer border-none whitespace-nowrap"
                                 onClick={() => void viewEvents(attempt)}

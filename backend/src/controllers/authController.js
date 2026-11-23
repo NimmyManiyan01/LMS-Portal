@@ -35,8 +35,8 @@ const generic = {
   message:
     "If this email can be used, verification instructions have been sent.",
 };
-const cookie = (token) =>
-  `kgs_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${isProduction ? "None; Secure; Partitioned" : "Lax"}; Priority=High`;
+const cookie = (token, name = "kgs_session") =>
+  `${name}=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL / 1000}; SameSite=${isProduction ? "None; Secure; Partitioned" : "Lax"}; Priority=High`;
 
 async function registerStudent(req, res) {
   const {
@@ -240,7 +240,7 @@ async function verifyOtp(req, res) {
       adminId: administrator.id,
       expiresAt: new Date(Date.now() + SESSION_TTL),
     });
-    res.append("Set-Cookie", cookie(raw));
+    res.append("Set-Cookie", cookie(raw, "kgs_admin_session"));
     return res.json({
       token: raw,
       user: {
@@ -279,6 +279,7 @@ async function verifyOtp(req, res) {
   });
 }
 async function logout(req, res) {
+  if (req.auth?.role !== "STUDENT") return res.status(403).json({ error: "Student account required" });
   if (req.session) await Session.deleteOne({ _id: req.session.id });
   res.append(
     "Set-Cookie",

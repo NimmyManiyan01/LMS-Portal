@@ -8,6 +8,7 @@ const Answer = require("../models/Answer");
 const FinalResult = require("../models/FinalResult");
 const { authenticate } = require("../middleware/auth");
 const { evaluateCode } = require("../services/codeCompilerService");
+const { studentEvaluation } = require("../services/studentEvaluation");
 const { finalizeAttempt } = require("../services/finalizeAttempt");
 
 const adminOnly = (req, res, next) => {
@@ -158,7 +159,7 @@ router.get("/attempts/:id", authenticate, async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: "Invalid attempt ID" });
   const attempt = await Attempt.findOne({ _id: req.params.id, studentId: studentMatch(req.student) }).lean();
   if (!attempt) return res.status(404).json({ error: "Attempt not found" });
-  const answers = await Answer.find({ attemptId: attempt._id }).lean();
+  const answers = await Answer.find({ attemptId: attempt._id }).select("-testResults").lean();
   res.json({
     attemptId: String(attempt._id),
     status: attempt.status,
@@ -172,17 +173,26 @@ router.get("/attempts/:id", authenticate, async (req, res) => {
 router.put("/attempts/:id/draft", authenticate, async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: "Invalid attempt ID" });
   const { questionId, code, language } = req.body || {};
-  if (!questionId || !code) return res.status(400).json({ error: "questionId and code are required" });
+  if (!mongoose.isValidObjectId(questionId) || typeof code !== "string") {
+    return res.status(400).json({ error: "A valid question ID and code are required." });
+  }
 
-  const attempt = await Attempt.findOne({ _id: req.params.id, studentId: studentMatch(req.student), status: "IN_PROGRESS" }).lean();
+  const attempt = await Attempt.findOne({
+    _id: req.params.id,
+    studentId: studentMatch(req.student),
+    status: "IN_PROGRESS",
+    expiresAt: { $gt: new Date() },
+  }).lean();
   if (!attempt) return res.status(404).json({ error: "Active attempt not found" });
+  if (!attempt.assignedQuestionIds?.some(id => String(id) === String(questionId))) {
+    return res.status(404).json({ error: "Question is not assigned to this attempt." });
+  }
 
   const updated = await Answer.findOneAndUpdate(
     { attemptId: attempt._id, questionId },
-    { $set: { code, language: language || "javascript", savedAt: new Date() } },
-    { upsert: true, new: true }
+    { $set: { draftCode: code, draftLanguage: language || "javascript", savedAt: new Date() } },
+    { upsert: true, new: true },
   );
-
   res.json({ saved: true, savedAt: updated.savedAt });
 });
 
@@ -193,11 +203,14 @@ router.post("/executions", authenticate, async (req, res) => {
     return res.status(400).json({ error: "attemptId, questionId, and sourceCode are required." });
   }
 
-  const attempt = await Attempt.findOne({ _id: attemptId, studentId: studentMatch(req.student), status: "IN_PROGRESS" }).lean();
+  const attempt = await Attempt.findOne({ _id: attemptId, studentId: studentMatch(req.student), status: "IN_PROGRESS", expiresAt: { $gt: new Date() } }).lean();
   if (!attempt) return res.status(404).json({ error: "Active attempt not found." });
 
-  const question = await Question.findById(questionId).lean();
-  if (!question) return res.status(404).json({ error: "Question not found." });
+  if (!attempt.assignedQuestionIds?.some((id) => String(id) === questionId)) {
+    return res.status(404).json({ error: "Question is not assigned to this attempt." });
+  }
+  const question = await Question.findOne({ _id: questionId, questionType: "CODING" }).lean();
+  if (!question) return res.status(409).json({ error: "This question is not configured for code evaluation." });
 
   const jobId = `job_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const testCasesToRun = stdin
@@ -206,13 +219,18 @@ router.post("/executions", authenticate, async (req, res) => {
       ? (question.testCases || [])
       : (question.testCases || []).filter((tc) => !tc.isHidden);
 
-  const evalResult = await evaluateCode({
+  if (!testCasesToRun.length) {
+    return res.status(409).json({ error: "This question has no test cases for the requested execution." });
+  }
+
+  const evaluation = await evaluateCode({
     code: sourceCode,
     language: language || "javascript",
     testCases: testCasesToRun,
     timeLimitSeconds: question.timeLimitSeconds || 2,
   });
 
+  const evalResult = studentEvaluation(evaluation);
   const firstResult = evalResult.testResults[0] || {};
 
   res.json({

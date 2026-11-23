@@ -11,10 +11,13 @@ const answerSchema = new mongoose.Schema(
     selectedOptionId: String,
     code: String,
     language: String,
+    draftCode: String,
+    draftLanguage: String,
     testResults: [
       {
         testCaseId: String,
         passed: Boolean,
+        isHidden: Boolean,
         input: String,
         expectedOutput: String,
         actualOutput: String,

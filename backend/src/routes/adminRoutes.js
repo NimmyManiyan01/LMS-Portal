@@ -5,6 +5,7 @@ const Student = require("../models/Student");
 const AdminUser = require("../models/AdminUser");
 const Exam = require("../models/Exam");
 const Attempt = require("../models/Attempt");
+const Answer = require("../models/Answer");
 const IntegrityEvent = require("../models/IntegrityEvent");
 const ReportExport = require("../models/ReportExport");
 const AuditLog = require("../models/AuditLog");
@@ -589,11 +590,11 @@ router.get(
           const hasFreshFrame = Boolean(session?.frame && Date.now() - (session.lastFrameAt || 0) < 10000);
           const hasLiveStream = Boolean(attempt.status === "IN_PROGRESS" && (session?.offer || hasFreshFrame));
 
-          const attemptedCount = attemptAnswers.filter((a) => a.code || a.selectedOptionId).length;
-          const submittedCount = attemptAnswers.filter((a) => a.passCount !== undefined || a.score !== undefined).length;
+          const attemptedCount = attemptAnswers.filter((a) => a.draftCode || a.code || a.selectedOptionId).length;
+          const submittedCount = attemptAnswers.filter((a) => Number(a.totalTestCases) > 0).length;
           const latestAnswer = attemptAnswers.sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0))[0] || null;
           const lastAutosaveAt = latestAnswer?.savedAt || null;
-          const lastExecutionStatus = latestAnswer?.testResults?.[0]?.status || (latestAnswer?.passCount !== undefined ? "EVALUATED" : "IN_PROGRESS");
+          const lastExecutionStatus = latestAnswer?.testResults?.[0]?.status || (Number(latestAnswer?.totalTestCases) > 0 ? "EVALUATED" : "IN_PROGRESS");
           const remainingSeconds = attempt.expiresAt ? Math.max(0, Math.ceil((new Date(attempt.expiresAt).getTime() - Date.now()) / 1000)) : 0;
 
           return {
@@ -895,6 +896,10 @@ router.get("/exams/next-code", authenticate, adminOnly, async (_req, res) => {
     code: `EXAM-${year}-${String((counter?.sequence || 0) + 1).padStart(4, "0")}`,
   });
 });
+function examRound(examinationType) {
+  return examinationType === "CODING" ? 2 : 1;
+}
+
 router.post("/exams", authenticate, adminOnly, async (req, res) => {
   const title = String(req.body.name || req.body.title || "").trim();
   let code;
@@ -918,6 +923,7 @@ router.post("/exams", authenticate, adminOnly, async (req, res) => {
     return res
       .status(400)
       .json({ error: "Provide valid examination details and date range." });
+  const examinationType = String(req.body.examinationType || "MCQ");
   code = await reserveExamCode();
   try {
     const exam = await Exam.create({
@@ -925,7 +931,8 @@ router.post("/exams", authenticate, adminOnly, async (req, res) => {
       name: title,
       code,
       description: String(req.body.description || ""),
-      examinationType: String(req.body.examinationType || "MCQ"),
+      examinationType,
+      roundNumber: examRound(examinationType),
       scheduledAt: start,
       closesAt: end,
       durationMinutes: duration,
@@ -992,6 +999,9 @@ router.patch("/exams/:id", authenticate, adminOnly, async (req, res) => {
       exam[to] = ["scheduledAt", "closesAt"].includes(to)
         ? new Date(req.body[from])
         : req.body[from];
+  if (req.body.examinationType !== undefined || req.body.roundNumber !== undefined) {
+    exam.roundNumber = examRound(exam.examinationType);
+  }
   if (
     exam.integrityRules?.tabSwitchThreshold !== undefined &&
     (!Number.isInteger(Number(exam.integrityRules.tabSwitchThreshold)) ||
@@ -1034,6 +1044,13 @@ router.patch("/exams/:id", authenticate, adminOnly, async (req, res) => {
         });
   }
   if (exam.status === "SCHEDULED") {
+    if (req.body.status === "SCHEDULED" &&
+        (!exam.scheduledAt || !exam.closesAt || exam.scheduledAt <= new Date())) {
+      return res.status(400).json({ error: "Scheduling requires a start date in the future." });
+    }
+    if (exam.examinationType === "CODING" && exam.roundNumber !== 2) {
+      return res.status(409).json({ error: "Set the coding examination to Round 2 before scheduling." });
+    }
     const publishedSet = await PaperSet.findOne({
       examId: exam._id,
       status: "PUBLISHED",
@@ -1565,38 +1582,21 @@ router.get(
 );
 
 router.get("/questions", authenticate, adminOnly, async (req, res) => {
-  const codingCount = await Question.countDocuments({ questionType: "CODING" });
-  if (codingCount === 0) {
-    await Question.create({
-      questionText: "Given an array of N integers, calculate and print their sum.",
-      questionTitle: "Sum of Array Elements",
-      questionType: "CODING",
-      sectionName: "Algorithms",
-      difficulty: "EASY",
-      marks: 10,
-      status: "DRAFT",
-      inputFormat: "First line contains integer N. Second line contains N space-separated integers.",
-      outputFormat: "Single integer representing the sum of the array elements.",
-      constraints: "1 <= N <= 100,000, -10^9 <= element <= 10^9",
-      allowedLanguages: ["python", "javascript", "cpp", "java", "c"],
-      testCases: [
-        { id: "tc_1", input: "5\n10 20 30 40 50", expectedOutput: "150", isHidden: false, weightage: 5, explanation: "Sample test case" },
-        { id: "tc_2", input: "3\n1 2 3", expectedOutput: "6", isHidden: true, weightage: 5, explanation: "Hidden test case" }
-      ],
-      explanation: "Given an array of N integers, calculate and print their sum."
-    }).catch(() => {});
-  }
-
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
   const search = String(req.query.search || "").trim();
   const filter = {};
-  const safeSearch = escapeRegex(search);
-  if (safeSearch)
+  if (search) {
+    const textSearch = { $regex: escapeRegex(search), $options: "i" };
     filter.$or = [
-      { questionText: { $regex: safeSearch, $options: "i" } },
-      { sectionName: { $regex: safeSearch, $options: "i" } },
+      { questionText: textSearch },
+      { questionTitle: textSearch },
+      { sectionName: textSearch },
     ];
+    if (mongoose.isValidObjectId(search)) {
+      filter.$or.push({ _id: new mongoose.Types.ObjectId(search) });
+    }
+  }
   if (req.query.type)
     filter.questionType = String(req.query.type).toUpperCase();
   if (req.query.category) filter.sectionName = String(req.query.category);
@@ -2083,7 +2083,7 @@ router.post("/paper-sets", authenticate, adminOnly, async (req, res) => {
         error:
           "Passing marks must be greater than zero and cannot exceed total marks.",
       });
-  const exam = await Exam.findById(examId).select("durationMinutes").lean();
+  const exam = await Exam.findById(examId).select("durationMinutes examinationType roundNumber").lean();
   if (!exam)
     return res
       .status(400)
@@ -2107,6 +2107,12 @@ router.post("/paper-sets", authenticate, adminOnly, async (req, res) => {
       .json({
         error: "A paper set with this name already exists for the examination.",
       });
+  const isCodingPaper = exam.examinationType === "CODING" || exam.roundNumber === 2;
+  if (isCodingPaper && (automaticRandomization || !Array.isArray(questionIds) || !questionIds.length)) {
+    return res.status(400).json({
+      error: "Select at least one fixed coding question for this paper set.",
+    });
+  }
   const code = `SET-${Date.now().toString(36).toUpperCase()}`;
   if (automaticRandomization) {
     const previewQuestions = await Question.find({ status: "ACTIVE" })
@@ -2147,6 +2153,7 @@ router.post("/paper-sets", authenticate, adminOnly, async (req, res) => {
   const questions = await Question.find({
     _id: { $in: questionIds },
     status: "ACTIVE",
+    ...(isCodingPaper ? { questionType: "CODING", "testCases.0": { $exists: true } } : {}),
   })
     .select("_id marks")
     .lean();
@@ -2300,6 +2307,32 @@ router.patch("/paper-sets/:id", authenticate, adminOnly, async (req, res) => {
   await set.save();
   res.json({ paperSet: { ...set.toObject(), id: String(set._id) } });
 });
+async function codingPaperErrors(set, questions) {
+  const exam = await Exam.findById(set.examId).select("examinationType roundNumber durationMinutes").lean();
+  if (!exam) return ["The linked examination does not exist."];
+  if (exam.examinationType !== "CODING" && exam.roundNumber !== 2) return [];
+  const errors = [];
+  if (exam.examinationType !== "CODING" || exam.roundNumber !== 2) {
+    errors.push("The linked coding examination must be configured as Round 2.");
+  }
+  if (Number(set.durationMinutes) !== Number(exam.durationMinutes)) {
+    errors.push("The paper duration must match the examination duration.");
+  }
+  if (set.blueprint?.automaticRandomization || !set.questionIds?.length ||
+      questions.length !== set.questionIds.length ||
+      questions.some((question) =>
+        question.status !== "ACTIVE" ||
+        question.questionType !== "CODING" ||
+        !question.testCases?.length ||
+        question.testCases.some((testCase) =>
+          typeof testCase.input !== "string" || typeof testCase.expectedOutput !== "string",
+        ),
+      )) {
+    errors.push("A coding paper must contain fixed, active coding questions with valid test cases.");
+  }
+  return errors;
+}
+
 router.post(
   "/paper-sets/:id/validate",
   authenticate,
@@ -2340,6 +2373,7 @@ router.post(
       errors.push(
         "Every MCQ must have four options and one valid correct answer.",
       );
+    errors.push(...await codingPaperErrors(set, questions));
     res.json({
       valid: errors.length === 0,
       errors,
@@ -2371,6 +2405,8 @@ router.post(
         ))
     )
       return res.status(409).json({ error: "Paper set validation failed." });
+    const errors = await codingPaperErrors(set, questions);
+    if (errors.length) return res.status(409).json({ error: errors.join(" ") });
     set.status = "PUBLISHED";
     set.active = true;
     set.publishedAt = new Date();

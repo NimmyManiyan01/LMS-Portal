@@ -5,6 +5,7 @@ const Answer = require("../models/Answer");
 const Question = require("../models/Question");
 const FinalResult = require("../models/FinalResult");
 const Exam = require("../models/Exam");
+const PaperSet = require("../models/PaperSet");
 
 async function finalizeAttempt({
   attemptId,
@@ -23,6 +24,11 @@ async function finalizeAttempt({
       }).session(session);
       if (!attempt)
         throw Object.assign(new Error("Attempt not found"), { status: 404 });
+      const deadline = attempt.expiresAt ? new Date(attempt.expiresAt).getTime() : NaN;
+      const expired = Number.isFinite(deadline) && deadline <= Date.now();
+      if (reason === "MANUAL" && (!Number.isFinite(deadline) || expired)) {
+        throw Object.assign(new Error("The examination deadline has passed or is unavailable."), { status: 409 });
+      }
       const existing = await FinalResult.findOne({ attemptId }).session(
         session,
       );
@@ -37,11 +43,16 @@ async function finalizeAttempt({
         };
         return;
       }
-      if (attempt.status !== "IN_PROGRESS")
+      if (reason === "TIMER_EXPIRY" && !expired) {
+        throw Object.assign(new Error("The examination deadline has not passed."), { status: 409 });
+      }
+      const legacyTimeout = reason === "TIMER_EXPIRY" &&
+        attempt.status === "AUTO_SUBMITTED" && !attempt.submissionReason;
+      if (attempt.status !== "IN_PROGRESS" && !legacyTimeout)
         throw Object.assign(new Error("Attempt is already finalized"), {
           status: 409,
         });
-      if (answers && typeof answers === "object") {
+      if (reason !== "TIMER_EXPIRY" && answers && typeof answers === "object") {
         const entries = Array.isArray(answers)
           ? answers.map((a) => [
               a.questionId || a.id || a._id,
@@ -89,31 +100,23 @@ async function finalizeAttempt({
         );
         const q = byId.get(String(questionId));
         if (!q) continue;
-        if (answer?.score !== undefined && answer?.score !== null) {
-          const qScore = Number(answer.score || 0);
-          score += qScore;
-          if (qScore > 0) correctCount++;
-          else unansweredCount++;
-        } else if (!answer?.selectedOptionId) {
-          unansweredCount++;
-          score += Number(scheme.unansweredMarks || 0);
-        } else if (answer.selectedOptionId === q.correctOptionId) {
-          correctCount++;
-          score += Number(scheme.correctMarks ?? q.marks ?? 0);
-        } else {
-          incorrectCount++;
-          const questionPenalty = Number(q.negativeMarks || 0);
-          const schemePenalty = Number(scheme.incorrectMarks || 0);
-          score += questionPenalty
-            ? -Math.abs(questionPenalty)
-            : schemePenalty > 0
-              ? -schemePenalty
-              : schemePenalty;
-        }
+        const grade = gradeQuestion(q, answer, scheme);
+        score += grade.score;
+        if (grade.status === "correct") correctCount++;
+        else if (grade.status === "incorrect") incorrectCount++;
+        else unansweredCount++;
       }
       if (scheme.floorNegativeScoreAtZero) score = Math.max(0, score);
-      if (exam?.totalMarks !== undefined && exam?.totalMarks !== null) {
-        score = Math.min(score, Number(exam.totalMarks));
+      let maximumMarks = exam?.totalMarks;
+      if (maximumMarks == null && attempt.paperSetId) {
+        const paper = await PaperSet.findOne({
+          _id: attempt.paperSetId,
+          examId: attempt.examId,
+        }).select("totalMarks blueprint.maximumMarks").session(session).lean();
+        maximumMarks = paper?.totalMarks ?? paper?.blueprint?.maximumMarks;
+      }
+      if (maximumMarks != null) {
+        score = Math.min(score, Number(maximumMarks));
       }
       const finalizedAt = new Date();
       const receiptToken = `SUB-${crypto.randomBytes(10).toString("hex").toUpperCase()}`;
@@ -133,9 +136,9 @@ async function finalizeAttempt({
             studentId: attempt.studentId,
             assignedSetId: attempt.paperSetId,
             marksScored: score,
-            maximumMarks: exam?.totalMarks,
+            maximumMarks,
             score,
-            maxMarks: exam?.totalMarks,
+            maxMarks: maximumMarks,
             correctCount,
             incorrectCount,
             unansweredCount,
@@ -156,7 +159,7 @@ async function finalizeAttempt({
         receiptToken: result[0].receiptToken,
         attemptId,
         marksScored: score,
-        maximumMarks: exam?.totalMarks,
+        maximumMarks,
         status: "FINALIZED",
         finalizedAt,
       };
@@ -166,4 +169,21 @@ async function finalizeAttempt({
   }
   return response;
 }
-module.exports = { finalizeAttempt };
+function gradeQuestion(question, answer, scheme) {
+  if (question.questionType === "CODING") {
+    if (!(answer?.totalTestCases > 0)) return { status: "unanswered", score: 0 };
+    const score = Number(answer.score || 0);
+    return { status: score > 0 ? "correct" : "incorrect", score };
+  }
+  if (!answer?.selectedOptionId) {
+    return { status: "unanswered", score: Number(scheme.unansweredMarks || 0) };
+  }
+  if (answer.selectedOptionId === question.correctOptionId) {
+    return { status: "correct", score: Number(scheme.correctMarks ?? question.marks ?? 0) };
+  }
+  const questionPenalty = Number(question.negativeMarks || 0);
+  const schemePenalty = Number(scheme.incorrectMarks || 0);
+  return { status: "incorrect", score: -Math.abs(questionPenalty || schemePenalty) || 0 };
+}
+
+module.exports = { finalizeAttempt, gradeQuestion };

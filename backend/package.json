@@ -4,7 +4,7 @@
   "description": "KGS Exam Portal REST API",
   "main": "server.js",
   "scripts": {
-    "dev": "node --watch --watch-path=.env server.js",
+    "dev": "node --watch --watch-path=.env --watch-path=src --watch-path=server.js server.js",
     "start": "node server.js",
     "test": "node --test test/*.test.js",
     "seed:dev": "node scripts/seed-dev.js",

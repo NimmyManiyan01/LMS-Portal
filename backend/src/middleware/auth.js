@@ -24,8 +24,8 @@ async function authenticate(req, res, next) {
       ? authHeader.slice(7).trim()
       : authHeader;
     const cookies = parseCookies(req.headers.cookie);
-    const sessionToken =
-      bearerToken || cookies.kgs_session || cookies.kgs_admin_session;
+    const adminRoute = /^\/api\/(?:admin|auth\/admin)(?:\/|\?|$)/.test(req.originalUrl);
+    const sessionToken = bearerToken || (adminRoute ? cookies.kgs_admin_session : cookies.kgs_session);
 
     if (!sessionToken) {
       return res.status(401).json({ error: "Authentication required" });

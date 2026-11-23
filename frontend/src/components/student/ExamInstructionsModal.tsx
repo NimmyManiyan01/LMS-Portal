@@ -36,10 +36,10 @@ export function ExamInstructionsModal({
         ? [
             "Read the problem statement, constraints, and sample test cases carefully.",
             `Allowed programming languages: ${allowedLangsDisplay}.`,
-            "Use the 'Run Code' button to test your code against sample inputs.",
-            "Click 'Submit Solution' to evaluate your code against all public & hidden test cases.",
-            "Your code is automatically saved in the background every 30 seconds.",
-            "Camera monitoring and fullscreen mode are required throughout the session.",
+            "Use the 'Run Tests' button to test your code against sample inputs.",
+            "Click 'Submit Code' to evaluate your code against all public & hidden test cases.",
+            "Draft code is saved automatically after you stop typing.",
+            `Camera monitoring is ${exam.readinessRequirements?.camera ? "required" : "not required"} for this examination. Fullscreen is ${exam.readinessRequirements?.fullscreen ? "required" : "not required"}.`,
             "Tab switching and window exits are logged as proctoring incidents.",
             "The timer begins only after your session attempt is confirmed by the server.",
           ]

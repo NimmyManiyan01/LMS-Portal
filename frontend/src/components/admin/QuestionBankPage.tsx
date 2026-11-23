@@ -397,6 +397,7 @@ export function QuestionBankPage({
             />
           </div>
           <select
+            aria-label="Question type"
             value={filters.type}
             onChange={(e) => setFilters({ ...filters, type: e.target.value })}
             className="h-11 px-4 text-xs sm:text-sm font-extrabold bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm cursor-pointer"
@@ -409,6 +410,7 @@ export function QuestionBankPage({
             <option value="CODING">Coding Problem (Round 2)</option>
           </select>
           <select
+            aria-label="Question status"
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
             className="h-11 px-4 text-xs sm:text-sm font-extrabold bg-white/90 border border-slate-200/80 rounded-2xl text-[#1E3A34] outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 shadow-sm cursor-pointer"

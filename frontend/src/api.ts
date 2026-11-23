@@ -15,37 +15,21 @@ export function getApiBaseUrl(): string {
 
 export const API_BASE_URL = getApiBaseUrl()
 
-export function getAuthToken(isAdmin = false): string | null {
-  if (isAdmin) {
-    return (
-      localStorage.getItem("kgs_admin_token") ||
-      localStorage.getItem("kgs_token")
-    )
-  }
+function authTokenKey(isAdmin: boolean): string {
+  return isAdmin ? "kgs_admin_token" : "kgs_student_token"
+}
 
-  return (
-    localStorage.getItem("kgs_student_token") ||
-    localStorage.getItem("kgs_token")
-  )
+export function getAuthToken(isAdmin = false): string | null {
+  return localStorage.getItem(authTokenKey(isAdmin))
 }
 
 export function setAuthToken(token: string, isAdmin = false): void {
-  if (isAdmin) {
-    localStorage.setItem("kgs_admin_token", token)
-    localStorage.removeItem("kgs_student_token")
-  } else {
-    localStorage.setItem("kgs_student_token", token)
-    localStorage.removeItem("kgs_admin_token")
-  }
-
-  localStorage.setItem("kgs_token", token)
+  localStorage.setItem(authTokenKey(isAdmin), token)
+  localStorage.removeItem("kgs_token")
 }
 
-export function clearAuthToken(): void {
-  localStorage.removeItem("kgs_admin_token")
-
-  localStorage.removeItem("kgs_student_token")
-
+export function clearAuthToken(isAdmin = false): void {
+  localStorage.removeItem(authTokenKey(isAdmin))
   localStorage.removeItem("kgs_token")
 }
 

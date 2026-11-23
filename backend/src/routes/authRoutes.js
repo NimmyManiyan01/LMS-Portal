@@ -29,7 +29,7 @@ router.get("/me", authenticate, me);
 router.post("/admin/login", validateAdminLogin, adminLogin);
 router.post("/admin/request-otp", validateEmail, adminRequestOtp);
 router.post("/admin/verify-otp", validateEmail, validateOtp, adminVerifyOtp);
-router.post("/admin/logout", adminLogout);
+router.post("/admin/logout", authenticate, adminLogout);
 router.get("/admin/me", authenticate, (req, res) => {
   if (req.auth.role !== "ADMIN")
     return res.status(403).json({ error: "Administrator access required" });

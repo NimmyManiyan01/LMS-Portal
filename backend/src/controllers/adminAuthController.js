@@ -88,8 +88,9 @@ async function login(req, res) {
   });
 }
 async function logout(req, res) {
+  if (req.auth?.role !== "ADMIN") return res.status(403).json({ error: "Administrator access required" });
   if (req.session) await Session.deleteOne({ _id: req.session.id });
-  res.setHeader(
+  res.append(
     "Set-Cookie",
     `kgs_admin_session=; HttpOnly; Path=/; Max-Age=0; SameSite=${isProduction ? "None; Secure; Partitioned" : "Lax"}; Priority=High`,
   );

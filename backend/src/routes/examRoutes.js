@@ -124,18 +124,14 @@ router.post(
         scheduledAt: exam.scheduledAt,
       });
 
-    let active = await Attempt.findOne({
+    const active = await Attempt.findOne({
       examId: exam._id,
       studentId: req.student.id,
       status: "IN_PROGRESS",
     }).lean();
 
     if (active && new Date(active.expiresAt) <= new Date()) {
-      await Attempt.updateOne(
-        { _id: active._id },
-        { $set: { status: "AUTO_SUBMITTED", submittedAt: new Date() } },
-      );
-      active = null;
+      return res.status(409).json({ error: "The previous attempt expired and is awaiting automatic finalization." });
     }
 
     if (active)
@@ -271,9 +267,10 @@ router.post(
     }
 
     const startedAt = new Date();
-    const expiresAt = new Date(
+    const expiresAt = new Date(Math.min(
       startedAt.getTime() + (exam.durationMinutes || 60) * 60 * 1000,
-    );
+      exam.closesAt ? new Date(exam.closesAt).getTime() : Infinity,
+    ));
     let attempt;
     const studentId = req.student._id || req.student.id;
 
@@ -332,7 +329,7 @@ router.post(
       startedAt: attempt.startedAt,
       deadline: attempt.expiresAt,
       serverTime: new Date(),
-      durationSeconds: (exam.durationMinutes || 60) * 60,
+      durationSeconds: Math.max(0, Math.ceil((new Date(attempt.expiresAt) - Date.now()) / 1000)),
     });
   }),
 );
@@ -356,16 +353,6 @@ router.get(
       .select("-__v -paperSetId")
       .lean();
     if (!attempt) return res.status(404).json({ error: "Attempt not found" });
-    const expired =
-      attempt.status === "IN_PROGRESS" &&
-      new Date(attempt.expiresAt) <= new Date();
-    if (expired) {
-      await Attempt.updateOne(
-        { _id: attempt._id },
-        { $set: { status: "AUTO_SUBMITTED", submittedAt: new Date() } },
-      );
-      attempt.status = "AUTO_SUBMITTED";
-    }
     res.json({
       attemptId: attempt.id,
       status: attempt.status,
@@ -391,9 +378,6 @@ router.patch(
     if (!attempt)
       return res.status(404).json({ error: "Active attempt not found" });
     if (new Date(attempt.expiresAt) <= new Date()) {
-      attempt.status = "AUTO_SUBMITTED";
-      attempt.submittedAt = new Date();
-      await attempt.save();
       return res
         .status(409)
         .json({ error: "The examination deadline has passed" });
@@ -622,12 +606,7 @@ router.post(
         await finalizeAttempt({
           attemptId: req.params.id,
           studentId: req.student.id,
-          reason:
-            new Date() >=
-            (await Attempt.findById(req.params.id).select("expiresAt"))
-              .expiresAt
-              ? "TIMER_EXPIRY"
-              : "MANUAL",
+          reason: "MANUAL",
           answers: req.body.answers,
         }),
       );

@@ -33,24 +33,18 @@ async function findOwnedAttempt(req, res) {
     res.status(404).json({ error: "Attempt not found" });
     return null;
   }
-  if (
-    attempt.status === "IN_PROGRESS" &&
-    new Date(attempt.expiresAt) <= new Date()
-  ) {
-    await Attempt.updateOne(
-      { _id: attempt._id, status: "IN_PROGRESS" },
-      { $set: { status: "AUTO_SUBMITTED", submittedAt: new Date() } },
-    );
-    attempt.status = "AUTO_SUBMITTED";
-  }
   return attempt;
+}
+
+function isAttemptOpen(attempt) {
+  return attempt.status === "IN_PROGRESS" && new Date(attempt.expiresAt).getTime() > Date.now();
 }
 
 router.get("/:attemptId", authenticate, async (req, res) => {
   const attempt = await findOwnedAttempt(req, res);
   if (!attempt) return;
   const answers = await Answer.find({ attemptId: attempt._id })
-    .select("-_id -attemptId -__v")
+    .select("-_id -attemptId -__v -testResults")
     .lean();
   res.json({
     attemptId: String(attempt.id || attempt._id),
@@ -163,7 +157,7 @@ router.get("/:attemptId/answers", authenticate, async (req, res) => {
   res.json({
     attemptId: String(attempt.id || attempt._id),
     answers: await Answer.find({ attemptId: attempt._id })
-      .select("-_id -attemptId -__v")
+      .select("-_id -attemptId -__v -testResults")
       .lean(),
     serverTime: new Date(),
   });
@@ -325,11 +319,12 @@ router.post("/:attemptId/feedback", authenticate, async (req, res) => {
 
 const { storeStudentSignal, getSessionState, clearSession } = require("../services/webrtcSignaling");
 const { evaluateCode } = require("../services/codeCompilerService");
+const { studentEvaluation } = require("../services/studentEvaluation");
 
 router.post("/:attemptId/run-code", authenticate, async (req, res) => {
   const attempt = await findOwnedAttempt(req, res);
   if (!attempt) return;
-  if (attempt.status !== "IN_PROGRESS") {
+  if (!isAttemptOpen(attempt)) {
     return res.status(409).json({ error: "Examination attempt is no longer active." });
   }
 
@@ -338,16 +333,20 @@ router.post("/:attemptId/run-code", authenticate, async (req, res) => {
     return res.status(400).json({ error: "questionId and code are required." });
   }
 
+  if (!attempt.assignedQuestionIds?.some((id) => String(id) === questionId)) {
+    return res.status(404).json({ error: "Question is not assigned to this attempt." });
+  }
   const question = await Question.findById(questionId).lean();
-  if (!question) {
-    return res.status(404).json({ error: "Question not found" });
+  if (!question || question.questionType !== "CODING") {
+    return res.status(409).json({ error: "This question is not configured for code evaluation." });
   }
 
   const testCasesToRun = input
     ? [{ id: "custom", input, expectedOutput: "", isHidden: false }]
-    : (question.testCases && question.testCases.length > 0)
-      ? question.testCases.filter((tc) => !tc.isHidden)
-      : [{ id: "default_tc", input: "5\n10 20 30 40 50", expectedOutput: "150", isHidden: false }];
+    : (question.testCases || []).filter((tc) => !tc.isHidden);
+  if (!testCasesToRun.length) {
+    return res.status(409).json({ error: "This question has no public test cases. Enter custom input to run your code." });
+  }
 
   const evalResult = await evaluateCode({
     code,
@@ -374,7 +373,7 @@ router.post("/:attemptId/run-code", authenticate, async (req, res) => {
 router.post("/:attemptId/submit-code", authenticate, async (req, res) => {
   const attempt = await findOwnedAttempt(req, res);
   if (!attempt) return;
-  if (attempt.status !== "IN_PROGRESS") {
+  if (!isAttemptOpen(attempt)) {
     return res.status(409).json({ error: "Examination attempt is no longer active." });
   }
   const { questionId, code, language } = req.body || {};
@@ -382,21 +381,33 @@ router.post("/:attemptId/submit-code", authenticate, async (req, res) => {
     return res.status(400).json({ error: "questionId and code are required." });
   }
 
+  if (!attempt.assignedQuestionIds?.some((id) => String(id) === questionId)) {
+    return res.status(404).json({ error: "Question is not assigned to this attempt." });
+  }
   const question = await Question.findById(questionId).lean();
-  if (!question) {
-    return res.status(404).json({ error: "Question not found" });
+  if (!question || question.questionType !== "CODING") {
+    return res.status(409).json({ error: "This question is not configured for code evaluation." });
   }
 
-  const testCasesToEvaluate = (question.testCases && question.testCases.length > 0)
-    ? question.testCases
-    : [{ id: "default_tc", input: "5\n10 20 30 40 50", expectedOutput: "150", isHidden: false }];
+  if (!question.testCases?.length) {
+    return res.status(409).json({ error: "This coding question has no grading test cases. Contact the examination administrator." });
+  }
 
   const evalResult = await evaluateCode({
     code,
     language: language || "javascript",
-    testCases: testCasesToEvaluate,
+    testCases: question.testCases,
     timeLimitSeconds: question.timeLimitSeconds || 2,
   });
+
+  const stillOpen = isAttemptOpen(attempt) && await Attempt.exists({
+    _id: attempt._id,
+    status: "IN_PROGRESS",
+    expiresAt: { $gt: new Date() },
+  });
+  if (!stillOpen || !isAttemptOpen(attempt)) {
+    return res.status(409).json({ error: "The examination deadline passed during evaluation." });
+  }
 
   const questionMarks = Number(question.marks || 10);
   const calculatedScore = Math.round(evalResult.scoreRatio * questionMarks);
@@ -425,7 +436,7 @@ router.post("/:attemptId/submit-code", authenticate, async (req, res) => {
 
   res.json({
     submitted: true,
-    evalResult,
+    evalResult: studentEvaluation(evalResult),
     score: calculatedScore,
     questionMarks,
   });

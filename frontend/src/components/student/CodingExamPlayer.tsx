@@ -5,7 +5,7 @@ type CodingExamPlayerProps = {
   exam: any
   attemptId: string
   questions: any[]
-  initialRemainingSeconds: number
+  deadline: number
   onSubmitSuccess: () => void
 }
 
@@ -13,20 +13,25 @@ export function CodingExamPlayer({
   exam,
   attemptId,
   questions = [],
-  initialRemainingSeconds,
+  deadline,
   onSubmitSuccess,
 }: CodingExamPlayerProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [remainingSeconds, setRemainingSeconds] = useState(initialRemainingSeconds)
+  const [remainingSeconds, setRemainingSeconds] = useState(() => Math.max(0, Math.ceil((deadline - Date.now()) / 1000)))
   const [language, setLanguage] = useState("javascript")
   const [code, setCode] = useState("")
   const [customInput, setCustomInput] = useState("")
   const [running, setRunning] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [finishing, setFinishing] = useState(false)
+  const [finishError, setFinishError] = useState("")
   const [submissionError, setSubmissionError] = useState("")
   const [evalResult, setEvalResult] = useState<any>(null)
   const [savedAnswers, setSavedAnswers] = useState<Record<string, any>>({})
   const [cameraStatus, setCameraStatus] = useState<"active" | "starting" | "denied" | "interrupted">("starting")
+  const [fullscreenActive, setFullscreenActive] = useState(() => !!document.fullscreenElement)
+  const [integrityNotice, setIntegrityNotice] = useState("")
+  const [enteringFullscreen, setEnteringFullscreen] = useState(false)
 
   // Editor & Panel Customization States
   const [theme, setTheme] = useState<"dark" | "light">("dark")
@@ -34,10 +39,58 @@ export function CodingExamPlayer({
   const [resetModalOpen, setResetModalOpen] = useState(false)
   const [autosaveStatus, setAutosaveStatus] = useState<"saved" | "saving" | "error">("saved")
 
+  const edited = useRef(false)
   const cameraVideoRef = useRef<HTMLVideoElement>(null)
   const cameraStreamRef = useRef<MediaStream | null>(null)
+  const finalizingRef = useRef(false)
+  const lastVisibilityIncidentRef = useRef(0)
+  const lastClipboardIncidentRef = useRef(0)
 
   const currentQuestion = questions[currentIndex] || null
+  const evaluation = evalResult?.evalResult ?? evalResult
+
+  const recordIntegrityEvent = useCallback(async (
+    eventType: "TAB_HIDDEN" | "FULLSCREEN_EXIT" | "COPY" | "PASTE",
+  ) => {
+    const eventId = `${eventType.toLowerCase()}-${attemptId}-${Date.now()}-${crypto.randomUUID()}`
+    try {
+      const response = await authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/integrity-events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventId,
+          eventType,
+          clientTimestamp: new Date().toISOString(),
+        }),
+        keepalive: true,
+      })
+      const result = await response.json().catch(() => null)
+      if (result?.action === "AUTO_SUBMIT") {
+        finalizingRef.current = true
+        setIntegrityNotice("The assessment was submitted automatically after repeated integrity violations.")
+        onSubmitSuccess()
+      }
+    } catch {
+      // Integrity reporting must not interrupt local draft autosave.
+    }
+  }, [attemptId, onSubmitSuccess])
+
+  const requestCodingFullscreen = useCallback(async () => {
+    if (document.fullscreenElement) {
+      setFullscreenActive(true)
+      return
+    }
+    setEnteringFullscreen(true)
+    try {
+      await document.documentElement.requestFullscreen()
+      setFullscreenActive(true)
+      setIntegrityNotice("")
+    } catch {
+      setIntegrityNotice("Fullscreen is required to continue the coding assessment.")
+    } finally {
+      setEnteringFullscreen(false)
+    }
+  }, [])
 
   // Admin-approved languages for this examination
   const allowedLangs: string[] = (exam?.allowedLanguages && exam.allowedLanguages.length)
@@ -67,8 +120,9 @@ export function CodingExamPlayer({
     if (!currentQuestion) return
     const qId = currentQuestion._id || currentQuestion.id
     const existing = savedAnswers[qId]
+    edited.current = false
 
-    if (existing?.code) {
+    if (typeof existing?.code === "string") {
       setCode(existing.code)
       if (existing.language) setLanguage(existing.language)
     } else {
@@ -84,6 +138,7 @@ export function CodingExamPlayer({
 
   // Sync language template if student changes language manually
   const handleLanguageChange = (nextLang: string) => {
+    edited.current = true
     setLanguage(nextLang)
     const qId = currentQuestion?._id || currentQuestion?.id
     const existing = savedAnswers[qId]
@@ -98,12 +153,11 @@ export function CodingExamPlayer({
 
   // Timer Countdown
   useEffect(() => {
-    if (remainingSeconds <= 0) return
-    const timer = window.setInterval(() => {
-      setRemainingSeconds((prev) => Math.max(0, prev - 1))
-    }, 1000)
+    const update = () => setRemainingSeconds(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)))
+    update()
+    const timer = window.setInterval(update, 1000)
     return () => window.clearInterval(timer)
-  }, [remainingSeconds])
+  }, [deadline])
 
   // Camera Proctoring Setup
   const startCamera = useCallback(async () => {
@@ -132,39 +186,118 @@ export function CodingExamPlayer({
     }
   }, [startCamera, exam?.readinessRequirements?.camera])
 
-  // System Autosave Worker: Periodically saves student code every 30 seconds
   useEffect(() => {
-    if (!currentQuestion || !code.trim()) return
-    const qId = currentQuestion._id || currentQuestion.id
+    const handleFullscreenChange = () => {
+      const active = !!document.fullscreenElement
+      setFullscreenActive(active)
+      if (active || finalizingRef.current) return
+      setIntegrityNotice("Fullscreen was exited. Return to fullscreen to continue.")
+      void recordIntegrityEvent("FULLSCREEN_EXIT")
+    }
+    document.addEventListener("fullscreenchange", handleFullscreenChange)
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange)
+  }, [recordIntegrityEvent])
 
-    setAutosaveStatus("saving")
-    const autosaveTimer = window.setInterval(() => {
-      setAutosaveStatus("saving")
-      void authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/submit-code`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionId: qId,
-          code,
-          language,
-        }),
-      }).then(async (res) => {
-        if (res.ok) {
-          const data = await res.json().catch(() => ({}))
-          setAutosaveStatus("saved")
-          if (data.evalResult) {
-            setSavedAnswers((prev) => ({
-              ...prev,
-              [qId]: { code, language, evalResult: data.evalResult, score: data.score },
-            }))
-          }
-        } else {
-          setAutosaveStatus("error")
+  useEffect(() => {
+    const reportClipboardViolation = (eventType: "COPY" | "PASTE") => {
+      const now = Date.now()
+      if (now - lastClipboardIncidentRef.current < 750) return
+      lastClipboardIncidentRef.current = now
+      setIntegrityNotice(`${eventType === "PASTE" ? "Pasting" : "Copying"} is disabled during the coding assessment.`)
+      void recordIntegrityEvent(eventType)
+    }
+    const handleCopy = (event: ClipboardEvent) => {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      reportClipboardViolation("COPY")
+    }
+    const handleCut = (event: ClipboardEvent) => {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      reportClipboardViolation("COPY")
+    }
+    const handlePaste = (event: ClipboardEvent) => {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      reportClipboardViolation("PASTE")
+    }
+    const handleContextMenu = (event: MouseEvent) => event.preventDefault()
+
+    document.addEventListener("copy", handleCopy, true)
+    document.addEventListener("cut", handleCut, true)
+    document.addEventListener("paste", handlePaste, true)
+    document.addEventListener("contextmenu", handleContextMenu, true)
+    return () => {
+      document.removeEventListener("copy", handleCopy, true)
+      document.removeEventListener("cut", handleCut, true)
+      document.removeEventListener("paste", handlePaste, true)
+      document.removeEventListener("contextmenu", handleContextMenu, true)
+    }
+  }, [recordIntegrityEvent])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden || finalizingRef.current) return
+      const now = Date.now()
+      if (now - lastVisibilityIncidentRef.current < 1500) return
+      lastVisibilityIncidentRef.current = now
+      setIntegrityNotice("Tab or window switching is not allowed during the coding assessment.")
+      void recordIntegrityEvent("TAB_HIDDEN")
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange, true)
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange, true)
+  }, [recordIntegrityEvent])
+
+  useEffect(() => {
+    let active = true
+    void authFetch(`${API_BASE_URL}/api/coding/attempts/${attemptId}`).then(async (res) => {
+      if (!res.ok) return
+      const { answers } = await res.json()
+      if (!active || !Array.isArray(answers)) return
+      const drafts = Object.fromEntries(answers.map((answer) => [String(answer.questionId), {
+        code: answer.draftCode ?? answer.code,
+        language: answer.draftLanguage ?? answer.language,
+      }]))
+      setSavedAnswers((previous) => ({ ...drafts, ...previous }))
+      if (!edited.current && currentQuestion) {
+        const saved = drafts[currentQuestion._id || currentQuestion.id]
+        if (typeof saved?.code === "string") {
+          setCode(saved.code)
+          if (saved.language) setLanguage(saved.language)
         }
-      }).catch(() => setAutosaveStatus("error"))
-    }, 30000)
+      }
+    }).catch(() => undefined)
+    return () => { active = false }
+  }, [attemptId])
 
-    return () => window.clearInterval(autosaveTimer)
+  useEffect(() => {
+    if (!currentQuestion || !edited.current) return
+    const qId = currentQuestion._id || currentQuestion.id
+    const controller = new AbortController()
+    setAutosaveStatus("saving")
+    const timer = window.setTimeout(() => {
+      void authFetch(`${API_BASE_URL}/api/coding/attempts/${attemptId}/draft`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId: qId, code, language }),
+        signal: controller.signal,
+      }).then((res) => {
+        if (controller.signal.aborted) return
+        setAutosaveStatus(res.ok ? "saved" : "error")
+        if (res.ok) {
+          setSavedAnswers((previous) => ({
+            ...previous, [qId]: { ...previous[qId], code, language },
+          }))
+        }
+      }).catch(() => {
+        if (!controller.signal.aborted) setAutosaveStatus("error")
+      })
+    }, 1500)
+
+    return () => {
+      window.clearTimeout(timer)
+      controller.abort()
+    }
   }, [attemptId, currentQuestion, code, language])
 
   const formatTime = (totalSec: number) => {
@@ -182,6 +315,7 @@ export function CodingExamPlayer({
       const start = target.selectionStart
       const end = target.selectionEnd
       const newCode = code.substring(0, start) + "  " + code.substring(end)
+      edited.current = true
       setCode(newCode)
       setTimeout(() => {
         target.selectionStart = target.selectionEnd = start + 2
@@ -207,11 +341,10 @@ export function CodingExamPlayer({
         }),
       })
       const data = await res.json()
-      if (res.ok) {
-        setEvalResult(data)
-      }
-    } catch {
-      // Ignore run errors
+      if (!res.ok) throw new Error(data.error || "Unable to run code.")
+      setEvalResult(data)
+    } catch (error) {
+      setEvalResult({ isPractice: true, stderr: error instanceof Error ? error.message : "Unable to run code." })
     } finally {
       setRunning(false)
     }
@@ -261,17 +394,32 @@ export function CodingExamPlayer({
   const confirmResetStarterCode = () => {
     const qStarterMap = currentQuestion?.starterCode || {}
     const template = qStarterMap[language] || starterTemplates[language] || starterTemplates.javascript
+    edited.current = true
     setCode(template)
     setResetModalOpen(false)
   }
 
   const finishAssessment = async () => {
-    const res = await authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/finalize`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    })
-    if (res.ok) {
+    if (finishing || submitting) return
+    finalizingRef.current = true
+    setFinishing(true)
+    setFinishError("")
+    try {
+      const res = await authFetch(`${API_BASE_URL}/api/attempts/${attemptId}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      })
+      if (!res.ok) {
+        const result = await res.json().catch(() => null)
+        throw new Error(result?.error || "Unable to finish the assessment.")
+      }
       onSubmitSuccess()
+    } catch (error) {
+      finalizingRef.current = false
+      setFinishError(error instanceof Error ? error.message : "Unable to finish the assessment.")
+    } finally {
+      setFinishing(false)
     }
   }
 
@@ -335,12 +483,22 @@ export function CodingExamPlayer({
 
           <button
             onClick={finishAssessment}
+            disabled={finishing || submitting}
             className="h-10 px-5 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-md border-none"
           >
-            Finish Assessment
+            {finishing ? "Finishing..." : "Finish Assessment"}
           </button>
         </div>
       </header>
+      {finishError && <p role="alert" className="px-6 py-2 text-sm text-rose-800">{finishError}</p>}
+      {integrityNotice && fullscreenActive && (
+        <div role="alert" className="mx-4 mt-3 flex items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-xs font-bold text-amber-950 shadow-sm">
+          <span>{integrityNotice}</span>
+          <button type="button" onClick={() => setIntegrityNotice("")} className="border-none bg-transparent text-amber-900 cursor-pointer font-black">
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Main Dual-Pane Workspace */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden p-3 sm:p-5 gap-4 min-h-0">
@@ -483,9 +641,9 @@ export function CodingExamPlayer({
                               Runtime: {evalResult.executionTimeMs}ms
                             </span>
                           )}
-                          {evalResult.passed !== undefined && ((evalResult.evalResult?.testResults || evalResult.testResults)?.length > 0) && (
-                            <span className={`px-3 py-1 rounded-full text-xs font-black ${evalResult.passed ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"}`}>
-                              {evalResult.passed ? "Passed All Test Cases" : `${evalResult.passCount} / ${evalResult.totalTestCases} Test Cases Passed`}
+                          {evaluation.passed !== undefined && (
+                            <span className={`px-3 py-1 rounded-full text-xs font-black ${evaluation.passed ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"}`}>
+                              {evaluation.passed ? "Passed All Test Cases" : `${evaluation.passCount} / ${evaluation.totalTestCases} Test Cases Passed`}
                             </span>
                           )}
                         </div>
@@ -500,16 +658,16 @@ export function CodingExamPlayer({
                       )}
 
                       {/* Standard Error stderr */}
-                      {evalResult.stderr && (
+                      {(evalResult.stderr !== undefined) && (
                         <div className="p-3.5 rounded-2xl bg-rose-950/90 border border-rose-500/40 text-rose-300 font-mono text-xs space-y-1">
                           <span className="text-[10px] font-black uppercase text-rose-400 font-sans block">Standard Error (stderr)</span>
-                          <pre className="m-0 whitespace-pre-wrap">{evalResult.stderr}</pre>
+                          <pre className="m-0 whitespace-pre-wrap">{evalResult.stderr || "(no errors)"}</pre>
                         </div>
                       )}
 
                       {/* Test Case Execution Table */}
                       {(() => {
-                        const results = evalResult.evalResult?.testResults || evalResult.testResults || [];
+                        const results = evaluation.testResults || [];
                         if (results.length === 0) {
                           return (
                             <div className="p-4 rounded-2xl border border-slate-200 bg-white text-center text-xs font-bold text-slate-500">
@@ -685,7 +843,7 @@ export function CodingExamPlayer({
             {/* Interactive Code Editor Textarea */}
             <textarea
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => { edited.current = true; setCode(e.target.value) }}
               onKeyDown={handleEditorKeyDown}
               placeholder="// Write code solution here..."
               spellCheck={false}
@@ -755,6 +913,25 @@ export function CodingExamPlayer({
                 Confirm Reset
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {!fullscreenActive && !finalizingRef.current && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#102A25]/95 p-4 text-center text-white backdrop-blur-xl">
+          <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/10 p-8 shadow-2xl">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-400/20 text-3xl" aria-hidden="true">⛶</div>
+            <h2 className="m-0 text-2xl font-black">Fullscreen required</h2>
+            <p className="mt-3 text-sm leading-6 text-white/80">
+              The coding assessment is locked until fullscreen is restored. Exiting fullscreen and switching tabs are recorded as integrity incidents.
+            </p>
+            <button
+              type="button"
+              onClick={() => void requestCodingFullscreen()}
+              disabled={enteringFullscreen}
+              className="mt-5 h-12 w-full cursor-pointer rounded-2xl border-none bg-[#00D084] px-6 text-sm font-black text-[#102A25] disabled:cursor-wait disabled:opacity-60"
+            >
+              {enteringFullscreen ? "Entering fullscreen..." : "Enter fullscreen"}
+            </button>
           </div>
         </div>
       )}

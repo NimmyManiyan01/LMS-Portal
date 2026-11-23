@@ -337,7 +337,8 @@ export function ExaminationsPage({
       return setPaperModalMessage("Passing marks must be > 0 and <= total marks.")
     }
 
-    if ((paperModalTarget.roundNumber === 2 || paperModalTarget.examinationType === "CODING") && selectedCodingQuestionIds.length === 0) {
+    const isCodingPaper = paperModalTarget.roundNumber === 2 || paperModalTarget.examinationType === "CODING"
+    if (isCodingPaper && selectedCodingQuestionIds.length === 0) {
       setPaperModalLoading(false)
       return setPaperModalMessage("Please select at least one active coding question from the Question Bank before publishing.")
     }
@@ -357,8 +358,8 @@ export function ExaminationsPage({
             totalMarks: total,
             passingMarks: passing,
             instructions: [paperForm.instructions],
-            automaticRandomization: true,
-            ...(selectedCodingQuestionIds.length ? { questionIds: selectedCodingQuestionIds } : {}),
+            automaticRandomization: !isCodingPaper,
+            ...(isCodingPaper ? { questionIds: selectedCodingQuestionIds } : {}),
           }),
         },
         true,
