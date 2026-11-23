@@ -661,6 +661,7 @@ export default function App() {
     {},
   )
   const [codingDeadline, setCodingDeadline] = useState<number | null>(null)
+  const [openFeedbackAfterSubmit, setOpenFeedbackAfterSubmit] = useState(false)
   const [examQuestions, setExamQuestions] =
     useState<import("./types").Question[]>([])
   const [submissionLoading, setSubmissionLoading] = useState(false)
@@ -980,6 +981,7 @@ export default function App() {
           "The assigned examination questions are incomplete. Please retry or contact support.",
         )
       setExamQuestions(normalizedQuestions)
+      setOpenFeedbackAfterSubmit(false)
       setViewState("EXAM_PLAYER")
     } catch (error) {
       setExamActionError(
@@ -991,7 +993,10 @@ export default function App() {
     }
   }
 
-  const submitAttempt = async (answers: Record<string, AnswerState>) => {
+  const submitAttempt = async (
+    answers: Record<string, AnswerState>,
+    automatic = false,
+  ) => {
     if (submissionLoading || !activeAttemptId) return
     setSubmissionLoading(true)
     setSubmissionError("")
@@ -1037,6 +1042,7 @@ export default function App() {
               examQuestions.reduce((sum, question) => sum + Number(question.marks || 0), 0),
           }
       setSubmittedResult(immediateResult)
+      setOpenFeedbackAfterSubmit(automatic)
       setDashboardRefresh((value) => value + 1)
       setViewState("SUBMISSION_SUCCESS")
     } catch (error) {
@@ -1056,7 +1062,7 @@ export default function App() {
     automatic = false,
   ) => {
     setLastAnswers(answers)
-    if (automatic) void submitAttempt(answers)
+    if (automatic) void submitAttempt(answers, true)
     else setViewState("SUBMISSION_CONFIRM")
   }
 
@@ -1090,7 +1096,10 @@ export default function App() {
           questions={examQuestions}
           attemptId={activeAttemptId}
           deadline={codingDeadline ?? Date.now() + (selectedExam.durationMinutes || 60) * 60_000}
-          onSubmitSuccess={() => setViewState("SUBMISSION_SUCCESS")}
+          onSubmitSuccess={(automatic = false) => {
+            setOpenFeedbackAfterSubmit(automatic)
+            setViewState("SUBMISSION_SUCCESS")
+          }}
         />
       )
     }
@@ -1101,7 +1110,7 @@ export default function App() {
         attemptId={activeAttemptId}
         candidateName={student?.fullName}
         onSubmitExam={handleSubmitExamClick}
-        onIntegrityAutoSubmit={() => void submitAttempt(lastAnswers)}
+        onIntegrityAutoSubmit={() => void submitAttempt(lastAnswers, true)}
       />
     )
   }
@@ -1132,6 +1141,7 @@ export default function App() {
           resultsReleased={Boolean(submittedResult?.released)}
           onBackToDashboard={() => setViewState("DASHBOARD")}
           onFeedbackSubmitted={() => void handleLogout()}
+          initialShowFeedback={openFeedbackAfterSubmit}
         />
       </Suspense>
     )

@@ -6,7 +6,7 @@ type CodingExamPlayerProps = {
   attemptId: string
   questions: any[]
   deadline: number
-  onSubmitSuccess: () => void
+  onSubmitSuccess: (automatic?: boolean) => void
 }
 
 export function CodingExamPlayer({
@@ -68,7 +68,7 @@ export function CodingExamPlayer({
       if (result?.action === "AUTO_SUBMIT") {
         finalizingRef.current = true
         setIntegrityNotice("The assessment was submitted automatically after repeated integrity violations.")
-        onSubmitSuccess()
+        onSubmitSuccess(true)
       }
     } catch {
       // Integrity reporting must not interrupt local draft autosave.
@@ -399,7 +399,7 @@ export function CodingExamPlayer({
     setResetModalOpen(false)
   }
 
-  const finishAssessment = async () => {
+  const finishAssessment = async (automatic = false) => {
     if (finishing || submitting) return
     finalizingRef.current = true
     setFinishing(true)
@@ -414,7 +414,7 @@ export function CodingExamPlayer({
         const result = await res.json().catch(() => null)
         throw new Error(result?.error || "Unable to finish the assessment.")
       }
-      onSubmitSuccess()
+      onSubmitSuccess(automatic)
     } catch (error) {
       finalizingRef.current = false
       setFinishError(error instanceof Error ? error.message : "Unable to finish the assessment.")
@@ -422,6 +422,12 @@ export function CodingExamPlayer({
       setFinishing(false)
     }
   }
+
+  useEffect(() => {
+    if (remainingSeconds === 0 && !finalizingRef.current) {
+      void finishAssessment(true)
+    }
+  }, [remainingSeconds])
 
   const lineCount = code.split("\n").length
 
@@ -482,7 +488,7 @@ export function CodingExamPlayer({
           </div>
 
           <button
-            onClick={finishAssessment}
+            onClick={() => void finishAssessment(false)}
             disabled={finishing || submitting}
             className="h-10 px-5 text-xs sm:text-sm font-black rounded-2xl text-white bg-[#176B58] hover:bg-[#125445] transition-all cursor-pointer shadow-md border-none"
           >

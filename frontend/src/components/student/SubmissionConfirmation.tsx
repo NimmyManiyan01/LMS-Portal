@@ -11,14 +11,16 @@ interface Props {
   onBackToDashboard: () => void
   onFeedbackSubmitted: () => void
   onViewMarks?: () => void
+  initialShowFeedback?: boolean
 }
 
 export function SubmissionConfirmation({
   attemptId,
   onFeedbackSubmitted,
+  initialShowFeedback = false,
 }: Props) {
   const [showToast, setShowToast] = useState(true)
-  const [showFeedback, setShowFeedback] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(initialShowFeedback)
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState("")
   const [feedbackSaving, setFeedbackSaving] = useState(false)
