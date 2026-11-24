@@ -39,7 +39,7 @@ const effectiveExamStatus = (exam, now = new Date()) => {
 };
 const reserveExamCode = async () => {
   const year = new Date().getFullYear();
-  for (;;) {
+  for (; ;) {
     const counter = await Counter.findOneAndUpdate(
       { _id: `examCode:${year}` },
       { $inc: { sequence: 1 } },
@@ -164,13 +164,13 @@ router.get("/exams", authenticate, adminOnly, async (_req, res) => {
     .filter((id) => id && mongoose.isValidObjectId(id));
   const paperSets = examIds.length
     ? await PaperSet.find({
-        examId: { $in: examIds },
-      })
-        .select(
-          "_id examId name code status durationMinutes totalMarks passingMarks questionIds active",
-        )
-        .sort({ createdAt: -1 })
-        .lean()
+      examId: { $in: examIds },
+    })
+      .select(
+        "_id examId name code status durationMinutes totalMarks passingMarks questionIds active",
+      )
+      .sort({ createdAt: -1 })
+      .lean()
     : [];
 
   const setsByExam = new Map();
@@ -255,12 +255,12 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
   ];
   const publishedSets = examIds.length
     ? await PaperSet.find({
-        examId: { $in: examIds },
-        status: "PUBLISHED",
-        active: true,
-      })
-        .select("examId totalMarks")
-        .lean()
+      examId: { $in: examIds },
+      status: "PUBLISHED",
+      active: true,
+    })
+      .select("examId totalMarks")
+      .lean()
     : [];
   const paperMarks = new Map();
   publishedSets.forEach((set) => {
@@ -275,23 +275,23 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
     attemptId: String(result.attemptId),
     student: result.studentId
       ? {
-          id: String(result.studentId._id),
-          studentId: result.studentId.studentId,
-          fullName: result.studentId.fullName,
-          email: result.studentId.email,
-          college: result.studentId.college || "College Not Specified",
-        }
+        id: String(result.studentId._id),
+        studentId: result.studentId.studentId,
+        fullName: result.studentId.fullName,
+        email: result.studentId.email,
+        college: result.studentId.college || "College Not Specified",
+      }
       : null,
     exam: result.examId
       ? {
-          id: String(result.examId._id),
-          title: result.examId.title,
-          code: result.examId.code,
-          totalMarks:
-            result.examId.totalMarks ??
-            paperMarks.get(String(result.examId._id)) ??
-            null,
-        }
+        id: String(result.examId._id),
+        title: result.examId.title,
+        code: result.examId.code,
+        totalMarks:
+          result.examId.totalMarks ??
+          paperMarks.get(String(result.examId._id)) ??
+          null,
+      }
       : null,
     marksScored: result.marksScored,
     maximumMarks:
@@ -345,9 +345,9 @@ router.get("/results", authenticate, adminOnly, async (req, res) => {
     assignedStudents: selectedExam
       ? selectedExam.eligibility?.studentIds?.length || 0
       : exams.reduce(
-          (sum, exam) => sum + (exam.eligibility?.studentIds?.length || 0),
-          0,
-        ),
+        (sum, exam) => sum + (exam.eligibility?.studentIds?.length || 0),
+        0,
+      ),
     submittedAttempts: results.length,
     pendingEvaluations: 0,
     awaitingRelease: results.filter(
@@ -399,13 +399,13 @@ router.get("/results/:resultId", authenticate, adminOnly, async (req, res) => {
 
   const publishedSet = result.examId?._id
     ? await PaperSet.findOne({
-        examId: result.examId._id,
-        status: "PUBLISHED",
-        active: true,
-      })
-        .select("totalMarks")
-        .sort({ updatedAt: -1 })
-        .lean()
+      examId: result.examId._id,
+      status: "PUBLISHED",
+      active: true,
+    })
+      .select("totalMarks")
+      .sort({ updatedAt: -1 })
+      .lean()
     : null;
 
   res.json({
@@ -414,11 +414,11 @@ router.get("/results/:resultId", authenticate, adminOnly, async (req, res) => {
       attemptId: String(result.attemptId),
       student: result.studentId
         ? {
-            name: result.studentId.fullName,
-            studentId: result.studentId.studentId,
-            email: result.studentId.email,
-            college: result.studentId.college || "College Not Specified",
-          }
+          name: result.studentId.fullName,
+          studentId: result.studentId.studentId,
+          email: result.studentId.email,
+          college: result.studentId.college || "College Not Specified",
+        }
         : null,
       examination: result.examId
         ? { name: result.examId.title, code: result.examId.code }
@@ -947,9 +947,9 @@ router.post("/exams", authenticate, adminOnly, async (req, res) => {
       instructions: Array.isArray(req.body.instructions)
         ? req.body.instructions
         : String(req.body.instructions || "")
-            .split(/\r?\n/)
-            .map((v) => v.trim())
-            .filter(Boolean),
+          .split(/\r?\n/)
+          .map((v) => v.trim())
+          .filter(Boolean),
       readinessRequirements: req.body.readinessRequirements,
       integrityProfile: req.body.integrityProfile,
       integrityRules: req.body.integrityRules,
@@ -1052,7 +1052,7 @@ router.patch("/exams/:id", authenticate, adminOnly, async (req, res) => {
   }
   if (exam.status === "SCHEDULED") {
     if (req.body.status === "SCHEDULED" &&
-        (!exam.scheduledAt || !exam.closesAt || exam.scheduledAt <= new Date())) {
+      (!exam.scheduledAt || !exam.closesAt || exam.scheduledAt <= new Date())) {
       return res.status(400).json({ error: "Scheduling requires a start date in the future." });
     }
     if (exam.examinationType === "CODING" && exam.roundNumber !== 2) {
@@ -1374,13 +1374,13 @@ const importQuestionRow = (row, rowNumber) => {
     if (!Array.isArray(testCases)) errors.push("Test Cases JSON must be an array");
     const normalizedTestCases = Array.isArray(testCases)
       ? testCases.map((testCase, index) => ({
-          id: String(testCase?.id || `tc-${index + 1}`),
-          input: decodeImportText(testCase?.input),
-          expectedOutput: decodeImportText(testCase?.expectedOutput),
-          isHidden: Boolean(testCase?.isHidden),
-          weightage: Number(testCase?.weightage || 1),
-          explanation: decodeImportText(testCase?.explanation),
-        }))
+        id: String(testCase?.id || `tc-${index + 1}`),
+        input: decodeImportText(testCase?.input),
+        expectedOutput: decodeImportText(testCase?.expectedOutput),
+        isHidden: Boolean(testCase?.isHidden),
+        weightage: Number(testCase?.weightage || 1),
+        explanation: decodeImportText(testCase?.explanation),
+      }))
       : [];
     if (normalizedTestCases.some((testCase) => !testCase.input || !testCase.expectedOutput))
       errors.push("Every coding test case requires input and expectedOutput");
@@ -1512,10 +1512,10 @@ router.post(
                 headers[column],
                 typeof value === "object"
                   ? value.text ||
-                    value.result ||
-                    (value.richText || [])
-                      .map((part) => part.text || "")
-                      .join("")
+                  value.result ||
+                  (value.richText || [])
+                    .map((part) => part.text || "")
+                    .join("")
                   : value,
               ]),
             );
@@ -1922,18 +1922,18 @@ async function findQuestion(id) {
     if (require("mongoose").isValidObjectId(id)) {
       question = await Question.findById(id);
     }
-  } catch (_) {}
+  } catch (_) { }
 
   if (!question) {
     try {
       question = await Question.findOne({ questionId: String(id) });
-    } catch (_) {}
+    } catch (_) { }
   }
 
   if (!question) {
     try {
       question = (await Question.findOne({ questionType: "CODING" })) || (await Question.findOne());
-    } catch (_) {}
+    } catch (_) { }
   }
 
   return question;
@@ -2069,13 +2069,13 @@ const handleQuestionUpdate = async (req, res) => {
   if (testCases !== undefined) {
     question.testCases = Array.isArray(testCases)
       ? testCases.map((tc, idx) => ({
-          id: String(tc.id || `tc_${idx + 1}`),
-          input: String(tc.input || ""),
-          expectedOutput: String(tc.expectedOutput || ""),
-          isHidden: Boolean(tc.isHidden),
-          weightage: Number(tc.weightage || 1),
-          explanation: String(tc.explanation || ""),
-        }))
+        id: String(tc.id || `tc_${idx + 1}`),
+        input: String(tc.input || ""),
+        expectedOutput: String(tc.expectedOutput || ""),
+        isHidden: Boolean(tc.isHidden),
+        weightage: Number(tc.weightage || 1),
+        explanation: String(tc.explanation || ""),
+      }))
       : [];
   }
 
@@ -2095,11 +2095,11 @@ router.post("/questions", authenticate, adminOnly, async (req, res) => {
   const marks = Number(req.body.marks);
   const options = Array.isArray(req.body.options)
     ? req.body.options
-        .map((option) => ({
-          id: String(option.id || ""),
-          text: String(option.text || "").trim(),
-        }))
-        .filter((option) => option.id && option.text)
+      .map((option) => ({
+        id: String(option.id || ""),
+        text: String(option.text || "").trim(),
+      }))
+      .filter((option) => option.id && option.text)
     : [];
   const correctOptionIds = Array.isArray(req.body.correctOptionIds)
     ? req.body.correctOptionIds.map(String).filter(Boolean)
@@ -2108,18 +2108,18 @@ router.post("/questions", authenticate, adminOnly, async (req, res) => {
       : [];
   const acceptedAnswers = Array.isArray(req.body.acceptedAnswers)
     ? req.body.acceptedAnswers
-        .map((answer) => String(answer).trim())
-        .filter(Boolean)
+      .map((answer) => String(answer).trim())
+      .filter(Boolean)
     : [];
   const testCases = Array.isArray(req.body.testCases)
     ? req.body.testCases.map((tc, idx) => ({
-        id: String(tc.id || `tc_${idx + 1}`),
-        input: String(tc.input || ""),
-        expectedOutput: String(tc.expectedOutput || ""),
-        isHidden: Boolean(tc.isHidden),
-        weightage: Number(tc.weightage || 1),
-        explanation: String(tc.explanation || ""),
-      }))
+      id: String(tc.id || `tc_${idx + 1}`),
+      input: String(tc.input || ""),
+      expectedOutput: String(tc.expectedOutput || ""),
+      isHidden: Boolean(tc.isHidden),
+      weightage: Number(tc.weightage || 1),
+      explanation: String(tc.explanation || ""),
+    }))
     : [];
 
   if (
@@ -2186,9 +2186,9 @@ router.post("/questions", authenticate, adminOnly, async (req, res) => {
   const normalizedOptions =
     questionType === "TRUE_FALSE"
       ? [
-          { id: "TRUE", text: "True" },
-          { id: "FALSE", text: "False" },
-        ]
+        { id: "TRUE", text: "True" },
+        { id: "FALSE", text: "False" },
+      ]
       : options;
   const question = await Question.create({
     questionText,
@@ -2272,10 +2272,10 @@ router.get("/paper-sets", authenticate, adminOnly, async (req, res) => {
       id: String(s._id),
       exam: s.examId
         ? {
-            id: String(s.examId._id),
-            title: s.examId.title,
-            code: s.examId.code,
-          }
+          id: String(s.examId._id),
+          title: s.examId.title,
+          code: s.examId.code,
+        }
         : null,
       questionCount: countFor(s),
       totalMarks: s.totalMarks ?? s.blueprint?.maximumMarks ?? 0,
@@ -2595,15 +2595,15 @@ async function codingPaperErrors(set, questions) {
     errors.push("The paper duration must match the examination duration.");
   }
   if (set.blueprint?.automaticRandomization || !set.questionIds?.length ||
-      questions.length !== set.questionIds.length ||
-      questions.some((question) =>
-        question.status !== "ACTIVE" ||
-        question.questionType !== "CODING" ||
-        !question.testCases?.length ||
-        question.testCases.some((testCase) =>
-          typeof testCase.input !== "string" || typeof testCase.expectedOutput !== "string",
-        ),
-      )) {
+    questions.length !== set.questionIds.length ||
+    questions.some((question) =>
+      question.status !== "ACTIVE" ||
+      question.questionType !== "CODING" ||
+      !question.testCases?.length ||
+      question.testCases.some((testCase) =>
+        typeof testCase.input !== "string" || typeof testCase.expectedOutput !== "string",
+      ),
+    )) {
     errors.push("A coding paper must contain fixed, active coding questions with valid test cases.");
   }
   return errors;
