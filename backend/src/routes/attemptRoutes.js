@@ -8,6 +8,7 @@ const Exam = require("../models/Exam");
 const PaperSet = require("../models/PaperSet");
 const { authenticate } = require("../middleware/auth");
 const { finalizeAttempt } = require("../services/finalizeAttempt");
+const cacheService = require("../services/cacheService");
 
 function studentMatch(student) {
   if (!student) return null;
@@ -221,19 +222,35 @@ router.put(
 
     const doc = saved?.value || saved;
 
-    // Recalculate aggregate live score on every saved answer
-    const [allAnswers, questions, exam] = await Promise.all([
-      Answer.find({ attemptId: attempt._id }).lean(),
-      Question.find({ _id: { $in: attempt.assignedQuestionIds } }).lean(),
-      Exam.findById(attempt.examId).select("markingScheme").lean(),
+    // Recalculate aggregate live score on every saved answer using cached question metadata
+    const examCacheKey = `exam:scheme:${attempt.examId}`;
+    const questionsCacheKey = `attempt:questions:${attempt._id}`;
+
+    let [allAnswers, questions, scheme] = await Promise.all([
+      Answer.find({ attemptId: attempt._id }).select("questionId selectedOptionId").lean(),
+      cacheService.get(questionsCacheKey),
+      cacheService.get(examCacheKey),
     ]);
+
+    if (!questions) {
+      questions = await Question.find({ _id: { $in: attempt.assignedQuestionIds } })
+        .select("_id correctOptionId marks negativeMarks")
+        .lean();
+      await cacheService.set(questionsCacheKey, questions, 600);
+    }
+
+    if (!scheme) {
+      const examDoc = await Exam.findById(attempt.examId).select("markingScheme").lean();
+      scheme = examDoc?.markingScheme || {};
+      await cacheService.set(examCacheKey, scheme, 600);
+    }
+
     const answerByQuestion = new Map(
       allAnswers.map((answer) => [String(answer.questionId), answer]),
     );
     const questionById = new Map(
       questions.map((question) => [String(question._id), question]),
     );
-    const scheme = exam?.markingScheme || {};
     let liveScore = 0;
     for (const questionId of attempt.assignedQuestionIds) {
       const question = questionById.get(String(questionId));

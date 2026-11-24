@@ -43,7 +43,7 @@ app.use((_req, res, next) => {
 app.use(
   createRateLimiter({
     windowMs: 60 * 1000,
-    max: 300,
+    max: 1200,
     message: "Too many requests. Please try again shortly.",
   }),
 );

@@ -1,4 +1,5 @@
 const crypto = require("node:crypto");
+const cacheService = require("../services/cacheService");
 const AdminUser = require("../models/AdminUser");
 const Session = require("../models/Session");
 const EmailVerification = require("../models/EmailVerification");
@@ -89,7 +90,10 @@ async function login(req, res) {
 }
 async function logout(req, res) {
   if (req.auth?.role !== "ADMIN") return res.status(403).json({ error: "Administrator access required" });
-  if (req.session) await Session.deleteOne({ _id: req.session.id });
+  if (req.session) {
+    if (req.session.tokenHash) await cacheService.del(`session:${req.session.tokenHash}`);
+    await Session.deleteOne({ _id: req.session.id || req.session._id });
+  }
   res.append(
     "Set-Cookie",
     `kgs_admin_session=; HttpOnly; Path=/; Max-Age=0; SameSite=${isProduction ? "None; Secure; Partitioned" : "Lax"}; Priority=High`,

@@ -6,6 +6,7 @@ const EmailVerification = require("../models/EmailVerification");
 const Session = require("../models/Session");
 const { otpSecret, sessionSecret, isProduction } = require("../config/env");
 const { sendOtpEmail } = require("../services/auth/brevoEmail");
+const cacheService = require("../services/cacheService");
 const OTP_TTL = 5 * 60 * 1000;
 const RESEND_COOLDOWN = 30 * 1000;
 const SESSION_TTL = 8 * 60 * 60 * 1000;
@@ -280,7 +281,10 @@ async function verifyOtp(req, res) {
 }
 async function logout(req, res) {
   if (req.auth?.role !== "STUDENT") return res.status(403).json({ error: "Student account required" });
-  if (req.session) await Session.deleteOne({ _id: req.session.id });
+  if (req.session) {
+    if (req.session.tokenHash) await cacheService.del(`session:${req.session.tokenHash}`);
+    await Session.deleteOne({ _id: req.session.id || req.session._id });
+  }
   res.append(
     "Set-Cookie",
     `kgs_session=; HttpOnly; Path=/; Max-Age=0; SameSite=${isProduction ? "None; Secure; Partitioned" : "Lax"}; Priority=High`,

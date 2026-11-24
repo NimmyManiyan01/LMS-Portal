@@ -2,6 +2,7 @@ const crypto = require("node:crypto");
 const Session = require("../models/Session");
 const { roles } = require("../config/permissions");
 const { sessionSecret } = require("../config/env");
+const cacheService = require("../services/cacheService");
 
 function parseCookies(cookieHeader) {
   const cookies = {};
@@ -36,6 +37,33 @@ async function authenticate(req, res, next) {
       .update(sessionToken)
       .digest("hex");
 
+    const cacheKey = `session:${tokenHash}`;
+    const cached = await cacheService.get(cacheKey);
+
+    if (cached) {
+      req.session = cached.session;
+      req.session.tokenHash = tokenHash;
+      if (cached.adminId) {
+        if (cached.adminId.active !== true) {
+          await cacheService.del(cacheKey);
+          return res.status(401).json({ error: "Authentication required" });
+        }
+        req.admin = cached.adminId;
+        req.auth = {
+          sub: String(cached.adminId._id || cached.adminId.id),
+          role: "ADMIN",
+        };
+        return next();
+      } else if (cached.studentId) {
+        req.student = cached.studentId;
+        req.auth = {
+          sub: String(cached.studentId._id || cached.studentId.id),
+          role: "STUDENT",
+        };
+        return next();
+      }
+    }
+
     const session = await Session.findOne({
       tokenHash,
       expiresAt: { $gt: new Date() },
@@ -58,12 +86,27 @@ async function authenticate(req, res, next) {
         sub: String(session.adminId._id || session.adminId.id),
         role: "ADMIN",
       };
+
+      await cacheService.set(cacheKey, {
+        session: { _id: session._id, id: String(session._id), expiresAt: session.expiresAt },
+        adminId: session.adminId.toObject ? session.adminId.toObject() : session.adminId,
+      }, 120);
     } else if (session.studentId) {
       req.student = session.studentId;
       req.auth = {
         sub: String(session.studentId._id || session.studentId.id),
         role: "STUDENT",
       };
+
+      const studentObj = session.studentId.toObject ? session.studentId.toObject() : session.studentId;
+      if (studentObj && !studentObj.id && studentObj._id) {
+        studentObj.id = String(studentObj._id);
+      }
+
+      await cacheService.set(cacheKey, {
+        session: { _id: session._id, id: String(session._id || session.id), expiresAt: session.expiresAt },
+        studentId: studentObj,
+      }, 120);
     } else {
       return res.status(401).json({ error: "Authentication required" });
     }

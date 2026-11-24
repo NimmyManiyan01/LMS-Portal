@@ -36,6 +36,7 @@ const PaperAllocation = require("../models/PaperAllocation");
 const Answer = require("../models/Answer");
 const FinalResult = require("../models/FinalResult");
 const Question = require("../models/Question");
+const cacheService = require("../services/cacheService");
 const { finalizeAttempt } = require("../services/finalizeAttempt");
 const { authenticate, requirePermission } = require("../middleware/auth");
 
@@ -178,9 +179,14 @@ router.post(
     const setChecks = await Promise.all(
       sets.map(async (set) => {
         const qIds = (set.questionIds || []).map(String);
-        const questions = await Question.find({ _id: { $in: qIds } })
-          .select("_id marks questionType sectionName status")
-          .lean();
+        const setCacheKey = `paperset:questions:${set._id}`;
+        let questions = await cacheService.get(setCacheKey);
+        if (!questions) {
+          questions = await Question.find({ _id: { $in: qIds } })
+            .select("_id marks questionType sectionName status")
+            .lean();
+          await cacheService.set(setCacheKey, questions, 300);
+        }
 
         const qCount = questions.length > 0 ? questions.length : qIds.length;
         const questionMarks = questions.reduce(
@@ -244,9 +250,14 @@ router.post(
       }
       assignedQuestionIds = shuffle(paperSet.questionIds);
     } else {
-      const categoryPools = await Question.find({ status: "ACTIVE" })
-        .select("_id marks questionType sectionName")
-        .lean();
+      const categoryCacheKey = "questions:active:categoryPools";
+      let categoryPools = await cacheService.get(categoryCacheKey);
+      if (!categoryPools) {
+        categoryPools = await Question.find({ status: "ACTIVE" })
+          .select("_id marks questionType sectionName")
+          .lean();
+        await cacheService.set(categoryCacheKey, categoryPools, 120);
+      }
       const randomizedQuestionIds = [];
       for (const [category, quota] of Object.entries(GLOBAL_CATEGORY_QUOTAS)) {
         const pool = shuffle(

@@ -1,7 +1,12 @@
 const buckets = new Map();
 
 function clientKey(req) {
-  return req.ip || "unknown";
+  if (req.auth?.sub) return `user:${req.auth.sub}`;
+  if (req.session?.studentId) return `user:${req.session.studentId}`;
+  if (req.session?.adminId) return `user:${req.session.adminId}`;
+  const forwarded = req.headers["x-forwarded-for"];
+  const ip = forwarded ? String(forwarded).split(",")[0].trim() : (req.ip || "unknown");
+  return `ip:${ip}`;
 }
 
 function createRateLimiter({ windowMs, max, message }) {

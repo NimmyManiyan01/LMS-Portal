@@ -69,16 +69,21 @@ async function finalizeAttempt({
                 : val,
             ]);
 
-        for (const [questionId, selectedOptionId] of entries) {
-          if (!questionId || !mongoose.isValidObjectId(questionId)) continue;
-          await Answer.updateOne(
-            { attemptId, questionId },
-            {
-              $set: { selectedOptionId: selectedOptionId || null, savedAt: new Date() },
-              $setOnInsert: { attemptId, questionId, version: 1 },
+        const validOps = entries
+          .filter(([questionId]) => questionId && mongoose.isValidObjectId(questionId))
+          .map(([questionId, selectedOptionId]) => ({
+            updateOne: {
+              filter: { attemptId, questionId },
+              update: {
+                $set: { selectedOptionId: selectedOptionId || null, savedAt: new Date() },
+                $setOnInsert: { attemptId, questionId, version: 1 },
+              },
+              upsert: true,
             },
-            { upsert: true, session },
-          );
+          }));
+
+        if (validOps.length > 0) {
+          await Answer.bulkWrite(validOps, { session });
         }
       }
       const saved = await Answer.find({ attemptId }).session(session).lean();
