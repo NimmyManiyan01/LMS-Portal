@@ -73,6 +73,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getCsrfHeaders() },
+        credentials: "include",
         body: JSON.stringify({
           ...form,
           passOutYear: form.passOutYear ? Number(form.passOutYear) : undefined,
@@ -84,6 +85,7 @@ export function RegistrationPage({ onBackToLogin, onRegistered }: Props) {
       const otpResponse = await fetch(`${API_BASE_URL}/api/auth/request-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getCsrfHeaders() },
+        credentials: "include",
         body: JSON.stringify({ email: form.email.trim().toLowerCase() }),
       })
       if (!otpResponse.ok) {

@@ -168,7 +168,7 @@ async function issueOtp(req, res) {
     verification.deliveryError = error?.providerResponse?.message || error.message;
     await verification.save();
     return res.status(503).json({
-      ...generic,
+      error: "Unable to deliver verification email. Please verify your email address or try again shortly.",
       delivery: "FAILED",
     });
   }
@@ -190,7 +190,7 @@ async function requestOtp(req, res) {
   const email = String(req.body.email || "")
     .toLowerCase()
     .trim();
-  if (limited(`ip:${ip}`, 50, 900000) || limited(`email:${email}`, 25, 900000))
+  if (limited(`ip:${ip}`, 300, 900000) || limited(`email:${email}`, 25, 900000))
     return res
       .status(429)
       .json({ error: "Too many requests. Please try again later." });

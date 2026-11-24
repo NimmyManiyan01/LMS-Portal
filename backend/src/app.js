@@ -18,6 +18,55 @@ const { csrfProtection } = require("./middleware/csrf");
 const app = express();
 app.set("trust proxy", 1);
 
+const allowedClientOrigins = new Set(
+  clientOrigins
+    .map((origin) => origin.trim().replace(/\/$/, ""))
+    .filter(Boolean),
+);
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  const normalized = origin.trim().replace(/\/$/, "");
+  if (allowedClientOrigins.has(normalized)) return true;
+  try {
+    const parsed = new URL(normalized);
+    const host = parsed.hostname.toLowerCase();
+    if (
+      host === "skillmeter.kaizentrixglobal.com" ||
+      host.endsWith(".kaizentrixglobal.com") ||
+      host.endsWith(".azurestaticapps.net") ||
+      host === "localhost" ||
+      host === "127.0.0.1"
+    ) {
+      return true;
+    }
+  } catch {}
+  return false;
+}
+
+const corsMiddleware = cors({
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) {
+      return callback(null, origin || true);
+    }
+    return callback(null, false);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-CSRF-Token",
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+  ],
+});
+
+// Mount CORS at the absolute top of the middleware stack so all responses receive headers
+app.use(corsMiddleware);
+app.options("*", corsMiddleware);
+
 app.use((req, res, next) => {
   res.on("finish", () => {
     if ([401, 403, 429].includes(res.statusCode) || res.statusCode >= 500)
@@ -34,7 +83,7 @@ app.use((_req, res, next) => {
   res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
   res.setHeader("Origin-Agent-Cluster", "?1");
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-  res.setHeader("Cross-Origin-Resource-Policy", "same-site");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   res.setHeader("Permissions-Policy", "camera=(self), microphone=(), geolocation=()");
   res.setHeader("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'");
   next();
@@ -67,60 +116,6 @@ if (isProduction) {
     next();
   });
 }
-
-const allowedClientOrigins = new Set(
-  clientOrigins
-    .map((origin) => origin.trim().replace(/\/$/, ""))
-    .filter(Boolean),
-);
-
-function isAllowedOrigin(origin) {
-  if (!origin) return true;
-  const normalized = origin.trim().replace(/\/$/, "");
-  return allowedClientOrigins.has(normalized);
-}
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (isAllowedOrigin(origin)) {
-        return callback(null, origin || true);
-      }
-      return callback(null, false);
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-CSRF-Token",
-      "X-Requested-With",
-      "Accept",
-      "Origin",
-    ],
-  }),
-);
-app.options(
-  "*",
-  cors({
-    origin: (origin, callback) => {
-      if (isAllowedOrigin(origin)) {
-        return callback(null, origin || true);
-      }
-      return callback(null, false);
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-CSRF-Token",
-      "X-Requested-With",
-      "Accept",
-      "Origin",
-    ],
-  }),
-);
 app.use(express.json({ limit: "1mb" }));
 const health = (_req, res) => {
   const database = isDatabaseReady();
@@ -136,7 +131,7 @@ app.use(
   "/api/auth",
   createRateLimiter({
     windowMs: 15 * 60 * 1000,
-    max: 60,
+    max: 300,
     message: "Too many authentication requests. Please try again later.",
   }),
   authRoutes,
