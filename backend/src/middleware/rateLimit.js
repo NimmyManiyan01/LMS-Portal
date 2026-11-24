@@ -4,6 +4,15 @@ function clientKey(req) {
   if (req.auth?.sub) return `user:${req.auth.sub}`;
   if (req.session?.studentId) return `user:${req.session.studentId}`;
   if (req.session?.adminId) return `user:${req.session.adminId}`;
+  const authHeader = (req.headers.authorization || "").trim();
+  if (authHeader.startsWith("Bearer ") && authHeader.length > 7) {
+    return `auth:${authHeader.slice(7).trim().slice(0, 32)}`;
+  }
+  const cookieHeader = req.headers.cookie || "";
+  const match = cookieHeader.match(/(?:kgs_session|kgs_admin_session)=([^;]+)/);
+  if (match) {
+    return `sess:${match[1].trim().slice(0, 32)}`;
+  }
   const forwarded = req.headers["x-forwarded-for"];
   const ip = forwarded ? String(forwarded).split(",")[0].trim() : (req.ip || "unknown");
   return `ip:${ip}`;
