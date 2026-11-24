@@ -28,6 +28,20 @@ function csrfProtection(req, res, next) {
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();
   if (req.headers.authorization?.startsWith("Bearer ")) return next();
 
+  // Public unauthenticated authentication endpoints do not use or require session CSRF tokens
+  const path = (req.originalUrl || req.path || "").split("?")[0];
+  if (
+    path === "/api/auth/register" ||
+    path === "/api/auth/request-otp" ||
+    path === "/api/auth/resend-otp" ||
+    path === "/api/auth/verify-otp" ||
+    path === "/api/auth/admin/login" ||
+    path === "/api/auth/admin/request-otp" ||
+    path === "/api/auth/admin/verify-otp"
+  ) {
+    return next();
+  }
+
   const sessionCookie = cookies.kgs_session || cookies.kgs_admin_session;
   if (!sessionCookie) return next();
 
