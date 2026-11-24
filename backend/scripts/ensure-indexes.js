@@ -39,6 +39,19 @@ async function ensureAllIndexes() {
       await model.createIndexes();
       console.log(`[Index OK] Indexes ensured for model: ${name}`);
     } catch (err) {
+      if (err.message && err.message.includes("different options")) {
+        try {
+          console.log(`[Index Rebuild] Dropping and recreating conflicting indexes for ${name}...`);
+          if (name === "EmailVerification") {
+            await model.collection.dropIndex("expiresAt_1").catch(() => {});
+            await model.createIndexes();
+            console.log(`[Index OK] Re-created indexes with TTL for model: ${name}`);
+            continue;
+          }
+        } catch (innerErr) {
+          console.error(`[Index Warning] Failed recreating indexes for ${name}:`, innerErr.message);
+        }
+      }
       console.error(`[Index Warning] Failed ensuring indexes for ${name}:`, err.message);
     }
   }

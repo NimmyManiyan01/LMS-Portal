@@ -10,7 +10,7 @@ const emailVerificationSchema = new mongoose.Schema(
     adminId: { type: mongoose.Schema.Types.ObjectId, ref: "AdminUser" },
     email: { type: String, required: true, lowercase: true, index: true },
     otpHash: { type: String, required: true },
-    expiresAt: { type: Date, required: true, index: true },
+    expiresAt: { type: Date, required: true },
     consumedAt: Date,
     attemptCount: { type: Number, default: 0 },
     resendAvailableAt: { type: Date, required: true },
