@@ -352,7 +352,7 @@ export function ExamPlayer({
       } catch {
         // Ignore frame errors
       }
-    }, 1000)
+    }, 3000)
 
     return () => {
       active = false

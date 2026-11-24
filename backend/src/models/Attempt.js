@@ -45,5 +45,7 @@ attemptSchema.index(
   { examId: 1, studentId: 1 },
   { unique: true, partialFilterExpression: { status: "IN_PROGRESS" } },
 );
+attemptSchema.index({ status: 1, expiresAt: 1 });
+attemptSchema.index({ studentId: 1, status: 1 });
 
 module.exports = mongoose.model("Attempt", attemptSchema);

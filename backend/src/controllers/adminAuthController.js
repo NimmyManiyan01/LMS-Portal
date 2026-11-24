@@ -54,6 +54,13 @@ function limited(key, max, windowMs) {
   buckets.set(key, item);
   return item.count > max;
 }
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, item] of buckets.entries()) {
+    if (item.reset <= now) buckets.delete(key);
+  }
+}, 60000).unref();
 function clientIp(req) {
   const forwarded = req.headers["x-forwarded-for"];
   return forwarded

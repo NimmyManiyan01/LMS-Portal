@@ -43,4 +43,5 @@ const schema = new mongoose.Schema(
 );
 
 schema.index({ attemptId: 1, eventId: 1 }, { unique: true });
+schema.index({ attemptId: 1, recordedAt: -1 });
 module.exports = mongoose.model("IntegrityEvent", schema);

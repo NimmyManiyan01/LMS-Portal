@@ -1,10 +1,33 @@
 const vm = require("vm");
 const { execFile } = require("child_process");
 const fs = require("fs");
+const fsPromises = require("fs").promises;
 const path = require("path");
 const os = require("os");
 
 const DEFAULT_TIMEOUT_MS = 2000;
+
+// Lightweight concurrency limiter for child processes
+let activeExecutions = 0;
+const MAX_CONCURRENT_EXECUTIONS = 8;
+const executionQueue = [];
+
+function acquireExecutionSlot() {
+  if (activeExecutions < MAX_CONCURRENT_EXECUTIONS) {
+    activeExecutions++;
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => executionQueue.push(resolve));
+}
+
+function releaseExecutionSlot() {
+  activeExecutions--;
+  if (executionQueue.length > 0) {
+    activeExecutions++;
+    const next = executionQueue.shift();
+    next();
+  }
+}
 
 const LANGUAGE_VERSIONS = {
   python: "Python 3.11.4",
@@ -106,18 +129,20 @@ except Exception as e:
 `;
 
   try {
-    fs.writeFileSync(filePath, runnerCode, "utf8");
+    await acquireExecutionSlot();
+    await fsPromises.writeFile(filePath, runnerCode, "utf8");
 
     return await new Promise((resolve) => {
       execFile(
         "python",
         [filePath],
         { timeout: timeoutMs, maxBuffer: 1024 * 1024 },
-        (err, stdout, stderr) => {
+        async (err, stdout, stderr) => {
           const executionTimeMs = Date.now() - startTime;
           try {
-            fs.unlinkSync(filePath);
+            await fsPromises.unlink(filePath);
           } catch (_) {}
+          releaseExecutionSlot();
 
           if (err) {
             const isTimeout = err.killed;
@@ -146,8 +171,9 @@ except Exception as e:
       );
     });
   } catch (err) {
+    releaseExecutionSlot();
     try {
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      await fsPromises.unlink(filePath);
     } catch (_) {}
     return {
       output: "",

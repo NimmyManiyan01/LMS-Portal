@@ -71,6 +71,16 @@ function clearSession(attemptId) {
   sessions.delete(String(attemptId));
 }
 
+// Background cleanup for inactive signaling sessions every 30 seconds
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, session] of sessions.entries()) {
+    if (now - session.updatedAt > 60000) {
+      sessions.delete(key);
+    }
+  }
+}, 30000).unref();
+
 module.exports = {
   storeStudentSignal,
   storeAdminSignal,

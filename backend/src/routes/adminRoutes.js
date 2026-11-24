@@ -16,6 +16,7 @@ const Question = require("../models/Question");
 const PaperSet = require("../models/PaperSet");
 const FinalResult = require("../models/FinalResult");
 const ExamFeedback = require("../models/ExamFeedback");
+const cacheService = require("../services/cacheService");
 const { authenticate } = require("../middleware/auth");
 const adminOnly = (req, res, next) =>
   req.auth?.role === "ADMIN" && req.admin?.active === true
@@ -533,24 +534,30 @@ router.get(
     const statusQuery = req.query.status ? String(req.query.status).toUpperCase() : "IN_PROGRESS";
     const filter = statusQuery ? { status: statusQuery } : {};
 
-    const rawAttempts = await Attempt.find(filter)
-      .populate("examId", "title code status scheduledAt closesAt readinessRequirements")
-      .populate("studentId", "studentId fullName email college registrationId branch")
-      .sort({ updatedAt: -1 })
-      .lean();
+    const cacheKey = `admin:monitoring:${statusQuery}`;
+    let validAttempts = await cacheService.get(cacheKey);
 
-    // Filter valid attempts with non-null exam and student, deduplicate by attempt ID
-    const seenIds = new Set();
-    const validAttempts = [];
+    if (!validAttempts) {
+      const rawAttempts = await Attempt.find(filter)
+        .populate("examId", "title code status scheduledAt closesAt readinessRequirements")
+        .populate("studentId", "studentId fullName email college registrationId branch")
+        .sort({ updatedAt: -1 })
+        .lean();
 
-    for (const attempt of rawAttempts) {
-      if (!attempt._id || seenIds.has(String(attempt._id))) continue;
-      if (!attempt.examId || !attempt.studentId) continue;
-      // For IN_PROGRESS attempts, verify attempt belongs to an active examination session
-      if (statusQuery === "IN_PROGRESS" && attempt.examId.status === "CLOSED") continue;
+      // Filter valid attempts with non-null exam and student, deduplicate by attempt ID
+      const seenIds = new Set();
+      validAttempts = [];
 
-      seenIds.add(String(attempt._id));
-      validAttempts.push(attempt);
+      for (const attempt of rawAttempts) {
+        if (!attempt._id || seenIds.has(String(attempt._id))) continue;
+        if (!attempt.examId || !attempt.studentId) continue;
+        // For IN_PROGRESS attempts, verify attempt belongs to an active examination session
+        if (statusQuery === "IN_PROGRESS" && attempt.examId.status === "CLOSED") continue;
+
+        seenIds.add(String(attempt._id));
+        validAttempts.push(attempt);
+      }
+      await cacheService.set(cacheKey, validAttempts, 2);
     }
 
     const total = validAttempts.length;
