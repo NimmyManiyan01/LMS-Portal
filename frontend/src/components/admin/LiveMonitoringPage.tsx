@@ -276,7 +276,7 @@ export function LiveMonitoringPage({
                                 className="px-3 py-1.5 rounded-xl bg-[#00D084]/20 text-[#057A55] hover:bg-[#00D084] hover:text-white font-extrabold text-xs transition-all cursor-pointer border-none whitespace-nowrap"
                                 onClick={() => setCameraModalTarget({ ...attempt, studentName, registrationId: collegeRegDisplay, examTitle, incidentCount })}
                               >
-                                Direct Camera
+                                Live Camera Streaming
                               </button>
                               )}
                               <button
@@ -604,7 +604,7 @@ function LiveCameraViewer({
               </span>
             </div>
             <h2 className="text-2xl font-black text-[#1E3A34] leading-tight m-0">
-              {attempt.studentName || "Candidate Camera Feed"}
+              Live Camera Streaming — {attempt.studentName || "Candidate Feed"}
             </h2>
             <p className="text-xs text-slate-500 font-bold m-0 mt-0.5">
               {attempt.examTitle || "Examination Session"}
