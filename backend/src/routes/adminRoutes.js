@@ -541,7 +541,7 @@ router.get(
       const rawAttempts = await Attempt.find(filter)
         .populate("examId", "title code status scheduledAt closesAt readinessRequirements")
         .populate("studentId", "studentId fullName email college registrationId branch")
-        .sort({ updatedAt: -1 })
+        .sort({ startedAt: 1, _id: 1 })
         .lean();
 
       // Filter valid attempts with non-null exam and student, deduplicate by attempt ID
@@ -557,6 +557,14 @@ router.get(
         seenIds.add(String(attempt._id));
         validAttempts.push(attempt);
       }
+
+      validAttempts.sort((a, b) => {
+        const nameA = String(a.studentId?.fullName || "").toLowerCase();
+        const nameB = String(b.studentId?.fullName || "").toLowerCase();
+        if (nameA !== nameB) return nameA.localeCompare(nameB);
+        return new Date(a.startedAt || 0).getTime() - new Date(b.startedAt || 0).getTime();
+      });
+
       await cacheService.set(cacheKey, validAttempts, 2);
     }
 
