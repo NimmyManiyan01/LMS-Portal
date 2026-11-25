@@ -2824,6 +2824,99 @@ router.get(
   },
 );
 
+router.get("/students/export", authenticate, adminOnly, async (req, res) => {
+  const search = String(req.query.search || "").trim();
+  const status = String(req.query.status || "").toUpperCase();
+  let queryColleges = [];
+  try {
+    const rawCollege = String(req.query.college || "").trim();
+    const parsedCollege = rawCollege ? JSON.parse(rawCollege) : [];
+    queryColleges = Array.isArray(parsedCollege)
+      ? parsedCollege.map(String).map((value) => value.trim()).filter(Boolean)
+      : [];
+  } catch {
+    queryColleges = String(req.query.college || "")
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+  }
+
+  const filter = {};
+  const safeSearch = escapeRegex(search);
+  if (safeSearch)
+    filter.$or = [
+      { studentId: { $regex: safeSearch, $options: "i" } },
+      { fullName: { $regex: safeSearch, $options: "i" } },
+      { email: { $regex: safeSearch, $options: "i" } },
+    ];
+  if (["ACTIVE", "SUSPENDED"].includes(status)) filter.accountStatus = status;
+  if (queryColleges.length) {
+    const collegeClause = {
+      college: {
+        $in: queryColleges.map(
+          (value) => new RegExp(`^${escapeRegex(value)}$`, "i"),
+        ),
+      },
+    };
+    if (filter.$or) {
+      filter.$and = [{ $or: filter.$or }, collegeClause];
+      delete filter.$or;
+    } else Object.assign(filter, collegeClause);
+  }
+
+  const students = await Student.find(filter).sort({ createdAt: -1 }).lean();
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Students");
+  sheet.columns = [
+    { header: "Student ID", key: "studentId", width: 20 },
+    { header: "Full Name", key: "fullName", width: 28 },
+    { header: "Email", key: "email", width: 36 },
+    { header: "Phone", key: "phone", width: 18 },
+    { header: "College", key: "college", width: 32 },
+    { header: "Branch", key: "branch", width: 28 },
+    { header: "Pass-out Year", key: "passOutYear", width: 16 },
+    { header: "Status", key: "status", width: 14 },
+    { header: "Email Verified", key: "emailVerified", width: 18 },
+    { header: "Registered On", key: "createdAt", width: 20 },
+  ];
+  students.forEach((student) =>
+    sheet.addRow({
+      studentId: student.studentId,
+      fullName: student.fullName,
+      email: student.email,
+      phone: student.phone || "",
+      college: student.college || "",
+      branch: student.branch || "",
+      passOutYear: student.passOutYear || "",
+      status: student.accountStatus === "ACTIVE" ? "Active" : "Inactive",
+      emailVerified: student.emailVerified ? "Yes" : "No",
+      createdAt: student.createdAt,
+    }),
+  );
+  const header = sheet.getRow(1);
+  header.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  header.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FF176B58" },
+  };
+  header.alignment = { vertical: "middle" };
+  header.height = 24;
+  sheet.views = [{ state: "frozen", ySplit: 1 }];
+  sheet.autoFilter = { from: "A1", to: "J1" };
+  sheet.getColumn("createdAt").numFmt = "dd-mmm-yyyy";
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const date = new Date().toISOString().slice(0, 10);
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="kgs-students-${date}.xlsx"`,
+  );
+  res
+    .type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    .send(Buffer.from(buffer));
+});
+
 router.get("/students/:id", authenticate, adminOnly, async (req, res) => {
   const student = await Student.findById(req.params.id).lean();
   if (!student) return res.status(404).json({ error: "Student not found" });

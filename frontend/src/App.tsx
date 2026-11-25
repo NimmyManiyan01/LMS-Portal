@@ -1397,6 +1397,7 @@ function AdminStudents({
   const [colleges, setColleges] = useState<any[]>([])
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [exporting, setExporting] = useState(false)
   const [error, setError] = useState("")
   const [modal, setModal] = useState<"add" | "edit" | "import" | null>(null)
   const [selected, setSelected] = useState<any>(null)
@@ -1439,6 +1440,35 @@ function AdminStudents({
   useEffect(() => {
     void load()
   }, [page, status, college])
+
+  const exportStudents = async () => {
+    setExporting(true)
+    setMessage("")
+    try {
+      const response = await authFetch(
+        `${api}/api/admin/students/export?search=${encodeURIComponent(search)}&status=${status}&college=${encodeURIComponent(JSON.stringify(college))}`,
+        {},
+        true,
+      )
+      if (!response.ok) throw new Error("Unable to export students.")
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `kgs-students-${new Date().toISOString().slice(0, 10)}.xlsx`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(url)
+      setMessage("Student Excel export downloaded successfully.")
+    } catch (cause) {
+      setMessage(
+        cause instanceof Error ? cause.message : "Unable to export students.",
+      )
+    } finally {
+      setExporting(false)
+    }
+  }
 
   const submit = async (event: any) => {
     event.preventDefault()
@@ -1576,6 +1606,14 @@ function AdminStudents({
             </p>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
+            <button
+              className="inline-flex h-11 items-center justify-center gap-2 px-5 text-xs sm:text-sm font-bold rounded-2xl text-[#176B58] bg-white/90 hover:bg-white border border-[#176B58]/25 transition-all cursor-pointer shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={() => void exportStudents()}
+              disabled={exporting}
+            >
+              <Icon name="download" size={17} />
+              {exporting ? "Exporting..." : "Export Excel"}
+            </button>
             <button
               className="h-11 px-5 text-xs sm:text-sm font-bold rounded-2xl text-[#1E3A34] bg-white/90 hover:bg-white border border-[#E2DBD0] transition-all cursor-pointer shadow-sm"
               onClick={() => {
