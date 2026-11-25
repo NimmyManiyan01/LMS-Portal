@@ -1681,7 +1681,7 @@ function AdminStudents({
             <span className="text-[#057A55]">▼</span>
           </button>
           {collegeMenuOpen && (
-            <div className="absolute left-0 top-13 z-30 max-h-72 w-[300px] overflow-y-auto rounded-3xl border border-white bg-white/95 backdrop-blur-2xl p-3 shadow-2xl space-y-1">
+            <div className="absolute left-0 top-full mt-2 z-50 max-h-72 w-[320px] overflow-y-auto rounded-3xl border border-slate-200/80 bg-white/95 backdrop-blur-2xl p-3 shadow-2xl space-y-1">
               <button
                 type="button"
                 onClick={() => {
