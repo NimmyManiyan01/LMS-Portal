@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { Exam, AnswerState, StudentProfile } from "./types"
 import { API_BASE_URL, authFetch, clearAuthToken } from "./api"
 import { SystemCheckModal } from "./components/student/SystemCheckModal"
@@ -1394,6 +1395,31 @@ function AdminStudents({
   const [status, setStatus] = useState("")
   const [college, setCollege] = useState<string[]>([])
   const [collegeMenuOpen, setCollegeMenuOpen] = useState(false)
+  const collegeButtonRef = useRef<HTMLButtonElement>(null)
+  const [collegeButtonRect, setCollegeButtonRect] = useState<DOMRect | null>(null)
+
+  const toggleCollegeMenu = () => {
+    if (!collegeMenuOpen && collegeButtonRef.current) {
+      setCollegeButtonRect(collegeButtonRef.current.getBoundingClientRect())
+    }
+    setCollegeMenuOpen((open) => !open)
+  }
+
+  useEffect(() => {
+    if (!collegeMenuOpen) return
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (
+        collegeButtonRef.current &&
+        !collegeButtonRef.current.contains(e.target as Node) &&
+        !(e.target as HTMLElement).closest(".college-dropdown-popover")
+      ) {
+        setCollegeMenuOpen(false)
+      }
+    }
+    window.addEventListener("mousedown", handleOutsideClick)
+    return () => window.removeEventListener("mousedown", handleOutsideClick)
+  }, [collegeMenuOpen])
+
   const [colleges, setColleges] = useState<any[]>([])
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
@@ -1671,8 +1697,9 @@ function AdminStudents({
         </div>
         <div className="relative">
           <button
+            ref={collegeButtonRef}
             type="button"
-            onClick={() => setCollegeMenuOpen((open) => !open)}
+            onClick={toggleCollegeMenu}
             className="flex h-11 min-w-[220px] max-w-xs items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white/90 px-4 text-left text-xs sm:text-sm font-extrabold text-[#1E3A34] shadow-sm transition outline-none focus:border-[#00D084] focus:ring-4 focus:ring-[#00D084]/20 cursor-pointer"
           >
             <span className="truncate">
@@ -1680,13 +1707,21 @@ function AdminStudents({
             </span>
             <span className="text-[#057A55]">▼</span>
           </button>
-          {collegeMenuOpen && (
-            <div className="absolute left-0 top-full mt-2 z-50 max-h-72 w-[320px] overflow-y-auto rounded-3xl border border-slate-200/80 bg-white/95 backdrop-blur-2xl p-3 shadow-2xl space-y-1">
+          {collegeMenuOpen && collegeButtonRect && createPortal(
+            <div
+              className="college-dropdown-popover fixed z-[9999] max-h-72 overflow-y-auto rounded-3xl border border-slate-200/80 bg-white/95 backdrop-blur-2xl p-3 shadow-2xl space-y-1 font-sans text-xs sm:text-sm text-[#1E3A34]"
+              style={{
+                top: collegeButtonRect.bottom + 8,
+                left: collegeButtonRect.left,
+                width: Math.max(collegeButtonRect.width, 320),
+              }}
+            >
               <button
                 type="button"
                 onClick={() => {
                   setCollege([])
                   setPage(1)
+                  setCollegeMenuOpen(false)
                 }}
                 className="w-full rounded-xl px-3 py-2 text-left text-xs font-black text-[#176B58] hover:bg-[#00D084]/15 transition-colors border-none bg-transparent cursor-pointer"
               >
@@ -1714,7 +1749,8 @@ function AdminStudents({
                   </label>
                 )
               })}
-            </div>
+            </div>,
+            document.body
           )}
         </div>
         <select
