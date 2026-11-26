@@ -624,14 +624,31 @@ export function ExamPlayer({
     }
   }
 
+  const handleFinalSubmit = async () => {
+    const activeAns = answers[currentQ?.id]
+    if (activeAns?.questionId && activeAns.selectedOptionId) {
+      try {
+        await persistAnswer(activeAns)
+      } catch {
+        // Continue submission; batch payload includes this answer
+      }
+    }
+    finalizingRef.current = true
+    stopCamera()
+    const finalAnswers = activeAns?.questionId
+      ? { ...answers, [activeAns.questionId]: activeAns }
+      : answers
+    onSubmitExam(finalAnswers, tabSwitches)
+  }
+
   const saveAndNext = async () => {
-    const saved = await persistAnswer(currentAns)
-    if (!saved) return
     if (currentIdx >= questions.length - 1) {
-      finalizingRef.current = true
-      stopCamera()
-      onSubmitExam({ ...answers, [currentAns.questionId]: currentAns }, tabSwitches)
+      await handleFinalSubmit()
       return
+    }
+    const activeAns = answers[currentQ?.id]
+    if (activeAns?.questionId && activeAns.selectedOptionId) {
+      void persistAnswer(activeAns)
     }
     goToQuestion(currentIdx + 1)
   }
@@ -966,11 +983,7 @@ export function ExamPlayer({
 
           <button
             className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-800 transition-all cursor-pointer shadow-sm shadow-red-500/20 border-none"
-            onClick={() => {
-              finalizingRef.current = true
-              stopCamera()
-              onSubmitExam(answers, tabSwitches)
-            }}
+            onClick={() => void handleFinalSubmit()}
           >
             Submit Exam
           </button>
@@ -1083,12 +1096,29 @@ export function ExamPlayer({
               >
                 Mark for Review & Next
               </button>
-              <button
-                className={`h-10 px-5 text-xs sm:text-sm font-semibold rounded-lg text-white transition-all cursor-pointer shadow-sm border-none flex-1 sm:flex-initial ${currentIdx >= questions.length - 1 ? "bg-red-600 hover:bg-red-700 active:bg-red-800 shadow-red-500/20" : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-blue-500/20"}`}
-                onClick={() => void saveAndNext()}
-              >
-                {currentIdx >= questions.length - 1 ? "Submit Exam" : "Save & Next →"}
-              </button>
+              {currentIdx < questions.length - 1 ? (
+                <>
+                  <button
+                    className="h-10 px-4 text-xs sm:text-sm font-semibold rounded-lg text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-all cursor-pointer shadow-sm flex-1 sm:flex-initial"
+                    onClick={() => void handleFinalSubmit()}
+                  >
+                    Submit Exam
+                  </button>
+                  <button
+                    className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-blue-500/20 transition-all cursor-pointer shadow-sm border-none flex-1 sm:flex-initial"
+                    onClick={() => void saveAndNext()}
+                  >
+                    Save & Next →
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="h-10 px-5 text-xs sm:text-sm font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-800 shadow-red-500/20 transition-all cursor-pointer shadow-sm border-none flex-1 sm:flex-initial"
+                  onClick={() => void handleFinalSubmit()}
+                >
+                  Submit Exam
+                </button>
+              )}
             </div>
           </footer>
         </main>

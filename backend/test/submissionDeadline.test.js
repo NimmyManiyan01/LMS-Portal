@@ -1,4 +1,4 @@
-﻿const { test } = require("node:test");
+const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const mongoose = require("mongoose");
 const Attempt = require("../src/models/Attempt");
@@ -33,7 +33,8 @@ function fixture(t, { expired = false, legacy = false, examMarks } = {}) {
   t.mock.method(mongoose, "startSession", async () => session);
   t.mock.method(Attempt, "findOne", () => chain(attempt));
   t.mock.method(FinalResult, "findOne", () => chain(null));
-  const persistAnswers = t.mock.method(Answer, "updateOne", async () => {});
+  const persistAnswers = t.mock.method(Answer, "bulkWrite", async () => {});
+  t.mock.method(Answer, "updateOne", async () => {});
   t.mock.method(Answer, "find", () => chain([{ questionId: attempt.assignedQuestionIds[0], score: 10, totalTestCases: 2 }]));
   t.mock.method(Question, "find", () => chain([{ _id: attempt.assignedQuestionIds[0], questionType: "CODING", marks: 10 }]));
   t.mock.method(Exam, "findById", () => chain({ totalMarks: examMarks }));
@@ -95,6 +96,48 @@ test("timeout rejects a live attempt", async t => {
   const { attempt, createResult } = fixture(t);
   await assert.rejects(finalizeAttempt({ attemptId: attempt._id, reason: "TIMER_EXPIRY" }), { status: 409 });
   assert.equal(createResult.mock.callCount(), 0);
+});
+
+test("auto-submit on timer expiry with payload answers persists, calculates score, and stores FinalResult", async t => {
+  const { attempt, createResult } = fixture(t, { expired: true });
+  const qId = attempt.assignedQuestionIds[0];
+  const result = await finalizeAttempt({
+    attemptId: attempt._id,
+    studentId: attempt.studentId,
+    reason: "TIMER_EXPIRY",
+    answers: { [qId]: "B" },
+  });
+  assert.equal(result.status, "FINALIZED");
+  assert.equal(result.marksScored, 10);
+  assert.equal(result.score, 10);
+  assert.equal(attempt.status, "AUTO_SUBMITTED");
+  assert.equal(attempt.score, 10);
+  assert.equal(createResult.mock.callCount(), 1);
+  const saved = createResult.mock.calls[0].arguments[0][0];
+  assert.equal(saved.reason, "TIMER_EXPIRY");
+  assert.equal(saved.marksScored, 10);
+  assert.equal(saved.score, 10);
+});
+
+test("manual submit on active attempt persists answers, calculates score, and stores FinalResult", async t => {
+  const { attempt, createResult } = fixture(t, { expired: false });
+  const qId = attempt.assignedQuestionIds[0];
+  const result = await finalizeAttempt({
+    attemptId: attempt._id,
+    studentId: attempt.studentId,
+    reason: "MANUAL",
+    answers: { [qId]: "B" },
+  });
+  assert.equal(result.status, "FINALIZED");
+  assert.equal(result.marksScored, 10);
+  assert.equal(result.score, 10);
+  assert.equal(attempt.status, "SUBMITTED");
+  assert.equal(attempt.score, 10);
+  assert.equal(createResult.mock.callCount(), 1);
+  const saved = createResult.mock.calls[0].arguments[0][0];
+  assert.equal(saved.reason, "MANUAL");
+  assert.equal(saved.marksScored, 10);
+  assert.equal(saved.score, 10);
 });
 
 function codeHandler() {

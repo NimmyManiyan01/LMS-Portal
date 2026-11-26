@@ -293,11 +293,14 @@ router.post("/:attemptId/submit", authenticate, async (req, res) => {
   }
   const studentId = req.student._id || req.student.id;
   try {
+    const isAuto = Boolean(req.body.automatic || req.body.reason === "TIMER_EXPIRY" || req.body.reason === "INTEGRITY");
+    const reason = req.body.reason || (isAuto ? "TIMER_EXPIRY" : "MANUAL");
     res.json(
       await finalizeAttempt({
         attemptId: req.params.attemptId,
         studentId,
-        reason: "MANUAL",
+        reason,
+        reasonDetail: req.body.reasonDetail || (isAuto ? "TIMER_EXPIRY" : undefined),
         answers: req.body.answers,
       }),
     );

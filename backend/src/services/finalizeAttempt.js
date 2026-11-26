@@ -36,14 +36,20 @@ async function finalizeAttempt({
         response = {
           receiptToken: existing.receiptToken,
           attemptId,
-          score: existing.score,
-          maxMarks: existing.maxMarks,
+          score: existing.score ?? existing.marksScored,
+          marksScored: existing.marksScored ?? existing.score,
+          maxMarks: existing.maxMarks ?? existing.maximumMarks,
+          maximumMarks: existing.maximumMarks ?? existing.maxMarks,
+          correctCount: existing.correctCount,
+          incorrectCount: existing.incorrectCount,
+          unansweredCount: existing.unansweredCount,
           status: "FINALIZED",
           finalizedAt: existing.finalizedAt,
         };
         return;
       }
-      if (reason === "TIMER_EXPIRY" && !expired) {
+      const timerGraceExpired = Number.isFinite(deadline) && deadline <= (Date.now() + 5000);
+      if (reason === "TIMER_EXPIRY" && !timerGraceExpired) {
         throw Object.assign(new Error("The examination deadline has not passed."), { status: 409 });
       }
       const legacyTimeout = reason === "TIMER_EXPIRY" &&
@@ -52,7 +58,7 @@ async function finalizeAttempt({
         throw Object.assign(new Error("Attempt is already finalized"), {
           status: 409,
         });
-      if (reason !== "TIMER_EXPIRY" && answers && typeof answers === "object") {
+      if (answers && typeof answers === "object") {
         const entries = Array.isArray(answers)
           ? answers.map((a) => [
               a.questionId || a.id || a._id,
@@ -163,8 +169,13 @@ async function finalizeAttempt({
       response = {
         receiptToken: result[0].receiptToken,
         attemptId,
+        score,
         marksScored: score,
+        maxMarks: maximumMarks,
         maximumMarks,
+        correctCount,
+        incorrectCount,
+        unansweredCount,
         status: "FINALIZED",
         finalizedAt,
       };

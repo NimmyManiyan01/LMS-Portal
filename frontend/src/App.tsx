@@ -1024,7 +1024,11 @@ export default function App() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ answers: payloadAnswers }),
+          body: JSON.stringify({
+            answers: payloadAnswers,
+            reason: automatic ? "TIMER_EXPIRY" : "MANUAL",
+            automatic,
+          }),
         },
       )
       const payload = await response.json().catch(() => ({}))
