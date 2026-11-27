@@ -21,23 +21,26 @@ async function ensureAdminAccount() {
     .filter(Boolean);
   const password =
     process.env.ADMIN_PASSWORD || process.env.DEMO_ADMIN_PASSWORD || "";
-  if (!emails.length || !password) {
+  if (!emails.length) {
     console.warn(
-      "Development admin auto-seed skipped: ADMIN_EMAIL and ADMIN_PASSWORD are not configured.",
+      "Admin auto-seed skipped: neither ADMIN_EMAILS nor DEMO_ADMIN_EMAILS are configured.",
     );
     return null;
   }
   const admins = [];
   for (const email of emails) {
+    const updateFields = {
+      email,
+      role: "ADMIN",
+      active: true,
+    };
+    if (password) {
+      updateFields.passwordHash = hashPassword(password);
+    }
     const admin = await AdminUser.findOneAndUpdate(
       { email },
       {
-        $set: {
-          email,
-          passwordHash: hashPassword(password),
-          role: "ADMIN",
-          active: true,
-        },
+        $set: updateFields,
       },
       { upsert: true, new: true, setDefaultsOnInsert: true },
     ).lean();
